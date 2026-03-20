@@ -63,8 +63,7 @@
                 <div id="modal-pie" class="pie-chart-lg flex-shrink-0"></div>
                 <div class="flex-1 w-full text-center md:text-left">
                     <h2 id="modal-title" class="text-5xl font-black font-headline tracking-tighter mb-1 text-primary leading-tight">Governorate</h2>
-                    <!-- GROSSE ANZAHL ANZEIGE -->
-                    <p id="modal-sample" class="text-2xl font-black text-secondary uppercase tracking-tight mb-8">TOTAL SAMPLES: 0</p>
+                    <p id="modal-sample" class="text-3xl font-black text-secondary uppercase tracking-tight mb-8">TOTAL SAMPLES: 0</p>
                     <div id="modal-legend" class="space-y-3 border-t pt-8"></div>
                 </div>
             </div>
@@ -103,15 +102,15 @@
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-10 rounded-[3rem] shadow-xl border border-gray-100">
             <div class="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left">
                 <span class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-4">Consolidated Data</span>
-                <h2 class="text-5xl font-black font-headline tracking-tighter mb-6">National Summary</h2>
+                <h2 class="text-5xl font-black font-headline tracking-tighter mb-6 text-primary">National Summary</h2>
                 <div class="grid grid-cols-2 gap-8 w-full border-t pt-8">
                     <div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Grand Total Samples</p>
-                        <p id="total-national-samples" class="text-4xl font-black font-headline text-primary">0</p>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-2">Grand Total Samples</p>
+                        <p id="total-national-samples" class="text-4xl font-black font-headline text-primary leading-none">0</p>
                     </div>
                     <div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Mapped Regions</p>
-                        <p id="total-gov-count" class="text-4xl font-black font-headline text-primary">0</p>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-2">Mapped Regions</p>
+                        <p id="total-gov-count" class="text-4xl font-black font-headline text-primary leading-none">0</p>
                     </div>
                 </div>
                 <div class="mt-8 p-4 bg-gray-50 rounded-2xl border border-gray-100 w-full text-center lg:text-left">
@@ -147,10 +146,10 @@
         <section id="admin-panel" class="bg-secondary/5 p-8 rounded-[3rem] border-2 border-secondary/20 space-y-10">
             <div class="flex justify-between items-center border-b border-secondary/10 pb-4">
                 <h3 class="text-2xl font-black font-headline uppercase text-secondary font-black">Editor Mode</h3>
-                <div class="flex gap-2 text-[10px] font-bold">
-                    <button onclick="exportData()" class="bg-white px-3 py-1.5 rounded-lg shadow-sm border border-secondary/20 uppercase">Export JSON</button>
-                    <button onclick="document.getElementById('importFile').click()" class="bg-white px-3 py-1.5 rounded-lg shadow-sm border border-secondary/20 uppercase">Import JSON</button>
-                    <input type="file" id="importFile" hidden onchange="importData(event)">
+                <div class="flex gap-2">
+                   <button onclick="exportData()" class="bg-white px-3 py-1.5 rounded-lg shadow-sm border border-secondary/20 uppercase text-[10px] font-bold">Export JSON</button>
+                   <button onclick="document.getElementById('importFile').click()" class="bg-white px-3 py-1.5 rounded-lg shadow-sm border border-secondary/20 uppercase text-[10px] font-bold">Import JSON</button>
+                   <input type="file" id="importFile" hidden onchange="importData(event)">
                 </div>
             </div>
 
@@ -185,8 +184,8 @@
         <section class="space-y-8">
             <div class="flex flex-col md:flex-row justify-between items-end gap-4">
                 <div>
-                    <h2 class="text-4xl font-black font-headline tracking-tighter leading-none">Regional Archives</h2>
-                    <p class="text-gray-400 text-sm mt-2">Historical Y-DNA distribution by governorate</p>
+                    <h2 class="text-4xl font-black font-headline tracking-tighter leading-none text-primary">Regional Archives</h2>
+                    <p class="text-gray-400 text-sm mt-2 font-medium">Historical Y-DNA distribution by governorate</p>
                 </div>
                 <input type="text" id="searchInput" oninput="renderUI()" placeholder="Search region..." class="p-4 rounded-2xl border-none shadow-sm text-sm w-full md:w-64 focus:ring-2 focus:ring-secondary outline-none">
             </div>
@@ -201,47 +200,28 @@
                 <h2 class="text-2xl font-black font-headline uppercase tracking-tighter">Egyptian Y-DNA Project</h2>
                 <p class="text-xs text-gray-400 font-bold uppercase tracking-[0.3em] mt-2">National Genomic Archive</p>
             </div>
-            
-            <div class="flex flex-col md:flex-row justify-center gap-6 md:gap-12">
-                <a href="mailto:egyptydna@gmail.com" class="group flex flex-col items-center gap-2 transition-transform hover:-translate-y-1">
-                    <div class="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-secondary group-hover:bg-primary group-hover:text-white transition-colors">
-                        <span class="material-symbols-outlined">mail</span>
-                    </div>
-                    <span class="text-[10px] font-black uppercase tracking-widest">Email Us</span>
-                    <span class="text-xs font-bold text-gray-400">egyptydna@gmail.com</span>
-                </a>
-                
-                <a href="https://x.com/egyptydna" target="_blank" class="group flex flex-col items-center gap-2 transition-transform hover:-translate-y-1">
-                    <div class="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-secondary group-hover:bg-primary group-hover:text-white transition-colors">
-                        <span class="material-symbols-outlined">public</span>
-                    </div>
-                    <span class="text-[10px] font-black uppercase tracking-widest">Follow on X</span>
-                    <span class="text-xs font-bold text-gray-400">@egyptydna</span>
-                </a>
-            </div>
         </div>
     </footer>
 
     <script>
         const ADMIN_PW = "LM10KING10.cba1312";
 
-        // EXAKTE FARBEN DER UMAP
+        // DEINE FARBEN BASIEREND AUF UMAP
         const HAPLO_COLORS = {
-            "J1": "#006400",    // Dunkelgrün
-            "J2": "#90EE90",    // Hellgrün
-            "R1B": "#FF0000",   // Rot
-            "R1A": "#FF4500",   // Orange-Rot
-            "G": "#808080", "G2": "#808080", // Grau
-            "E": "#00008B",     // Dunkelblau
-            "T": "#8B4513",     // Braun
-            "B": "#DAA520",     // Goldrute
-            "L": "#9400D3", "L1": "#9400D3", // Violett
-            "Q": "#FFD700", "Q1": "#FFD700", "Q2": "#FFD700", // Gold
-            "C": "#00CED1",     // Türkis
-            "I2": "#708090",    // Schiefergrau
-            "A1A": "#000000", "A1B1": "#000000", // Schwarz
-            "H2": "#FF69B4",    // HotPink
-            "R2": "#CD5C5C"     // Indisch-Rot
+            "R1B": "#FF0000",       // Red
+            "E": "#00008B",         // Dark Blue
+            "T": "#FFA500",         // Orange
+            "J1": "#006400",        // Dark Green
+            "L1": "#00FFFF",        // Cyan
+            "B": "#008B8B",         // Dark Cyan
+            "G": "#A9A9A9", "G2": "#A9A9A9", // Dark Gray
+            "Q": "#9400D3", "Q1": "#9400D3", "Q2": "#9400D3", // Dark Violet
+            "H": "#8B4513", "H2": "#8B4513", // Saddle Brown
+            "R2": "#FFFF00",        // Yellow
+            "R1A": "#DEB887",       // Burly Wood
+            "I": "#EE82EE", "I2": "#EE82EE", // Violet
+            "C": "#FFFFFF",         // White
+            "J2": "#32CD32"         // Lime Green
         };
         const DEFAULT_COLOR = "#CCCCCC";
 
@@ -334,7 +314,7 @@
             document.getElementById('modal-sample').innerText = `TOTAL SAMPLES: ${total}`;
             document.getElementById('modal-pie').style.background = generatePie(data);
             
-            // DETAIL LISTE MIT FARBPUNKTEN
+            // LISTE MIT FARBPUNKTEN
             document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `
                 <div class="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-gray-100/50">
                     <div class="flex items-center gap-4">
@@ -358,7 +338,7 @@
             if (count <= 0) delete regionalData[region][haplo];
             else regionalData[region][haplo] = count;
             saveToStorage();
-            alert("Updated!");
+            alert("Updated locally!");
         }
 
         function addRegion() {
@@ -366,6 +346,7 @@
             if (!name || govList.includes(name)) return alert("Invalid region.");
             govList.push(name);
             saveToStorage();
+            alert("Region Added!");
         }
 
         function deleteRegion() {
@@ -374,6 +355,7 @@
             govList = govList.filter(g => g !== name);
             delete regionalData[name];
             saveToStorage();
+            alert("Region Deleted!");
         }
 
         function saveToStorage() {
@@ -386,7 +368,8 @@
         function updateDropdowns() {
             const delSel = document.getElementById('delete-region-select');
             const editSel = document.getElementById('edit-data-region');
-            delSel.innerHTML = govList.sort().map(g => `<option value="${g}">${g}</option>`).join('');
+            const sorted = [...govList].sort();
+            delSel.innerHTML = sorted.map(g => `<option value="${g}">${g}</option>`).join('');
             editSel.innerHTML = delSel.innerHTML;
         }
 
@@ -397,8 +380,10 @@
         }
 
         function tryLogin() {
-            if (document.getElementById('admin-pw').value === ADMIN_PW) { localStorage.setItem('is_admin', 'true'); location.reload(); }
-            else { alert("Incorrect Password!"); }
+            if (document.getElementById('admin-pw').value === ADMIN_PW) {
+                localStorage.setItem('is_admin', 'true');
+                location.reload();
+            } else { alert("Incorrect Password!"); }
         }
 
         function closeLogin() { document.getElementById('login-modal').classList.remove('active'); }
