@@ -25,26 +25,16 @@
     <style>
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         #admin-panel { display: none; } #admin-panel.active { display: block; animation: slideDown 0.4s ease; }
-        #login-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0, 23, 54, 0.6); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
-        #login-modal.active { display: flex; }
+        #detail-modal, #login-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0, 23, 54, 0.6); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
+        #detail-modal.active, #login-modal.active { display: flex; }
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
-        /* Interaktive Kachel-Logik */
-        .stat-card { 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            max-height: 120px; 
-            overflow: hidden; 
-        }
+        .stat-card { transition: all 0.3s ease; border: 1px solid #eef0f2; }
         .stat-card:hover { 
-            max-height: 600px; 
-            background-color: #ffffff; 
             border-color: #001736; 
             transform: translateY(-5px); 
-            box-shadow: 0 20px 40px rgba(0,23,54,0.15);
-            z-index: 10;
+            box-shadow: 0 15px 30px rgba(0,23,54,0.1);
         }
-        .hover-reveal { opacity: 0; transition: opacity 0.3s ease; }
-        .stat-card:hover .hover-reveal { opacity: 1; }
         canvas { cursor: crosshair !important; }
     </style>
 </head>
@@ -55,10 +45,29 @@
         <div class="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full text-center">
             <span class="material-symbols-outlined text-5xl text-secondary mb-4">lock</span>
             <h2 class="text-2xl font-black font-headline mb-4 uppercase text-primary">Admin Access</h2>
-            <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border-gray-200 border mb-4 text-center outline-none focus:ring-2 focus:ring-primary font-bold text-primary" placeholder="Enter Password">
+            <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border-gray-200 border mb-4 text-center outline-none focus:ring-2 focus:ring-primary text-primary font-bold" placeholder="Enter Password">
             <div class="flex gap-3">
-                <button onclick="closeLogin()" class="flex-1 p-3 rounded-xl bg-gray-100 font-bold">Cancel</button>
-                <button onclick="tryLogin()" class="flex-1 p-3 rounded-xl bg-primary text-white font-bold">Login</button>
+                <button onclick="closeLogin()" class="flex-1 p-3 rounded-xl bg-gray-100 font-bold hover:bg-gray-200">Cancel</button>
+                <button onclick="tryLogin()" class="flex-1 p-3 rounded-xl bg-primary text-white font-bold hover:bg-opacity-90">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DETAIL MODAL -->
+    <div id="detail-modal" onclick="closeModal(event)">
+        <div class="bg-white w-full max-w-3xl rounded-[3rem] shadow-2xl p-10 relative overflow-hidden border border-gray-100" onclick="event.stopPropagation()">
+            <button onclick="closeModal(null)" class="absolute top-8 right-8 text-gray-400 hover:text-red-500 transition-colors">
+                <span class="material-symbols-outlined text-4xl font-bold">close</span>
+            </button>
+            <div class="flex flex-col md:flex-row gap-12 items-center text-primary">
+                <div class="w-[320px] h-[320px] flex-shrink-0">
+                    <canvas id="modalChartCanvas"></canvas>
+                </div>
+                <div class="flex-1 w-full text-center md:text-left">
+                    <h2 id="modal-title" class="text-5xl font-black font-headline tracking-tighter mb-1 leading-tight">Governorate</h2>
+                    <p id="modal-sample" class="text-3xl font-black text-secondary uppercase tracking-tighter mb-8 inline-block bg-secondary/5 px-4 py-1 rounded-full">TOTAL: 0</p>
+                    <div id="modal-legend" class="space-y-2 border-t pt-8"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -68,7 +77,7 @@
         <div class="flex justify-between items-center px-6 h-20 max-w-screen-2xl mx-auto">
             <div class="flex flex-col">
                 <h1 class="text-xl font-black font-headline uppercase tracking-tighter leading-none text-primary">Egyptian Y-DNA Project</h1>
-                <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1">National Genomic Archive</p>
+                <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1 text-primary leading-none">National Genomic Archive</p>
             </div>
             <div class="flex items-center gap-4">
                 <a href="https://x.com/egyptydna" target="_blank" class="text-gray-400 hover:text-primary transition-all"><span class="material-symbols-outlined">public</span></a>
@@ -99,7 +108,7 @@
             </div>
         </section>
 
-        <!-- MAP (Live-Link Ganz Ägypten) -->
+        <!-- MAP (uMap) -->
         <section class="h-[650px] w-full bg-white rounded-[4rem] overflow-hidden shadow-2xl border border-gray-100 ring-1 ring-black/5">
             <iframe id="mapIframe" src="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&editMode=disabled&moreControl=false&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=false#6/26.938/30.802" class="w-full h-full border-none" allowfullscreen allow="geolocation"></iframe>
         </section>
@@ -117,7 +126,7 @@
                     </div>
                     <div class="flex gap-4 items-end text-primary">
                         <input type="number" id="edit-haplo-count" class="flex-1 p-4 rounded-2xl border-none shadow-md text-sm font-bold bg-white text-primary" placeholder="Count">
-                        <button onclick="saveToDatabase()" class="bg-primary text-white px-10 h-[52px] rounded-2xl font-black text-xs uppercase shadow-xl hover:bg-secondary transition-all">Update Live</button>
+                        <button onclick="saveToDatabase()" class="bg-primary text-white px-10 h-[52px] rounded-2xl font-black text-xs uppercase shadow-xl hover:bg-secondary transition-all active:scale-95">Update Live</button>
                     </div>
                 </div>
             </div>
@@ -128,20 +137,20 @@
             <div class="flex flex-col md:flex-row justify-between items-end gap-6 text-primary">
                 <div>
                     <h2 class="text-5xl font-black font-headline tracking-tighter leading-none text-primary uppercase">Regional Archives</h2>
-                    <p class="text-gray-400 font-medium mt-2">Hover over a region to see full statistics</p>
+                    <p class="text-gray-400 font-medium mt-2">Hover over diagrams for details, click for full statistics</p>
                 </div>
                 <div class="relative w-full md:w-80">
                     <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span>
                     <input type="text" id="searchInput" oninput="renderUI()" placeholder="Search governorate..." class="w-full pl-12 pr-4 py-4 rounded-2xl border-none shadow-lg text-sm focus:ring-2 focus:ring-secondary outline-none font-bold text-primary">
                 </div>
             </div>
-            <div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 items-start"></div>
+            <div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div>
         </section>
     </main>
 
     <footer class="py-20 border-t border-gray-100 bg-white text-center text-primary font-bold">
-        <h2 class="text-2xl font-black font-headline uppercase tracking-tighter text-primary">Egyptian Y-DNA Project</h2>
-        <p class="text-xs text-gray-400 font-bold uppercase tracking-[0.4em] mt-2 text-primary">National Genomic Archive</p>
+        <h2 class="text-2xl font-black font-headline uppercase tracking-tighter text-primary leading-none">Egyptian Y-DNA Project</h2>
+        <p class="text-xs text-gray-400 font-bold uppercase tracking-[0.4em] mt-2 text-primary leading-none">National Genomic Archive</p>
     </footer>
 
     <script>
@@ -151,10 +160,20 @@
         const ADMIN_PW = "LM10KING10.cba1312";
 
         const HAPLO_COLORS = {
-            "R1B": "#FF0000", "E": "#00008B", "T": "#FFA500", "J1": "#006400",
-            "L1": "#00FFFF", "B": "#008B8B", "G": "#444444", "G2": "#444444",
-            "Q": "#9400D3", "H": "#8B4513", "H2": "#8B4513", "R2": "#FFFF00", 
-            "R1A": "#DEB887", "I": "#EE82EE", "I2": "#EE82EE", "C": "#FFFFFF", "J2": "#32CD32"
+            "R1B": "#FF0000",       // Red
+            "E": "#00008B",         // Dark Blue
+            "T": "#FFA500",         // Orange
+            "J1": "#006400",        // Dark Green
+            "L1": "#00FFFF",        // Cyan
+            "B": "#008B8B",         // Dark Cyan
+            "G": "#444444", "G2": "#444444", // Dark Grey
+            "Q": "#9400D3",         // Dark Violet (Fix!)
+            "H": "#8B4513", "H2": "#8B4513", // Saddle Brown
+            "R2": "#FFFF00",        // Yellow
+            "R1A": "#DEB887",       // Burly Wood
+            "I": "#EE82EE", "I2": "#EE82EE", // Violet
+            "C": "#FFFFFF",         // White
+            "J2": "#32CD32"         // Lime Green
         };
 
         let regionalData = {};
@@ -167,9 +186,6 @@
             updateDropdowns();
             renderUI();
             document.getElementById('admin-pw').addEventListener('keypress', (e) => { if (e.key === 'Enter') tryLogin(); });
-            
-            const map = document.getElementById('mapIframe');
-            map.src = map.src + "&t=" + new Date().getTime();
         }
 
         async function fetchData() {
@@ -198,20 +214,33 @@
                     datasets: [{
                         data: values,
                         backgroundColor: colors,
-                        borderWidth: isMini ? 0 : 2,
+                        borderWidth: isMini ? 1 : 2,
                         borderColor: '#ffffff',
-                        hoverOffset: isMini ? 8 : 40,
+                        hoverOffset: isMini ? 12 : 40,
+                        hoverBorderColor: '#000000',
+                        hoverBorderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    layout: { padding: isMini ? 5 : 20 },
+                    layout: { padding: isMini ? 12 : 25 },
                     plugins: {
                         legend: { display: false },
-                        tooltip: { enabled: !isMini }
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: '#001736',
+                            padding: 10,
+                            cornerRadius: 8,
+                            displayColors: false,
+                            titleFont: { size: 13, weight: 'bold' },
+                            bodyFont: { size: 13, weight: 'bold' },
+                            callbacks: {
+                                label: (ctx) => `Lineage: ${ctx.label}`
+                            }
+                        }
                     },
-                    animation: { duration: 800 }
+                    animation: { duration: 1000, easing: 'easeOutQuart' }
                 }
             });
         }
@@ -222,7 +251,7 @@
             const count = parseInt(document.getElementById('edit-haplo-count').value);
             if (!region || !haplo || isNaN(count)) return alert("Error");
             await _supabase.from('dna_stats').upsert({ region, haplogroup: haplo, count }, { onConflict: 'region, haplogroup' });
-            await fetchData(); renderUI(); alert("Success!");
+            await fetchData(); renderUI(); alert("Database Updated!");
         }
 
         function renderUI() {
@@ -236,33 +265,14 @@
                     const total = Object.values(data).reduce((a, b) => a + b, 0);
                     const canvasId = `chart-${idx}`;
 
-                    // Sortiere Daten für die Hover-Liste
-                    const sortedHaplos = Object.entries(data).sort((a,b) => b[1]-a[1]);
-
                     const card = document.createElement('div');
-                    card.className = "stat-card bg-white p-6 rounded-[2.5rem] border border-gray-100 flex flex-col gap-4 cursor-default text-primary";
-                    
-                    let legendHtml = sortedHaplos.map(([name, count]) => `
-                        <div class="flex items-center justify-between text-[10px] font-bold py-1 border-b border-gray-50">
-                            <div class="flex items-center gap-2">
-                                <div class="w-2 h-2 rounded-full" style="background: ${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div>
-                                <span>${name}</span>
-                            </div>
-                            <span>${((count/total)*100).toFixed(1)}%</span>
-                        </div>
-                    `).join('');
-
+                    card.className = "stat-card bg-white p-6 rounded-[2.5rem] flex items-center gap-6 cursor-pointer overflow-visible text-primary";
+                    card.onclick = () => openModal(gov);
                     card.innerHTML = `
-                        <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 flex-shrink-0"><canvas id="${canvasId}"></canvas></div>
-                            <div class="min-w-0">
-                                <h4 class="font-black text-xs uppercase truncate text-primary leading-tight font-headline">${gov}</h4>
-                                <p class="text-[10px] text-gray-400 font-bold uppercase">Total: ${total}</p>
-                            </div>
-                        </div>
-                        <div class="hover-reveal mt-2">
-                            <p class="text-[9px] font-black text-secondary uppercase mb-2 tracking-widest">Genomic Profile:</p>
-                            ${legendHtml}
+                        <div class="w-20 h-20 flex-shrink-0 overflow-visible text-primary"><canvas id="${canvasId}"></canvas></div>
+                        <div class="min-w-0 text-primary">
+                            <h4 class="font-black text-sm uppercase truncate text-primary leading-tight font-headline">${gov}</h4>
+                            <p class="text-[10px] text-gray-400 font-black uppercase mt-1">Total: ${total}</p>
                         </div>
                     `;
                     grid.appendChild(card);
@@ -294,11 +304,31 @@
                 </div>`).join('');
         }
 
+        function openModal(gov) {
+            const data = regionalData[gov] || {};
+            const total = Object.values(data).reduce((a, b) => a + b, 0);
+            const sorted = Object.entries(data).sort((a,b) => b[1] - a[1]);
+            document.getElementById('modal-title').innerText = gov;
+            document.getElementById('modal-sample').innerText = `TOTAL: ${total}`;
+            if (total > 0) setTimeout(() => createPieChart('modalChartCanvas', data, false), 50);
+            
+            document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `
+                <div class="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-gray-100 text-primary font-bold">
+                    <div class="flex items-center gap-4 text-primary font-black">
+                        <div class="w-6 h-6 rounded-full shadow-md" style="background: ${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div>
+                        <span class="text-2xl font-black uppercase tracking-tight font-headline text-primary">${name}</span>
+                    </div>
+                    <span class="font-black text-2xl text-primary font-headline text-primary">${total > 0 ? ((count/total)*100).toFixed(1) : 0}% <span class="text-sm text-gray-400 font-bold ml-2 text-primary">(${count})</span></span>
+                </div>`).join('');
+            document.getElementById('detail-modal').classList.add('active');
+        }
+
         function updateDropdowns() { document.getElementById('edit-data-region').innerHTML = govList.map(g => `<option value="${g}">${g}</option>`).join(''); }
         function handleAdminBtnClick() { if (localStorage.getItem('is_admin') === 'true') { if (confirm("Logout?")) { localStorage.removeItem('is_admin'); location.reload(); } } else { document.getElementById('login-modal').classList.add('active'); } }
         function tryLogin() { if (document.getElementById('admin-pw').value === ADMIN_PW) { localStorage.setItem('is_admin', 'true'); location.reload(); } else alert("Error"); }
         function closeLogin() { document.getElementById('login-modal').classList.remove('active'); }
         function checkAuthUI() { if (localStorage.getItem('is_admin') === 'true') { document.getElementById('admin-panel').classList.add('active'); document.getElementById('admin-text').innerText = "Logout Admin"; document.getElementById('admin-btn').classList.replace('bg-primary', 'bg-red-600'); } }
+        function closeModal(e) { if (!e || e.target.id === 'detail-modal') document.getElementById('detail-modal').classList.remove('active'); }
         init();
     </script>
 </body>
