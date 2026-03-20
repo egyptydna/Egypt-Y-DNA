@@ -5,7 +5,6 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Egyptian Y-DNA Project | National Genomic Archive</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <!-- Supabase Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -25,11 +24,12 @@
 </head>
 <body class="bg-background text-primary font-body antialiased">
 
+    <!-- LOGIN MODAL -->
     <div id="login-modal">
         <div class="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full text-center">
             <span class="material-symbols-outlined text-5xl text-secondary mb-4">lock</span>
             <h2 class="text-2xl font-black font-headline mb-4">Admin Access</h2>
-            <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border-gray-200 border mb-4 text-center outline-none" placeholder="Password">
+            <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border-gray-200 border mb-4 text-center outline-none" placeholder="Enter Password">
             <div class="flex gap-3">
                 <button onclick="closeLogin()" class="flex-1 p-3 rounded-xl bg-gray-100 font-bold">Cancel</button>
                 <button onclick="tryLogin()" class="flex-1 p-3 rounded-xl bg-primary text-white font-bold">Login</button>
@@ -37,15 +37,16 @@
         </div>
     </div>
 
+    <!-- DETAIL MODAL -->
     <div id="detail-modal" onclick="closeModal(event)">
         <div class="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl p-10 relative overflow-hidden" onclick="event.stopPropagation()">
-            <button onclick="closeModal(null)" class="absolute top-8 right-8 text-gray-400 hover:text-primary transition-colors">
+            <button onclick="closeModal(null)" class="absolute top-8 right-8 text-gray-400 hover:text-primary">
                 <span class="material-symbols-outlined text-4xl font-bold">close</span>
             </button>
             <div class="flex flex-col md:flex-row gap-12 items-center">
                 <div id="modal-pie" class="pie-chart-lg flex-shrink-0"></div>
                 <div class="flex-1 w-full text-center md:text-left">
-                    <h2 id="modal-title" class="text-5xl font-black font-headline tracking-tighter mb-1 text-primary leading-tight">Governorate</h2>
+                    <h2 id="modal-title" class="text-5xl font-black font-headline tracking-tighter mb-1 text-primary">Governorate</h2>
                     <p id="modal-sample" class="text-3xl font-black text-secondary uppercase tracking-tight mb-8">TOTAL SAMPLES: 0</p>
                     <div id="modal-legend" class="space-y-3 border-t pt-8"></div>
                 </div>
@@ -55,17 +56,17 @@
 
     <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
         <div class="flex justify-between items-center px-6 h-20 max-w-screen-2xl mx-auto">
-            <div class="flex flex-col">
+            <div class="flex flex-col text-primary">
                 <h1 class="text-xl font-black font-headline uppercase tracking-tighter leading-none">Egyptian Y-DNA Project</h1>
-                <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1">National Genomic Archive</p>
+                <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1 text-primary">National Genomic Archive</p>
             </div>
             <div class="flex items-center gap-3 md:gap-6">
                 <div class="hidden sm:flex items-center gap-4 border-r pr-6 border-gray-200">
                     <a href="https://x.com/egyptydna" target="_blank" class="flex items-center gap-2 text-[10px] font-black uppercase text-gray-400 hover:text-primary">X</a>
-                    <a href="mailto:egyptydna@gmail.com" class="flex items-center gap-2 text-[10px] font-black uppercase text-gray-400 hover:text-primary">Email</a>
+                    <a href="mailto:egyptydna@gmail.com" class="flex items-center gap-2 text-[10px] font-black uppercase text-gray-400 hover:text-primary text-primary">Email</a>
                 </div>
-                <button onclick="handleAdminBtnClick()" id="admin-btn" class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold hover:scale-105 shadow-lg">
-                    <span class="material-symbols-outlined text-sm" id="admin-icon">admin_panel_settings</span> 
+                <button onclick="handleAdminBtnClick()" id="admin-btn" class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg transition-all">
+                    <span class="material-symbols-outlined text-sm" id="admin-icon text-primary">admin_panel_settings</span> 
                     <span id="admin-text">Admin Login</span>
                 </button>
             </div>
@@ -74,18 +75,12 @@
 
     <main class="pt-28 pb-20 px-6 max-w-screen-2xl mx-auto space-y-16">
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-10 rounded-[3rem] shadow-xl border border-gray-100">
-            <div class="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left">
-                <span class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-4">Consolidated Data</span>
+            <div class="lg:col-span-5 text-center lg:text-left">
+                <span class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-4 block">Consolidated Data</span>
                 <h2 class="text-5xl font-black font-headline tracking-tighter mb-6 text-primary">National Summary</h2>
                 <div class="grid grid-cols-2 gap-8 w-full border-t pt-8">
-                    <div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-2">Grand Total Samples</p>
-                        <p id="total-national-samples" class="text-4xl font-black font-headline text-primary">0</p>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-2">Mapped Regions</p>
-                        <p id="total-gov-count" class="text-4xl font-black font-headline text-primary">0</p>
-                    </div>
+                    <div><p class="text-[10px] font-bold text-gray-400 uppercase">Grand Total Samples</p><p id="total-national-samples" class="text-4xl font-black text-primary">0</p></div>
+                    <div><p class="text-[10px] font-bold text-gray-400 uppercase">Mapped Regions</p><p id="total-gov-count" class="text-4xl font-black text-primary">0</p></div>
                 </div>
             </div>
             <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-12 justify-center lg:justify-end">
@@ -94,7 +89,7 @@
             </div>
         </section>
 
-        <section class="h-[600px] w-full bg-white rounded-[3rem] overflow-hidden shadow-2xl border border-gray-100 ring-1 ring-black/5">
+        <section class="h-[600px] w-full bg-white rounded-[3rem] overflow-hidden shadow-2xl border border-gray-100">
             <iframe src="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746#6/26.834/30.795" class="w-full h-full border-none"></iframe>
         </section>
 
@@ -108,15 +103,15 @@
                     </div>
                     <div class="flex gap-2">
                         <input type="number" id="edit-haplo-count" class="flex-1 p-3 rounded-xl border-none shadow-sm text-sm" placeholder="Count">
-                        <button onclick="saveToDatabase()" class="bg-primary text-white px-8 rounded-xl font-bold text-xs uppercase shadow-md">Update Database</button>
+                        <button onclick="saveToDatabase()" class="bg-primary text-white px-8 rounded-xl font-bold text-xs uppercase shadow-md">Update Live</button>
                     </div>
                 </div>
             </div>
         </section>
 
         <section class="space-y-8">
-            <div class="flex flex-col md:flex-row justify-between items-end gap-4">
-                <h2 class="text-4xl font-black font-headline tracking-tighter leading-none">Regional Archives</h2>
+            <div class="flex flex-col md:flex-row justify-between items-end gap-4 text-primary">
+                <h2 class="text-4xl font-black font-headline tracking-tighter leading-none text-primary">Regional Archives</h2>
                 <input type="text" id="searchInput" oninput="renderUI()" placeholder="Search region..." class="p-4 rounded-2xl border-none shadow-sm text-sm w-full md:w-64 focus:ring-2 focus:ring-secondary outline-none">
             </div>
             <div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
@@ -124,15 +119,14 @@
     </main>
 
     <script>
-        // --- DATABASE CONNECTION ---
-        const SB_URL = "DEINE_URL_HIER";
-        const SB_KEY = "DEIN_KEY_HIER";
+        const SB_URL = "https://lsfmpmfoqdtkgndtaxen.supabase.co";
+        const SB_KEY = "sb_publishable_dnaPmhIN6Lp4irUSxYuAMQ_vzE_CCKT";
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
-
         const ADMIN_PW = "LM10KING10.cba1312";
+
         const HAPLO_COLORS = {
             "R1B": "#FF0000", "E": "#00008B", "T": "#FFA500", "J1": "#006400",
-            "L1": "#00FFFF", "B": "#008B8B", "G": "#444444", "G2": "#444444",
+            "L1": "#00FFFF", "B": "#008B8B", "G": "#A9A9A9", "G2": "#A9A9A9",
             "Q": "#9400D3", "H": "#8B4513", "R2": "#FFFF00", "R1A": "#DEB887",
             "I": "#EE82EE", "C": "#FFFFFF", "J2": "#32CD32"
         };
@@ -149,7 +143,7 @@
         }
 
         async function fetchData() {
-            const { data, error } = await _supabase.from('dna_stats').select('*');
+            const { data } = await _supabase.from('dna_stats').select('*');
             regionalData = {};
             if (data) {
                 data.forEach(row => {
@@ -161,13 +155,11 @@
 
         async function saveToDatabase() {
             const region = document.getElementById('edit-data-region').value;
-            const haplogroup = document.getElementById('edit-haplo-name').value.trim().toUpperCase();
+            const haplo = document.getElementById('edit-haplo-name').value.trim().toUpperCase();
             const count = parseInt(document.getElementById('edit-haplo-count').value);
-            if (!region || !haplogroup || isNaN(count)) return alert("Error");
-            await _supabase.from('dna_stats').upsert({ region, haplogroup, count }, { onConflict: 'region, haplogroup' });
-            await fetchData();
-            renderUI();
-            alert("Database Updated Live!");
+            if (!region || !haplo || isNaN(count)) return alert("Error");
+            await _supabase.from('dna_stats').upsert({ region, haplogroup: haplo, count }, { onConflict: 'region, haplogroup' });
+            await fetchData(); renderUI(); alert("Updated!");
         }
 
         function getHaploColor(name) { return HAPLO_COLORS[name.toUpperCase()] || "#CCCCCC"; }
@@ -176,8 +168,7 @@
             const total = Object.values(data).reduce((a, b) => a + b, 0);
             if (total === 0) return "silver";
             let current = 0;
-            const sortedEntries = Object.entries(data).sort((a,b) => b[1] - a[1]);
-            const segments = sortedEntries.map(([name, count]) => {
+            const segments = Object.entries(data).sort((a,b) => b[1]-a[1]).map(([name, count]) => {
                 const perc = (count / total) * 100;
                 const start = current; current += perc;
                 return `${getHaploColor(name)} ${start}% ${current}%`;
@@ -213,7 +204,7 @@
             document.getElementById('total-national-samples').innerText = grandTotal.toLocaleString();
             document.getElementById('total-gov-count').innerText = govList.length;
             document.getElementById('national-pie').style.background = generatePie(totals);
-            const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 10);
+            const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 12);
             document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `
                 <div class="flex items-center justify-between text-[10px] font-bold border-b border-gray-50 pb-1 uppercase">
                     <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 rounded-full shadow-sm" style="background: ${getHaploColor(name)}"></div><span>${name}</span></div>
@@ -230,9 +221,9 @@
             document.getElementById('modal-pie').style.background = generatePie(data);
             document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `
                 <div class="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-gray-100/50">
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-4 text-primary">
                         <div class="w-5 h-5 rounded-full shadow-md" style="background: ${getHaploColor(name)}"></div>
-                        <span class="text-xl font-black uppercase text-primary tracking-tight">${name}</span>
+                        <span class="text-xl font-black uppercase tracking-tight">${name}</span>
                     </div>
                     <span class="font-black text-xl text-primary">${total > 0 ? ((count/total)*100).toFixed(1) : 0}% <span class="text-xs text-gray-400 font-bold ml-2">(${count})</span></span>
                 </div>`).join('');
@@ -241,11 +232,10 @@
 
         function updateDropdowns() { document.getElementById('edit-data-region').innerHTML = govList.map(g => `<option value="${g}">${g}</option>`).join(''); }
         function handleAdminBtnClick() { if (localStorage.getItem('is_admin') === 'true') { if (confirm("Logout?")) { localStorage.removeItem('is_admin'); location.reload(); } } else { document.getElementById('login-modal').classList.add('active'); } }
-        function tryLogin() { if (document.getElementById('admin-pw').value === ADMIN_PW) { localStorage.setItem('is_admin', 'true'); location.reload(); } else alert("Incorrect!"); }
+        function tryLogin() { if (document.getElementById('admin-pw').value === ADMIN_PW) { localStorage.setItem('is_admin', 'true'); location.reload(); } else alert("Error"); }
         function closeLogin() { document.getElementById('login-modal').classList.remove('active'); }
         function checkAuthUI() { if (localStorage.getItem('is_admin') === 'true') { document.getElementById('admin-panel').classList.add('active'); document.getElementById('admin-text').innerText = "Logout Admin"; document.getElementById('admin-btn').classList.add('bg-red-600'); } }
         function closeModal(e) { if (!e || e.target.id === 'detail-modal') document.getElementById('detail-modal').classList.remove('active'); }
-        
         init();
     </script>
 </body>
