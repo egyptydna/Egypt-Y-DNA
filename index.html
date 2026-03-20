@@ -63,6 +63,7 @@
                 <div id="modal-pie" class="pie-chart-lg flex-shrink-0"></div>
                 <div class="flex-1 w-full text-center md:text-left">
                     <h2 id="modal-title" class="text-5xl font-black font-headline tracking-tighter mb-1 text-primary leading-tight">Governorate</h2>
+                    <!-- GRÖSSERE ANZEIGE DER GESAMTANZAHL -->
                     <p id="modal-sample" class="text-3xl font-black text-secondary uppercase tracking-tight mb-8">TOTAL SAMPLES: 0</p>
                     <div id="modal-legend" class="space-y-3 border-t pt-8"></div>
                 </div>
@@ -113,12 +114,6 @@
                         <p id="total-gov-count" class="text-4xl font-black font-headline text-primary leading-none">0</p>
                     </div>
                 </div>
-                <div class="mt-8 p-4 bg-gray-50 rounded-2xl border border-gray-100 w-full text-center lg:text-left">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Contribute Samples</p>
-                    <p class="text-xs text-gray-500 leading-relaxed">
-                        To submit new results or for genomic inquiries, contact us via <a href="mailto:egyptydna@gmail.com" class="text-secondary font-bold hover:underline">Email</a> or <a href="https://x.com/egyptydna" target="_blank" class="text-secondary font-bold hover:underline">X (Twitter)</a>.
-                    </p>
-                </div>
             </div>
             <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-12 justify-center lg:justify-end">
                 <div id="national-pie" class="pie-chart-xl flex-shrink-0"></div>
@@ -146,11 +141,7 @@
         <section id="admin-panel" class="bg-secondary/5 p-8 rounded-[3rem] border-2 border-secondary/20 space-y-10">
             <div class="flex justify-between items-center border-b border-secondary/10 pb-4">
                 <h3 class="text-2xl font-black font-headline uppercase text-secondary font-black">Editor Mode</h3>
-                <div class="flex gap-2">
-                   <button onclick="exportData()" class="bg-white px-3 py-1.5 rounded-lg shadow-sm border border-secondary/20 uppercase text-[10px] font-bold">Export JSON</button>
-                   <button onclick="document.getElementById('importFile').click()" class="bg-white px-3 py-1.5 rounded-lg shadow-sm border border-secondary/20 uppercase text-[10px] font-bold">Import JSON</button>
-                   <input type="file" id="importFile" hidden onchange="importData(event)">
-                </div>
+                <button onclick="exportData()" class="bg-white px-3 py-1.5 rounded-lg shadow-sm border border-secondary/20 uppercase text-[10px] font-bold">Export JSON</button>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -193,7 +184,6 @@
         </section>
     </main>
 
-    <!-- FOOTER -->
     <footer class="py-16 border-t border-gray-200 bg-white">
         <div class="max-w-screen-2xl mx-auto px-6 text-center space-y-8">
             <div class="flex flex-col items-center">
@@ -206,7 +196,7 @@
     <script>
         const ADMIN_PW = "LM10KING10.cba1312";
 
-        // DEINE FARBEN BASIEREND AUF UMAP
+        // FARBMAPPING NACH DEINEN WÜNSCHEN
         const HAPLO_COLORS = {
             "R1B": "#FF0000",       // Red
             "E": "#00008B",         // Dark Blue
@@ -214,7 +204,7 @@
             "J1": "#006400",        // Dark Green
             "L1": "#00FFFF",        // Cyan
             "B": "#008B8B",         // Dark Cyan
-            "G": "#A9A9A9", "G2": "#A9A9A9", // Dark Gray
+            "G": "#444444", "G2": "#444444", // Dark Grey
             "Q": "#9400D3", "Q1": "#9400D3", "Q2": "#9400D3", // Dark Violet
             "H": "#8B4513", "H2": "#8B4513", // Saddle Brown
             "R2": "#FFFF00",        // Yellow
@@ -225,8 +215,33 @@
         };
         const DEFAULT_COLOR = "#CCCCCC";
 
-        // DEINE DATEN
-        const initialData = {"Ad Daqahlīyah":{"B":1,"E":4,"L1":1,"R1b":2},"Al Fayyūm":{"E":1,"G2":1,"J1":3},"Al Gharbīyah":{"E":1,"R1b":1},"Al Ismā`īlīyah":{"E":2,"J1":1,"T":1},"Al Minūfīyah":{"E":8,"T":1},"Al Minyā":{"G2":1,"J1":2},"Al Qalyūbīyah":{"G2":1,"H2":1,"J1":2,"L1":1,"R2":1},"As Suways":{"L1":1},"Ash Sharqīyah":{"E":2,"G2":2,"J1":7,"Q2":1},"Aswān":{"B":1,"E":1,"I2":1,"J2":1,"T":1},"Asyūt":{"I2":1,"J1":4,"T":1},"Banī Suwayf":{"J1":3},"Cairo":{"E":9,"I2":1,"R1a":1,"R2":1},"Dumyāt":{"J1":1},"Giza":{"E":1},"Janūb Sīnā’":{"E":3,"J1":2},"Kafr ash Shaykh":{"J1":1,"T":1},"Luxor":{"E":1},"Matrouh":{"E":1},"Qinā":{"J1":1},"Shamal Sīnā’":{"J2":1},"Sūhāj":{"C":1,"E":1,"J1":1},"Unassigned Origin":{"A1a":1,"A1b1":2,"E":1,"I2":1,"J1":6,"J2":2,"L1":1,"Q1":1,"R1a":3,"R1b":1,"T":1}};
+        // DATEN INKLUSIVE DER NEUEN PROBE AUS AL ISKANDARĪYAH
+        const initialData = {
+            "Ad Daqahlīyah":{"B":1,"E":4,"L1":1,"R1b":2},
+            "Al Fayyūm":{"E":1,"G2":1,"J1":3},
+            "Al Gharbīyah":{"E":1,"R1b":1},
+            "Al Iskandarīyah":{"R1b":1}, // NEU HINZUGEFÜGT
+            "Al Ismā`īlīyah":{"E":2,"J1":1,"T":1},
+            "Al Minūfīyah":{"E":8,"T":1},
+            "Al Minyā":{"G2":1,"J1":2},
+            "Al Qalyūbīyah":{"G2":1,"H2":1,"J1":2,"L1":1,"R2":1},
+            "As Suways":{"L1":1},
+            "Ash Sharqīyah":{"E":2,"G2":2,"J1":7,"Q2":1},
+            "Aswān":{"B":1,"E":1,"I2":1,"J2":1,"T":1},
+            "Asyūt":{"I2":1,"J1":4,"T":1},
+            "Banī Suwayf":{"J1":3},
+            "Cairo":{"E":9,"I2":1,"R1a":1,"R2":1},
+            "Dumyāt":{"J1":1},
+            "Giza":{"E":1},
+            "Janūb Sīnā’":{"E":3,"J1":2},
+            "Kafr ash Shaykh":{"J1":1,"T":1},
+            "Luxor":{"E":1},
+            "Matrouh":{"E":1},
+            "Qinā":{"J1":1},
+            "Shamal Sīnā’":{"J2":1},
+            "Sūhāj":{"C":1,"E":1,"J1":1},
+            "Unassigned Origin":{"A1a":1,"A1b1":2,"E":1,"I2":1,"J1":6,"J2":2,"L1":1,"Q1":1,"R1a":3,"R1b":1,"T":1}
+        };
 
         let regionalData = JSON.parse(localStorage.getItem('egyptDNA_data')) || initialData;
         let govList = JSON.parse(localStorage.getItem('egyptDNA_govs')) || Object.keys(regionalData).sort();
@@ -246,7 +261,8 @@
             const total = Object.values(data).reduce((a, b) => a + b, 0);
             if (total === 0) return "silver";
             let current = 0;
-            const segments = Object.entries(data).map(([name, count]) => {
+            const sortedEntries = Object.entries(data).sort((a,b) => b[1] - a[1]);
+            const segments = sortedEntries.map(([name, count]) => {
                 const perc = (count / total) * 100;
                 const start = current; current += perc;
                 return `${getHaploColor(name)} ${start}% ${current}%`;
@@ -295,7 +311,7 @@
             document.getElementById('total-gov-count').innerText = govList.length;
             document.getElementById('national-pie').style.background = generatePie(totals);
 
-            const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 10);
+            const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 12);
             document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `
                 <div class="flex items-center justify-between text-[10px] font-bold border-b border-gray-50 pb-1 uppercase">
                     <div class="flex items-center gap-2">
@@ -314,11 +330,10 @@
             document.getElementById('modal-sample').innerText = `TOTAL SAMPLES: ${total}`;
             document.getElementById('modal-pie').style.background = generatePie(data);
             
-            // LISTE MIT FARBPUNKTEN
             document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `
                 <div class="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-gray-100/50">
                     <div class="flex items-center gap-4">
-                        <div class="w-5 h-5 rounded-full shadow-md" style="background: ${getHaploColor(name)}"></div>
+                        <div class="w-6 h-6 rounded-full shadow-md" style="background: ${getHaploColor(name)}"></div>
                         <span class="text-xl font-black uppercase text-primary tracking-tight">${name}</span>
                     </div>
                     <span class="font-black text-xl text-primary">
@@ -380,10 +395,8 @@
         }
 
         function tryLogin() {
-            if (document.getElementById('admin-pw').value === ADMIN_PW) {
-                localStorage.setItem('is_admin', 'true');
-                location.reload();
-            } else { alert("Incorrect Password!"); }
+            if (document.getElementById('admin-pw').value === ADMIN_PW) { localStorage.setItem('is_admin', 'true'); location.reload(); }
+            else { alert("Incorrect Password!"); }
         }
 
         function closeLogin() { document.getElementById('login-modal').classList.remove('active'); }
@@ -401,17 +414,6 @@
         function exportData() {
             const blob = new Blob([JSON.stringify({ govList, regionalData })], {type: "application/json"});
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `egypt_dna_backup.json`; a.click();
-        }
-
-        function importData(e) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const d = JSON.parse(event.target.result);
-                govList = d.govList; regionalData = d.regionalData;
-                saveToStorage();
-                location.reload();
-            };
-            reader.readAsText(e.target.files[0]);
         }
 
         init();
