@@ -4,35 +4,20 @@
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Egyptian Y-DNA Project | National Genomic Archive</title>
-    
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Supabase Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#001736",
-                        "secondary": "#775a19",
-                        "background": "#f8f9fa",
-                        "surface": "#ffffff",
-                    },
-                    fontFamily: { "headline": ["Manrope"], "body": ["Inter"] },
-                },
-            },
-        }
+        tailwind.config = { theme: { extend: { colors: { "primary": "#001736", "secondary": "#775a19", "background": "#f8f9fa" }, fontFamily: { "headline": ["Manrope"], "body": ["Inter"] } } } }
     </script>
     <style>
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         .pie-chart { width: 64px; height: 64px; border-radius: 50%; border: 2px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.3s ease; }
         .pie-chart-lg { width: 220px; height: 220px; border-radius: 50%; border: 4px solid white; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
         .pie-chart-xl { width: 240px; height: 240px; border-radius: 50%; border: 8px solid white; box-shadow: 0 15px 40px rgba(0,0,0,0.15); }
-        
-        #admin-panel { display: none; }
-        #admin-panel.active { display: block; animation: slideDown 0.4s ease; }
-        
+        #admin-panel { display: none; } #admin-panel.active { display: block; animation: slideDown 0.4s ease; }
         #detail-modal, #login-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0, 23, 54, 0.4); backdrop-filter: blur(12px); align-items: center; justify-content: center; padding: 20px; }
         #detail-modal.active, #login-modal.active { display: flex; }
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -40,20 +25,18 @@
 </head>
 <body class="bg-background text-primary font-body antialiased">
 
-    <!-- LOGIN MODAL -->
     <div id="login-modal">
         <div class="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full text-center">
             <span class="material-symbols-outlined text-5xl text-secondary mb-4">lock</span>
             <h2 class="text-2xl font-black font-headline mb-4">Admin Access</h2>
-            <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border-gray-200 border mb-4 text-center focus:ring-2 focus:ring-primary outline-none" placeholder="Enter Password">
+            <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border-gray-200 border mb-4 text-center outline-none" placeholder="Password">
             <div class="flex gap-3">
-                <button onclick="closeLogin()" class="flex-1 p-3 rounded-xl bg-gray-100 font-bold hover:bg-gray-200 transition-colors">Cancel</button>
-                <button onclick="tryLogin()" class="flex-1 p-3 rounded-xl bg-primary text-white font-bold hover:bg-opacity-90 transition-colors">Login</button>
+                <button onclick="closeLogin()" class="flex-1 p-3 rounded-xl bg-gray-100 font-bold">Cancel</button>
+                <button onclick="tryLogin()" class="flex-1 p-3 rounded-xl bg-primary text-white font-bold">Login</button>
             </div>
         </div>
     </div>
 
-    <!-- DETAIL MODAL -->
     <div id="detail-modal" onclick="closeModal(event)">
         <div class="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl p-10 relative overflow-hidden" onclick="event.stopPropagation()">
             <button onclick="closeModal(null)" class="absolute top-8 right-8 text-gray-400 hover:text-primary transition-colors">
@@ -63,7 +46,6 @@
                 <div id="modal-pie" class="pie-chart-lg flex-shrink-0"></div>
                 <div class="flex-1 w-full text-center md:text-left">
                     <h2 id="modal-title" class="text-5xl font-black font-headline tracking-tighter mb-1 text-primary leading-tight">Governorate</h2>
-                    <!-- GRÖSSERE ANZEIGE DER GESAMTANZAHL -->
                     <p id="modal-sample" class="text-3xl font-black text-secondary uppercase tracking-tight mb-8">TOTAL SAMPLES: 0</p>
                     <div id="modal-legend" class="space-y-3 border-t pt-8"></div>
                 </div>
@@ -71,25 +53,18 @@
         </div>
     </div>
 
-    <!-- NAVIGATION -->
     <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
         <div class="flex justify-between items-center px-6 h-20 max-w-screen-2xl mx-auto">
             <div class="flex flex-col">
                 <h1 class="text-xl font-black font-headline uppercase tracking-tighter leading-none">Egyptian Y-DNA Project</h1>
                 <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1">National Genomic Archive</p>
             </div>
-            
             <div class="flex items-center gap-3 md:gap-6">
-                <div class="hidden sm:flex items-center gap-4 border-r pr-6 mr-2 border-gray-200">
-                    <a href="https://x.com/egyptydna" target="_blank" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-primary transition-colors">
-                        <span class="material-symbols-outlined text-lg">public</span> X
-                    </a>
-                    <a href="mailto:egyptydna@gmail.com" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-primary transition-colors">
-                        <span class="material-symbols-outlined text-lg">mail</span> Email
-                    </a>
+                <div class="hidden sm:flex items-center gap-4 border-r pr-6 border-gray-200">
+                    <a href="https://x.com/egyptydna" target="_blank" class="flex items-center gap-2 text-[10px] font-black uppercase text-gray-400 hover:text-primary">X</a>
+                    <a href="mailto:egyptydna@gmail.com" class="flex items-center gap-2 text-[10px] font-black uppercase text-gray-400 hover:text-primary">Email</a>
                 </div>
-
-                <button onclick="handleAdminBtnClick()" id="admin-btn" class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold hover:scale-105 transition-all shadow-lg">
+                <button onclick="handleAdminBtnClick()" id="admin-btn" class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold hover:scale-105 shadow-lg">
                     <span class="material-symbols-outlined text-sm" id="admin-icon">admin_panel_settings</span> 
                     <span id="admin-text">Admin Login</span>
                 </button>
@@ -98,8 +73,6 @@
     </nav>
 
     <main class="pt-28 pb-20 px-6 max-w-screen-2xl mx-auto space-y-16">
-
-        <!-- NATIONAL SUMMARY -->
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-10 rounded-[3rem] shadow-xl border border-gray-100">
             <div class="lg:col-span-5 flex flex-col items-center lg:items-start text-center lg:text-left">
                 <span class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-4">Consolidated Data</span>
@@ -107,11 +80,11 @@
                 <div class="grid grid-cols-2 gap-8 w-full border-t pt-8">
                     <div>
                         <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-2">Grand Total Samples</p>
-                        <p id="total-national-samples" class="text-4xl font-black font-headline text-primary leading-none">0</p>
+                        <p id="total-national-samples" class="text-4xl font-black font-headline text-primary">0</p>
                     </div>
                     <div>
                         <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-2">Mapped Regions</p>
-                        <p id="total-gov-count" class="text-4xl font-black font-headline text-primary leading-none">0</p>
+                        <p id="total-gov-count" class="text-4xl font-black font-headline text-primary">0</p>
                     </div>
                 </div>
             </div>
@@ -121,141 +94,83 @@
             </div>
         </section>
 
-        <!-- MAP SECTION -->
-        <section class="w-full space-y-6">
-            <div class="flex flex-col md:flex-row justify-between items-end gap-2">
-                <div>
-                    <h2 class="text-4xl font-black font-headline tracking-tighter leading-none">Geospatial Distribution</h2>
-                    <p class="text-secondary font-bold uppercase text-[10px] tracking-[0.2em] mt-2">Interactive Genomic Atlas</p>
-                </div>
-                <a href="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746#6/26.834/30.795" target="_blank" class="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1 hover:text-primary transition-colors">
-                    Fullscreen Map <span class="material-symbols-outlined text-sm">open_in_new</span>
-                </a>
-            </div>
-            <div class="h-[600px] w-full bg-white rounded-[3rem] overflow-hidden shadow-2xl border border-gray-100 ring-1 ring-black/5">
-                <iframe src="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746#6/26.834/30.795" class="w-full h-full border-none"></iframe>
-            </div>
+        <section class="h-[600px] w-full bg-white rounded-[3rem] overflow-hidden shadow-2xl border border-gray-100 ring-1 ring-black/5">
+            <iframe src="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746#6/26.834/30.795" class="w-full h-full border-none"></iframe>
         </section>
 
-        <!-- ADMIN PANEL -->
-        <section id="admin-panel" class="bg-secondary/5 p-8 rounded-[3rem] border-2 border-secondary/20 space-y-10">
-            <div class="flex justify-between items-center border-b border-secondary/10 pb-4">
-                <h3 class="text-2xl font-black font-headline uppercase text-secondary font-black">Editor Mode</h3>
-                <button onclick="exportData()" class="bg-white px-3 py-1.5 rounded-lg shadow-sm border border-secondary/20 uppercase text-[10px] font-bold">Export JSON</button>
-            </div>
-
+        <section id="admin-panel" class="bg-secondary/5 p-8 rounded-[3rem] border-2 border-secondary/20">
+            <h3 class="text-2xl font-black font-headline uppercase text-secondary mb-8">Database Live Editor</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div class="space-y-4">
-                    <h4 class="font-black uppercase text-xs tracking-widest text-gray-400">Manage Regions</h4>
-                    <div class="flex gap-2">
-                        <input type="text" id="new-region-name" class="flex-1 p-3 rounded-xl border-none shadow-sm text-sm" placeholder="New Region Name">
-                        <button onclick="addRegion()" class="bg-secondary text-white px-6 rounded-xl font-bold text-xs uppercase">Add</button>
-                    </div>
-                    <div class="flex gap-2">
-                        <select id="delete-region-select" class="flex-1 p-3 rounded-xl border-none shadow-sm text-sm"></select>
-                        <button onclick="deleteRegion()" class="bg-red-500 text-white px-6 rounded-xl font-bold text-xs uppercase hover:bg-red-600 transition-colors">Delete</button>
-                    </div>
-                </div>
-
-                <div class="space-y-4">
-                    <h4 class="font-black uppercase text-xs tracking-widest text-gray-400">Update Genomic Counts</h4>
                     <div class="grid grid-cols-2 gap-2">
                         <select id="edit-data-region" class="p-3 rounded-xl border-none shadow-sm text-sm"></select>
-                        <input type="text" id="edit-haplo-name" class="p-3 rounded-xl border-none shadow-sm text-sm uppercase" placeholder="Haplo (e.g. J1)">
+                        <input type="text" id="edit-haplo-name" class="p-3 rounded-xl border-none shadow-sm text-sm uppercase" placeholder="Haplogroup">
                     </div>
                     <div class="flex gap-2">
                         <input type="number" id="edit-haplo-count" class="flex-1 p-3 rounded-xl border-none shadow-sm text-sm" placeholder="Count">
-                        <button onclick="saveGenomicData()" class="bg-primary text-white px-8 rounded-xl font-bold text-xs uppercase hover:bg-opacity-90 transition-all shadow-md">Save</button>
+                        <button onclick="saveToDatabase()" class="bg-primary text-white px-8 rounded-xl font-bold text-xs uppercase shadow-md">Update Database</button>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- REGIONAL GRID -->
         <section class="space-y-8">
             <div class="flex flex-col md:flex-row justify-between items-end gap-4">
-                <div>
-                    <h2 class="text-4xl font-black font-headline tracking-tighter leading-none text-primary">Regional Archives</h2>
-                    <p class="text-gray-400 text-sm mt-2 font-medium">Historical Y-DNA distribution by governorate</p>
-                </div>
+                <h2 class="text-4xl font-black font-headline tracking-tighter leading-none">Regional Archives</h2>
                 <input type="text" id="searchInput" oninput="renderUI()" placeholder="Search region..." class="p-4 rounded-2xl border-none shadow-sm text-sm w-full md:w-64 focus:ring-2 focus:ring-secondary outline-none">
             </div>
             <div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
         </section>
     </main>
 
-    <footer class="py-16 border-t border-gray-200 bg-white">
-        <div class="max-w-screen-2xl mx-auto px-6 text-center space-y-8">
-            <div class="flex flex-col items-center">
-                <h2 class="text-2xl font-black font-headline uppercase tracking-tighter">Egyptian Y-DNA Project</h2>
-                <p class="text-xs text-gray-400 font-bold uppercase tracking-[0.3em] mt-2">National Genomic Archive</p>
-            </div>
-        </div>
-    </footer>
-
     <script>
+        // --- DATABASE CONNECTION ---
+        const SB_URL = "DEINE_URL_HIER";
+        const SB_KEY = "DEIN_KEY_HIER";
+        const _supabase = supabase.createClient(SB_URL, SB_KEY);
+
         const ADMIN_PW = "LM10KING10.cba1312";
-
-        // FARBMAPPING NACH DEINEN WÜNSCHEN
         const HAPLO_COLORS = {
-            "R1B": "#FF0000",       // Red
-            "E": "#00008B",         // Dark Blue
-            "T": "#FFA500",         // Orange
-            "J1": "#006400",        // Dark Green
-            "L1": "#00FFFF",        // Cyan
-            "B": "#008B8B",         // Dark Cyan
-            "G": "#444444", "G2": "#444444", // Dark Grey
-            "Q": "#9400D3", "Q1": "#9400D3", "Q2": "#9400D3", // Dark Violet
-            "H": "#8B4513", "H2": "#8B4513", // Saddle Brown
-            "R2": "#FFFF00",        // Yellow
-            "R1A": "#DEB887",       // Burly Wood
-            "I": "#EE82EE", "I2": "#EE82EE", // Violet
-            "C": "#FFFFFF",         // White
-            "J2": "#32CD32"         // Lime Green
-        };
-        const DEFAULT_COLOR = "#CCCCCC";
-
-        // DATEN INKLUSIVE DER NEUEN PROBE AUS AL ISKANDARĪYAH
-        const initialData = {
-            "Ad Daqahlīyah":{"B":1,"E":4,"L1":1,"R1b":2},
-            "Al Fayyūm":{"E":1,"G2":1,"J1":3},
-            "Al Gharbīyah":{"E":1,"R1b":1},
-            "Al Iskandarīyah":{"R1b":1}, // NEU HINZUGEFÜGT
-            "Al Ismā`īlīyah":{"E":2,"J1":1,"T":1},
-            "Al Minūfīyah":{"E":8,"T":1},
-            "Al Minyā":{"G2":1,"J1":2},
-            "Al Qalyūbīyah":{"G2":1,"H2":1,"J1":2,"L1":1,"R2":1},
-            "As Suways":{"L1":1},
-            "Ash Sharqīyah":{"E":2,"G2":2,"J1":7,"Q2":1},
-            "Aswān":{"B":1,"E":1,"I2":1,"J2":1,"T":1},
-            "Asyūt":{"I2":1,"J1":4,"T":1},
-            "Banī Suwayf":{"J1":3},
-            "Cairo":{"E":9,"I2":1,"R1a":1,"R2":1},
-            "Dumyāt":{"J1":1},
-            "Giza":{"E":1},
-            "Janūb Sīnā’":{"E":3,"J1":2},
-            "Kafr ash Shaykh":{"J1":1,"T":1},
-            "Luxor":{"E":1},
-            "Matrouh":{"E":1},
-            "Qinā":{"J1":1},
-            "Shamal Sīnā’":{"J2":1},
-            "Sūhāj":{"C":1,"E":1,"J1":1},
-            "Unassigned Origin":{"A1a":1,"A1b1":2,"E":1,"I2":1,"J1":6,"J2":2,"L1":1,"Q1":1,"R1a":3,"R1b":1,"T":1}
+            "R1B": "#FF0000", "E": "#00008B", "T": "#FFA500", "J1": "#006400",
+            "L1": "#00FFFF", "B": "#008B8B", "G": "#444444", "G2": "#444444",
+            "Q": "#9400D3", "H": "#8B4513", "R2": "#FFFF00", "R1A": "#DEB887",
+            "I": "#EE82EE", "C": "#FFFFFF", "J2": "#32CD32"
         };
 
-        let regionalData = JSON.parse(localStorage.getItem('egyptDNA_data')) || initialData;
-        let govList = JSON.parse(localStorage.getItem('egyptDNA_govs')) || Object.keys(regionalData).sort();
+        let regionalData = {};
+        const govList = ["Ad Daqahlīyah", "Al Fayyūm", "Al Gharbīyah", "Al Iskandarīyah", "Al Ismā`īlīyah", "Al Minūfīyah", "Al Minyā", "Al Qalyūbīyah", "As Suways", "Ash Sharqīyah", "Aswān", "Asyūt", "Banī Suwayf", "Cairo", "Dumyāt", "Giza", "Janūb Sīnā’", "Kafr ash Shaykh", "Luxor", "Matrouh", "Qinā", "Shamal Sīnā’", "Sūhāj", "Unassigned Origin"].sort();
 
-        function init() {
+        async function init() {
             checkAuthUI();
-            renderUI();
+            await fetchData();
             updateDropdowns();
+            renderUI();
             document.getElementById('admin-pw').addEventListener('keypress', (e) => { if (e.key === 'Enter') tryLogin(); });
         }
 
-        function getHaploColor(name) {
-            return HAPLO_COLORS[name.toUpperCase()] || DEFAULT_COLOR;
+        async function fetchData() {
+            const { data, error } = await _supabase.from('dna_stats').select('*');
+            regionalData = {};
+            if (data) {
+                data.forEach(row => {
+                    if (!regionalData[row.region]) regionalData[row.region] = {};
+                    regionalData[row.region][row.haplogroup] = row.count;
+                });
+            }
         }
+
+        async function saveToDatabase() {
+            const region = document.getElementById('edit-data-region').value;
+            const haplogroup = document.getElementById('edit-haplo-name').value.trim().toUpperCase();
+            const count = parseInt(document.getElementById('edit-haplo-count').value);
+            if (!region || !haplogroup || isNaN(count)) return alert("Error");
+            await _supabase.from('dna_stats').upsert({ region, haplogroup, count }, { onConflict: 'region, haplogroup' });
+            await fetchData();
+            renderUI();
+            alert("Database Updated Live!");
+        }
+
+        function getHaploColor(name) { return HAPLO_COLORS[name.toUpperCase()] || "#CCCCCC"; }
 
         function generatePie(data) {
             const total = Object.values(data).reduce((a, b) => a + b, 0);
@@ -274,24 +189,14 @@
             const grid = document.getElementById('stats-grid');
             const search = document.getElementById('searchInput').value.toLowerCase();
             grid.innerHTML = '';
-
             govList.forEach(gov => {
                 if (gov.toLowerCase().includes(search)) {
                     const data = regionalData[gov] || {};
                     const total = Object.values(data).reduce((a, b) => a + b, 0);
-                    const topEntry = Object.entries(data).sort((a,b) => b[1]-a[1])[0];
-                    const top = topEntry ? topEntry[0] : "Empty";
-
                     const card = document.createElement('div');
-                    card.className = "bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-xl cursor-pointer transition-all hover:-translate-y-1";
+                    card.className = "bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-xl cursor-pointer transition-transform hover:-translate-y-1";
                     card.onclick = () => openModal(gov);
-                    card.innerHTML = `
-                        <div class="pie-chart flex-shrink-0" style="background: ${generatePie(data)}"></div>
-                        <div class="min-w-0">
-                            <h4 class="font-black text-[11px] uppercase truncate text-primary leading-tight">${gov}</h4>
-                            <p class="text-[9px] text-gray-400 font-bold uppercase mt-1">Total Samples: ${total}</p>
-                        </div>
-                    `;
+                    card.innerHTML = `<div class="pie-chart flex-shrink-0" style="background: ${generatePie(data)}"></div><div class="min-w-0"><h4 class="font-black text-[11px] uppercase truncate text-primary leading-tight">${gov}</h4><p class="text-[9px] text-gray-400 font-bold uppercase">Total Samples: ${total}</p></div>`;
                     grid.appendChild(card);
                 }
             });
@@ -299,25 +204,19 @@
         }
 
         function updateNationalSummary() {
-            const totals = {};
-            let grandTotal = 0;
+            const totals = {}; let grandTotal = 0;
             Object.values(regionalData).forEach(region => {
                 Object.entries(region).forEach(([hp, count]) => {
-                    totals[hp] = (totals[hp] || 0) + count;
-                    grandTotal += count;
+                    totals[hp] = (totals[hp] || 0) + count; grandTotal += count;
                 });
             });
             document.getElementById('total-national-samples').innerText = grandTotal.toLocaleString();
             document.getElementById('total-gov-count').innerText = govList.length;
             document.getElementById('national-pie').style.background = generatePie(totals);
-
-            const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 12);
+            const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 10);
             document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `
                 <div class="flex items-center justify-between text-[10px] font-bold border-b border-gray-50 pb-1 uppercase">
-                    <div class="flex items-center gap-2">
-                        <div class="w-2.5 h-2.5 rounded-full shadow-sm" style="background: ${getHaploColor(name)}"></div>
-                        <span>${name}</span>
-                    </div>
+                    <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 rounded-full shadow-sm" style="background: ${getHaploColor(name)}"></div><span>${name}</span></div>
                     <span>${((count/grandTotal)*100).toFixed(1)}% <span class="text-[8px] opacity-40 ml-1">(${count})</span></span>
                 </div>`).join('');
         }
@@ -329,93 +228,24 @@
             document.getElementById('modal-title').innerText = gov;
             document.getElementById('modal-sample').innerText = `TOTAL SAMPLES: ${total}`;
             document.getElementById('modal-pie').style.background = generatePie(data);
-            
             document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `
                 <div class="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-gray-100/50">
                     <div class="flex items-center gap-4">
-                        <div class="w-6 h-6 rounded-full shadow-md" style="background: ${getHaploColor(name)}"></div>
+                        <div class="w-5 h-5 rounded-full shadow-md" style="background: ${getHaploColor(name)}"></div>
                         <span class="text-xl font-black uppercase text-primary tracking-tight">${name}</span>
                     </div>
-                    <span class="font-black text-xl text-primary">
-                        ${total > 0 ? ((count/total)*100).toFixed(1) : 0}% 
-                        <span class="text-xs text-gray-400 font-bold ml-2">(${count})</span>
-                    </span>
+                    <span class="font-black text-xl text-primary">${total > 0 ? ((count/total)*100).toFixed(1) : 0}% <span class="text-xs text-gray-400 font-bold ml-2">(${count})</span></span>
                 </div>`).join('');
             document.getElementById('detail-modal').classList.add('active');
         }
 
-        function saveGenomicData() {
-            const region = document.getElementById('edit-data-region').value;
-            const haplo = document.getElementById('edit-haplo-name').value.trim().toUpperCase();
-            const count = parseInt(document.getElementById('edit-haplo-count').value);
-            if (!region || !haplo || isNaN(count)) return alert("Error: Fill all fields.");
-            if (!regionalData[region]) regionalData[region] = {};
-            if (count <= 0) delete regionalData[region][haplo];
-            else regionalData[region][haplo] = count;
-            saveToStorage();
-            alert("Updated locally!");
-        }
-
-        function addRegion() {
-            const name = document.getElementById('new-region-name').value.trim();
-            if (!name || govList.includes(name)) return alert("Invalid region.");
-            govList.push(name);
-            saveToStorage();
-            alert("Region Added!");
-        }
-
-        function deleteRegion() {
-            const name = document.getElementById('delete-region-select').value;
-            if (!name || !confirm(`Delete ${name}?`)) return;
-            govList = govList.filter(g => g !== name);
-            delete regionalData[name];
-            saveToStorage();
-            alert("Region Deleted!");
-        }
-
-        function saveToStorage() {
-            localStorage.setItem('egyptDNA_data', JSON.stringify(regionalData));
-            localStorage.setItem('egyptDNA_govs', JSON.stringify(govList));
-            renderUI();
-            updateDropdowns();
-        }
-
-        function updateDropdowns() {
-            const delSel = document.getElementById('delete-region-select');
-            const editSel = document.getElementById('edit-data-region');
-            const sorted = [...govList].sort();
-            delSel.innerHTML = sorted.map(g => `<option value="${g}">${g}</option>`).join('');
-            editSel.innerHTML = delSel.innerHTML;
-        }
-
-        function handleAdminBtnClick() {
-            if (localStorage.getItem('is_admin') === 'true') {
-                if (confirm("Logout?")) { localStorage.removeItem('is_admin'); location.reload(); }
-            } else { document.getElementById('login-modal').classList.add('active'); }
-        }
-
-        function tryLogin() {
-            if (document.getElementById('admin-pw').value === ADMIN_PW) { localStorage.setItem('is_admin', 'true'); location.reload(); }
-            else { alert("Incorrect Password!"); }
-        }
-
+        function updateDropdowns() { document.getElementById('edit-data-region').innerHTML = govList.map(g => `<option value="${g}">${g}</option>`).join(''); }
+        function handleAdminBtnClick() { if (localStorage.getItem('is_admin') === 'true') { if (confirm("Logout?")) { localStorage.removeItem('is_admin'); location.reload(); } } else { document.getElementById('login-modal').classList.add('active'); } }
+        function tryLogin() { if (document.getElementById('admin-pw').value === ADMIN_PW) { localStorage.setItem('is_admin', 'true'); location.reload(); } else alert("Incorrect!"); }
         function closeLogin() { document.getElementById('login-modal').classList.remove('active'); }
-
-        function checkAuthUI() {
-            if (localStorage.getItem('is_admin') === 'true') {
-                document.getElementById('admin-panel').classList.add('active');
-                document.getElementById('admin-text').innerText = "Logout Admin";
-                document.getElementById('admin-btn').classList.add('bg-red-600');
-            }
-        }
-
+        function checkAuthUI() { if (localStorage.getItem('is_admin') === 'true') { document.getElementById('admin-panel').classList.add('active'); document.getElementById('admin-text').innerText = "Logout Admin"; document.getElementById('admin-btn').classList.add('bg-red-600'); } }
         function closeModal(e) { if (!e || e.target.id === 'detail-modal') document.getElementById('detail-modal').classList.remove('active'); }
         
-        function exportData() {
-            const blob = new Blob([JSON.stringify({ govList, regionalData })], {type: "application/json"});
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `egypt_dna_backup.json`; a.click();
-        }
-
         init();
     </script>
 </body>
