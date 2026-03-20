@@ -48,12 +48,12 @@
             <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border-gray-200 border mb-4 text-center outline-none focus:ring-2 focus:ring-primary text-primary font-bold" placeholder="Enter Password">
             <div class="flex gap-3 text-primary font-bold">
                 <button onclick="closeLogin()" class="flex-1 p-3 rounded-xl bg-gray-100 font-bold hover:bg-gray-200 transition-colors">Cancel</button>
-                <button onclick="tryLogin()" class="flex-1 p-3 rounded-xl bg-primary text-white font-bold hover:bg-opacity-90 transition-colors">Login</button>
+                <button onclick="tryLogin()" class="flex-1 p-3 rounded-xl bg-primary text-white font-bold hover:bg-opacity-90">Login</button>
             </div>
         </div>
     </div>
 
-    <!-- DETAIL MODAL (Klick auf Diagramm) -->
+    <!-- DETAIL MODAL -->
     <div id="detail-modal" onclick="closeModal(event)">
         <div class="bg-white w-full max-w-3xl rounded-[3rem] shadow-2xl p-10 relative overflow-hidden border border-gray-100" onclick="event.stopPropagation()">
             <button onclick="closeModal(null)" class="absolute top-8 right-8 text-gray-400 hover:text-red-500 transition-colors">
@@ -64,20 +64,20 @@
                     <canvas id="modalChartCanvas"></canvas>
                 </div>
                 <div class="flex-1 w-full text-center md:text-left">
-                    <h2 id="modal-title" class="text-5xl font-black font-headline tracking-tighter mb-1 leading-tight text-primary uppercase">Governorate</h2>
+                    <h2 id="modal-title" class="text-5xl font-black font-headline tracking-tighter mb-1 text-primary uppercase">Governorate</h2>
                     <p id="modal-sample" class="text-3xl font-black text-secondary uppercase tracking-tighter mb-8 inline-block bg-secondary/5 px-4 py-1 rounded-full">TOTAL: 0</p>
-                    <div id="modal-legend" class="space-y-3 border-t pt-8"></div>
+                    <div id="modal-legend" class="space-y-2 border-t pt-8"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- NAVIGATION -->
-    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100 text-primary">
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100 text-primary font-headline">
         <div class="flex justify-between items-center px-6 h-20 max-w-screen-2xl mx-auto">
             <div class="flex flex-col">
-                <h1 class="text-xl font-black font-headline uppercase tracking-tighter leading-none text-primary">Egyptian Y-DNA Project</h1>
-                <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1 text-primary leading-none">National Genomic Archive</p>
+                <h1 class="text-xl font-black uppercase tracking-tighter leading-none text-primary">Egyptian Y-DNA Project</h1>
+                <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1 leading-none">National Genomic Archive</p>
             </div>
             <div class="flex items-center gap-4">
                 <a href="https://x.com/egyptydna" target="_blank" class="text-gray-400 hover:text-primary transition-all"><span class="material-symbols-outlined">public</span></a>
@@ -93,11 +93,11 @@
         <!-- NATIONAL SUMMARY -->
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-10 rounded-[4rem] shadow-xl border border-gray-100 text-primary">
             <div class="lg:col-span-5 text-center lg:text-left text-primary font-bold">
-                <span class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-4 block">Consolidated Data</span>
+                <span class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-4 block leading-none">Consolidated Data</span>
                 <h2 class="text-6xl font-black font-headline tracking-tighter mb-8 leading-tight">National Summary</h2>
                 <div class="grid grid-cols-2 gap-8 w-full border-t pt-8">
-                    <div><p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1 leading-none">Grand Total Samples</p><p id="total-national-samples" class="text-5xl font-black text-primary leading-none">0</p></div>
-                    <div><p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1 leading-none">Mapped Regions</p><p id="total-gov-count" class="text-5xl font-black font-primary leading-none">0</p></div>
+                    <div><p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1 leading-none uppercase">Grand Total Samples</p><p id="total-national-samples" class="text-5xl font-black text-primary leading-none">0</p></div>
+                    <div><p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1 leading-none uppercase">Mapped Regions</p><p id="total-gov-count" class="text-5xl font-black font-primary leading-none">0</p></div>
                 </div>
             </div>
             <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-12 justify-center lg:justify-end text-primary">
@@ -108,7 +108,7 @@
             </div>
         </section>
 
-        <!-- MAP -->
+        <!-- MAP (Live-Link Ganz Ägypten) -->
         <section class="h-[650px] w-full bg-white rounded-[4rem] overflow-hidden shadow-2xl border border-gray-100 ring-1 ring-black/5">
             <iframe id="mapIframe" src="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&editMode=disabled&moreControl=false&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=false#6/26.938/30.802" class="w-full h-full border-none" allowfullscreen allow="geolocation"></iframe>
         </section>
@@ -121,11 +121,11 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10 text-primary">
                 <div class="space-y-6">
                     <div class="grid grid-cols-2 gap-4">
-                        <select id="edit-data-region" class="w-full p-4 rounded-2xl border-none shadow-md text-sm font-bold bg-white text-primary"></select>
-                        <input type="text" id="edit-haplo-name" class="w-full p-4 rounded-2xl border-none shadow-md text-sm uppercase font-bold bg-white text-primary" placeholder="Haplogroup">
+                        <select id="edit-data-region" class="p-4 rounded-2xl border-none shadow-md text-sm font-bold bg-white text-primary outline-none focus:ring-2 focus:ring-primary transition-all"></select>
+                        <input type="text" id="edit-haplo-name" class="p-4 rounded-2xl border-none shadow-md text-sm uppercase font-bold bg-white text-primary outline-none focus:ring-2 focus:ring-primary transition-all" placeholder="Haplogroup">
                     </div>
                     <div class="flex gap-4 items-end text-primary">
-                        <input type="number" id="edit-haplo-count" class="flex-1 p-4 rounded-2xl border-none shadow-md text-sm font-bold bg-white text-primary" placeholder="Count">
+                        <input type="number" id="edit-haplo-count" class="flex-1 p-4 rounded-2xl border-none shadow-md text-sm font-bold bg-white text-primary outline-none focus:ring-2 focus:ring-primary transition-all" placeholder="Count">
                         <button onclick="saveToDatabase()" class="bg-primary text-white px-10 h-[52px] rounded-2xl font-black text-xs uppercase shadow-xl hover:bg-secondary transition-all active:scale-95">Update Live</button>
                     </div>
                 </div>
@@ -134,10 +134,10 @@
 
         <!-- REGIONAL GRID -->
         <section class="space-y-10">
-            <div class="flex flex-col md:flex-row justify-between items-end gap-6 text-primary font-bold">
+            <div class="flex flex-col md:flex-row justify-between items-end gap-6 text-primary">
                 <div>
                     <h2 class="text-5xl font-black font-headline tracking-tighter leading-none text-primary uppercase">Regional Archives</h2>
-                    <p class="text-gray-400 font-medium mt-2">Hover over diagrams for lineage info • Click for full statistics</p>
+                    <p class="text-gray-400 font-medium mt-2">Interactive distribution by governorate</p>
                 </div>
                 <div class="relative w-full md:w-80">
                     <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span>
@@ -160,20 +160,10 @@
         const ADMIN_PW = "LM10KING10.cba1312";
 
         const HAPLO_COLORS = {
-            "R1B": "#FF0000",       // Red
-            "E": "#00008B",         // Dark Blue
-            "T": "#FFA500",         // Orange
-            "J1": "#006400",        // Dark Green
-            "L1": "#00FFFF",        // Cyan
-            "B": "#008B8B",         // Dark Cyan
-            "G": "#444444", "G2": "#444444", // Dark Grey
-            "Q": "#9400D3",         // Dark Violet (FIX!)
-            "H": "#8B4513", "H2": "#8B4513", // Saddle Brown
-            "R2": "#FFFF00",        // Yellow
-            "R1A": "#DEB887",       // Burly Wood
-            "I": "#EE82EE", "I2": "#EE82EE", // Violet
-            "C": "#FFFFFF",         // White
-            "J2": "#32CD32"         // Lime Green
+            "R1B": "#FF0000", "E": "#00008B", "T": "#FFA500", "J1": "#006400",
+            "L1": "#00FFFF", "B": "#008B8B", "G": "#444444", "G2": "#444444",
+            "Q": "#9400D3", "H": "#8B4513", "H2": "#8B4513", "R2": "#FFFF00", 
+            "R1A": "#DEB887", "I": "#EE82EE", "I2": "#EE82EE", "C": "#FFFFFF", "J2": "#32CD32"
         };
 
         let regionalData = {};
@@ -217,8 +207,6 @@
                         borderWidth: isMini ? 1 : 2,
                         borderColor: '#ffffff',
                         hoverOffset: isMini ? 12 : 40,
-                        hoverBorderColor: '#000000',
-                        hoverBorderWidth: 1
                     }]
                 },
                 options: {
@@ -230,13 +218,13 @@
                         tooltip: {
                             enabled: true,
                             backgroundColor: '#001736',
-                            padding: 10,
-                            cornerRadius: 8,
+                            padding: 12,
+                            cornerRadius: 10,
                             displayColors: false,
-                            titleFont: { size: 13, weight: 'bold' },
-                            bodyFont: { size: 13, weight: 'bold' },
+                            titleFont: { size: 0 }, // Titel verstecken für Eleganz
+                            bodyFont: { size: 14, weight: 'bold', family: 'Manrope' },
                             callbacks: {
-                                label: (ctx) => `Lineage: ${ctx.label}` // NUR DER NAME BEIM HOVERN
+                                label: (ctx) => ctx.label // NUR DER NAME (z.B. "E")
                             }
                         }
                     },
@@ -266,13 +254,13 @@
                     const canvasId = `chart-${idx}`;
 
                     const card = document.createElement('div');
-                    card.className = "stat-card bg-white p-8 rounded-[2.5rem] flex items-center gap-6 cursor-pointer overflow-visible text-primary font-bold";
+                    card.className = "stat-card bg-white p-8 rounded-[2.5rem] flex items-center gap-6 cursor-pointer overflow-visible text-primary";
                     card.onclick = () => openModal(gov);
                     card.innerHTML = `
                         <div class="w-20 h-20 flex-shrink-0 overflow-visible text-primary"><canvas id="${canvasId}"></canvas></div>
                         <div class="min-w-0 text-primary">
-                            <h4 class="font-black text-sm uppercase truncate text-primary leading-tight font-headline">${gov}</h4>
-                            <p class="text-[10px] text-gray-400 font-black uppercase mt-1">Total Samples: ${total}</p>
+                            <h4 class="font-black text-sm uppercase truncate leading-tight font-headline text-primary">${gov}</h4>
+                            <p class="text-[10px] text-gray-400 font-black uppercase mt-1">Total: ${total}</p>
                         </div>
                     `;
                     grid.appendChild(card);
@@ -300,7 +288,7 @@
                         <div class="w-3 h-3 rounded-full shadow-sm" style="background: ${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div>
                         <span>${name}</span>
                     </div>
-                    <span class="text-primary font-black">${((count/grandTotal)*100).toFixed(1)}% <span class="text-sm text-gray-300 ml-1">(${count})</span></span>
+                    <span class="text-primary font-black">${((count/grandTotal)*100).toFixed(1)}% <span class="text-[9px] text-gray-300 ml-1">(${count})</span></span>
                 </div>`).join('');
         }
 
@@ -315,7 +303,7 @@
             document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `
                 <div class="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-gray-100 text-primary font-bold">
                     <div class="flex items-center gap-4 text-primary font-black">
-                        <div class="w-8 h-8 rounded-full shadow-md" style="background: ${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div>
+                        <div class="w-6 h-6 rounded-full shadow-md" style="background: ${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div>
                         <span class="text-2xl font-black uppercase tracking-tight font-headline text-primary">${name}</span>
                     </div>
                     <span class="font-black text-2xl text-primary font-headline text-primary">${total > 0 ? ((count/total)*100).toFixed(1) : 0}% <span class="text-sm text-gray-400 font-bold ml-2 text-primary">(${count})</span></span>
