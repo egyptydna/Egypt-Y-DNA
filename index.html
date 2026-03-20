@@ -25,10 +25,10 @@
     <style>
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         #admin-panel { display: none; } #admin-panel.active { display: block; animation: slideDown 0.4s ease; }
-        #detail-modal, #login-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0, 23, 54, 0.4); backdrop-filter: blur(12px); align-items: center; justify-content: center; padding: 20px; }
+        #detail-modal, #login-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0, 23, 54, 0.5); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
         #detail-modal.active, #login-modal.active { display: flex; }
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        canvas { cursor: pointer; }
+        canvas { cursor: pointer !important; }
     </style>
 </head>
 <body class="bg-background text-primary font-body antialiased">
@@ -37,28 +37,28 @@
     <div id="login-modal">
         <div class="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full text-center">
             <span class="material-symbols-outlined text-5xl text-secondary mb-4">lock</span>
-            <h2 class="text-2xl font-black font-headline mb-4 text-primary">Admin Access</h2>
-            <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border-gray-200 border mb-4 text-center outline-none" placeholder="Enter Password">
+            <h2 class="text-2xl font-black font-headline mb-4 text-primary uppercase">Admin Access</h2>
+            <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border-gray-200 border mb-4 text-center outline-none focus:ring-2 focus:ring-primary" placeholder="Enter Password">
             <div class="flex gap-3">
-                <button onclick="closeLogin()" class="flex-1 p-3 rounded-xl bg-gray-100 font-bold">Cancel</button>
-                <button onclick="tryLogin()" class="flex-1 p-3 rounded-xl bg-primary text-white font-bold">Login</button>
+                <button onclick="closeLogin()" class="flex-1 p-3 rounded-xl bg-gray-100 font-bold hover:bg-gray-200 transition-colors">Cancel</button>
+                <button onclick="tryLogin()" class="flex-1 p-3 rounded-xl bg-primary text-white font-bold hover:bg-opacity-90">Login</button>
             </div>
         </div>
     </div>
 
     <!-- DETAIL MODAL -->
     <div id="detail-modal" onclick="closeModal(event)">
-        <div class="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl p-10 relative overflow-hidden" onclick="event.stopPropagation()">
-            <button onclick="closeModal(null)" class="absolute top-8 right-8 text-gray-400 hover:text-primary transition-colors">
+        <div class="bg-white w-full max-w-3xl rounded-[3rem] shadow-2xl p-10 relative overflow-hidden border border-gray-100" onclick="event.stopPropagation()">
+            <button onclick="closeModal(null)" class="absolute top-8 right-8 text-gray-400 hover:text-red-500 transition-colors">
                 <span class="material-symbols-outlined text-4xl font-bold">close</span>
             </button>
             <div class="flex flex-col md:flex-row gap-12 items-center">
-                <div class="w-[280px] h-[280px] flex-shrink-0">
+                <div class="w-[320px] h-[320px] flex-shrink-0">
                     <canvas id="modalChartCanvas"></canvas>
                 </div>
                 <div class="flex-1 w-full text-center md:text-left">
                     <h2 id="modal-title" class="text-5xl font-black font-headline tracking-tighter mb-1 text-primary leading-tight">Governorate</h2>
-                    <p id="modal-sample" class="text-4xl font-black text-secondary uppercase tracking-tighter mb-8 leading-none">TOTAL: 0</p>
+                    <p id="modal-sample" class="text-3xl font-black text-secondary uppercase tracking-tighter mb-8 bg-secondary/5 inline-block px-4 py-1 rounded-full">TOTAL: 0</p>
                     <div id="modal-legend" class="space-y-2 border-t pt-8"></div>
                 </div>
             </div>
@@ -73,9 +73,9 @@
                 <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1">National Genomic Archive</p>
             </div>
             <div class="flex items-center gap-4">
-                <a href="https://x.com/egyptydna" target="_blank" class="text-gray-400 hover:text-primary"><span class="material-symbols-outlined">public</span></a>
-                <a href="mailto:egyptydna@gmail.com" class="text-gray-400 hover:text-primary"><span class="material-symbols-outlined">mail</span></a>
-                <button onclick="handleAdminBtnClick()" id="admin-btn" class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg">
+                <a href="https://x.com/egyptydna" target="_blank" class="text-gray-400 hover:text-primary transition-all"><span class="material-symbols-outlined">public</span></a>
+                <a href="mailto:egyptydna@gmail.com" class="text-gray-400 hover:text-primary transition-all"><span class="material-symbols-outlined">mail</span></a>
+                <button onclick="handleAdminBtnClick()" id="admin-btn" class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg hover:scale-105 transition-all">
                     <span class="material-symbols-outlined text-sm" id="admin-icon">admin_panel_settings</span> <span id="admin-text">Admin Login</span>
                 </button>
             </div>
@@ -84,17 +84,17 @@
 
     <main class="pt-28 pb-20 px-6 max-w-screen-2xl mx-auto space-y-16">
         <!-- NATIONAL SUMMARY -->
-        <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-10 rounded-[3rem] shadow-xl border border-gray-100">
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-10 rounded-[4rem] shadow-xl border border-gray-100">
             <div class="lg:col-span-5 text-center lg:text-left">
                 <span class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-4 block">Consolidated Data</span>
-                <h2 class="text-5xl font-black font-headline tracking-tighter mb-6 text-primary leading-tight">National Summary</h2>
+                <h2 class="text-6xl font-black font-headline tracking-tighter mb-8 text-primary leading-tight">National Summary</h2>
                 <div class="grid grid-cols-2 gap-8 w-full border-t pt-8 text-primary font-bold">
-                    <div><p class="text-[10px] font-bold text-gray-400 uppercase">Grand Total Samples</p><p id="total-national-samples" class="text-4xl font-black text-primary">0</p></div>
-                    <div><p class="text-[10px] font-bold text-gray-400 uppercase">Mapped Regions</p><p id="total-gov-count" class="text-4xl font-black font-primary">0</p></div>
+                    <div><p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Grand Total Samples</p><p id="total-national-samples" class="text-5xl font-black text-primary">0</p></div>
+                    <div><p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Mapped Regions</p><p id="total-gov-count" class="text-5xl font-black font-primary">0</p></div>
                 </div>
             </div>
             <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-12 justify-center lg:justify-end">
-                <div class="w-[300px] h-[300px]">
+                <div class="w-[320px] h-[320px]">
                     <canvas id="nationalChartCanvas"></canvas>
                 </div>
                 <div id="national-legend" class="space-y-2 w-full max-w-[240px]"></div>
@@ -102,37 +102,58 @@
         </section>
 
         <!-- MAP -->
-        <section class="h-[600px] w-full bg-white rounded-[3rem] overflow-hidden shadow-2xl border border-gray-100">
-            <!-- Trick: ?v=RANDOM sorgt dafür, dass die uMap Karte immer neu geladen wird -->
+        <section class="h-[650px] w-full bg-white rounded-[4rem] overflow-hidden shadow-2xl border border-gray-100 ring-1 ring-black/5">
             <iframe id="mapIframe" src="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&allowEdit=false&moreControl=true&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=undefined&captionBar=false" class="w-full h-full border-none"></iframe>
         </section>
 
         <!-- ADMIN PANEL -->
-        <section id="admin-panel" class="bg-secondary/5 p-8 rounded-[3rem] border-2 border-secondary/20">
-            <h3 class="text-2xl font-black font-headline uppercase text-secondary mb-8 leading-none">Database Live Editor</h3>
+        <section id="admin-panel" class="bg-secondary/5 p-10 rounded-[3rem] border-2 border-secondary/20 shadow-inner">
+            <h3 class="text-2xl font-black font-headline uppercase text-secondary mb-8 leading-none flex items-center gap-2">
+                <span class="material-symbols-outlined">edit_square</span> Database Live Editor
+            </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-2">
-                        <select id="edit-data-region" class="p-3 rounded-xl border-none shadow-sm text-sm font-bold"></select>
-                        <input type="text" id="edit-haplo-name" class="p-3 rounded-xl border-none shadow-sm text-sm uppercase font-bold" placeholder="Haplogroup">
+                <div class="space-y-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase text-gray-400 ml-2">Select Region</label>
+                            <select id="edit-data-region" class="w-full p-4 rounded-2xl border-none shadow-md text-sm font-bold bg-white"></select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase text-gray-400 ml-2">Haplogroup</label>
+                            <input type="text" id="edit-haplo-name" class="w-full p-4 rounded-2xl border-none shadow-md text-sm uppercase font-bold bg-white" placeholder="e.g. J1">
+                        </div>
                     </div>
-                    <div class="flex gap-2">
-                        <input type="number" id="edit-haplo-count" class="flex-1 p-3 rounded-xl border-none shadow-sm text-sm font-bold" placeholder="Count">
-                        <button onclick="saveToDatabase()" class="bg-primary text-white px-8 rounded-xl font-bold text-xs uppercase shadow-md transition-all active:scale-95">Update Live</button>
+                    <div class="flex gap-4 items-end">
+                        <div class="flex-1 space-y-2">
+                            <label class="text-[10px] font-black uppercase text-gray-400 ml-2">Count</label>
+                            <input type="number" id="edit-haplo-count" class="w-full p-4 rounded-2xl border-none shadow-md text-sm font-bold bg-white" placeholder="0">
+                        </div>
+                        <button onclick="saveToDatabase()" class="bg-primary text-white px-10 h-[52px] rounded-2xl font-black text-xs uppercase shadow-xl hover:bg-secondary transition-all active:scale-95">Update Database</button>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- REGIONAL GRID -->
-        <section class="space-y-8">
-            <div class="flex flex-col md:flex-row justify-between items-end gap-4">
-                <h2 class="text-4xl font-black font-headline tracking-tighter leading-none text-primary font-bold uppercase">Regional Archives</h2>
-                <input type="text" id="searchInput" oninput="renderUI()" placeholder="Search region..." class="p-4 rounded-2xl border-none shadow-sm text-sm w-full md:w-64 focus:ring-2 focus:ring-secondary outline-none font-bold">
+        <section class="space-y-10">
+            <div class="flex flex-col md:flex-row justify-between items-end gap-6">
+                <div>
+                    <h2 class="text-5xl font-black font-headline tracking-tighter leading-none text-primary uppercase">Regional Archives</h2>
+                    <p class="text-gray-400 font-medium mt-2">Interactive distribution by governorate</p>
+                </div>
+                <div class="relative w-full md:w-80">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+                    <input type="text" id="searchInput" oninput="renderUI()" placeholder="Search governorate..." class="w-full pl-12 pr-4 py-4 rounded-2xl border-none shadow-lg text-sm focus:ring-2 focus:ring-secondary outline-none font-bold">
+                </div>
             </div>
-            <div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+            <div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div>
         </section>
     </main>
+
+    <footer class="py-20 border-t border-gray-100 bg-white text-center">
+        <h2 class="text-2xl font-black font-headline uppercase tracking-tighter text-primary">Egyptian Y-DNA Project</h2>
+        <p class="text-xs text-gray-400 font-bold uppercase tracking-[0.4em] mt-2">National Genomic Archive</p>
+    </footer>
 
     <script>
         const SB_URL = "https://lsfmpmfoqdtkgndtaxen.supabase.co";
@@ -143,8 +164,8 @@
         const HAPLO_COLORS = {
             "R1B": "#FF0000", "E": "#00008B", "T": "#FFA500", "J1": "#006400",
             "L1": "#00FFFF", "B": "#008B8B", "G": "#444444", "G2": "#444444",
-            "Q": "#9400D3", "H": "#8B4513", "R2": "#FFFF00", "R1A": "#DEB887",
-            "I": "#EE82EE", "C": "#FFFFFF", "J2": "#32CD32"
+            "Q": "#9400D3", "H": "#8B4513", "H2": "#8B4513", "R2": "#FFFF00", 
+            "R1A": "#DEB887", "I": "#EE82EE", "I2": "#EE82EE", "C": "#FFFFFF", "J2": "#32CD32"
         };
 
         let regionalData = {};
@@ -157,9 +178,6 @@
             updateDropdowns();
             renderUI();
             document.getElementById('admin-pw').addEventListener('keypress', (e) => { if (e.key === 'Enter') tryLogin(); });
-            
-            // Cache-Bust für die Karte
-            document.getElementById('mapIframe').src += "&cb=" + Math.random();
         }
 
         async function fetchData() {
@@ -190,25 +208,27 @@
                         backgroundColor: colors,
                         borderWidth: isMini ? 1 : 2,
                         borderColor: '#ffffff',
-                        hoverOffset: isMini ? 8 : 25 // STARKE HERVORHEBUNG
+                        hoverOffset: isMini ? 10 : 40,
+                        hoverBorderColor: '#000000',
+                        hoverBorderWidth: 2
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    layout: { 
+                        padding: isMini ? 10 : 25 // MEHR PLATZ FÜR DIE HERVORHEBUNG
+                    },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
                             enabled: true,
-                            backgroundColor: 'rgba(0, 23, 54, 1)',
-                            titleFont: { size: 16, weight: 'bold' },
-                            bodyFont: { size: 14 },
-                            padding: 15,
-                            cornerRadius: 12,
-                            displayColors: true,
-                            callbacks: {
-                                label: (context) => ` ${context.label}: ${context.raw} Samples`
-                            }
+                            backgroundColor: 'rgba(0, 23, 54, 0.95)',
+                            padding: isMini ? 8 : 15,
+                            cornerRadius: 8,
+                            displayColors: isMini ? false : true,
+                            bodyFont: { size: isMini ? 11 : 14 },
+                            callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.raw}` }
                         }
                     },
                     animation: { duration: 1000, easing: 'easeOutQuart' }
@@ -222,7 +242,7 @@
             const count = parseInt(document.getElementById('edit-haplo-count').value);
             if (!region || !haplo || isNaN(count)) return alert("Error");
             await _supabase.from('dna_stats').upsert({ region, haplogroup: haplo, count }, { onConflict: 'region, haplogroup' });
-            await fetchData(); renderUI(); alert("Database Updated!");
+            await fetchData(); renderUI(); alert("Updated!");
         }
 
         function renderUI() {
@@ -237,13 +257,13 @@
                     const canvasId = `chart-${idx}`;
 
                     const card = document.createElement('div');
-                    card.className = "bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-2xl cursor-pointer transition-all hover:-translate-y-2";
+                    card.className = "bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-2xl cursor-pointer transition-all hover:-translate-y-2 group overflow-visible";
                     card.onclick = () => openModal(gov);
                     card.innerHTML = `
-                        <div class="w-16 h-16 flex-shrink-0"><canvas id="${canvasId}"></canvas></div>
+                        <div class="w-24 h-24 flex-shrink-0"><canvas id="${canvasId}"></canvas></div>
                         <div class="min-w-0">
-                            <h4 class="font-black text-[11px] uppercase truncate text-primary leading-tight font-headline">${gov}</h4>
-                            <p class="text-[9px] text-gray-400 font-bold uppercase mt-1">Total: ${total}</p>
+                            <h4 class="font-black text-sm uppercase truncate text-primary leading-tight font-headline">${gov}</h4>
+                            <p class="text-[10px] text-gray-400 font-black uppercase mt-1">Total: ${total}</p>
                         </div>
                     `;
                     grid.appendChild(card);
@@ -262,17 +282,16 @@
             });
             document.getElementById('total-national-samples').innerText = grandTotal.toLocaleString();
             document.getElementById('total-gov-count').innerText = govList.length;
-            
             if (grandTotal > 0) createPieChart('nationalChartCanvas', totals, false);
 
             const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 15);
             document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `
-                <div class="flex items-center justify-between text-[10px] font-bold border-b border-gray-50 pb-1 uppercase">
+                <div class="flex items-center justify-between text-[11px] font-black border-b border-gray-50 pb-2 uppercase tracking-tighter">
                     <div class="flex items-center gap-2">
                         <div class="w-3 h-3 rounded-full shadow-sm" style="background: ${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div>
-                        <span class="font-black tracking-tighter">${name}</span>
+                        <span>${name}</span>
                     </div>
-                    <span class="text-primary font-black">${((count/grandTotal)*100).toFixed(1)}% <span class="text-[8px] text-gray-300 ml-1">(${count})</span></span>
+                    <span class="text-primary">${((count/grandTotal)*100).toFixed(1)}% <span class="text-[9px] text-gray-300 ml-1">(${count})</span></span>
                 </div>`).join('');
         }
 
@@ -282,16 +301,15 @@
             const sorted = Object.entries(data).sort((a,b) => b[1] - a[1]);
             document.getElementById('modal-title').innerText = gov;
             document.getElementById('modal-sample').innerText = `TOTAL: ${total}`;
-            
             if (total > 0) setTimeout(() => createPieChart('modalChartCanvas', data, false), 50);
             
             document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `
-                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                <div class="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
                     <div class="flex items-center gap-4 text-primary font-black">
                         <div class="w-6 h-6 rounded-full shadow-md" style="background: ${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div>
-                        <span class="text-xl font-black uppercase tracking-tight font-headline">${name}</span>
+                        <span class="text-2xl font-black uppercase tracking-tight font-headline">${name}</span>
                     </div>
-                    <span class="font-black text-2xl text-primary font-headline">${total > 0 ? ((count/total)*100).toFixed(1) : 0}% <span class="text-xs text-gray-400 font-bold ml-2">(${count})</span></span>
+                    <span class="font-black text-2xl text-primary font-headline">${total > 0 ? ((count/total)*100).toFixed(1) : 0}% <span class="text-sm text-gray-400 font-bold ml-2">(${count})</span></span>
                 </div>`).join('');
             document.getElementById('detail-modal').classList.add('active');
         }
@@ -300,7 +318,7 @@
         function handleAdminBtnClick() { if (localStorage.getItem('is_admin') === 'true') { if (confirm("Logout?")) { localStorage.removeItem('is_admin'); location.reload(); } } else { document.getElementById('login-modal').classList.add('active'); } }
         function tryLogin() { if (document.getElementById('admin-pw').value === ADMIN_PW) { localStorage.setItem('is_admin', 'true'); location.reload(); } else alert("Error"); }
         function closeLogin() { document.getElementById('login-modal').classList.remove('active'); }
-        function checkAuthUI() { if (localStorage.getItem('is_admin') === 'true') { document.getElementById('admin-panel').classList.add('active'); document.getElementById('admin-text').innerText = "Logout Admin"; document.getElementById('admin-btn').classList.add('bg-red-600'); } }
+        function checkAuthUI() { if (localStorage.getItem('is_admin') === 'true') { document.getElementById('admin-panel').classList.add('active'); document.getElementById('admin-text').innerText = "Logout Admin"; document.getElementById('admin-btn').classList.replace('bg-primary', 'bg-red-600'); } }
         function closeModal(e) { if (!e || e.target.id === 'detail-modal') document.getElementById('detail-modal').classList.remove('active'); }
         init();
     </script>
