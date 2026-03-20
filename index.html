@@ -25,7 +25,7 @@
     <style>
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         #admin-panel { display: none; } #admin-panel.active { display: block; animation: slideDown 0.4s ease; }
-        #detail-modal, #login-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0, 23, 54, 0.6); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
+        #detail-modal, #login-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0, 23, 54, 0.5); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
         #detail-modal.active, #login-modal.active { display: flex; }
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
@@ -46,14 +46,14 @@
             <span class="material-symbols-outlined text-5xl text-secondary mb-4">lock</span>
             <h2 class="text-2xl font-black font-headline mb-4 uppercase text-primary">Admin Access</h2>
             <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border-gray-200 border mb-4 text-center outline-none focus:ring-2 focus:ring-primary text-primary font-bold" placeholder="Enter Password">
-            <div class="flex gap-3">
-                <button onclick="closeLogin()" class="flex-1 p-3 rounded-xl bg-gray-100 font-bold hover:bg-gray-200">Cancel</button>
-                <button onclick="tryLogin()" class="flex-1 p-3 rounded-xl bg-primary text-white font-bold hover:bg-opacity-90">Login</button>
+            <div class="flex gap-3 text-primary font-bold">
+                <button onclick="closeLogin()" class="flex-1 p-3 rounded-xl bg-gray-100 font-bold hover:bg-gray-200 transition-colors">Cancel</button>
+                <button onclick="tryLogin()" class="flex-1 p-3 rounded-xl bg-primary text-white font-bold hover:bg-opacity-90 transition-colors">Login</button>
             </div>
         </div>
     </div>
 
-    <!-- DETAIL MODAL -->
+    <!-- DETAIL MODAL (Klick auf Diagramm) -->
     <div id="detail-modal" onclick="closeModal(event)">
         <div class="bg-white w-full max-w-3xl rounded-[3rem] shadow-2xl p-10 relative overflow-hidden border border-gray-100" onclick="event.stopPropagation()">
             <button onclick="closeModal(null)" class="absolute top-8 right-8 text-gray-400 hover:text-red-500 transition-colors">
@@ -64,9 +64,9 @@
                     <canvas id="modalChartCanvas"></canvas>
                 </div>
                 <div class="flex-1 w-full text-center md:text-left">
-                    <h2 id="modal-title" class="text-5xl font-black font-headline tracking-tighter mb-1 leading-tight">Governorate</h2>
+                    <h2 id="modal-title" class="text-5xl font-black font-headline tracking-tighter mb-1 leading-tight text-primary uppercase">Governorate</h2>
                     <p id="modal-sample" class="text-3xl font-black text-secondary uppercase tracking-tighter mb-8 inline-block bg-secondary/5 px-4 py-1 rounded-full">TOTAL: 0</p>
-                    <div id="modal-legend" class="space-y-2 border-t pt-8"></div>
+                    <div id="modal-legend" class="space-y-3 border-t pt-8"></div>
                 </div>
             </div>
         </div>
@@ -82,7 +82,7 @@
             <div class="flex items-center gap-4">
                 <a href="https://x.com/egyptydna" target="_blank" class="text-gray-400 hover:text-primary transition-all"><span class="material-symbols-outlined">public</span></a>
                 <a href="mailto:egyptydna@gmail.com" class="text-gray-400 hover:text-primary transition-all"><span class="material-symbols-outlined">mail</span></a>
-                <button onclick="handleAdminBtnClick()" id="admin-btn" class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg">
+                <button onclick="handleAdminBtnClick()" id="admin-btn" class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg hover:scale-105 transition-all">
                     <span class="material-symbols-outlined text-sm" id="admin-icon">admin_panel_settings</span> <span id="admin-text">Admin Login</span>
                 </button>
             </div>
@@ -108,7 +108,7 @@
             </div>
         </section>
 
-        <!-- MAP (uMap) -->
+        <!-- MAP -->
         <section class="h-[650px] w-full bg-white rounded-[4rem] overflow-hidden shadow-2xl border border-gray-100 ring-1 ring-black/5">
             <iframe id="mapIframe" src="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&editMode=disabled&moreControl=false&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=false#6/26.938/30.802" class="w-full h-full border-none" allowfullscreen allow="geolocation"></iframe>
         </section>
@@ -134,10 +134,10 @@
 
         <!-- REGIONAL GRID -->
         <section class="space-y-10">
-            <div class="flex flex-col md:flex-row justify-between items-end gap-6 text-primary">
+            <div class="flex flex-col md:flex-row justify-between items-end gap-6 text-primary font-bold">
                 <div>
                     <h2 class="text-5xl font-black font-headline tracking-tighter leading-none text-primary uppercase">Regional Archives</h2>
-                    <p class="text-gray-400 font-medium mt-2">Hover over diagrams for details, click for full statistics</p>
+                    <p class="text-gray-400 font-medium mt-2">Hover over diagrams for lineage info • Click for full statistics</p>
                 </div>
                 <div class="relative w-full md:w-80">
                     <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span>
@@ -167,7 +167,7 @@
             "L1": "#00FFFF",        // Cyan
             "B": "#008B8B",         // Dark Cyan
             "G": "#444444", "G2": "#444444", // Dark Grey
-            "Q": "#9400D3",         // Dark Violet (Fix!)
+            "Q": "#9400D3",         // Dark Violet (FIX!)
             "H": "#8B4513", "H2": "#8B4513", // Saddle Brown
             "R2": "#FFFF00",        // Yellow
             "R1A": "#DEB887",       // Burly Wood
@@ -236,7 +236,7 @@
                             titleFont: { size: 13, weight: 'bold' },
                             bodyFont: { size: 13, weight: 'bold' },
                             callbacks: {
-                                label: (ctx) => `Lineage: ${ctx.label}`
+                                label: (ctx) => `Lineage: ${ctx.label}` // NUR DER NAME BEIM HOVERN
                             }
                         }
                     },
@@ -266,13 +266,13 @@
                     const canvasId = `chart-${idx}`;
 
                     const card = document.createElement('div');
-                    card.className = "stat-card bg-white p-6 rounded-[2.5rem] flex items-center gap-6 cursor-pointer overflow-visible text-primary";
+                    card.className = "stat-card bg-white p-8 rounded-[2.5rem] flex items-center gap-6 cursor-pointer overflow-visible text-primary font-bold";
                     card.onclick = () => openModal(gov);
                     card.innerHTML = `
                         <div class="w-20 h-20 flex-shrink-0 overflow-visible text-primary"><canvas id="${canvasId}"></canvas></div>
                         <div class="min-w-0 text-primary">
                             <h4 class="font-black text-sm uppercase truncate text-primary leading-tight font-headline">${gov}</h4>
-                            <p class="text-[10px] text-gray-400 font-black uppercase mt-1">Total: ${total}</p>
+                            <p class="text-[10px] text-gray-400 font-black uppercase mt-1">Total Samples: ${total}</p>
                         </div>
                     `;
                     grid.appendChild(card);
@@ -300,7 +300,7 @@
                         <div class="w-3 h-3 rounded-full shadow-sm" style="background: ${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div>
                         <span>${name}</span>
                     </div>
-                    <span class="text-primary font-black">${((count/grandTotal)*100).toFixed(1)}% <span class="text-[9px] text-gray-300 ml-1">(${count})</span></span>
+                    <span class="text-primary font-black">${((count/grandTotal)*100).toFixed(1)}% <span class="text-sm text-gray-300 ml-1">(${count})</span></span>
                 </div>`).join('');
         }
 
@@ -309,13 +309,13 @@
             const total = Object.values(data).reduce((a, b) => a + b, 0);
             const sorted = Object.entries(data).sort((a,b) => b[1] - a[1]);
             document.getElementById('modal-title').innerText = gov;
-            document.getElementById('modal-sample').innerText = `TOTAL: ${total}`;
+            document.getElementById('modal-sample').innerText = `TOTAL SAMPLES: ${total}`;
             if (total > 0) setTimeout(() => createPieChart('modalChartCanvas', data, false), 50);
             
             document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `
                 <div class="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-gray-100 text-primary font-bold">
                     <div class="flex items-center gap-4 text-primary font-black">
-                        <div class="w-6 h-6 rounded-full shadow-md" style="background: ${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div>
+                        <div class="w-8 h-8 rounded-full shadow-md" style="background: ${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div>
                         <span class="text-2xl font-black uppercase tracking-tight font-headline text-primary">${name}</span>
                     </div>
                     <span class="font-black text-2xl text-primary font-headline text-primary">${total > 0 ? ((count/total)*100).toFixed(1) : 0}% <span class="text-sm text-gray-400 font-bold ml-2 text-primary">(${count})</span></span>
