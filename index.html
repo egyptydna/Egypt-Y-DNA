@@ -28,6 +28,7 @@
         #detail-modal, #login-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0, 23, 54, 0.4); backdrop-filter: blur(12px); align-items: center; justify-content: center; padding: 20px; }
         #detail-modal.active, #login-modal.active { display: flex; }
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        canvas { cursor: pointer; }
     </style>
 </head>
 <body class="bg-background text-primary font-body antialiased">
@@ -37,7 +38,7 @@
         <div class="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full text-center">
             <span class="material-symbols-outlined text-5xl text-secondary mb-4">lock</span>
             <h2 class="text-2xl font-black font-headline mb-4 text-primary">Admin Access</h2>
-            <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border-gray-200 border mb-4 text-center focus:ring-2 focus:ring-primary outline-none" placeholder="Enter Password">
+            <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border-gray-200 border mb-4 text-center outline-none" placeholder="Enter Password">
             <div class="flex gap-3">
                 <button onclick="closeLogin()" class="flex-1 p-3 rounded-xl bg-gray-100 font-bold">Cancel</button>
                 <button onclick="tryLogin()" class="flex-1 p-3 rounded-xl bg-primary text-white font-bold">Login</button>
@@ -52,12 +53,12 @@
                 <span class="material-symbols-outlined text-4xl font-bold">close</span>
             </button>
             <div class="flex flex-col md:flex-row gap-12 items-center">
-                <div class="w-[250px] h-[250px] flex-shrink-0">
+                <div class="w-[280px] h-[280px] flex-shrink-0">
                     <canvas id="modalChartCanvas"></canvas>
                 </div>
                 <div class="flex-1 w-full text-center md:text-left">
                     <h2 id="modal-title" class="text-5xl font-black font-headline tracking-tighter mb-1 text-primary leading-tight">Governorate</h2>
-                    <p id="modal-sample" class="text-3xl font-black text-secondary uppercase tracking-tight mb-8 leading-none">TOTAL SAMPLES: 0</p>
+                    <p id="modal-sample" class="text-4xl font-black text-secondary uppercase tracking-tighter mb-8 leading-none">TOTAL: 0</p>
                     <div id="modal-legend" class="space-y-2 border-t pt-8"></div>
                 </div>
             </div>
@@ -72,8 +73,8 @@
                 <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1">National Genomic Archive</p>
             </div>
             <div class="flex items-center gap-4">
-                <a href="https://x.com/egyptydna" target="_blank" class="text-gray-400 hover:text-primary transition-colors"><span class="material-symbols-outlined">public</span></a>
-                <a href="mailto:egyptydna@gmail.com" class="text-gray-400 hover:text-primary transition-colors"><span class="material-symbols-outlined">mail</span></a>
+                <a href="https://x.com/egyptydna" target="_blank" class="text-gray-400 hover:text-primary"><span class="material-symbols-outlined">public</span></a>
+                <a href="mailto:egyptydna@gmail.com" class="text-gray-400 hover:text-primary"><span class="material-symbols-outlined">mail</span></a>
                 <button onclick="handleAdminBtnClick()" id="admin-btn" class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg">
                     <span class="material-symbols-outlined text-sm" id="admin-icon">admin_panel_settings</span> <span id="admin-text">Admin Login</span>
                 </button>
@@ -93,7 +94,7 @@
                 </div>
             </div>
             <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-12 justify-center lg:justify-end">
-                <div class="w-[280px] h-[280px]">
+                <div class="w-[300px] h-[300px]">
                     <canvas id="nationalChartCanvas"></canvas>
                 </div>
                 <div id="national-legend" class="space-y-2 w-full max-w-[240px]"></div>
@@ -102,7 +103,8 @@
 
         <!-- MAP -->
         <section class="h-[600px] w-full bg-white rounded-[3rem] overflow-hidden shadow-2xl border border-gray-100">
-            <iframe src="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746#6/26.834/30.795" class="w-full h-full border-none"></iframe>
+            <!-- Trick: ?v=RANDOM sorgt dafür, dass die uMap Karte immer neu geladen wird -->
+            <iframe id="mapIframe" src="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&allowEdit=false&moreControl=true&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=undefined&captionBar=false" class="w-full h-full border-none"></iframe>
         </section>
 
         <!-- ADMIN PANEL -->
@@ -111,12 +113,12 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div class="space-y-4">
                     <div class="grid grid-cols-2 gap-2">
-                        <select id="edit-data-region" class="p-3 rounded-xl border-none shadow-sm text-sm"></select>
-                        <input type="text" id="edit-haplo-name" class="p-3 rounded-xl border-none shadow-sm text-sm uppercase" placeholder="Haplogroup">
+                        <select id="edit-data-region" class="p-3 rounded-xl border-none shadow-sm text-sm font-bold"></select>
+                        <input type="text" id="edit-haplo-name" class="p-3 rounded-xl border-none shadow-sm text-sm uppercase font-bold" placeholder="Haplogroup">
                     </div>
                     <div class="flex gap-2">
-                        <input type="number" id="edit-haplo-count" class="flex-1 p-3 rounded-xl border-none shadow-sm text-sm" placeholder="Count">
-                        <button onclick="saveToDatabase()" class="bg-primary text-white px-8 rounded-xl font-bold text-xs uppercase shadow-md transition-all">Update Database</button>
+                        <input type="number" id="edit-haplo-count" class="flex-1 p-3 rounded-xl border-none shadow-sm text-sm font-bold" placeholder="Count">
+                        <button onclick="saveToDatabase()" class="bg-primary text-white px-8 rounded-xl font-bold text-xs uppercase shadow-md transition-all active:scale-95">Update Live</button>
                     </div>
                 </div>
             </div>
@@ -125,41 +127,24 @@
         <!-- REGIONAL GRID -->
         <section class="space-y-8">
             <div class="flex flex-col md:flex-row justify-between items-end gap-4">
-                <h2 class="text-4xl font-black font-headline tracking-tighter leading-none text-primary font-bold">Regional Archives</h2>
-                <input type="text" id="searchInput" oninput="renderUI()" placeholder="Search region..." class="p-4 rounded-2xl border-none shadow-sm text-sm w-full md:w-64 focus:ring-2 focus:ring-secondary outline-none">
+                <h2 class="text-4xl font-black font-headline tracking-tighter leading-none text-primary font-bold uppercase">Regional Archives</h2>
+                <input type="text" id="searchInput" oninput="renderUI()" placeholder="Search region..." class="p-4 rounded-2xl border-none shadow-sm text-sm w-full md:w-64 focus:ring-2 focus:ring-secondary outline-none font-bold">
             </div>
             <div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
         </section>
     </main>
 
-    <footer class="py-16 border-t border-gray-200 bg-white text-center">
-        <h2 class="text-xl font-black font-headline uppercase tracking-tighter">Egyptian Y-DNA Project</h2>
-        <p class="text-xs text-gray-400 font-bold uppercase tracking-[0.3em] mt-2">National Genomic Archive</p>
-    </footer>
-
     <script>
-        // --- DATABASE CONNECTION ---
         const SB_URL = "https://lsfmpmfoqdtkgndtaxen.supabase.co";
         const SB_KEY = "sb_publishable_dnaPmhIN6Lp4irUSxYuAMQ_vzE_CCKT";
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
         const ADMIN_PW = "LM10KING10.cba1312";
 
-        // FARBMAPPING NACH DEINEN WÜNSCHEN
         const HAPLO_COLORS = {
-            "R1B": "#FF0000",       // Red
-            "E": "#00008B",         // Dark Blue
-            "T": "#FFA500",         // Orange
-            "J1": "#006400",        // Dark Green
-            "L1": "#00FFFF",        // Cyan
-            "B": "#008B8B",         // Dark Cyan
-            "G": "#444444", "G2": "#444444", // Dark Grey
-            "Q": "#9400D3", "Q1": "#9400D3", "Q2": "#9400D3", // Dark Violet
-            "H": "#8B4513", "H2": "#8B4513", // Saddle Brown
-            "R2": "#FFFF00",        // Yellow
-            "R1A": "#DEB887",       // Burly Wood
-            "I": "#EE82EE", "I2": "#EE82EE", // Violet
-            "C": "#FFFFFF",         // White
-            "J2": "#32CD32"         // Lime Green
+            "R1B": "#FF0000", "E": "#00008B", "T": "#FFA500", "J1": "#006400",
+            "L1": "#00FFFF", "B": "#008B8B", "G": "#444444", "G2": "#444444",
+            "Q": "#9400D3", "H": "#8B4513", "R2": "#FFFF00", "R1A": "#DEB887",
+            "I": "#EE82EE", "C": "#FFFFFF", "J2": "#32CD32"
         };
 
         let regionalData = {};
@@ -172,6 +157,9 @@
             updateDropdowns();
             renderUI();
             document.getElementById('admin-pw').addEventListener('keypress', (e) => { if (e.key === 'Enter') tryLogin(); });
+            
+            // Cache-Bust für die Karte
+            document.getElementById('mapIframe').src += "&cb=" + Math.random();
         }
 
         async function fetchData() {
@@ -200,8 +188,9 @@
                     datasets: [{
                         data: values,
                         backgroundColor: colors,
-                        borderWidth: isMini ? 1 : 3,
-                        borderColor: '#ffffff'
+                        borderWidth: isMini ? 1 : 2,
+                        borderColor: '#ffffff',
+                        hoverOffset: isMini ? 8 : 25 // STARKE HERVORHEBUNG
                     }]
                 },
                 options: {
@@ -211,16 +200,18 @@
                         legend: { display: false },
                         tooltip: {
                             enabled: true,
-                            backgroundColor: 'rgba(0, 23, 54, 0.9)',
-                            padding: 12,
-                            cornerRadius: 10,
+                            backgroundColor: 'rgba(0, 23, 54, 1)',
+                            titleFont: { size: 16, weight: 'bold' },
+                            bodyFont: { size: 14 },
+                            padding: 15,
+                            cornerRadius: 12,
+                            displayColors: true,
                             callbacks: {
                                 label: (context) => ` ${context.label}: ${context.raw} Samples`
                             }
                         }
                     },
-                    hover: { mode: 'nearest', intersect: true },
-                    animation: { duration: 600 }
+                    animation: { duration: 1000, easing: 'easeOutQuart' }
                 }
             });
         }
@@ -231,7 +222,7 @@
             const count = parseInt(document.getElementById('edit-haplo-count').value);
             if (!region || !haplo || isNaN(count)) return alert("Error");
             await _supabase.from('dna_stats').upsert({ region, haplogroup: haplo, count }, { onConflict: 'region, haplogroup' });
-            await fetchData(); renderUI(); alert("Success!");
+            await fetchData(); renderUI(); alert("Database Updated!");
         }
 
         function renderUI() {
@@ -246,13 +237,13 @@
                     const canvasId = `chart-${idx}`;
 
                     const card = document.createElement('div');
-                    card.className = "bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-xl cursor-pointer transition-all hover:-translate-y-1";
+                    card.className = "bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-2xl cursor-pointer transition-all hover:-translate-y-2";
                     card.onclick = () => openModal(gov);
                     card.innerHTML = `
                         <div class="w-16 h-16 flex-shrink-0"><canvas id="${canvasId}"></canvas></div>
                         <div class="min-w-0">
-                            <h4 class="font-black text-[11px] uppercase truncate text-primary leading-tight">${gov}</h4>
-                            <p class="text-[9px] text-gray-400 font-bold uppercase">Total Samples: ${total}</p>
+                            <h4 class="font-black text-[11px] uppercase truncate text-primary leading-tight font-headline">${gov}</h4>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase mt-1">Total: ${total}</p>
                         </div>
                     `;
                     grid.appendChild(card);
@@ -278,10 +269,10 @@
             document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `
                 <div class="flex items-center justify-between text-[10px] font-bold border-b border-gray-50 pb-1 uppercase">
                     <div class="flex items-center gap-2">
-                        <div class="w-2.5 h-2.5 rounded-full shadow-sm" style="background: ${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div>
-                        <span>${name}</span>
+                        <div class="w-3 h-3 rounded-full shadow-sm" style="background: ${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div>
+                        <span class="font-black tracking-tighter">${name}</span>
                     </div>
-                    <span>${((count/grandTotal)*100).toFixed(1)}% <span class="text-[8px] opacity-40 ml-1">(${count})</span></span>
+                    <span class="text-primary font-black">${((count/grandTotal)*100).toFixed(1)}% <span class="text-[8px] text-gray-300 ml-1">(${count})</span></span>
                 </div>`).join('');
         }
 
@@ -290,17 +281,17 @@
             const total = Object.values(data).reduce((a, b) => a + b, 0);
             const sorted = Object.entries(data).sort((a,b) => b[1] - a[1]);
             document.getElementById('modal-title').innerText = gov;
-            document.getElementById('modal-sample').innerText = `TOTAL SAMPLES: ${total}`;
+            document.getElementById('modal-sample').innerText = `TOTAL: ${total}`;
             
             if (total > 0) setTimeout(() => createPieChart('modalChartCanvas', data, false), 50);
             
             document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `
-                <div class="flex items-center justify-between p-3 bg-gray-50/50 rounded-2xl border border-gray-100/50">
-                    <div class="flex items-center gap-4 text-primary font-bold">
-                        <div class="w-5 h-5 rounded-full shadow-md" style="background: ${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div>
-                        <span class="text-xl font-black uppercase tracking-tight">${name}</span>
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                    <div class="flex items-center gap-4 text-primary font-black">
+                        <div class="w-6 h-6 rounded-full shadow-md" style="background: ${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div>
+                        <span class="text-xl font-black uppercase tracking-tight font-headline">${name}</span>
                     </div>
-                    <span class="font-black text-xl text-primary font-bold">${total > 0 ? ((count/total)*100).toFixed(1) : 0}% <span class="text-xs text-gray-400 font-bold ml-2">(${count})</span></span>
+                    <span class="font-black text-2xl text-primary font-headline">${total > 0 ? ((count/total)*100).toFixed(1) : 0}% <span class="text-xs text-gray-400 font-bold ml-2">(${count})</span></span>
                 </div>`).join('');
             document.getElementById('detail-modal').classList.add('active');
         }
