@@ -22,10 +22,10 @@
     <style>
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         .pie-chart { width: 64px; height: 64px; border-radius: 50%; border: 2px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.3s ease; }
-        .pie-chart-lg { width: 180px; height: 180px; border-radius: 50%; border: 4px solid white; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        .pie-chart-lg { width: 220px; height: 220px; border-radius: 50%; border: 4px solid white; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
         .pie-chart-xl { width: 240px; height: 240px; border-radius: 50%; border: 8px solid white; box-shadow: 0 15px 40px rgba(0,0,0,0.15); }
         #admin-panel { display: none; } #admin-panel.active { display: block; animation: slideDown 0.4s ease; }
-        #detail-modal, #login-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0, 23, 54, 0.4); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px; }
+        #detail-modal, #login-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0, 23, 54, 0.4); backdrop-filter: blur(12px); align-items: center; justify-content: center; padding: 20px; }
         #detail-modal.active, #login-modal.active { display: flex; }
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
@@ -47,16 +47,17 @@
 
     <!-- DETAIL MODAL -->
     <div id="detail-modal" onclick="closeModal(event)">
-        <div class="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl p-10 relative overflow-hidden" onclick="event.stopPropagation()">
-            <button onclick="closeModal(null)" class="absolute top-6 right-6 text-gray-400 hover:text-primary transition-colors">
-                <span class="material-symbols-outlined text-3xl">close</span>
+        <div class="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl p-10 relative overflow-hidden" onclick="event.stopPropagation()">
+            <button onclick="closeModal(null)" class="absolute top-8 right-8 text-gray-400 hover:text-primary transition-colors">
+                <span class="material-symbols-outlined text-4xl font-bold">close</span>
             </button>
-            <div class="flex flex-col md:flex-row gap-10 items-center">
+            <div class="flex flex-col md:flex-row gap-12 items-center">
                 <div id="modal-pie" class="pie-chart-lg flex-shrink-0"></div>
-                <div class="flex-1 w-full">
-                    <h2 id="modal-title" class="text-4xl font-black font-headline tracking-tighter mb-2">Governorate</h2>
-                    <p id="modal-sample" class="text-secondary font-bold uppercase text-[10px] tracking-[0.2em] mb-6">Total Samples: 0</p>
-                    <div id="modal-legend" class="space-y-2 border-t pt-6"></div>
+                <div class="flex-1 w-full text-center md:text-left">
+                    <h2 id="modal-title" class="text-5xl font-black font-headline tracking-tighter mb-1 text-primary leading-tight">Governorate</h2>
+                    <!-- GRÖSSERE ANZAHL ANZEIGE -->
+                    <p id="modal-sample" class="text-2xl font-black text-secondary uppercase tracking-tight mb-8">TOTAL SAMPLES: 0</p>
+                    <div id="modal-legend" class="space-y-3 border-t pt-8"></div>
                 </div>
             </div>
         </div>
@@ -147,24 +148,17 @@
         </section>
     </main>
 
-    <footer class="py-16 border-t border-gray-200 bg-white">
-        <div class="max-w-screen-2xl mx-auto px-6 text-center">
-            <h2 class="text-2xl font-black font-headline uppercase tracking-tighter leading-none">Egyptian Y-DNA Project</h2>
-            <p class="text-xs text-gray-400 font-bold uppercase tracking-[0.3em] mt-2">National Genomic Archive</p>
-        </div>
-    </footer>
-
     <script>
         const ADMIN_PW = "LM10KING10.cba1312";
 
-        // FARB-MAPPING BASIEREND AUF UMAP
+        // UMAP KONFORME FARBEN
         const HAPLO_COLORS = {
             "J1": "#006400",    // Dunkelgrün
             "J2": "#90EE90",    // Hellgrün
             "R1B": "#FF0000",   // Rot
             "R1A": "#FF4500",   // Orange-Rot
             "G": "#808080", "G2": "#808080", // Grau
-            "E": "#00008B", "E-M35": "#00008B", // Dunkelblau
+            "E": "#00008B",     // Dunkelblau
             "T": "#8B4513",     // Braun
             "B": "#DAA520",     // Goldrute
             "L": "#9400D3", "L1": "#9400D3", // Violett
@@ -175,7 +169,7 @@
             "H2": "#FF69B4",    // HotPink
             "R2": "#CD5C5C"     // Indisch-Rot
         };
-        const DEFAULT_COLOR = "#CCCCCC"; // Standardgrau für unbekannte Haplogruppen
+        const DEFAULT_COLOR = "#CCCCCC";
 
         const initialData = {"Ad Daqahlīyah":{"B":1,"E":4,"L1":1,"R1b":2},"Al Fayyūm":{"E":1,"G2":1,"J1":3},"Al Gharbīyah":{"E":1,"R1b":1},"Al Ismā`īlīyah":{"E":2,"J1":1,"T":1},"Al Minūfīyah":{"E":8,"T":1},"Al Minyā":{"G2":1,"J1":2},"Al Qalyūbīyah":{"G2":1,"H2":1,"J1":2,"L1":1,"R2":1},"As Suways":{"L1":1},"Ash Sharqīyah":{"E":2,"G2":2,"J1":7,"Q2":1},"Aswān":{"B":1,"E":1,"I2":1,"J2":1,"T":1},"Asyūt":{"I2":1,"J1":4,"T":1},"Banī Suwayf":{"J1":3},"Cairo":{"E":9,"I2":1,"R1a":1,"R2":1},"Dumyāt":{"J1":1},"Giza":{"E":1},"Janūb Sīnā’":{"E":3,"J1":2},"Kafr ash Shaykh":{"J1":1,"T":1},"Luxor":{"E":1},"Matrouh":{"E":1},"Qinā":{"J1":1},"Shamal Sīnā’":{"J2":1},"Sūhāj":{"C":1,"E":1,"J1":1},"Unassigned Origin":{"A1a":1,"A1b1":2,"E":1,"I2":1,"J1":6,"J2":2,"L1":1,"Q1":1,"R1a":3,"R1b":1,"T":1}};
 
@@ -209,25 +203,16 @@
             const grid = document.getElementById('stats-grid');
             const search = document.getElementById('searchInput').value.toLowerCase();
             grid.innerHTML = '';
-
             govList.forEach(gov => {
                 if (gov.toLowerCase().includes(search)) {
                     const data = regionalData[gov] || {};
                     const total = Object.values(data).reduce((a, b) => a + b, 0);
                     const topEntry = Object.entries(data).sort((a,b) => b[1]-a[1])[0];
                     const top = topEntry ? topEntry[0] : "Empty";
-
                     const card = document.createElement('div');
                     card.className = "bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-xl cursor-pointer transition-all hover:-translate-y-1";
                     card.onclick = () => openModal(gov);
-                    card.innerHTML = `
-                        <div class="pie-chart flex-shrink-0" style="background: ${generatePie(data)}"></div>
-                        <div class="min-w-0">
-                            <h4 class="font-black text-[11px] uppercase truncate leading-tight">${gov}</h4>
-                            <p class="text-[10px] text-secondary font-bold uppercase tracking-widest mt-0.5">Top: ${top}</p>
-                            <p class="text-[9px] text-gray-300 font-bold uppercase">Total: ${total}</p>
-                        </div>
-                    `;
+                    card.innerHTML = `<div class="pie-chart flex-shrink-0" style="background: ${generatePie(data)}"></div><div class="min-w-0"><h4 class="font-black text-[11px] uppercase truncate leading-tight text-primary">${gov}</h4><p class="text-[9px] text-gray-400 font-bold uppercase">Total: ${total}</p></div>`;
                     grid.appendChild(card);
                 }
             });
@@ -235,26 +220,23 @@
         }
 
         function updateNationalSummary() {
-            const totals = {};
-            let grandTotal = 0;
+            const totals = {}; let grandTotal = 0;
             Object.values(regionalData).forEach(region => {
                 Object.entries(region).forEach(([hp, count]) => {
-                    totals[hp] = (totals[hp] || 0) + count;
-                    grandTotal += count;
+                    totals[hp] = (totals[hp] || 0) + count; grandTotal += count;
                 });
             });
             document.getElementById('total-national-samples').innerText = grandTotal.toLocaleString();
             document.getElementById('total-gov-count').innerText = govList.length;
             document.getElementById('national-pie').style.background = generatePie(totals);
-
-            const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 8);
+            const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 10);
             document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `
                 <div class="flex items-center justify-between text-[10px] font-bold border-b border-gray-50 pb-1 uppercase">
                     <div class="flex items-center gap-2">
                         <div class="w-2.5 h-2.5 rounded-full" style="background: ${getHaploColor(name)}"></div>
                         <span>${name}</span>
                     </div>
-                    <span>${((count/grandTotal)*100).toFixed(1)}% <span class="text-[9px] opacity-40 ml-1">(${count})</span></span>
+                    <span>${((count/grandTotal)*100).toFixed(1)}% <span class="text-[8px] opacity-40 ml-1">(${count})</span></span>
                 </div>`).join('');
         }
 
@@ -263,18 +245,19 @@
             const total = Object.values(data).reduce((a, b) => a + b, 0);
             const sorted = Object.entries(data).sort((a,b) => b[1] - a[1]);
             document.getElementById('modal-title').innerText = gov;
-            document.getElementById('modal-sample').innerText = `Total Samples: ${total}`;
+            document.getElementById('modal-sample').innerText = `TOTAL SAMPLES: ${total}`;
             document.getElementById('modal-pie').style.background = generatePie(data);
             
+            // DETAIL LISTE MIT FARBPUNKTEN
             document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `
-                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                    <div class="flex items-center gap-3">
-                        <div class="w-3 h-3 rounded-full shadow-sm" style="background: ${getHaploColor(name)}"></div>
-                        <span class="text-xs font-black uppercase text-gray-600">${name}</span>
+                <div class="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-gray-100/50">
+                    <div class="flex items-center gap-4">
+                        <div class="w-4 h-4 rounded-full shadow-sm" style="background: ${getHaploColor(name)}"></div>
+                        <span class="text-lg font-black uppercase text-primary tracking-tight">${name}</span>
                     </div>
-                    <span class="font-black text-sm text-primary">
+                    <span class="font-black text-lg text-primary">
                         ${total > 0 ? ((count/total)*100).toFixed(1) : 0}% 
-                        <span class="text-[10px] text-gray-300 ml-1">(${count})</span>
+                        <span class="text-xs text-gray-400 font-bold ml-2">(${count})</span>
                     </span>
                 </div>`).join('');
             document.getElementById('detail-modal').classList.add('active');
@@ -290,7 +273,7 @@
             else regionalData[region][haplo] = count;
             localStorage.setItem('egyptDNA_data', JSON.stringify(regionalData));
             renderUI();
-            alert("Updated locally! Export JSON to share changes.");
+            alert("Updated!");
         }
 
         function updateDropdowns() {
