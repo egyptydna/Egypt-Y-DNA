@@ -13,12 +13,7 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        "primary": "#001736",
-                        "secondary": "#775a19",
-                        "background": "#f8f9fa",
-                        "surface": "#ffffff",
-                    },
+                    colors: { "primary": "#001736", "secondary": "#775a19", "background": "#f8f9fa" },
                     fontFamily: { "headline": ["Manrope"], "body": ["Inter"] },
                 },
             },
@@ -29,10 +24,7 @@
         .pie-chart { width: 64px; height: 64px; border-radius: 50%; border: 2px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.3s ease; }
         .pie-chart-lg { width: 180px; height: 180px; border-radius: 50%; border: 4px solid white; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
         .pie-chart-xl { width: 240px; height: 240px; border-radius: 50%; border: 8px solid white; box-shadow: 0 15px 40px rgba(0,0,0,0.15); }
-        
-        #admin-panel { display: none; }
-        #admin-panel.active { display: block; animation: slideDown 0.4s ease; }
-        
+        #admin-panel { display: none; } #admin-panel.active { display: block; animation: slideDown 0.4s ease; }
         #detail-modal, #login-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0, 23, 54, 0.4); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px; }
         #detail-modal.active, #login-modal.active { display: flex; }
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -45,10 +37,10 @@
         <div class="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full text-center">
             <span class="material-symbols-outlined text-5xl text-secondary mb-4">lock</span>
             <h2 class="text-2xl font-black font-headline mb-4">Admin Access</h2>
-            <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border-gray-200 border mb-4 text-center focus:ring-2 focus:ring-primary outline-none" placeholder="Enter Password">
+            <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border-gray-200 border mb-4 text-center outline-none" placeholder="Enter Password">
             <div class="flex gap-3">
-                <button onclick="closeLogin()" class="flex-1 p-3 rounded-xl bg-gray-100 font-bold hover:bg-gray-200 transition-colors">Cancel</button>
-                <button onclick="tryLogin()" class="flex-1 p-3 rounded-xl bg-primary text-white font-bold hover:bg-opacity-90 transition-colors">Login</button>
+                <button onclick="closeLogin()" class="flex-1 p-3 rounded-xl bg-gray-100 font-bold">Cancel</button>
+                <button onclick="tryLogin()" class="flex-1 p-3 rounded-xl bg-primary text-white font-bold">Login</button>
             </div>
         </div>
     </div>
@@ -61,10 +53,10 @@
             </button>
             <div class="flex flex-col md:flex-row gap-10 items-center">
                 <div id="modal-pie" class="pie-chart-lg flex-shrink-0"></div>
-                <div class="flex-1">
+                <div class="flex-1 w-full">
                     <h2 id="modal-title" class="text-4xl font-black font-headline tracking-tighter mb-2">Governorate</h2>
                     <p id="modal-sample" class="text-secondary font-bold uppercase text-[10px] tracking-[0.2em] mb-6">Total Samples: 0</p>
-                    <div id="modal-legend" class="space-y-3 border-t pt-6"></div>
+                    <div id="modal-legend" class="space-y-2 border-t pt-6"></div>
                 </div>
             </div>
         </div>
@@ -87,7 +79,6 @@
                         <span class="material-symbols-outlined text-lg">mail</span> Email
                     </a>
                 </div>
-
                 <button onclick="handleAdminBtnClick()" id="admin-btn" class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold hover:scale-105 transition-all shadow-lg">
                     <span class="material-symbols-outlined text-sm" id="admin-icon">admin_panel_settings</span> 
                     <span id="admin-text">Admin Login</span>
@@ -113,12 +104,6 @@
                         <p id="total-gov-count" class="text-4xl font-black font-headline text-primary">0</p>
                     </div>
                 </div>
-                <div class="mt-8 p-4 bg-gray-50 rounded-2xl border border-gray-100 w-full text-center lg:text-left">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Contribute Samples</p>
-                    <p class="text-xs text-gray-500 leading-relaxed">
-                        Submit results via <a href="mailto:egyptydna@gmail.com" class="text-secondary font-bold hover:underline">Email</a> or <a href="https://x.com/egyptydna" target="_blank" class="text-secondary font-bold hover:underline">X (Twitter)</a>.
-                    </p>
-                </div>
             </div>
             <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-12 justify-center lg:justify-end">
                 <div id="national-pie" class="pie-chart-xl flex-shrink-0"></div>
@@ -128,15 +113,7 @@
 
         <!-- MAP SECTION -->
         <section class="w-full space-y-6">
-            <div class="flex flex-col md:flex-row justify-between items-end gap-2">
-                <div>
-                    <h2 class="text-4xl font-black font-headline tracking-tighter leading-none">Geospatial Distribution</h2>
-                    <p class="text-secondary font-bold uppercase text-[10px] tracking-[0.2em] mt-2">Interactive Genomic Atlas</p>
-                </div>
-                <a href="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746#6/26.834/30.795" target="_blank" class="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1 hover:text-primary transition-colors">
-                    Fullscreen Map <span class="material-symbols-outlined text-sm">open_in_new</span>
-                </a>
-            </div>
+            <h2 class="text-4xl font-black font-headline tracking-tighter leading-none">Geospatial Distribution</h2>
             <div class="h-[600px] w-full bg-white rounded-[3rem] overflow-hidden shadow-2xl border border-gray-100 ring-1 ring-black/5">
                 <iframe src="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746#6/26.834/30.795" class="w-full h-full border-none"></iframe>
             </div>
@@ -146,12 +123,11 @@
         <section id="admin-panel" class="bg-secondary/5 p-8 rounded-[3rem] border-2 border-secondary/20 space-y-10">
             <div class="flex justify-between items-center border-b border-secondary/10 pb-4">
                 <h3 class="text-2xl font-black font-headline uppercase text-secondary font-black">Editor Mode</h3>
-                <button onclick="exportData()" class="bg-white px-3 py-1.5 rounded-lg shadow-sm border border-secondary/20 uppercase text-[10px] font-bold">Export JSON (Backup)</button>
+                <button onclick="exportData()" class="bg-white px-3 py-1.5 rounded-lg shadow-sm border border-secondary/20 uppercase text-[10px] font-bold">Export JSON</button>
             </div>
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div class="space-y-4">
-                    <h4 class="font-black uppercase text-xs tracking-widest text-gray-400">Update Genomic Counts</h4>
+                    <h4 class="font-black uppercase text-xs tracking-widest text-gray-400">Update Counts</h4>
                     <div class="grid grid-cols-2 gap-2">
                         <select id="edit-data-region" class="p-3 rounded-xl border-none shadow-sm text-sm"></select>
                         <input type="text" id="edit-haplo-name" class="p-3 rounded-xl border-none shadow-sm text-sm uppercase" placeholder="Haplo (e.g. J1)">
@@ -166,35 +142,45 @@
 
         <!-- REGIONAL GRID -->
         <section class="space-y-8">
-            <div class="flex flex-col md:flex-row justify-between items-end gap-4">
-                <div>
-                    <h2 class="text-4xl font-black font-headline tracking-tighter leading-none">Regional Archives</h2>
-                    <p class="text-gray-400 text-sm mt-2">Historical Y-DNA distribution by governorate</p>
-                </div>
-                <input type="text" id="searchInput" oninput="renderUI()" placeholder="Search region..." class="p-4 rounded-2xl border-none shadow-sm text-sm w-full md:w-64 focus:ring-2 focus:ring-secondary outline-none">
-            </div>
+            <h2 class="text-4xl font-black font-headline tracking-tighter leading-none">Regional Archives</h2>
             <div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
         </section>
     </main>
 
     <footer class="py-16 border-t border-gray-200 bg-white">
-        <div class="max-w-screen-2xl mx-auto px-6 text-center space-y-8">
-            <div class="flex flex-col items-center">
-                <h2 class="text-2xl font-black font-headline uppercase tracking-tighter">Egyptian Y-DNA Project</h2>
-                <p class="text-xs text-gray-400 font-bold uppercase tracking-[0.3em] mt-2">National Genomic Archive</p>
-            </div>
+        <div class="max-w-screen-2xl mx-auto px-6 text-center">
+            <h2 class="text-2xl font-black font-headline uppercase tracking-tighter leading-none">Egyptian Y-DNA Project</h2>
+            <p class="text-xs text-gray-400 font-bold uppercase tracking-[0.3em] mt-2">National Genomic Archive</p>
         </div>
     </footer>
 
     <script>
         const ADMIN_PW = "LM10KING10.cba1312";
-        const COLORS = ["#002855", "#775a19", "#8B4513", "#4A5D23", "#004d40", "#bf360c", "#311b92", "#1a237e", "#4e342e", "#212121", "#37474f", "#C5A059"];
 
-        // DEINE DATEN AUS DEM JSON EXPORT
+        // FARB-MAPPING BASIEREND AUF UMAP
+        const HAPLO_COLORS = {
+            "J1": "#006400",    // Dunkelgrün
+            "J2": "#90EE90",    // Hellgrün
+            "R1B": "#FF0000",   // Rot
+            "R1A": "#FF4500",   // Orange-Rot
+            "G": "#808080", "G2": "#808080", // Grau
+            "E": "#00008B", "E-M35": "#00008B", // Dunkelblau
+            "T": "#8B4513",     // Braun
+            "B": "#DAA520",     // Goldrute
+            "L": "#9400D3", "L1": "#9400D3", // Violett
+            "Q": "#FFD700", "Q1": "#FFD700", "Q2": "#FFD700", // Gold
+            "C": "#00CED1",     // Türkis
+            "I2": "#708090",    // Schiefergrau
+            "A1A": "#000000", "A1B1": "#000000", // Schwarz
+            "H2": "#FF69B4",    // HotPink
+            "R2": "#CD5C5C"     // Indisch-Rot
+        };
+        const DEFAULT_COLOR = "#CCCCCC"; // Standardgrau für unbekannte Haplogruppen
+
         const initialData = {"Ad Daqahlīyah":{"B":1,"E":4,"L1":1,"R1b":2},"Al Fayyūm":{"E":1,"G2":1,"J1":3},"Al Gharbīyah":{"E":1,"R1b":1},"Al Ismā`īlīyah":{"E":2,"J1":1,"T":1},"Al Minūfīyah":{"E":8,"T":1},"Al Minyā":{"G2":1,"J1":2},"Al Qalyūbīyah":{"G2":1,"H2":1,"J1":2,"L1":1,"R2":1},"As Suways":{"L1":1},"Ash Sharqīyah":{"E":2,"G2":2,"J1":7,"Q2":1},"Aswān":{"B":1,"E":1,"I2":1,"J2":1,"T":1},"Asyūt":{"I2":1,"J1":4,"T":1},"Banī Suwayf":{"J1":3},"Cairo":{"E":9,"I2":1,"R1a":1,"R2":1},"Dumyāt":{"J1":1},"Giza":{"E":1},"Janūb Sīnā’":{"E":3,"J1":2},"Kafr ash Shaykh":{"J1":1,"T":1},"Luxor":{"E":1},"Matrouh":{"E":1},"Qinā":{"J1":1},"Shamal Sīnā’":{"J2":1},"Sūhāj":{"C":1,"E":1,"J1":1},"Unassigned Origin":{"A1a":1,"A1b1":2,"E":1,"I2":1,"J1":6,"J2":2,"L1":1,"Q1":1,"R1a":3,"R1b":1,"T":1}};
 
-        const govList = Object.keys(initialData).sort();
         let regionalData = JSON.parse(localStorage.getItem('egyptDNA_data')) || initialData;
+        const govList = Object.keys(regionalData).sort();
 
         function init() {
             checkAuthUI();
@@ -203,17 +189,20 @@
             document.getElementById('admin-pw').addEventListener('keypress', (e) => { if (e.key === 'Enter') tryLogin(); });
         }
 
-        function saveGenomicData() {
-            const region = document.getElementById('edit-data-region').value;
-            const haplo = document.getElementById('edit-haplo-name').value.trim().toUpperCase();
-            const count = parseInt(document.getElementById('edit-haplo-count').value);
-            if (!region || !haplo || isNaN(count)) return alert("Missing data.");
-            if (!regionalData[region]) regionalData[region] = {};
-            if (count <= 0) delete regionalData[region][haplo];
-            else regionalData[region][haplo] = count;
-            localStorage.setItem('egyptDNA_data', JSON.stringify(regionalData));
-            renderUI();
-            alert("Updated locally! Export JSON and send me the text to make it permanent.");
+        function getHaploColor(name) {
+            return HAPLO_COLORS[name.toUpperCase()] || DEFAULT_COLOR;
+        }
+
+        function generatePie(data) {
+            const total = Object.values(data).reduce((a, b) => a + b, 0);
+            if (total === 0) return "silver";
+            let current = 0;
+            const segments = Object.entries(data).map(([name, count]) => {
+                const perc = (count / total) * 100;
+                const start = current; current += perc;
+                return `${getHaploColor(name)} ${start}% ${current}%`;
+            });
+            return `conic-gradient(${segments.join(', ')})`;
         }
 
         function renderUI() {
@@ -236,25 +225,13 @@
                         <div class="min-w-0">
                             <h4 class="font-black text-[11px] uppercase truncate leading-tight">${gov}</h4>
                             <p class="text-[10px] text-secondary font-bold uppercase tracking-widest mt-0.5">Top: ${top}</p>
-                            <p class="text-[9px] text-gray-300 font-bold uppercase">N: ${total}</p>
+                            <p class="text-[9px] text-gray-300 font-bold uppercase">Total: ${total}</p>
                         </div>
                     `;
                     grid.appendChild(card);
                 }
             });
             updateNationalSummary();
-        }
-
-        function generatePie(data) {
-            const total = Object.values(data).reduce((a, b) => a + b, 0);
-            if (total === 0) return "silver";
-            let current = 0;
-            const segments = Object.entries(data).map(([name, count], i) => {
-                const perc = (count / total) * 100;
-                const start = current; current += perc;
-                return `${COLORS[i % COLORS.length]} ${start}% ${current}%`;
-            });
-            return `conic-gradient(${segments.join(', ')})`;
         }
 
         function updateNationalSummary() {
@@ -271,14 +248,49 @@
             document.getElementById('national-pie').style.background = generatePie(totals);
 
             const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 8);
-            document.getElementById('national-legend').innerHTML = sorted.map(([name, count], i) => `
+            document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `
                 <div class="flex items-center justify-between text-[10px] font-bold border-b border-gray-50 pb-1 uppercase">
                     <div class="flex items-center gap-2">
-                        <div class="w-2 h-2 rounded-full" style="background: ${COLORS[i % COLORS.length]}"></div>
+                        <div class="w-2.5 h-2.5 rounded-full" style="background: ${getHaploColor(name)}"></div>
                         <span>${name}</span>
                     </div>
                     <span>${((count/grandTotal)*100).toFixed(1)}% <span class="text-[9px] opacity-40 ml-1">(${count})</span></span>
                 </div>`).join('');
+        }
+
+        function openModal(gov) {
+            const data = regionalData[gov] || {};
+            const total = Object.values(data).reduce((a, b) => a + b, 0);
+            const sorted = Object.entries(data).sort((a,b) => b[1] - a[1]);
+            document.getElementById('modal-title').innerText = gov;
+            document.getElementById('modal-sample').innerText = `Total Samples: ${total}`;
+            document.getElementById('modal-pie').style.background = generatePie(data);
+            
+            document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <div class="w-3 h-3 rounded-full shadow-sm" style="background: ${getHaploColor(name)}"></div>
+                        <span class="text-xs font-black uppercase text-gray-600">${name}</span>
+                    </div>
+                    <span class="font-black text-sm text-primary">
+                        ${total > 0 ? ((count/total)*100).toFixed(1) : 0}% 
+                        <span class="text-[10px] text-gray-300 ml-1">(${count})</span>
+                    </span>
+                </div>`).join('');
+            document.getElementById('detail-modal').classList.add('active');
+        }
+
+        function saveGenomicData() {
+            const region = document.getElementById('edit-data-region').value;
+            const haplo = document.getElementById('edit-haplo-name').value.trim().toUpperCase();
+            const count = parseInt(document.getElementById('edit-haplo-count').value);
+            if (!region || !haplo || isNaN(count)) return alert("Error");
+            if (!regionalData[region]) regionalData[region] = {};
+            if (count <= 0) delete regionalData[region][haplo];
+            else regionalData[region][haplo] = count;
+            localStorage.setItem('egyptDNA_data', JSON.stringify(regionalData));
+            renderUI();
+            alert("Updated locally! Export JSON to share changes.");
         }
 
         function updateDropdowns() {
@@ -292,10 +304,8 @@
         }
 
         function tryLogin() {
-            if (document.getElementById('admin-pw').value === ADMIN_PW) {
-                localStorage.setItem('is_admin', 'true');
-                location.reload();
-            } else { alert("Incorrect Password!"); }
+            if (document.getElementById('admin-pw').value === ADMIN_PW) { localStorage.setItem('is_admin', 'true'); location.reload(); }
+            else { alert("Incorrect Password!"); }
         }
 
         function closeLogin() { document.getElementById('login-modal').classList.remove('active'); }
@@ -306,21 +316,6 @@
                 document.getElementById('admin-text').innerText = "Logout Admin";
                 document.getElementById('admin-btn').classList.add('bg-red-600');
             }
-        }
-
-        function openModal(gov) {
-            const data = regionalData[gov] || {};
-            const total = Object.values(data).reduce((a, b) => a + b, 0);
-            const sorted = Object.entries(data).sort((a,b) => b[1] - a[1]);
-            document.getElementById('modal-title').innerText = gov;
-            document.getElementById('modal-sample').innerText = `Total Archived: ${total}`;
-            document.getElementById('modal-pie').style.background = generatePie(data);
-            document.getElementById('modal-legend').innerHTML = sorted.map(([name, count], i) => `
-                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                    <span class="text-xs font-black uppercase text-gray-600">${name}</span>
-                    <span class="font-black text-sm text-primary">${((count/total)*100).toFixed(1)}% <span class="text-[10px] text-gray-300 ml-1">(${count})</span></span>
-                </div>`).join('');
-            document.getElementById('detail-modal').classList.add('active');
         }
 
         function closeModal(e) { if (!e || e.target.id === 'detail-modal') document.getElementById('detail-modal').classList.remove('active'); }
