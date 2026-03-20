@@ -37,7 +37,7 @@
         <div class="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full text-center">
             <span class="material-symbols-outlined text-5xl text-secondary mb-4">lock</span>
             <h2 class="text-2xl font-black font-headline mb-4 text-primary">Admin Access</h2>
-            <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border-gray-200 border mb-4 text-center outline-none" placeholder="Enter Password">
+            <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border-gray-200 border mb-4 text-center focus:ring-2 focus:ring-primary outline-none" placeholder="Enter Password">
             <div class="flex gap-3">
                 <button onclick="closeLogin()" class="flex-1 p-3 rounded-xl bg-gray-100 font-bold">Cancel</button>
                 <button onclick="tryLogin()" class="flex-1 p-3 rounded-xl bg-primary text-white font-bold">Login</button>
@@ -73,6 +73,7 @@
             </div>
             <div class="flex items-center gap-4">
                 <a href="https://x.com/egyptydna" target="_blank" class="text-gray-400 hover:text-primary transition-colors"><span class="material-symbols-outlined">public</span></a>
+                <a href="mailto:egyptydna@gmail.com" class="text-gray-400 hover:text-primary transition-colors"><span class="material-symbols-outlined">mail</span></a>
                 <button onclick="handleAdminBtnClick()" id="admin-btn" class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg">
                     <span class="material-symbols-outlined text-sm" id="admin-icon">admin_panel_settings</span> <span id="admin-text">Admin Login</span>
                 </button>
@@ -86,7 +87,7 @@
             <div class="lg:col-span-5 text-center lg:text-left">
                 <span class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-4 block">Consolidated Data</span>
                 <h2 class="text-5xl font-black font-headline tracking-tighter mb-6 text-primary leading-tight">National Summary</h2>
-                <div class="grid grid-cols-2 gap-8 w-full border-t pt-8">
+                <div class="grid grid-cols-2 gap-8 w-full border-t pt-8 text-primary font-bold">
                     <div><p class="text-[10px] font-bold text-gray-400 uppercase">Grand Total Samples</p><p id="total-national-samples" class="text-4xl font-black text-primary">0</p></div>
                     <div><p class="text-[10px] font-bold text-gray-400 uppercase">Mapped Regions</p><p id="total-gov-count" class="text-4xl font-black font-primary">0</p></div>
                 </div>
@@ -124,7 +125,7 @@
         <!-- REGIONAL GRID -->
         <section class="space-y-8">
             <div class="flex flex-col md:flex-row justify-between items-end gap-4">
-                <h2 class="text-4xl font-black font-headline tracking-tighter leading-none text-primary">Regional Archives</h2>
+                <h2 class="text-4xl font-black font-headline tracking-tighter leading-none text-primary font-bold">Regional Archives</h2>
                 <input type="text" id="searchInput" oninput="renderUI()" placeholder="Search region..." class="p-4 rounded-2xl border-none shadow-sm text-sm w-full md:w-64 focus:ring-2 focus:ring-secondary outline-none">
             </div>
             <div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
@@ -143,7 +144,7 @@
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
         const ADMIN_PW = "LM10KING10.cba1312";
 
-        // FARBMAPPING NACH DEINEN WÜNSCHEN (uMap Konform)
+        // FARBMAPPING NACH DEINEN WÜNSCHEN
         const HAPLO_COLORS = {
             "R1B": "#FF0000",       // Red
             "E": "#00008B",         // Dark Blue
@@ -211,12 +212,10 @@
                         tooltip: {
                             enabled: true,
                             backgroundColor: 'rgba(0, 23, 54, 0.9)',
-                            titleFont: { size: 14, weight: 'bold' },
-                            bodyFont: { size: 13 },
                             padding: 12,
                             cornerRadius: 10,
                             callbacks: {
-                                label: (context) => ` ${context.label}: ${context.raw} Proben`
+                                label: (context) => ` ${context.label}: ${context.raw} Samples`
                             }
                         }
                     },
@@ -232,7 +231,7 @@
             const count = parseInt(document.getElementById('edit-haplo-count').value);
             if (!region || !haplo || isNaN(count)) return alert("Error");
             await _supabase.from('dna_stats').upsert({ region, haplogroup: haplo, count }, { onConflict: 'region, haplogroup' });
-            await fetchData(); renderUI(); alert("Updated Successfully!");
+            await fetchData(); renderUI(); alert("Success!");
         }
 
         function renderUI() {
@@ -253,7 +252,7 @@
                         <div class="w-16 h-16 flex-shrink-0"><canvas id="${canvasId}"></canvas></div>
                         <div class="min-w-0">
                             <h4 class="font-black text-[11px] uppercase truncate text-primary leading-tight">${gov}</h4>
-                            <p class="text-[9px] text-gray-400 font-bold uppercase">Total: ${total}</p>
+                            <p class="text-[9px] text-gray-400 font-bold uppercase">Total Samples: ${total}</p>
                         </div>
                     `;
                     grid.appendChild(card);
@@ -275,7 +274,7 @@
             
             if (grandTotal > 0) createPieChart('nationalChartCanvas', totals, false);
 
-            const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 12);
+            const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 15);
             document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `
                 <div class="flex items-center justify-between text-[10px] font-bold border-b border-gray-50 pb-1 uppercase">
                     <div class="flex items-center gap-2">
@@ -297,11 +296,11 @@
             
             document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `
                 <div class="flex items-center justify-between p-3 bg-gray-50/50 rounded-2xl border border-gray-100/50">
-                    <div class="flex items-center gap-4 text-primary">
+                    <div class="flex items-center gap-4 text-primary font-bold">
                         <div class="w-5 h-5 rounded-full shadow-md" style="background: ${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div>
                         <span class="text-xl font-black uppercase tracking-tight">${name}</span>
                     </div>
-                    <span class="font-black text-xl text-primary">${total > 0 ? ((count/total)*100).toFixed(1) : 0}% <span class="text-xs text-gray-400 font-bold ml-2">(${count})</span></span>
+                    <span class="font-black text-xl text-primary font-bold">${total > 0 ? ((count/total)*100).toFixed(1) : 0}% <span class="text-xs text-gray-400 font-bold ml-2">(${count})</span></span>
                 </div>`).join('');
             document.getElementById('detail-modal').classList.add('active');
         }
