@@ -42,12 +42,12 @@
 
     <!-- LOGIN MODAL -->
     <div id="login-modal">
-        <div class="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full text-center">
+        <div class="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full text-center text-primary">
             <span class="material-symbols-outlined text-5xl text-secondary mb-4">lock</span>
-            <h2 class="text-2xl font-black font-headline mb-4 uppercase text-primary">Admin Access</h2>
-            <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border-gray-200 border mb-4 text-center outline-none focus:ring-2 focus:ring-primary text-primary font-bold" placeholder="Enter Password">
-            <div class="flex gap-3 text-primary font-bold">
-                <button onclick="closeLogin()" class="flex-1 p-3 rounded-xl bg-gray-100 font-bold hover:bg-gray-200 transition-colors">Cancel</button>
+            <h2 class="text-2xl font-black font-headline mb-4 uppercase">Admin Access</h2>
+            <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border-gray-200 border mb-4 text-center outline-none focus:ring-2 focus:ring-primary font-bold" placeholder="Enter Password">
+            <div class="flex gap-3">
+                <button onclick="closeLogin()" class="flex-1 p-3 rounded-xl bg-gray-100 font-bold hover:bg-gray-200">Cancel</button>
                 <button onclick="tryLogin()" class="flex-1 p-3 rounded-xl bg-primary text-white font-bold hover:bg-opacity-90">Login</button>
             </div>
         </div>
@@ -55,34 +55,33 @@
 
     <!-- DETAIL MODAL -->
     <div id="detail-modal" onclick="closeModal(event)">
-        <div class="bg-white w-full max-w-3xl rounded-[3rem] shadow-2xl p-10 relative overflow-hidden border border-gray-100" onclick="event.stopPropagation()">
+        <div class="bg-white w-full max-w-3xl rounded-[3rem] shadow-2xl p-10 relative overflow-hidden border border-gray-100 font-headline" onclick="event.stopPropagation()">
             <button onclick="closeModal(null)" class="absolute top-8 right-8 text-gray-400 hover:text-red-500 transition-colors">
                 <span class="material-symbols-outlined text-4xl font-bold">close</span>
             </button>
-            <div class="flex flex-col md:flex-row gap-12 items-center text-primary font-headline">
+            <div class="flex flex-col md:flex-row gap-12 items-center">
                 <div class="w-[320px] h-[320px] flex-shrink-0">
                     <canvas id="modalChartCanvas"></canvas>
                 </div>
                 <div class="flex-1 w-full text-center md:text-left">
-                    <h2 id="modal-title" class="text-5xl font-black font-headline tracking-tighter mb-1 text-primary uppercase leading-tight">Governorate</h2>
+                    <h2 id="modal-title" class="text-5xl font-black tracking-tighter mb-1 text-primary uppercase leading-tight">Governorate</h2>
                     <p id="modal-sample" class="text-3xl font-black text-secondary uppercase tracking-tighter mb-8 inline-block bg-secondary/5 px-4 py-1 rounded-full">TOTAL: 0</p>
-                    <div id="modal-legend" class="space-y-3 border-t pt-8"></div>
+                    <div id="modal-legend" class="space-y-2 border-t pt-8"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- NAVIGATION -->
     <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100 text-primary">
-        <div class="flex justify-between items-center px-6 h-20 max-w-screen-2xl mx-auto">
+        <div class="flex justify-between items-center px-6 h-20 max-w-screen-2xl mx-auto font-headline">
             <div class="flex flex-col">
-                <h1 class="text-xl font-black font-headline uppercase tracking-tighter leading-none text-primary">Egyptian Y-DNA Project</h1>
-                <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1 text-primary leading-none">National Genomic Archive</p>
+                <h1 class="text-xl font-black uppercase tracking-tighter leading-none">Egyptian Y-DNA Project</h1>
+                <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1 leading-none">National Genomic Archive</p>
             </div>
             <div class="flex items-center gap-4">
                 <a href="https://x.com/egyptydna" target="_blank" class="text-gray-400 hover:text-primary transition-all"><span class="material-symbols-outlined">public</span></a>
                 <a href="mailto:egyptydna@gmail.com" class="text-gray-400 hover:text-primary transition-all"><span class="material-symbols-outlined">mail</span></a>
-                <button onclick="handleAdminBtnClick()" id="admin-btn" class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg">
+                <button onclick="handleAdminBtnClick()" id="admin-btn" class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg hover:scale-105 transition-all">
                     <span class="material-symbols-outlined text-sm" id="admin-icon">admin_panel_settings</span> <span id="admin-text">Admin Login</span>
                 </button>
             </div>
@@ -91,13 +90,13 @@
 
     <main class="pt-28 pb-20 px-6 max-w-screen-2xl mx-auto space-y-16">
         <!-- NATIONAL SUMMARY -->
-        <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-10 rounded-[4rem] shadow-xl border border-gray-100 text-primary">
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-10 rounded-[4rem] shadow-xl border border-gray-100 text-primary font-headline">
             <div class="lg:col-span-5 text-center lg:text-left text-primary font-bold">
                 <span class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-4 block">Consolidated Data</span>
-                <h2 class="text-6xl font-black font-headline tracking-tighter mb-8 leading-tight">National Summary</h2>
+                <h2 class="text-6xl font-black tracking-tighter mb-8 leading-tight">National Summary</h2>
                 <div class="grid grid-cols-2 gap-8 w-full border-t pt-8">
-                    <div><p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1 leading-none">Grand Total Samples</p><p id="total-national-samples" class="text-5xl font-black text-primary leading-none">0</p></div>
-                    <div><p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1 leading-none">Mapped Regions</p><p id="total-gov-count" class="text-5xl font-black font-primary leading-none">0</p></div>
+                    <div><p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1 leading-none uppercase">Grand Total Samples</p><p id="total-national-samples" class="text-5xl font-black text-primary leading-none">0</p></div>
+                    <div><p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1 leading-none uppercase">Mapped Regions</p><p id="total-gov-count" class="text-5xl font-black font-primary leading-none">0</p></div>
                 </div>
             </div>
             <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-12 justify-center lg:justify-end text-primary">
@@ -116,7 +115,7 @@
         <!-- ADMIN PANEL -->
         <section id="admin-panel" class="bg-secondary/5 p-10 rounded-[3rem] border-2 border-secondary/20 shadow-inner text-primary">
             <h3 class="text-2xl font-black font-headline uppercase text-secondary mb-8 leading-none flex items-center gap-2">
-                <span class="material-symbols-outlined text-primary">edit_square</span> Database Live Editor
+                <span class="material-symbols-outlined">edit_square</span> Database Live Editor
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div class="space-y-6">
@@ -134,10 +133,10 @@
 
         <!-- REGIONAL GRID -->
         <section class="space-y-10">
-            <div class="flex flex-col md:flex-row justify-between items-end gap-6 text-primary">
+            <div class="flex flex-col md:flex-row justify-between items-end gap-6 text-primary font-headline">
                 <div>
-                    <h2 class="text-5xl font-black font-headline tracking-tighter leading-none text-primary uppercase">Regional Archives</h2>
-                    <p class="text-gray-400 font-medium mt-2">Interactive distribution by governorate</p>
+                    <h2 class="text-5xl font-black tracking-tighter leading-none uppercase">Regional Archives</h2>
+                    <p class="text-gray-400 font-medium mt-2">Hover over diagrams for details • Click for full statistics</p>
                 </div>
                 <div class="relative w-full md:w-80">
                     <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span>
@@ -148,9 +147,9 @@
         </section>
     </main>
 
-    <footer class="py-20 border-t border-gray-100 bg-white text-center text-primary font-bold">
-        <h2 class="text-2xl font-black font-headline uppercase tracking-tighter text-primary leading-none">Egyptian Y-DNA Project</h2>
-        <p class="text-xs text-gray-400 font-bold uppercase tracking-[0.4em] mt-2 text-primary leading-none">National Genomic Archive</p>
+    <footer class="py-20 border-t border-gray-100 bg-white text-center text-primary font-headline font-bold">
+        <h2 class="text-2xl font-black uppercase tracking-tighter text-primary leading-none">Egyptian Y-DNA Project</h2>
+        <p class="text-xs text-gray-400 font-bold uppercase tracking-[0.4em] mt-2 leading-none">National Genomic Archive</p>
     </footer>
 
     <script>
@@ -221,11 +220,12 @@
                             padding: 12,
                             cornerRadius: 10,
                             displayColors: false,
-                            titleFont: { size: 0 }, // TITEL ENTFERNEN
-                            bodyFont: { size: 15, weight: '900', family: 'Manrope' }, // NUR BUCHSTABE GROSS
+                            // FIX: Titel entfernen, damit nur J1 einmal da steht
                             callbacks: {
-                                label: (ctx) => ctx.label // NUR DEN NAMEN (E, J1, etc.)
-                            }
+                                title: () => '', 
+                                label: (ctx) => ctx.label 
+                            },
+                            bodyFont: { size: 15, weight: '900', family: 'Manrope' }
                         }
                     },
                     animation: { duration: 1000, easing: 'easeOutQuart' }
@@ -302,7 +302,7 @@
             
             document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `
                 <div class="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-gray-100 text-primary">
-                    <div class="flex items-center gap-4 text-primary">
+                    <div class="flex items-center gap-4 text-primary font-black">
                         <div class="w-8 h-8 rounded-full shadow-md" style="background: ${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div>
                         <span class="text-2xl font-black uppercase tracking-tight font-headline text-primary">${name}</span>
                     </div>
