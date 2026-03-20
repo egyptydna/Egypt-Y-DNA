@@ -28,6 +28,15 @@
         #detail-modal, #login-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0, 23, 54, 0.5); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
         #detail-modal.active, #login-modal.active { display: flex; }
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        /* Karten-Hover Effekt */
+        .stat-card { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .stat-card:hover { 
+            background-color: #ffffff; 
+            border-color: #001736; 
+            transform: translateY(-8px) scale(1.02); 
+            box-shadow: 0 25px 50px -12px rgba(0, 23, 54, 0.25);
+        }
         canvas { cursor: pointer !important; }
     </style>
 </head>
@@ -37,10 +46,10 @@
     <div id="login-modal">
         <div class="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full text-center">
             <span class="material-symbols-outlined text-5xl text-secondary mb-4">lock</span>
-            <h2 class="text-2xl font-black font-headline mb-4 text-primary uppercase">Admin Access</h2>
-            <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border-gray-200 border mb-4 text-center outline-none focus:ring-2 focus:ring-primary" placeholder="Enter Password">
+            <h2 class="text-2xl font-black font-headline mb-4 text-primary uppercase text-primary">Admin Access</h2>
+            <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border-gray-200 border mb-4 text-center outline-none focus:ring-2 focus:ring-primary text-primary" placeholder="Enter Password">
             <div class="flex gap-3">
-                <button onclick="closeLogin()" class="flex-1 p-3 rounded-xl bg-gray-100 font-bold hover:bg-gray-200 transition-colors">Cancel</button>
+                <button onclick="closeLogin()" class="flex-1 p-3 rounded-xl bg-gray-100 font-bold hover:bg-gray-200">Cancel</button>
                 <button onclick="tryLogin()" class="flex-1 p-3 rounded-xl bg-primary text-white font-bold hover:bg-opacity-90">Login</button>
             </div>
         </div>
@@ -58,7 +67,7 @@
                 </div>
                 <div class="flex-1 w-full text-center md:text-left">
                     <h2 id="modal-title" class="text-5xl font-black font-headline tracking-tighter mb-1 text-primary leading-tight">Governorate</h2>
-                    <p id="modal-sample" class="text-3xl font-black text-secondary uppercase tracking-tighter mb-8 bg-secondary/5 inline-block px-4 py-1 rounded-full">TOTAL: 0</p>
+                    <p id="modal-sample" class="text-3xl font-black text-secondary uppercase tracking-tighter mb-8 inline-block bg-secondary/5 px-4 py-1 rounded-full">TOTAL: 0</p>
                     <div id="modal-legend" class="space-y-2 border-t pt-8"></div>
                 </div>
             </div>
@@ -69,7 +78,7 @@
     <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
         <div class="flex justify-between items-center px-6 h-20 max-w-screen-2xl mx-auto">
             <div class="flex flex-col">
-                <h1 class="text-xl font-black font-headline uppercase tracking-tighter leading-none">Egyptian Y-DNA Project</h1>
+                <h1 class="text-xl font-black font-headline uppercase tracking-tighter leading-none text-primary">Egyptian Y-DNA Project</h1>
                 <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1">National Genomic Archive</p>
             </div>
             <div class="flex items-center gap-4">
@@ -89,8 +98,8 @@
                 <span class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-4 block">Consolidated Data</span>
                 <h2 class="text-6xl font-black font-headline tracking-tighter mb-8 text-primary leading-tight">National Summary</h2>
                 <div class="grid grid-cols-2 gap-8 w-full border-t pt-8 text-primary font-bold">
-                    <div><p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Grand Total Samples</p><p id="total-national-samples" class="text-5xl font-black text-primary">0</p></div>
-                    <div><p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Mapped Regions</p><p id="total-gov-count" class="text-5xl font-black font-primary">0</p></div>
+                    <div><p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1 leading-none">Grand Total Samples</p><p id="total-national-samples" class="text-5xl font-black text-primary leading-none">0</p></div>
+                    <div><p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1 leading-none">Mapped Regions</p><p id="total-gov-count" class="text-5xl font-black font-primary leading-none">0</p></div>
                 </div>
             </div>
             <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-12 justify-center lg:justify-end">
@@ -101,9 +110,9 @@
             </div>
         </section>
 
-        <!-- MAP -->
+        <!-- MAP (Zentriert auf Ganz Ägypten) -->
         <section class="h-[650px] w-full bg-white rounded-[4rem] overflow-hidden shadow-2xl border border-gray-100 ring-1 ring-black/5">
-            <iframe id="mapIframe" src="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&allowEdit=false&moreControl=true&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=undefined&captionBar=false" class="w-full h-full border-none"></iframe>
+            <iframe id="mapIframe" src="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&allowEdit=false&moreControl=false&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=undefined&captionBar=false#6/26.834/30.795" class="w-full h-full border-none"></iframe>
         </section>
 
         <!-- ADMIN PANEL -->
@@ -116,19 +125,19 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase text-gray-400 ml-2">Select Region</label>
-                            <select id="edit-data-region" class="w-full p-4 rounded-2xl border-none shadow-md text-sm font-bold bg-white"></select>
+                            <select id="edit-data-region" class="w-full p-4 rounded-2xl border-none shadow-md text-sm font-bold bg-white text-primary"></select>
                         </div>
                         <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase text-gray-400 ml-2">Haplogroup</label>
-                            <input type="text" id="edit-haplo-name" class="w-full p-4 rounded-2xl border-none shadow-md text-sm uppercase font-bold bg-white" placeholder="e.g. J1">
+                            <label class="text-[10px] font-black uppercase text-gray-400 ml-2 text-primary">Haplogroup</label>
+                            <input type="text" id="edit-haplo-name" class="w-full p-4 rounded-2xl border-none shadow-md text-sm uppercase font-bold bg-white text-primary" placeholder="e.g. J1">
                         </div>
                     </div>
                     <div class="flex gap-4 items-end">
                         <div class="flex-1 space-y-2">
                             <label class="text-[10px] font-black uppercase text-gray-400 ml-2">Count</label>
-                            <input type="number" id="edit-haplo-count" class="w-full p-4 rounded-2xl border-none shadow-md text-sm font-bold bg-white" placeholder="0">
+                            <input type="number" id="edit-haplo-count" class="w-full p-4 rounded-2xl border-none shadow-md text-sm font-bold bg-white text-primary" placeholder="0">
                         </div>
-                        <button onclick="saveToDatabase()" class="bg-primary text-white px-10 h-[52px] rounded-2xl font-black text-xs uppercase shadow-xl hover:bg-secondary transition-all active:scale-95">Update Database</button>
+                        <button onclick="saveToDatabase()" class="bg-primary text-white px-10 h-[52px] rounded-2xl font-black text-xs uppercase shadow-xl hover:bg-secondary transition-all">Update Live</button>
                     </div>
                 </div>
             </div>
@@ -143,7 +152,7 @@
                 </div>
                 <div class="relative w-full md:w-80">
                     <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span>
-                    <input type="text" id="searchInput" oninput="renderUI()" placeholder="Search governorate..." class="w-full pl-12 pr-4 py-4 rounded-2xl border-none shadow-lg text-sm focus:ring-2 focus:ring-secondary outline-none font-bold">
+                    <input type="text" id="searchInput" oninput="renderUI()" placeholder="Search governorate..." class="w-full pl-12 pr-4 py-4 rounded-2xl border-none shadow-lg text-sm focus:ring-2 focus:ring-secondary outline-none font-bold text-primary">
                 </div>
             </div>
             <div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div>
@@ -162,10 +171,20 @@
         const ADMIN_PW = "LM10KING10.cba1312";
 
         const HAPLO_COLORS = {
-            "R1B": "#FF0000", "E": "#00008B", "T": "#FFA500", "J1": "#006400",
-            "L1": "#00FFFF", "B": "#008B8B", "G": "#444444", "G2": "#444444",
-            "Q": "#9400D3", "H": "#8B4513", "H2": "#8B4513", "R2": "#FFFF00", 
-            "R1A": "#DEB887", "I": "#EE82EE", "I2": "#EE82EE", "C": "#FFFFFF", "J2": "#32CD32"
+            "R1B": "#FF0000",       // Red
+            "E": "#00008B",         // Dark Blue
+            "T": "#FFA500",         // Orange
+            "J1": "#006400",        // Dark Green
+            "L1": "#00FFFF",        // Cyan
+            "B": "#008B8B",         // Dark Cyan
+            "G": "#444444", "G2": "#444444", // Dark Grey
+            "Q": "#9400D3", "Q1": "#9400D3", "Q2": "#9400D3", // Dark Violet
+            "H": "#8B4513", "H2": "#8B4513", // Saddle Brown
+            "R2": "#FFFF00",        // Yellow
+            "R1A": "#DEB887",       // Burly Wood
+            "I": "#EE82EE", "I2": "#EE82EE", // Violet
+            "C": "#FFFFFF",         // White
+            "J2": "#32CD32"         // Lime Green
         };
 
         let regionalData = {};
@@ -208,27 +227,27 @@
                         backgroundColor: colors,
                         borderWidth: isMini ? 1 : 2,
                         borderColor: '#ffffff',
-                        hoverOffset: isMini ? 10 : 40,
-                        hoverBorderColor: '#000000',
-                        hoverBorderWidth: 2
+                        hoverOffset: isMini ? 12 : 35, // Hervorhebung verbessert
+                        hoverBorderColor: '#001736',
+                        hoverBorderWidth: isMini ? 1 : 2
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     layout: { 
-                        padding: isMini ? 10 : 25 // MEHR PLATZ FÜR DIE HERVORHEBUNG
+                        padding: isMini ? 14 : 20 // Mehr Platz für die Hervorhebung unten
                     },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
                             enabled: true,
-                            backgroundColor: 'rgba(0, 23, 54, 0.95)',
-                            padding: isMini ? 8 : 15,
-                            cornerRadius: 8,
-                            displayColors: isMini ? false : true,
-                            bodyFont: { size: isMini ? 11 : 14 },
-                            callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.raw}` }
+                            backgroundColor: '#001736',
+                            padding: 12,
+                            cornerRadius: 10,
+                            displayColors: false,
+                            bodyFont: { size: isMini ? 11 : 14, weight: 'bold' },
+                            callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw}` }
                         }
                     },
                     animation: { duration: 1000, easing: 'easeOutQuart' }
@@ -242,7 +261,7 @@
             const count = parseInt(document.getElementById('edit-haplo-count').value);
             if (!region || !haplo || isNaN(count)) return alert("Error");
             await _supabase.from('dna_stats').upsert({ region, haplogroup: haplo, count }, { onConflict: 'region, haplogroup' });
-            await fetchData(); renderUI(); alert("Updated!");
+            await fetchData(); renderUI(); alert("Database Updated!");
         }
 
         function renderUI() {
@@ -257,13 +276,13 @@
                     const canvasId = `chart-${idx}`;
 
                     const card = document.createElement('div');
-                    card.className = "bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-2xl cursor-pointer transition-all hover:-translate-y-2 group overflow-visible";
+                    card.className = "stat-card bg-white p-8 rounded-[3rem] border border-gray-100 flex items-center gap-6 cursor-pointer overflow-visible";
                     card.onclick = () => openModal(gov);
                     card.innerHTML = `
-                        <div class="w-24 h-24 flex-shrink-0"><canvas id="${canvasId}"></canvas></div>
-                        <div class="min-w-0">
-                            <h4 class="font-black text-sm uppercase truncate text-primary leading-tight font-headline">${gov}</h4>
-                            <p class="text-[10px] text-gray-400 font-black uppercase mt-1">Total: ${total}</p>
+                        <div class="w-24 h-24 flex-shrink-0 overflow-visible"><canvas id="${canvasId}"></canvas></div>
+                        <div class="min-w-0 text-primary">
+                            <h4 class="font-black text-sm uppercase truncate leading-tight font-headline">${gov}</h4>
+                            <p class="text-[10px] text-gray-400 font-black uppercase mt-1">Samples: ${total}</p>
                         </div>
                     `;
                     grid.appendChild(card);
@@ -286,12 +305,12 @@
 
             const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 15);
             document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `
-                <div class="flex items-center justify-between text-[11px] font-black border-b border-gray-50 pb-2 uppercase tracking-tighter">
+                <div class="flex items-center justify-between text-[11px] font-black border-b border-gray-50 pb-2 uppercase tracking-tighter text-primary">
                     <div class="flex items-center gap-2">
                         <div class="w-3 h-3 rounded-full shadow-sm" style="background: ${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div>
                         <span>${name}</span>
                     </div>
-                    <span class="text-primary">${((count/grandTotal)*100).toFixed(1)}% <span class="text-[9px] text-gray-300 ml-1">(${count})</span></span>
+                    <span>${((count/grandTotal)*100).toFixed(1)}% <span class="text-[9px] text-gray-300 ml-1">(${count})</span></span>
                 </div>`).join('');
         }
 
@@ -309,7 +328,7 @@
                         <div class="w-6 h-6 rounded-full shadow-md" style="background: ${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div>
                         <span class="text-2xl font-black uppercase tracking-tight font-headline">${name}</span>
                     </div>
-                    <span class="font-black text-2xl text-primary font-headline">${total > 0 ? ((count/total)*100).toFixed(1) : 0}% <span class="text-sm text-gray-400 font-bold ml-2">(${count})</span></span>
+                    <span class="font-black text-2xl text-primary font-headline">${total > 0 ? ((count/total)*100).toFixed(1) : 0}% <span class="text-sm text-gray-400 font-bold ml-2 text-primary">(${count})</span></span>
                 </div>`).join('');
             document.getElementById('detail-modal').classList.add('active');
         }
