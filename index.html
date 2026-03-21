@@ -32,7 +32,6 @@
         .page-section { display: none; }
         .page-section.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
         .snp-path-text { word-break: break-all; white-space: normal; line-height: 1.4; display: block; }
         .modal-content { max-height: 90vh; overflow-y: auto; width: 100%; max-width: 950px; scroll-behavior: smooth; }
         thead th { position: sticky; top: 80px; z-index: 30; background: white; box-shadow: 0 1px 0 #e5e7eb; }
@@ -51,7 +50,9 @@
                 </div>
                 <div class="flex-1 w-full text-center md:text-left">
                     <h2 id="modal-title" class="text-5xl font-black font-headline uppercase tracking-tighter leading-tight">Governorate</h2>
-                    <p id="modal-sample-count" class="text-2xl font-black text-secondary uppercase bg-secondary/5 px-6 py-1 rounded-full inline-block mt-4">TOTAL: 0</p>
+                    <div id="modal-main-stats" class="mt-4">
+                        <p id="modal-sample-count" class="text-2xl font-black text-secondary uppercase bg-secondary/5 px-6 py-1 rounded-full inline-block tracking-tight">TOTAL: 0</p>
+                    </div>
                     <div id="modal-legend" class="space-y-2 border-t pt-8 mt-8"></div>
                 </div>
             </div>
@@ -60,9 +61,9 @@
             <div id="modal-kit-list" class="mt-12 border-t pt-10 hidden">
                 <h3 class="text-2xl font-black uppercase text-primary mb-6 flex items-center gap-3">
                     <span class="material-symbols-outlined text-secondary">database</span> 
-                    Kits: <span id="selected-haplo-display" class="text-secondary">—</span>
+                    KITS: <span id="selected-haplo-display" class="text-secondary">—</span>
                 </h3>
-                <div id="kits-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                <div id="kits-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
         </div>
     </div>
@@ -72,7 +73,7 @@
         <div class="flex justify-between items-center px-8 h-full max-w-screen-2xl mx-auto">
             <div class="flex flex-col">
                 <h1 class="text-xl font-black uppercase tracking-tighter leading-none">Egyptian Y-DNA Project</h1>
-                <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1">National Genomic Archive</p>
+                <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1 text-center">National Genomic Archive</p>
             </div>
             <div class="flex gap-8 items-center font-headline">
                 <span onclick="showSection('home')" id="nav-home" class="nav-link active text-xs font-bold uppercase tracking-widest">Dashboard</span>
@@ -92,7 +93,7 @@
                 </div>
             </div>
             <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-12 justify-center lg:justify-end">
-                <div class="w-[320px] h-[320px]"><canvas id="nationalChartCanvas"></canvas></div>
+                <div class="w-[320px] h-[320px] cursor-pointer"><canvas id="nationalChartCanvas"></canvas></div>
                 <div id="national-legend" class="space-y-1.5 w-full max-w-[240px]"></div>
             </div>
         </section>
@@ -111,10 +112,7 @@
     <main id="section-archive" class="page-section pt-28 pb-20 px-8 max-w-screen-2xl mx-auto space-y-12">
         <header class="flex justify-between items-end">
             <div><p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2">— Genomic Catalog</p><h2 class="text-7xl font-black font-headline tracking-tighter leading-none">DNA Sample <span class="italic text-secondary font-medium">Archive</span></h2></div>
-            <div class="flex flex-col items-end gap-3">
-                <div class="flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded-full border border-green-100"><span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span><span class="text-[9px] font-black uppercase text-green-700 tracking-widest">Live Access Enabled</span></div>
-                <input type="text" id="archiveSearch" oninput="renderArchive()" placeholder="Search kit, lineage or location..." class="w-96 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none">
-            </div>
+            <input type="text" id="archiveSearch" oninput="renderArchive()" placeholder="Search kit, name or governorate..." class="w-96 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none">
         </header>
 
         <div class="bg-white rounded-[3rem] border border-gray-100 shadow-2xl">
@@ -125,9 +123,9 @@
                         <th class="w-[10%] px-4 py-6">Kit/ID</th>
                         <th class="w-[12%] px-4 py-6 text-center">Governorate</th>
                         <th class="w-[30%] px-6 py-6">SNP Path (Y-DNA)</th>
-                        <th class="w-[10%] px-4 py-6 text-center">Y-Links</th>
+                        <th class="w-[10%] px-4 py-6 text-center text-primary">Y-Links</th>
                         <th class="w-[10%] px-4 py-6 text-right">mtDNA</th>
-                        <th class="w-[8%] px-8 py-6 text-center rounded-tr-[3rem]">mt-Links</th>
+                        <th class="w-[8%] px-8 py-6 text-center rounded-tr-[3rem] text-secondary">mt-Links</th>
                     </tr>
                 </thead>
                 <tbody id="archive-table-body" class="divide-y divide-gray-50"></tbody>
@@ -141,7 +139,8 @@
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
         const HAPLO_COLORS = { 
-            "R1B": "#FF0000", "E": "#00008B", "T": "#FFA500", "J1": "#006400", "L1": "#00FFFF", "B": "#008B8B", "G": "#444444", "G2": "#444444", "J2": "#32CD32", "R1A": "#DEB887", "A": "#000", "I2": "#C0C0C0", "A1A": "#555", "A1B1": "#888", "Q1": "#9400D3"
+            "R1B": "#FF0000", "E": "#00008B", "T": "#FFA500", "J1": "#006400", "L1": "#00FFFF", "B": "#008B8B", "G": "#444444", "G2": "#444444",
+            "J2": "#32CD32", "R1A": "#DEB887", "A": "#000", "I2": "#C0C0C0", "A1A": "#555", "A1B1": "#888", "Q1": "#9400D3", "C": "#666"
         };
         
         const GOV_LIST = ["Ad Daqahlīyah", "Al Fayyūm", "Al Gharbīyah", "Al Iskandarīyah", "Al Ismā`īlīyah", "Al Minūfīyah", "Al Minyā", "Al Qalyūbīyah", "As Suways", "Ash Sharqīyah", "Aswān", "Asyūt", "Banī Suwayf", "Cairo", "Dumyāt", "Giza", "Janūb Sīnā’", "Kafr ash Shaykh", "Luxor", "Matrouh", "Qinā", "Shamal Sīnā’", "Sūhāj", "—"].sort();
@@ -157,7 +156,7 @@
                 regionalData = {}; GOV_LIST.forEach(g => regionalData[g] = {});
                 if (statsRes.data) {
                     statsRes.data.forEach(row => {
-                        const reg = (row.region === "Unassigned Origin" || !row.region) ? "—" : row.region;
+                        const reg = (row.region === "Unassigned Origin" || !row.region || row.region === "") ? "—" : row.region;
                         if (regionalData[reg]) {
                             let hp = row.haplogroup.toUpperCase().trim();
                             if (hp === "J") hp = "J1";
@@ -166,6 +165,58 @@
                     });
                 }
             } catch (err) { console.error(err); }
+        }
+
+        // PRÄZISER FILTER
+        function getKitMatches(gov, haplo) {
+            const h = haplo.toUpperCase();
+            return databaseSamples.filter(s => {
+                // Ort prüfen (Dumyāt Akzent-Safe)
+                const sGov = (s.governorate || "—").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                const targetGov = (gov || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                if (gov && sGov !== targetGov) return false;
+
+                const kitY = (s.y_dna || "").toUpperCase();
+                
+                // Exakte Zuordnung
+                if (h === "J1") return kitY.startsWith("J-") || kitY.startsWith("J1");
+                if (h === "J2") return kitY.startsWith("J2");
+                if (h === "R1B") return kitY.startsWith("R-") || kitY.startsWith("R1B");
+                if (h === "R1A") return kitY.startsWith("R1A");
+                if (h === "E") return kitY.startsWith("E-") && !kitY.startsWith("E-V"); // Vereinfacht
+                if (h.startsWith("A1")) return kitY.startsWith(h) || kitY.startsWith("A-");
+                
+                return kitY.startsWith(h.substring(0,1));
+            });
+        }
+
+        function showHaploDetails(gov, haplo) {
+            const container = document.getElementById('kits-container');
+            container.innerHTML = '';
+            
+            const title = gov ? gov.toUpperCase() : "NATIONAL SUMMARY";
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('selected-haplo-display').innerText = `${haplo} ${gov ? '' : '(NATIONAL)'}`;
+
+            const matches = getKitMatches(gov, haplo);
+            document.getElementById('modal-sample-count').innerText = `TOTAL ${haplo}: ${matches.length}`;
+            
+            if (matches.length > 0) {
+                container.innerHTML = matches.map(s => `
+                    <div class="p-6 border border-gray-100 rounded-[2.5rem] bg-gray-50 shadow-sm hover:border-secondary transition-all">
+                        <div class="flex justify-between mb-3 font-bold">
+                            <span class="px-3 py-1 bg-primary text-white text-[10px] rounded-full">${s.y_dna}</span>
+                            <span class="text-[10px] text-gray-400 uppercase">${s.governorate || '—'}</span>
+                        </div>
+                        <p class="font-black text-primary uppercase text-sm mb-1">${s.name || 'Anonymous'}</p>
+                        <span class="text-[9px] text-gray-400 font-mono snp-path-text">${s.snp_path || '—'}</span>
+                    </div>`).join('');
+            } else {
+                container.innerHTML = `<p class="col-span-full text-gray-400 italic font-bold p-8 bg-gray-50 rounded-[2rem] text-center text-xs">Only anonymous statistical data available for ${haplo}.</p>`;
+            }
+            
+            document.getElementById('modal-kit-list').classList.remove('hidden');
+            setTimeout(() => document.getElementById('modal-kit-list').scrollIntoView({ behavior: 'smooth' }), 100);
         }
 
         function createPieChart(canvasId, dataMap, isMini, govName = null) {
@@ -182,54 +233,9 @@
             });
         }
 
-        function showHaploDetails(gov, haplo) {
-            const container = document.getElementById('kits-container');
-            const listArea = document.getElementById('modal-kit-list');
-            container.innerHTML = '';
-            
-            // Titel Logik
-            if (!gov) {
-                document.getElementById('modal-title').innerText = "NATIONAL SUMMARY";
-                document.getElementById('selected-haplo-display').innerText = haplo + " (NATIONAL)";
-            } else {
-                document.getElementById('modal-title').innerText = gov;
-                document.getElementById('selected-haplo-display').innerText = haplo;
-            }
-
-            // Intelligente Filter-Regel (Mapping von Statistik-Name auf Kit-Startbuchstabe)
-            const searchPrefix = haplo.charAt(0).toUpperCase();
-
-            const matches = databaseSamples.filter(s => {
-                if (gov && s.governorate !== gov) return false;
-                const kitStart = (s.y_dna || "").charAt(0).toUpperCase();
-                return kitStart === searchPrefix;
-            });
-
-            // Update den TOTAL Zähler im Modal Kopf für die spezifische Haplogruppe
-            document.getElementById('modal-sample-count').innerText = `TOTAL ${haplo}: ${matches.length}`;
-            
-            if (matches.length > 0) {
-                container.innerHTML = matches.map(s => `
-                    <div class="p-6 border border-gray-100 rounded-[2.5rem] bg-gray-50 shadow-sm hover:border-secondary transition-all">
-                        <div class="flex justify-between mb-3">
-                            <span class="px-3 py-1 bg-primary text-white text-[10px] font-black rounded-full">${s.y_dna}</span>
-                            <span class="text-[10px] font-mono text-gray-400 font-bold uppercase">${s.governorate || '—'}</span>
-                        </div>
-                        <p class="font-black text-primary uppercase text-sm mb-1 leading-tight">${s.name || 'Anonymous'}</p>
-                        <span class="text-[9px] text-gray-400 font-mono mt-2 snp-path-text">${s.snp_path || '—'}</span>
-                    </div>`).join('');
-            } else {
-                container.innerHTML = `<p class="col-span-full text-gray-400 italic font-bold p-8 bg-gray-50 rounded-[2rem] text-center text-xs">Only anonymous statistical data available for ${haplo}.</p>`;
-            }
-            
-            document.getElementById('detail-modal').classList.add('active');
-            listArea.classList.remove('hidden');
-            setTimeout(() => listArea.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-        }
-
         function openModal(gov) {
             const data = regionalData[gov] || {}; const total = Object.values(data).reduce((a, b) => a + b, 0);
-            document.getElementById('modal-title').innerText = gov; 
+            document.getElementById('modal-title').innerText = gov.toUpperCase(); 
             document.getElementById('modal-sample-count').innerText = `TOTAL SAMPLES: ${total}`;
             document.getElementById('modal-kit-list').classList.add('hidden');
             document.getElementById('detail-modal').classList.add('active');
@@ -237,7 +243,7 @@
             const sorted = Object.entries(data).sort((a,b) => b[1] - a[1]);
             document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `
                 <div onclick="showHaploDetails('${gov}', '${name}')" class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl cursor-pointer hover:bg-secondary/10 transition-all">
-                    <div class="flex items-center gap-4 font-black"><div class="w-5 h-5 rounded-full shadow-sm" style="background:${HAPLO_COLORS[name] || '#CCC'}"></div><span class="text-xl uppercase">${name}</span></div>
+                    <div class="flex items-center gap-4 font-black"><div class="w-4 h-4 rounded-full" style="background:${HAPLO_COLORS[name] || '#CCC'}"></div><span class="text-xl uppercase">${name}</span></div>
                     <span class="text-xl font-black">${((count/total)*100).toFixed(1)}%</span>
                 </div>`).join('');
         }
@@ -262,7 +268,7 @@
             if (grandTotal > 0) createPieChart('nationalChartCanvas', totals, false, null);
             const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 10);
             document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `
-                <div onclick="showHaploDetails(null, '${name}')" class="flex items-center justify-between text-[11px] font-black border-b border-gray-50 pb-1 uppercase tracking-tighter cursor-pointer hover:text-secondary transition-colors">
+                <div onclick="showHaploDetails(null, '${name}')" class="flex items-center justify-between text-[11px] font-black border-b border-gray-50 pb-1 uppercase cursor-pointer hover:text-secondary">
                     <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full" style="background: ${HAPLO_COLORS[name] || '#CCC'}"></div><span>${name}</span></div>
                     <span>${((count/grandTotal)*100).toFixed(1)}%</span>
                 </div>`).join('');
@@ -272,10 +278,16 @@
             const tbody = document.getElementById('archive-table-body');
             const search = document.getElementById('archiveSearch').value.toLowerCase();
             const filtered = databaseSamples.filter(s => (s.name + s.kit_number + (s.governorate||'') + (s.y_dna||'')).toLowerCase().includes(search));
-            tbody.innerHTML = filtered.map(s => {
-                const baseHaplo = s.y_dna?.split('-')[0].split(' ')[0].toUpperCase();
-                return `<tr class="hover:bg-gray-50/80 transition-colors"><td class="px-8 py-7"><p class="font-black text-primary uppercase text-sm leading-tight">${s.name || 'Anonymous'}</p></td><td class="px-4 py-7"><span class="bg-gray-100 px-2 py-1 rounded text-[10px] font-black text-gray-500 font-mono border border-gray-200">${s.kit_number || '—'}</span></td><td class="px-4 py-7 text-[10px] font-black text-gray-400 uppercase text-center">${s.governorate || '—'}</td><td class="px-6 py-7"><div class="flex items-start gap-3"><span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${HAPLO_COLORS[baseHaplo] || '#CCC'}"></span><span class="text-[10px] font-mono font-bold text-gray-500 snp-path-text">${s.snp_path || s.y_dna || '—'}</span></div></td><td class="px-4 py-7 text-center"><div class="flex justify-center gap-1.5">${s.y_link_1 && s.y_link_1 !== '—' ? `<a href="${s.y_link_1}" target="_blank" class="w-7 h-7 rounded-lg bg-primary text-white flex items-center justify-center hover:scale-110 shadow-sm"><span class="material-symbols-outlined text-[14px]">database</span></a>` : ''}</div></td><td class="px-4 py-7 text-right uppercase text-[11px] font-black text-secondary">${s.mt_dna || '—'}</td><td class="px-8 py-7 text-center"><div class="flex justify-center gap-1.5">${s.mt_link_1 && s.mt_link_1 !== '—' ? `<a href="${s.mt_link_1}" target="_blank" class="w-8 h-8 rounded-lg bg-secondary text-white flex items-center justify-center hover:scale-110 shadow-sm"><span class="material-symbols-outlined text-[14px]">link</span></a>` : ''}</div></td></tr>`;
-            }).join('');
+            tbody.innerHTML = filtered.map(s => `
+                <tr class="hover:bg-gray-50/80 transition-colors">
+                    <td class="px-8 py-7"><p class="font-black text-primary uppercase text-sm leading-tight">${s.name || 'Anonymous'}</p></td>
+                    <td class="px-4 py-7"><span class="bg-gray-100 px-2 py-1 rounded text-[10px] font-black text-gray-500 font-mono border border-gray-200">${s.kit_number || '—'}</span></td>
+                    <td class="px-4 py-7 text-[10px] font-black text-gray-400 uppercase text-center">${s.governorate || '—'}</td>
+                    <td class="px-6 py-7"><div class="flex items-start gap-3"><span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${HAPLO_COLORS[s.y_dna?.split('-')[0].split(' ')[0].toUpperCase()] || '#CCC'}"></span><span class="text-[10px] font-mono font-bold text-gray-500 snp-path-text">${s.snp_path || s.y_dna || '—'}</span></div></td>
+                    <td class="px-4 py-7 text-center"><a href="${s.y_link_1}" target="_blank" class="text-primary hover:text-secondary"><span class="material-symbols-outlined">database</span></a></td>
+                    <td class="px-4 py-7 text-right uppercase text-[11px] font-black text-secondary">${s.mt_dna || '—'}</td>
+                    <td class="px-8 py-7 text-center"><a href="${s.mt_link_1}" target="_blank" class="text-secondary hover:text-primary"><span class="material-symbols-outlined">link</span></a></td>
+                </tr>`).join('');
         }
 
         function showSection(id) {
@@ -283,7 +295,6 @@
             document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active', 'text-gray-400'));
             document.getElementById(`section-${id}`).classList.add('active');
             document.getElementById(`nav-${id}`).classList.add('active');
-            document.querySelectorAll('.nav-link:not(.active)').forEach(n => n.classList.add('text-gray-400'));
         }
 
         function closeModal(e) { if (!e || e.target.id === 'detail-modal') document.getElementById('detail-modal').classList.remove('active'); }
