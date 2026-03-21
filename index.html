@@ -18,7 +18,7 @@
         #detail-modal, #login-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0, 23, 54, 0.6); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
         #detail-modal.active, #login-modal.active { display: flex; }
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .stat-card { transition: all 0.3s ease; border: 1px solid #eef0f2; cursor: pointer; }
+        .stat-card { transition: all 0.3s ease; border: 1px solid #eef0f2; cursor: pointer; background: white; }
         .stat-card:hover { border-color: #001736; transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,23,54,0.1); }
         canvas { max-width: 100% !important; max-height: 100% !important; }
     </style>
@@ -27,7 +27,7 @@
 
     <!-- LOGIN MODAL -->
     <div id="login-modal">
-        <div class="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full text-center">
+        <div class="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full text-center border border-gray-100">
             <h2 class="text-2xl font-black font-headline mb-4 uppercase text-primary">Admin Access</h2>
             <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border mb-4 text-center outline-none focus:ring-2 focus:ring-primary text-primary font-bold" placeholder="Enter Password">
             <div class="flex gap-3">
@@ -82,13 +82,13 @@
                 </div>
             </div>
             <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-12 justify-center lg:justify-end">
-                <div class="w-[320px] h-[320px]"><canvas id="nationalChartCanvas"></canvas></div>
-                <div id="national-legend" class="space-y-2 w-full max-w-[240px]"></div>
+                <div class="w-[300px] h-[300px]"><canvas id="nationalChartCanvas"></canvas></div>
+                <div id="national-legend" class="space-y-1.5 w-full max-w-[240px]"></div>
             </div>
         </section>
 
         <!-- MAP -->
-        <section class="h-[650px] w-full bg-white rounded-[4rem] overflow-hidden shadow-2xl border border-gray-100">
+        <section class="h-[600px] w-full bg-white rounded-[4rem] overflow-hidden shadow-2xl border border-gray-100">
             <iframe id="mapIframe" src="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&editMode=disabled&moreControl=false&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=false#6/26.938/30.802" class="w-full h-full border-none"></iframe>
         </section>
 
@@ -99,7 +99,7 @@
                     <h2 class="text-5xl font-black font-headline tracking-tighter leading-none uppercase text-primary">Published Database</h2>
                     <p class="text-gray-400 font-medium mt-2">Verified paternal and maternal lineages</p>
                 </div>
-                <input type="text" id="dbSearchInput" oninput="renderDatabaseTable()" placeholder="Search Haplo, SNP, Name or Kit..." class="w-full md:w-96 p-4 rounded-2xl border-none shadow-lg text-sm font-bold bg-white focus:ring-2 focus:ring-secondary outline-none">
+                <input type="text" id="dbSearchInput" oninput="renderDatabaseTable()" placeholder="Search..." class="w-full md:w-96 p-4 rounded-2xl border-none shadow-lg text-sm font-bold bg-white focus:ring-2 focus:ring-secondary outline-none">
             </div>
             <div class="bg-white rounded-[3rem] shadow-2xl border border-gray-100 overflow-hidden">
                 <div class="overflow-x-auto">
@@ -122,10 +122,11 @@
 
         <!-- ADMIN PANEL -->
         <section id="admin-panel" class="bg-secondary/5 p-10 rounded-[3rem] border-2 border-secondary/20 shadow-inner">
-            <h3 class="text-2xl font-black font-headline uppercase text-secondary mb-8">Live Database Editor</h3>
+            <h3 class="text-2xl font-black font-headline uppercase text-secondary mb-8">Admin Editor</h3>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <!-- Neue Probe hinzufügen -->
                 <div class="space-y-6">
-                    <h4 class="font-black uppercase text-[10px] text-gray-400 tracking-widest">Add New Detailed Kit</h4>
+                    <h4 class="font-black uppercase text-[10px] text-gray-400 tracking-widest">Add New Published Sample</h4>
                     <div class="grid grid-cols-2 gap-4">
                         <input type="text" id="add-y" class="p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="Y-DNA (z.B. J1)">
                         <input type="text" id="add-snp" class="p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="SNP Path">
@@ -139,8 +140,8 @@
                         <input type="text" id="add-kit" class="p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="Kit Number">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
-                        <input type="text" id="add-y-link1" class="p-3 rounded-xl border text-xs" placeholder="Y-Link 1">
-                        <input type="text" id="add-y-link2" class="p-3 rounded-xl border text-xs" placeholder="Y-Link 2">
+                        <input type="text" id="add-y-link1" class="p-3 rounded-xl border text-xs" placeholder="Y-Link 1 (YFull)">
+                        <input type="text" id="add-y-link2" class="p-3 rounded-xl border text-xs" placeholder="Y-Link 2 (FTDNA)">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <input type="text" id="add-mt-link1" class="p-3 rounded-xl border text-xs" placeholder="mt-Link 1">
@@ -148,14 +149,16 @@
                     </div>
                     <button onclick="saveNewSample()" class="w-full bg-primary text-white p-4 rounded-2xl font-black uppercase text-xs">Save to Database</button>
                 </div>
+
+                <!-- Manuelle Statistik-Zahlen -->
                 <div class="space-y-4 border-l border-secondary/10 lg:pl-10">
-                    <h4 class="font-black uppercase text-[10px] text-gray-400 tracking-widest">Update manual stats (Counts)</h4>
+                    <h4 class="font-black uppercase text-[10px] text-gray-400 tracking-widest">Update Manual Totals (dna_stats)</h4>
                     <div class="grid grid-cols-2 gap-4">
                         <select id="edit-old-gov" class="p-4 rounded-2xl shadow-md text-sm font-bold bg-white"></select>
-                        <input type="text" id="edit-old-haplo" class="p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="Haplo (z.B. E)">
+                        <input type="text" id="edit-old-haplo" class="p-4 rounded-2xl shadow-md text-sm font-bold uppercase" placeholder="Haplo (z.B. E)">
                     </div>
-                    <input type="number" id="edit-old-count" class="w-full p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="Count">
-                    <button onclick="updateOldTable()" class="w-full bg-secondary text-white p-4 rounded-2xl font-black uppercase text-xs">Update Stats</button>
+                    <input type="number" id="edit-old-count" class="w-full p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="New Count">
+                    <button onclick="updateOldTable()" class="w-full bg-secondary text-white p-4 rounded-2xl font-black uppercase text-xs">Update Count</button>
                 </div>
             </div>
         </section>
@@ -168,7 +171,7 @@
     </main>
 
     <script>
-        // CONFIG
+        // SUPABASE VERBINDUNG
         const SB_URL = "https://lsfmpmfoqdtkgndtaxen.supabase.co";
         const SB_KEY = "sb_publishable_dnaPmhIN6Lp4irUSxYuAMQ_vzE_CCKT";
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
@@ -187,10 +190,9 @@
         let detailedSamples = [];
         let charts = {};
 
-        // INITIALIZE
         async function init() {
-            checkAuthUI();
             updateDropdowns();
+            checkAuthUI();
             await loadAllData();
             renderUI();
             renderDatabaseTable();
@@ -198,43 +200,42 @@
 
         async function loadAllData() {
             try {
-                // Fetch both tables simultaneously
-                const [oldRes, newRes] = await Promise.all([
+                // Lade beide Tabellen gleichzeitig
+                const [resStats, resSamples] = await Promise.all([
                     _supabase.from('dna_stats').select('*'),
                     _supabase.from('published_samples').select('*')
                 ]);
 
-                if (oldRes.error) console.error("Error dna_stats:", oldRes.error);
-                if (newRes.error) console.error("Error published_samples:", newRes.error);
-
-                detailedSamples = newRes.data || [];
+                detailedSamples = resSamples.data || [];
                 regionalData = {};
 
-                // 1. Process Stats Table (The counts)
-                if (oldRes.data) {
-                    oldRes.data.forEach(row => {
-                        if (!regionalData[row.region]) regionalData[row.region] = {};
-                        const hp = row.haplogroup.toUpperCase();
-                        regionalData[row.region][hp] = (regionalData[row.region][hp] || 0) + parseInt(row.count);
+                // Alle Gouvernements initialisieren
+                GOV_LIST.forEach(g => regionalData[g] = {});
+
+                // 1. Manuelle Statistiken (dna_stats) einlesen
+                if (resStats.data) {
+                    resStats.data.forEach(row => {
+                        const reg = row.region.trim();
+                        if (regionalData[reg]) {
+                            const hp = row.haplogroup.toUpperCase().trim();
+                            regionalData[reg][hp] = (regionalData[reg][hp] || 0) + parseInt(row.count);
+                        }
                     });
                 }
 
-                // 2. Process Detailed Samples (Add +1 for each entry)
+                // 2. Datenbank-Einträge (published_samples) dazu addieren (+1 pro Zeile)
                 detailedSamples.forEach(sample => {
-                    const gov = sample.governorate || "Unassigned Origin";
-                    if (!regionalData[gov]) regionalData[gov] = {};
-                    
-                    // Extrakt basic haplo (z.B. "J1-L858" -> "J1")
-                    let baseHaplo = "UNKNOWN";
-                    if (sample.y_dna) {
-                        baseHaplo = sample.y_dna.split('-')[0].split(' ')[0].toUpperCase();
+                    const reg = (sample.governorate || "Unassigned Origin").trim();
+                    if (regionalData[reg]) {
+                        let hp = "UNKNOWN";
+                        if (sample.y_dna) hp = sample.y_dna.split('-')[0].split(' ')[0].toUpperCase().trim();
+                        regionalData[reg][hp] = (regionalData[reg][hp] || 0) + 1;
                     }
-                    regionalData[gov][baseHaplo] = (regionalData[gov][baseHaplo] || 0) + 1;
                 });
 
-                console.log("Combined Regional Data:", regionalData);
-            } catch (e) {
-                console.error("Load Data Failed:", e);
+                console.log("Daten erfolgreich kombiniert:", regionalData);
+            } catch (err) {
+                console.error("Fehler beim Laden:", err);
             }
         }
 
@@ -242,10 +243,13 @@
             const canvas = document.getElementById(canvasId);
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
+            
             if (charts[canvasId]) charts[canvasId].destroy();
             
-            const labels = Object.keys(dataMap);
-            const values = Object.values(dataMap);
+            const labels = Object.keys(dataMap).filter(k => dataMap[k] > 0);
+            const values = labels.map(k => dataMap[k]);
+
+            if (labels.length === 0) return;
 
             charts[canvasId] = new Chart(ctx, {
                 type: 'pie',
@@ -261,7 +265,6 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    animation: { duration: 800 },
                     plugins: { 
                         legend: { display: false },
                         tooltip: { enabled: true } 
@@ -313,7 +316,7 @@
                 const canvasId = `chart-${idx}`;
                 
                 const card = document.createElement('div');
-                card.className = "stat-card bg-white p-6 rounded-[2.5rem] flex items-center gap-5 shadow-sm";
+                card.className = "stat-card p-6 rounded-[2.5rem] flex items-center gap-5 shadow-sm border border-gray-100";
                 card.onclick = () => openModal(gov);
                 card.innerHTML = `
                     <div class="w-16 h-16 flex-shrink-0"><canvas id="${canvasId}"></canvas></div>
@@ -324,7 +327,7 @@
                 grid.appendChild(card);
                 
                 if (total > 0) {
-                    setTimeout(() => createPieChart(canvasId, data, true), 10);
+                    setTimeout(() => createPieChart(canvasId, data, true), 100);
                 }
             });
             updateNationalSummary();
@@ -342,15 +345,15 @@
             document.getElementById('total-gov-count').innerText = GOV_LIST.length;
             
             if (grandTotal > 0) {
-                createPieChart('nationalChartCanvas', totals, false);
+                setTimeout(() => createPieChart('nationalChartCanvas', totals, false), 200);
                 const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 10);
                 document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `
-                    <div class="flex items-center justify-between text-[10px] font-black border-b border-gray-50 pb-2 uppercase">
+                    <div class="flex items-center justify-between text-[10px] font-black border-b border-gray-50 pb-1.5 uppercase">
                         <div class="flex items-center gap-2">
                             <div class="w-2.5 h-2.5 rounded-full" style="background: ${HAPLO_COLORS[name] || '#CCC'}"></div>
                             <span>${name}</span>
                         </div>
-                        <span>${((count/grandTotal)*100).toFixed(1)}%</span>
+                        <span class="text-gray-500">${((count/grandTotal)*100).toFixed(1)}% <span class="text-[9px] opacity-40">(${count})</span></span>
                     </div>`).join('');
             }
         }
@@ -373,12 +376,11 @@
                         <span class="font-black text-xl">${((count/total)*100).toFixed(1)}% <span class="text-xs text-gray-400">(${count})</span></span>
                     </div>`).join('');
             } else {
-                document.getElementById('modal-legend').innerHTML = "No data available yet.";
+                document.getElementById('modal-legend').innerHTML = "<p class='text-center py-10 text-gray-400'>No data recorded.</p>";
             }
             document.getElementById('detail-modal').classList.add('active');
         }
 
-        // ADMIN FUNCTIONS
         async function saveNewSample() {
             const payload = {
                 y_dna: document.getElementById('add-y').value.trim(),
@@ -393,7 +395,7 @@
                 mt_link_2: document.getElementById('add-mt-link2').value.trim()
             };
             const { error } = await _supabase.from('published_samples').insert([payload]);
-            if (error) alert(error.message); else { alert("Saved!"); location.reload(); }
+            if (error) alert(error.message); else { alert("Sample saved!"); location.reload(); }
         }
 
         async function updateOldTable() {
@@ -401,7 +403,7 @@
             const haplogroup = document.getElementById('edit-old-haplo').value.trim().toUpperCase();
             const count = parseInt(document.getElementById('edit-old-count').value);
             const { error } = await _supabase.from('dna_stats').upsert({ region, haplogroup, count }, { onConflict: 'region, haplogroup' });
-            if (error) alert(error.message); else { alert("Updated!"); location.reload(); }
+            if (error) alert(error.message); else { alert("Stats updated!"); location.reload(); }
         }
 
         function updateDropdowns() { 
@@ -412,23 +414,23 @@
 
         function handleAdminBtnClick() { 
             if (localStorage.getItem('is_admin') === 'true') {
-                if (confirm("Logout?")) { localStorage.removeItem('is_admin'); location.reload(); }
+                if (confirm("Logout Admin?")) { localStorage.removeItem('is_admin'); location.reload(); }
             } else { document.getElementById('login-modal').classList.add('active'); }
         }
         function tryLogin() {
             if (document.getElementById('admin-pw').value === ADMIN_PW) {
                 localStorage.setItem('is_admin', 'true'); location.reload();
-            } else alert("Wrong Password");
+            } else alert("Wrong Password.");
         }
         function closeLogin() { document.getElementById('login-modal').classList.remove('active'); }
         function checkAuthUI() { 
             if (localStorage.getItem('is_admin') === 'true') {
                 document.getElementById('admin-panel').classList.add('active');
-                document.getElementById('admin-text').innerText = "Logout";
+                document.getElementById('admin-text').innerText = "Logout Admin";
             }
         }
         function closeModal(e) { if (!e || e.target.id === 'detail-modal') document.getElementById('detail-modal').classList.remove('active'); }
-        function copyKit(k) { navigator.clipboard.writeText(k); alert("Copied!"); }
+        function copyKit(k) { navigator.clipboard.writeText(k); alert("Kit copied!"); }
 
         init();
     </script>
