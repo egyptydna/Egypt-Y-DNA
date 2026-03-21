@@ -37,7 +37,7 @@
 
     <!-- LOGIN MODAL -->
     <div id="login-modal">
-        <div class="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full text-center">
+        <div class="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full text-center border border-gray-100">
             <h2 class="text-2xl font-black font-headline mb-4 uppercase text-primary">Admin Access</h2>
             <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border mb-4 text-center outline-none focus:ring-2 focus:ring-primary text-primary font-bold" placeholder="Enter Password">
             <div class="flex gap-3">
@@ -56,7 +56,7 @@
                 <div class="flex-1 w-full text-center md:text-left">
                     <h2 id="modal-title" class="text-5xl font-black font-headline tracking-tighter mb-1 uppercase text-primary">Governorate</h2>
                     <p id="modal-sample" class="text-3xl font-black text-secondary uppercase tracking-tighter mb-8 inline-block bg-secondary/5 px-4 py-1 rounded-full">TOTAL: 0</p>
-                    <div id="modal-legend" class="space-y-2 border-t pt-8"></div>
+                    <div id="modal-legend" class="space-y-2 border-t pt-8 overflow-y-auto max-h-[300px]"></div>
                 </div>
             </div>
         </div>
@@ -80,14 +80,15 @@
     </nav>
 
     <main class="pt-28 pb-20 px-6 max-w-screen-2xl mx-auto space-y-16">
+        
         <!-- NATIONAL SUMMARY -->
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-10 rounded-[4rem] shadow-xl border border-gray-100 text-primary">
             <div class="lg:col-span-5 text-center lg:text-left font-bold text-primary">
                 <span class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-4 block">Consolidated Data</span>
                 <h2 class="text-6xl font-black font-headline tracking-tighter mb-8 leading-tight">National Summary</h2>
                 <div class="grid grid-cols-2 gap-8 w-full border-t pt-8">
-                    <div><p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1 leading-none uppercase">Grand Total Samples</p><p id="total-national-samples" class="text-5xl font-black text-primary leading-none">0</p></div>
-                    <div><p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1 leading-none uppercase">Mapped Regions</p><p id="total-gov-count" class="text-5xl font-black font-primary leading-none">0</p></div>
+                    <div><p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1 leading-none">Grand Total Samples</p><p id="total-national-samples" class="text-5xl font-black text-primary leading-none">0</p></div>
+                    <div><p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1 leading-none">Mapped Regions</p><p id="total-gov-count" class="text-5xl font-black font-primary leading-none">0</p></div>
                 </div>
             </div>
             <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-12 justify-center lg:justify-end text-primary">
@@ -96,7 +97,7 @@
             </div>
         </section>
 
-        <!-- MAP (Dein Link) -->
+        <!-- MAP -->
         <section class="h-[650px] w-full bg-white rounded-[4rem] overflow-hidden shadow-2xl border border-gray-100 ring-1 ring-black/5">
             <iframe id="mapIframe" src="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&editMode=disabled&moreControl=false&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=false#6/26.938/30.802" class="w-full h-full border-none" allowfullscreen allow="geolocation"></iframe>
         </section>
@@ -114,13 +115,13 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-primary font-bold">
                         <thead>
-                            <tr class="bg-primary text-white text-[10px] font-black uppercase tracking-widest text-white">
-                                <th class="px-8 py-6 text-white font-bold">Y-DNA & SNP Path</th>
-                                <th class="px-6 py-6 text-white font-bold">mtDNA</th>
-                                <th class="px-6 py-6 text-white font-bold">Governorate</th>
-                                <th class="px-6 py-6 text-white font-bold">Name / Lineage</th>
-                                <th class="px-6 py-6 text-white font-bold text-center">Kit / ID</th>
-                                <th class="px-8 py-6 text-right text-white font-bold">Link</th>
+                            <tr class="bg-primary text-white text-[10px] font-black uppercase tracking-widest">
+                                <th class="px-8 py-6">Y-DNA & SNP Path</th>
+                                <th class="px-6 py-6">mtDNA</th>
+                                <th class="px-6 py-6">Governorate</th>
+                                <th class="px-6 py-6">Name / Lineage</th>
+                                <th class="px-6 py-6 text-center">Kit / ID</th>
+                                <th class="px-8 py-6 text-right">Links</th>
                             </tr>
                         </thead>
                         <tbody id="database-body" class="text-sm font-bold divide-y divide-gray-50"></tbody>
@@ -134,11 +135,12 @@
             <h3 class="text-2xl font-black font-headline uppercase text-secondary mb-8 flex items-center gap-2">
                 <span class="material-symbols-outlined text-primary">edit_square</span> Live Database Editor
             </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 text-primary font-bold">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 text-primary font-bold">
+                <!-- Add New Sample -->
                 <div class="space-y-6">
-                    <h4 class="font-black uppercase text-[10px] text-gray-400 tracking-widest">Add New Kit</h4>
+                    <h4 class="font-black uppercase text-[10px] text-gray-400 tracking-widest">Add New Sample (Detailed)</h4>
                     <div class="grid grid-cols-2 gap-4">
-                        <input type="text" id="add-y" class="p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="Y-DNA">
+                        <input type="text" id="add-y" class="p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="Y-DNA (z.B. J1-L858)">
                         <input type="text" id="add-snp" class="p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="SNP Path">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
@@ -146,34 +148,46 @@
                         <select id="add-gov" class="p-4 rounded-2xl shadow-md text-sm font-bold bg-white text-primary"></select>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
-                        <input type="text" id="add-name" class="p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="Name">
+                        <input type="text" id="add-name" class="p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="Name/Lineage">
                         <input type="text" id="add-kit" class="p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="Kit Number">
                     </div>
-                    <input type="text" id="add-y-link1" class="w-full p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="Y-DNA Link (YFull/FTDNA)">
-                    <button onclick="saveNewSample()" class="w-full bg-primary text-white p-4 rounded-2xl font-black text-xs uppercase shadow-xl hover:bg-secondary">Add to Database</button>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" id="add-y-link1" class="p-4 rounded-xl shadow-sm text-xs bg-white" placeholder="Y-Link 1 (YFull)">
+                        <input type="text" id="add-y-link2" class="p-4 rounded-xl shadow-sm text-xs bg-white" placeholder="Y-Link 2 (FTDNA)">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" id="add-mt-link1" class="p-4 rounded-xl shadow-sm text-xs bg-white" placeholder="mt-Link 1">
+                        <input type="text" id="add-mt-link2" class="p-4 rounded-xl shadow-sm text-xs bg-white" placeholder="mt-Link 2">
+                    </div>
+                    <button onclick="saveNewSample()" class="w-full bg-primary text-white p-4 rounded-2xl font-black text-xs uppercase shadow-xl hover:bg-secondary transition-all">Add to Published Database</button>
                 </div>
-                <div class="space-y-4 border-l border-secondary/10 pl-10">
-                    <h4 class="font-black uppercase text-[10px] text-gray-400 tracking-widest">Update Totals (Old Table)</h4>
+
+                <!-- Update Stats Table -->
+                <div class="space-y-4 border-l border-secondary/10 lg:pl-10">
+                    <h4 class="font-black uppercase text-[10px] text-gray-400 tracking-widest">Update Statistics Table (Counts)</h4>
                     <div class="grid grid-cols-2 gap-4">
                         <select id="edit-old-gov" class="p-4 rounded-2xl shadow-md text-sm font-bold bg-white text-primary"></select>
-                        <input type="text" id="edit-old-haplo" class="p-4 rounded-2xl shadow-md text-sm font-bold uppercase" placeholder="Haplo">
+                        <input type="text" id="edit-old-haplo" class="p-4 rounded-2xl shadow-md text-sm font-bold uppercase" placeholder="Haplo (z.B. E)">
                     </div>
-                    <input type="number" id="edit-old-count" class="w-full p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="New Count">
-                    <button onclick="updateOldTable()" class="w-full bg-secondary text-white p-4 rounded-2xl font-black text-xs uppercase shadow-xl">Update Manual</button>
+                    <input type="number" id="edit-old-count" class="w-full p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="Count">
+                    <button onclick="updateOldTable()" class="w-full bg-secondary text-white p-4 rounded-2xl font-black text-xs uppercase shadow-xl">Update Count</button>
                 </div>
             </div>
         </section>
 
         <!-- REGIONAL ARCHIVE GRID -->
         <section class="space-y-10">
-            <h2 class="text-5xl font-black font-headline tracking-tighter leading-none text-primary uppercase">Regional Archives</h2>
+            <div class="flex flex-col md:flex-row justify-between items-end gap-6">
+                <h2 class="text-5xl font-black font-headline tracking-tighter leading-none text-primary uppercase">Regional Archives</h2>
+                <input type="text" id="regionSearchInput" oninput="renderUI()" placeholder="Filter Governorates..." class="w-full md:w-80 p-4 rounded-2xl border-none shadow-lg text-sm font-bold text-primary bg-white focus:ring-2 focus:ring-primary outline-none">
+            </div>
             <div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div>
         </section>
     </main>
 
     <script>
         const SB_URL = "https://lsfmpmfoqdtkgndtaxen.supabase.co";
-        const SB_KEY = "sb_publishable_dnaPmhIN6Lp4irUSxYuAMQ_vzE_CCKT";
+        const SB_KEY = "YOUR_SUPABASE_ANON_KEY"; // BITTE ERSETZEN
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
         const ADMIN_PW = "LM10KING10.cba1312";
 
@@ -181,7 +195,7 @@
             "R1B": "#FF0000", "E": "#00008B", "T": "#FFA500", "J1": "#006400",
             "L1": "#00FFFF", "B": "#008B8B", "G": "#444444", "G2": "#444444",
             "Q": "#9400D3", "H": "#8B4513", "R2": "#FFFF00", "R1A": "#DEB887",
-            "I": "#EE82EE", "C": "#FFFFFF", "J2": "#32CD32"
+            "I": "#EE82EE", "C": "#FFFFFF", "J2": "#32CD32", "A": "#000000"
         };
 
         const GOV_LIST = ["Ad Daqahlīyah", "Al Fayyūm", "Al Gharbīyah", "Al Iskandarīyah", "Al Ismā`īlīyah", "Al Minūfīyah", "Al Minyā", "Al Qalyūbīyah", "As Suways", "Ash Sharqīyah", "Aswān", "Asyūt", "Banī Suwayf", "Cairo", "Dumyāt", "Giza", "Janūb Sīnā’", "Kafr ash Shaykh", "Luxor", "Matrouh", "Qinā", "Shamal Sīnā’", "Sūhāj", "Unassigned Origin"].sort();
@@ -202,14 +216,19 @@
         async function loadAllData() {
             const { data: oldData } = await _supabase.from('dna_stats').select('*');
             const { data: newData } = await _supabase.from('published_samples').select('*');
+            
             detailedSamples = newData || [];
             regionalData = {};
+
+            // 1. Daten aus dna_stats (Manuelle Tabelle)
             if (oldData) {
                 oldData.forEach(row => {
                     if (!regionalData[row.region]) regionalData[row.region] = {};
                     regionalData[row.region][row.haplogroup.toUpperCase()] = row.count;
                 });
             }
+
+            // 2. Daten aus published_samples hinzufügen
             detailedSamples.forEach(sample => {
                 const gov = sample.governorate || "Unassigned Origin";
                 const baseHaplo = sample.y_dna ? sample.y_dna.split('-')[0].split(' ')[0].toUpperCase() : "UNKNOWN";
@@ -225,15 +244,16 @@
                 type: 'pie',
                 data: {
                     labels: Object.keys(dataMap),
-                    datasets: [{ data: Object.values(dataMap), backgroundColor: Object.keys(dataMap).map(l => HAPLO_COLORS[l.toUpperCase()] || "#CCC"), borderWidth: isMini ? 1 : 2, borderColor: '#fff', hoverOffset: isMini ? 12 : 40 }]
+                    datasets: [{ 
+                        data: Object.values(dataMap), 
+                        backgroundColor: Object.keys(dataMap).map(l => HAPLO_COLORS[l.toUpperCase()] || "#CCC"), 
+                        borderWidth: isMini ? 1 : 2, 
+                        borderColor: '#fff' 
+                    }]
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
-                    layout: { padding: isMini ? 12 : 25 },
-                    plugins: { 
-                        legend: { display: false }, 
-                        tooltip: { enabled: true, backgroundColor: '#001736', padding: 12, cornerRadius: 10, displayColors: false, callbacks: { title: () => '', label: (ctx) => ctx.label } } 
-                    }
+                    plugins: { legend: { display: false }, tooltip: { enabled: true } }
                 }
             });
         }
@@ -242,48 +262,56 @@
             const tbody = document.getElementById('database-body');
             const search = document.getElementById('dbSearchInput').value.toLowerCase();
             tbody.innerHTML = '';
-            detailedSamples.filter(s => (s.y_dna || "").toLowerCase().includes(search) || (s.snp_path || "").toLowerCase().includes(search) || (s.name || "").toLowerCase().includes(search) || (s.governorate || "").toLowerCase().includes(search) || (s.kit_number || "").toLowerCase().includes(search) || (s.mt_dna || "").toLowerCase().includes(search)
+
+            detailedSamples.filter(s => 
+                (s.y_dna || "").toLowerCase().includes(search) || 
+                (s.snp_path || "").toLowerCase().includes(search) || 
+                (s.name || "").toLowerCase().includes(search) || 
+                (s.kit_number || "").toLowerCase().includes(search)
             ).forEach(s => {
                 const base = s.y_dna ? s.y_dna.split('-')[0].split(' ')[0].toUpperCase() : "";
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-8 py-5">
-                            <div class="flex flex-col text-primary">
+                            <div class="flex flex-col">
                                 <span class="px-3 py-0.5 rounded-full text-white text-[10px] font-black w-fit mb-1" style="background:${HAPLO_COLORS[base] || '#666'}">${s.y_dna || '-'}</span>
-                                <span class="text-[10px] text-gray-400 font-mono truncate max-w-[200px]">${s.snp_path || ''}</span>
+                                <span class="text-[10px] text-gray-400 font-mono truncate max-w-[150px]">${s.snp_path || ''}</span>
                             </div>
                         </td>
-                        <td class="px-6 py-5 text-gray-500 font-mono text-xs text-primary">${s.mt_dna || '-'}</td>
+                        <td class="px-6 py-5 text-gray-500 font-mono text-xs">${s.mt_dna || '-'}</td>
                         <td class="px-6 py-5 uppercase text-[10px] tracking-widest text-primary font-bold">${s.governorate || 'Unknown'}</td>
                         <td class="px-6 py-5 font-black text-primary">${s.name || 'Anonymous'}</td>
-                        <td class="px-6 py-5 text-xs text-gray-400 font-mono cursor-pointer hover:text-primary" onclick="copyKit('${s.kit_number}')">${s.kit_number || '-'}</td>
-                        <td class="px-8 py-5 text-right flex justify-end gap-2">
-                            ${s.y_link_1 ? `<a href="${s.y_link_1}" target="_blank" class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center hover:bg-secondary transition-all shadow-md"><span class="text-[9px] font-black">Y1</span></a>` : ''}
+                        <td class="px-6 py-5 text-xs text-gray-400 font-mono cursor-pointer hover:text-primary text-center" onclick="copyKit('${s.kit_number}')">${s.kit_number || '-'}</td>
+                        <td class="px-8 py-5 text-right flex justify-end gap-1">
+                            ${s.y_link_1 ? `<a href="${s.y_link_1}" target="_blank" class="w-7 h-7 rounded-lg bg-primary text-white flex items-center justify-center text-[9px] font-bold hover:bg-secondary">Y1</a>` : ''}
+                            ${s.y_link_2 ? `<a href="${s.y_link_2}" target="_blank" class="w-7 h-7 rounded-lg bg-primary text-white flex items-center justify-center text-[9px] font-bold hover:bg-secondary">Y2</a>` : ''}
+                            ${s.mt_link_1 ? `<a href="${s.mt_link_1}" target="_blank" class="w-7 h-7 rounded-lg bg-secondary text-white flex items-center justify-center text-[9px] font-bold hover:bg-primary">M1</a>` : ''}
+                            ${s.mt_link_2 ? `<a href="${s.mt_link_2}" target="_blank" class="w-7 h-7 rounded-lg bg-secondary text-white flex items-center justify-center text-[9px] font-bold hover:bg-primary">M2</a>` : ''}
                         </td>
                     </tr>`;
             });
         }
 
-        function copyKit(kit) {
-            navigator.clipboard.writeText(kit);
-            alert("Kit " + kit + " copied! Redirecting to FamilyTreeDNA...");
-            window.open("https://www.familytreedna.com/groups/egypt-project/dna-results", "_blank");
-        }
-
         function renderUI() {
             const grid = document.getElementById('stats-grid');
-            const search = document.getElementById('searchInput').value.toLowerCase();
+            const search = document.getElementById('regionSearchInput').value.toLowerCase();
             grid.innerHTML = '';
+
             GOV_LIST.forEach((gov, idx) => {
                 if (gov.toLowerCase().includes(search)) {
                     const data = regionalData[gov] || {};
                     const total = Object.values(data).reduce((a, b) => a + b, 0);
                     const canvasId = `chart-${idx}`;
+                    
                     const card = document.createElement('div');
-                    card.className = "stat-card bg-white p-8 rounded-[3rem] flex items-center gap-6 cursor-pointer overflow-visible text-primary";
+                    card.className = "stat-card bg-white p-6 rounded-[2.5rem] flex items-center gap-5 cursor-pointer";
                     card.onclick = () => openModal(gov);
-                    card.innerHTML = `<div class="w-20 h-20 flex-shrink-0 overflow-visible text-primary font-bold text-primary"><canvas id="${canvasId}"></canvas></div>
-                        <div class="min-w-0 text-primary font-bold text-primary"><h4 class="font-black text-sm uppercase truncate font-headline text-primary">${gov}</h4><p class="text-[10px] text-gray-400 font-black uppercase text-primary font-bold">Total: ${total}</p></div>`;
+                    card.innerHTML = `
+                        <div class="w-16 h-16 flex-shrink-0"><canvas id="${canvasId}"></canvas></div>
+                        <div class="min-w-0">
+                            <h4 class="font-black text-xs uppercase truncate font-headline text-primary">${gov}</h4>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase">Total: ${total}</p>
+                        </div>`;
                     grid.appendChild(card);
                     if (total > 0) createPieChart(canvasId, data, true);
                 }
@@ -294,19 +322,22 @@
         function updateNationalSummary() {
             const totals = {}; let grandTotal = 0;
             Object.values(regionalData).forEach(region => {
-                Object.entries(region).forEach(([hp, count]) => { totals[hp] = (totals[hp] || 0) + count; grandTotal += count; });
+                Object.entries(region).forEach(([hp, count]) => { 
+                    totals[hp] = (totals[hp] || 0) + count; grandTotal += count; 
+                });
             });
             document.getElementById('total-national-samples').innerText = grandTotal;
             document.getElementById('total-gov-count').innerText = GOV_LIST.length;
             if (grandTotal > 0) createPieChart('nationalChartCanvas', totals, false);
-            const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 15);
+            
+            const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 12);
             document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `
-                <div class="flex items-center justify-between text-[11px] font-black border-b border-gray-50 pb-2 uppercase tracking-tighter text-primary">
+                <div class="flex items-center justify-between text-[10px] font-black border-b border-gray-50 pb-2 uppercase tracking-tighter">
                     <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 rounded-full shadow-sm" style="background: ${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div>
+                        <div class="w-2.5 h-2.5 rounded-full" style="background: ${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div>
                         <span>${name}</span>
                     </div>
-                    <span class="text-primary font-black">${((count/grandTotal)*100).toFixed(1)}% <span class="text-[9px] text-gray-300 ml-1">(${count})</span></span>
+                    <span>${((count/grandTotal)*100).toFixed(1)}% (${count})</span>
                 </div>`).join('');
         }
 
@@ -314,12 +345,19 @@
             const data = regionalData[gov] || {};
             const total = Object.values(data).reduce((a, b) => a + b, 0);
             const sorted = Object.entries(data).sort((a,b) => b[1] - a[1]);
+            
             document.getElementById('modal-title').innerText = gov;
             document.getElementById('modal-sample').innerText = `TOTAL: ${total}`;
             if (total > 0) setTimeout(() => createPieChart('modalChartCanvas', data, false), 50);
-            document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `<div class="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-gray-100 text-primary">
-                <div class="flex items-center gap-4 text-primary font-black"><div class="w-8 h-8 rounded-full shadow-md" style="background:${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div><span class="text-2xl font-black uppercase font-headline text-primary">${name}</span></div>
-                <span class="font-black text-2xl text-primary font-headline">${total > 0 ? ((count/total)*100).toFixed(1) : 0}% <span class="text-sm text-gray-400 font-bold ml-2 text-primary">(${count})</span></span></div>`).join('');
+            
+            document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-6 h-6 rounded-full shadow-md" style="background:${HAPLO_COLORS[name.toUpperCase()] || '#CCC'}"></div>
+                        <span class="text-lg font-black uppercase font-headline">${name}</span>
+                    </div>
+                    <span class="font-black text-lg">${total > 0 ? ((count/total)*100).toFixed(1) : 0}% <span class="text-xs text-gray-400 ml-1">(${count})</span></span>
+                </div>`).join('');
             document.getElementById('detail-modal').classList.add('active');
         }
 
@@ -331,10 +369,13 @@
                 governorate: document.getElementById('add-gov').value,
                 name: document.getElementById('add-name').value.trim(),
                 kit_number: document.getElementById('add-kit').value.trim(),
-                y_link_1: document.getElementById('add-y-link').value.trim()
+                y_link_1: document.getElementById('add-y-link1').value.trim(),
+                y_link_2: document.getElementById('add-y-link2').value.trim(),
+                mt_link_1: document.getElementById('add-mt-link1').value.trim(),
+                mt_link_2: document.getElementById('add-mt-link2').value.trim()
             };
             const { error } = await _supabase.from('published_samples').insert([payload]);
-            if (error) alert(error.message); else { alert("Kit added!"); await init(); }
+            if (error) alert(error.message); else { alert("Kit successfully added!"); location.reload(); }
         }
 
         async function updateOldTable() {
@@ -342,7 +383,7 @@
             const haplogroup = document.getElementById('edit-old-haplo').value.trim().toUpperCase();
             const count = parseInt(document.getElementById('edit-old-count').value);
             const { error } = await _supabase.from('dna_stats').upsert({ region, haplogroup, count }, { onConflict: 'region, haplogroup' });
-            if (error) alert(error.message); else { alert("Count updated!"); await init(); }
+            if (error) alert(error.message); else { alert("Statistics updated!"); location.reload(); }
         }
 
         function updateDropdowns() { 
@@ -350,11 +391,14 @@
             document.getElementById('add-gov').innerHTML = html;
             document.getElementById('edit-old-gov').innerHTML = html;
         }
+
+        function tryLogin() { if (document.getElementById('admin-pw').value === ADMIN_PW) { localStorage.setItem('is_admin', 'true'); location.reload(); } else alert("Access Denied"); }
         function handleAdminBtnClick() { if (localStorage.getItem('is_admin') === 'true') { if (confirm("Logout?")) { localStorage.removeItem('is_admin'); location.reload(); } } else { document.getElementById('login-modal').classList.add('active'); } }
-        function tryLogin() { if (document.getElementById('admin-pw').value === ADMIN_PW) { localStorage.setItem('is_admin', 'true'); location.reload(); } else alert("Error"); }
         function closeLogin() { document.getElementById('login-modal').classList.remove('active'); }
         function checkAuthUI() { if (localStorage.getItem('is_admin') === 'true') { document.getElementById('admin-panel').classList.add('active'); document.getElementById('admin-text').innerText = "Logout Admin"; document.getElementById('admin-btn').classList.replace('bg-primary', 'bg-red-600'); } }
         function closeModal(e) { if (!e || e.target.id === 'detail-modal') document.getElementById('detail-modal').classList.remove('active'); }
+        function copyKit(kit) { navigator.clipboard.writeText(kit); alert("Kit " + kit + " copied!"); }
+
         init();
     </script>
 </body>
