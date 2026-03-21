@@ -25,17 +25,14 @@
     <style>
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         
-        /* Modal Style */
         #detail-modal { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0, 23, 54, 0.6); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
         #detail-modal.active { display: flex; }
         .modal-content { max-height: 90vh; overflow-y: auto; width: 100%; max-width: 1000px; scroll-behavior: smooth; border-radius: 3rem; }
 
-        /* Navigation Links */
         .nav-link { cursor: pointer; position: relative; transition: all 0.3s; }
         .nav-link.active { color: #001736; font-weight: 800; }
         .nav-link.active::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 100%; height: 2px; background: #775a19; }
         
-        /* Page Sections */
         .page-section { display: none; }
         .page-section.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -47,8 +44,9 @@
 
         /* --- STICKY HEADER FIX --- */
         .sticky-thead th {
+            position: -webkit-sticky !important; /* Safari/iPad Support */
             position: sticky !important;
-            top: 79px !important; /* Unter der Nav (80px) */
+            top: 80px !important; /* Exakt unter der h-20 (80px) Navi */
             z-index: 50 !important;
             background-color: #001736 !important;
             color: white !important;
@@ -56,51 +54,34 @@
             border: none !important;
         }
 
-        /* Verhindert, dass der Container die Stickiness bricht */
-        .archive-outer-container {
-            overflow: visible !important;
-        }
-        .archive-inner-scroll {
-            overflow-x: auto;
-            border-radius: 3rem;
-            border: 1px solid #e5e7eb;
-            background: white;
-        }
+        .archive-outer-container { overflow: visible !important; }
+        .archive-inner-scroll { overflow-x: auto; border-radius: 3rem; border: 1px solid #e5e7eb; background: white; }
 
         table { border-collapse: separate; border-spacing: 0; width: 100%; }
     </style>
 </head>
 <body class="bg-background text-primary font-body antialiased">
 
-    <!-- DETAIL MODAL -->
+    <!-- DETAIL MODAL (Unverändert) -->
     <div id="detail-modal" onclick="closeModal(event)">
         <div class="bg-white p-10 relative border border-gray-100 modal-content shadow-2xl" onclick="event.stopPropagation()">
             <button onclick="closeModal(null)" class="absolute top-8 right-8 text-gray-400 hover:text-red-500 transition-colors"><span class="material-symbols-outlined text-4xl font-bold">close</span></button>
-            
             <div class="flex flex-col md:flex-row gap-12 items-center">
-                <div class="w-[280px] h-[280px] flex-shrink-0">
-                    <canvas id="modalChartCanvas"></canvas>
-                </div>
+                <div class="w-[280px] h-[280px] flex-shrink-0"><canvas id="modalChartCanvas"></canvas></div>
                 <div class="flex-1 w-full text-center md:text-left border-l pl-10 border-gray-100">
                     <h2 id="modal-title" class="text-5xl font-black font-headline uppercase tracking-tighter leading-tight text-primary">Governorate</h2>
-                    <div class="mt-4">
-                        <p id="modal-sample-count" class="text-2xl font-black text-secondary uppercase bg-secondary/5 px-6 py-1 rounded-full inline-block tracking-tight">TOTAL: 0</p>
-                    </div>
+                    <div class="mt-4"><p id="modal-sample-count" class="text-2xl font-black text-secondary uppercase bg-secondary/5 px-6 py-1 rounded-full inline-block tracking-tight">TOTAL: 0</p></div>
                     <div id="modal-legend" class="space-y-2 border-t pt-8 mt-8"></div>
                 </div>
             </div>
-
             <div id="modal-kit-list" class="mt-12 border-t pt-10 hidden">
-                <h3 class="text-2xl font-black uppercase text-primary mb-8 flex items-center gap-3">
-                    <span class="material-symbols-outlined text-secondary text-3xl">database</span> 
-                    KITS: <span id="selected-haplo-display" class="text-secondary">—</span>
-                </h3>
+                <h3 class="text-2xl font-black uppercase text-primary mb-8 flex items-center gap-3"><span class="material-symbols-outlined text-secondary text-3xl">database</span> KITS: <span id="selected-haplo-display" class="text-secondary">—</span></h3>
                 <div id="kits-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
             </div>
         </div>
     </div>
 
-    <!-- NAVIGATION -->
+    <!-- NAVIGATION (h-20 = 80px) -->
     <nav class="fixed top-0 w-full z-[100] bg-white/90 backdrop-blur-xl border-b border-gray-100 h-20">
         <div class="flex justify-between items-center px-8 h-full max-w-screen-2xl mx-auto">
             <div class="flex flex-col">
@@ -115,7 +96,7 @@
     </nav>
 
     <!-- SECTION DASHBOARD -->
-    <main id="section-home" class="page-section active pt-28 pb-20 px-8 max-w-screen-2xl mx-auto space-y-16">
+    <main id="section-home" class="page-section active pt-24 pb-20 px-8 max-w-screen-2xl mx-auto space-y-12">
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-12 rounded-[4rem] shadow-xl border border-gray-100">
             <div class="lg:col-span-5 font-headline">
                 <h2 class="text-7xl font-black tracking-tighter mb-8 leading-tight">National Summary</h2>
@@ -129,21 +110,16 @@
                 <div id="national-legend" class="space-y-1.5 w-full max-w-[240px]"></div>
             </div>
         </section>
-
         <section class="h-[600px] w-full bg-white rounded-[4rem] overflow-hidden shadow-2xl border border-gray-100">
             <iframe src="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746?scaleControl=false&miniMap=false&scrollWheelZoom=false&datalayersControl=true#6/26.938/30.802" class="w-full h-full border-none"></iframe>
         </section>
-
-        <section class="space-y-10">
-            <h2 class="text-5xl font-black font-headline uppercase tracking-tighter">Regional Archives</h2>
-            <div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div>
-        </section>
+        <section class="space-y-10"><h2 class="text-5xl font-black font-headline uppercase tracking-tighter">Regional Archives</h2><div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div></section>
     </main>
 
     <!-- SECTION ARCHIVE -->
-    <main id="section-archive" class="page-section pt-28 pb-20 px-8 max-w-screen-2xl mx-auto space-y-12">
+    <main id="section-archive" class="page-section pt-24 pb-20 px-8 max-w-screen-2xl mx-auto space-y-8">
         <header class="flex justify-between items-end">
-            <div><p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2">— Genomic Catalog</p><h2 class="text-7xl font-black font-headline tracking-tighter leading-none text-primary text-6xl">DNA Sample Archive</h2></div>
+            <div><p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2">— Genomic Catalog</p><h2 class="text-7xl font-black font-headline tracking-tighter leading-none text-primary">DNA Sample Archive</h2></div>
             <input type="text" id="archiveSearch" oninput="renderArchive()" placeholder="Search kit, name or city..." class="w-96 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none">
         </header>
 
@@ -172,23 +148,10 @@
         const SB_KEY = "sb_publishable_dnaPmhIN6Lp4irUSxYuAMQ_vzE_CCKT";
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-        // --- DEINE FARBEN-LISTE ---
         const HAPLO_COLORS = { 
-            "J1": "#006400",   /* Dark Green */
-            "T": "#FFA500",    /* Orange */
-            "E": "#00008B",    /* Dark Blue */
-            "R1B": "#FF0000",  /* Red */
-            "L": "#00FFFF",    /* Cyan */
-            "B": "#008B8B",    /* Dark Cyan */
-            "G": "#444444",    /* Dark Grey */
-            "I": "#EE82EE",    /* Violet */
-            "R1A": "#DEB887",  /* Burly Wood */
-            "R2": "#FFFF00",   /* Yellow */
-            "H": "#8B4513",    /* Saddle Brown */
-            "J2": "#32CD32",   /* Lime Green */
-            "Q": "#9400D3",    /* Dark Violet */
-            "C": "#FFFFFF",    /* White */
-            "A": "#000000"     /* Black */
+            "J1": "#006400", "T": "#FFA500", "E": "#00008B", "R1B": "#FF0000", "L": "#00FFFF", 
+            "B": "#008B8B", "G": "#444444", "I": "#EE82EE", "R1A": "#DEB887", "R2": "#FFFF00", 
+            "H": "#8B4513", "J2": "#32CD32", "Q": "#9400D3", "C": "#FFFFFF", "A": "#000000" 
         };
         
         const GOV_LIST = ["Ad Daqahlīyah", "Al Fayyūm", "Al Gharbīyah", "Al Iskandarīyah", "Al Ismā`īlīyah", "Al Minūfīyah", "Al Minyā", "Al Qalyūbīyah", "As Suways", "Ash Sharqīyah", "Aswān", "Asyūt", "Banī Suwayf", "Cairo", "Dumyāt", "Giza", "Janūb Sīnā’", "Kafr ash Shaykh", "Luxor", "Matrouh", "Qinā", "Shamal Sīnā’", "Sūhāj", "—"].sort();
@@ -360,6 +323,7 @@
             document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active', 'text-gray-400'));
             document.getElementById(`section-${id}`).classList.add('active');
             document.getElementById(`nav-${id}`).classList.add('active');
+            window.scrollTo(0,0);
         }
 
         function closeModal(e) { if (!e || e.target.id === 'detail-modal') document.getElementById('detail-modal').classList.remove('active'); }
