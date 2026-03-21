@@ -31,6 +31,11 @@
         .stat-card { transition: all 0.3s ease; border: 1px solid #eef0f2; cursor: pointer; background: white; padding: 1.5rem; border-radius: 2.5rem; display: flex; align-items: center; gap: 1.25rem; }
         .stat-card:hover { border-color: #001736; transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,23,54,0.1); }
         canvas { max-width: 100% !important; max-height: 100% !important; }
+        
+        /* Modal Scrollbar Fix */
+        .modal-content { max-height: 90vh; overflow-y: auto; scroll-behavior: smooth; }
+        .modal-content::-webkit-scrollbar { width: 6px; }
+        .modal-content::-webkit-scrollbar-thumb { background: #eef0f2; border-radius: 10px; }
     </style>
 </head>
 <body class="bg-background text-primary font-body antialiased">
@@ -49,14 +54,30 @@
 
     <!-- DETAIL MODAL -->
     <div id="detail-modal" onclick="closeModal(event)">
-        <div class="bg-white w-full max-w-4xl rounded-[3rem] shadow-2xl p-10 relative border border-gray-100" onclick="event.stopPropagation()">
-            <button onclick="closeModal(null)" class="absolute top-8 right-8 text-gray-400 hover:text-red-500"><span class="material-symbols-outlined text-4xl font-bold">close</span></button>
+        <div class="bg-white w-full max-w-4xl rounded-[3rem] shadow-2xl p-10 relative border border-gray-100 modal-content" onclick="event.stopPropagation()">
+            <button onclick="closeModal(null)" class="absolute top-8 right-8 text-gray-400 hover:text-red-500 transition-colors"><span class="material-symbols-outlined text-4xl font-bold">close</span></button>
+            
             <div class="flex flex-col md:flex-row gap-12 items-center">
                 <div class="w-[320px] h-[320px] flex-shrink-0"><canvas id="modalChartCanvas"></canvas></div>
                 <div class="flex-1 w-full text-center md:text-left">
-                    <h2 id="modal-title" class="text-5xl font-black font-headline uppercase text-primary tracking-tighter">Governorate</h2>
-                    <p id="modal-sample" class="text-3xl font-black text-secondary uppercase bg-secondary/5 px-6 py-1 rounded-full inline-block mt-4">TOTAL: 0</p>
-                    <div id="modal-legend" class="space-y-2 border-t pt-8 mt-8 overflow-y-auto max-h-[300px]"></div>
+                    <h2 id="modal-title" class="text-5xl font-black font-headline uppercase text-primary tracking-tighter leading-none">Governorate</h2>
+                    <p id="modal-sample" class="text-2xl font-black text-secondary uppercase bg-secondary/5 px-6 py-1 rounded-full inline-block mt-4 tracking-tight">TOTAL: 0</p>
+                    <div id="modal-legend" class="space-y-2 border-t pt-8 mt-8">
+                        <!-- Legend items injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Kit List Area (Hidden by default) -->
+            <div id="modal-kit-list" class="mt-12 border-t pt-10 hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-black uppercase text-primary tracking-tighter flex items-center gap-3">
+                        <span class="material-symbols-outlined text-secondary">database</span> 
+                        Lineage Details: <span id="selected-haplo-name" class="text-secondary">—</span>
+                    </h3>
+                </div>
+                <div id="kits-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Kits injected here -->
                 </div>
             </div>
         </div>
@@ -82,8 +103,8 @@
             <div class="lg:col-span-5 font-headline">
                 <h2 class="text-6xl font-black tracking-tighter mb-8 leading-tight text-primary">National Summary</h2>
                 <div class="grid grid-cols-2 gap-8 border-t pt-8">
-                    <div><p class="text-[11px] font-bold text-gray-400 uppercase">Total Samples</p><p id="total-national-samples" class="text-5xl font-black text-primary">0</p></div>
-                    <div><p class="text-[11px] font-bold text-gray-400 uppercase">Mapped Regions</p><p id="total-gov-count" class="text-5xl font-black text-primary">24</p></div>
+                    <div><p class="text-[11px] font-bold text-gray-400 uppercase">Total Samples</p><p id="total-national-samples" class="text-5xl font-black text-primary leading-none mt-2">0</p></div>
+                    <div><p class="text-[11px] font-bold text-gray-400 uppercase">Mapped Regions</p><p id="total-gov-count" class="text-5xl font-black text-primary leading-none mt-2">24</p></div>
                 </div>
             </div>
             <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-12 justify-center lg:justify-end">
@@ -132,7 +153,7 @@
             </h3>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
                 <div class="space-y-6">
-                    <h4 class="text-[10px] font-black uppercase text-gray-400 tracking-widest">Add New Kit Details</h4>
+                    <h4 class="text-[10px] font-black uppercase text-gray-400 tracking-widest">Add New Detailed Kit</h4>
                     <div class="grid grid-cols-2 gap-4">
                         <input type="text" id="add-y" class="p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="Y-DNA (z.B. J1)">
                         <input type="text" id="add-snp" class="p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="SNP Path">
@@ -151,7 +172,7 @@
                         <input type="text" id="add-m1" class="p-3 rounded-xl border text-xs bg-white" placeholder="mt Link 1">
                         <input type="text" id="add-m2" class="p-3 rounded-xl border text-xs bg-white" placeholder="mt Link 2">
                     </div>
-                    <button onclick="saveNewSample()" class="w-full bg-primary text-white p-4 rounded-2xl font-black uppercase text-xs shadow-xl">Save to Database</button>
+                    <button onclick="saveNewSample()" class="w-full bg-primary text-white p-4 rounded-2xl font-black uppercase text-xs shadow-xl tracking-widest">Save to Database</button>
                 </div>
             </div>
         </section>
@@ -189,7 +210,6 @@
 
         async function loadAllData() {
             try {
-                // Wir laden beide Tabellen getrennt
                 const [statsRes, samplesRes] = await Promise.all([
                     _supabase.from('dna_stats').select('*'),
                     _supabase.from('published_samples').select('*')
@@ -199,8 +219,7 @@
                 regionalData = {}; 
                 GOV_LIST.forEach(g => regionalData[g] = {});
 
-                // WICHTIG: Nur dna_stats wird für die Diagramme verwendet!
-                // Das verhindert, dass Kits aus der anderen Tabelle doppelt addiert werden.
+                // FIX: Diagramme nutzen NUR dna_stats. Keine Doppel-Addition mehr!
                 if (statsRes.data) {
                     statsRes.data.forEach(row => {
                         const reg = (row.region === "Unassigned Origin" || !row.region) ? "—" : row.region;
@@ -211,7 +230,7 @@
                         }
                     });
                 }
-            } catch (err) { console.error("Data Load Error:", err); }
+            } catch (err) { console.error("Error loading data:", err); }
         }
 
         function createPieChart(canvasId, dataMap, isMini) {
@@ -246,19 +265,19 @@
             tbody.innerHTML = '';
 
             databaseSamples.filter(s => 
-                (s.y_dna + s.name + s.kit_number).toLowerCase().includes(search)
+                (s.y_dna + s.name + s.kit_number + s.governorate).toLowerCase().includes(search)
             ).forEach(s => {
-                const base = s.y_dna && s.y_dna !== '—' ? s.y_dna.split('-')[0].split(' ')[0].toUpperCase() : "";
+                const base = (s.y_dna && s.y_dna !== '—') ? s.y_dna.split('-')[0].split(' ')[0].toUpperCase() : "";
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-8 py-5">
                             <div class="flex flex-col">
                                 <span class="px-3 py-0.5 rounded-full text-white text-[10px] font-black w-fit mb-1" style="background:${HAPLO_COLORS[base] || '#666'}">${s.y_dna || '—'}</span>
-                                <span class="text-[10px] text-gray-400 font-mono truncate max-w-[180px]">${s.snp_path || ''}</span>
+                                <span class="text-[10px] text-gray-400 font-mono truncate max-w-[200px]">${s.snp_path || ''}</span>
                             </div>
                         </td>
                         <td class="px-6 py-5 text-gray-500 font-mono text-xs">${s.mt_dna || '—'}</td>
-                        <td class="px-6 py-5 uppercase text-[10px] font-bold text-primary">${(s.governorate === 'Unassigned Origin' || !s.governorate) ? '—' : s.governorate}</td>
+                        <td class="px-6 py-5 uppercase text-[10px] font-bold text-primary">${s.governorate || '—'}</td>
                         <td class="px-6 py-5 font-black text-primary">${s.name || 'Anonymous'}</td>
                         <td class="px-6 py-5 text-xs text-gray-400 font-mono text-center">${s.kit_number || '—'}</td>
                         <td class="px-8 py-5 text-right flex justify-end gap-1">
@@ -283,7 +302,7 @@
                 card.innerHTML = `
                     <div class="w-16 h-16 flex-shrink-0"><canvas id="${canvasId}"></canvas></div>
                     <div class="min-w-0">
-                        <h4 class="font-black text-xs uppercase truncate text-primary">${gov}</h4>
+                        <h4 class="font-black text-xs uppercase truncate text-primary tracking-tighter">${gov}</h4>
                         <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Total: ${total}</p>
                     </div>`;
                 grid.appendChild(card);
@@ -308,7 +327,7 @@
                         <div class="w-2 h-2 rounded-full" style="background: ${HAPLO_COLORS[name] || '#CCC'}"></div>
                         <span>${name}</span>
                     </div>
-                    <span>${((count/grandTotal)*100).toFixed(1)}% <span class="text-[9px] text-gray-300">(${count})</span></span>
+                    <span>${((count/grandTotal)*100).toFixed(1)}%</span>
                 </div>`).join('');
         }
 
@@ -317,51 +336,14 @@
             const total = Object.values(data).reduce((a, b) => a + b, 0);
             document.getElementById('modal-title').innerText = gov;
             document.getElementById('modal-sample').innerText = `TOTAL: ${total}`;
+            
+            // Hide kit list when opening new modal
+            document.getElementById('modal-kit-list').classList.add('hidden');
+            
             document.getElementById('detail-modal').classList.add('active');
             if (total > 0) setTimeout(() => createPieChart('modalChartCanvas', data, false), 50);
+            
             const sorted = Object.entries(data).sort((a,b) => b[1] - a[1]);
             document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `
-                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-2xl">
-                    <div class="flex items-center gap-3 font-black">
-                        <div class="w-4 h-4 rounded-full" style="background:${HAPLO_COLORS[name] || '#CCC'}"></div>
-                        <span class="text-lg uppercase">${name}</span>
-                    </div>
-                    <span class="text-lg font-black">${((count/total)*100).toFixed(1)}% <span class="text-xs text-gray-400">(${count})</span></span>
-                </div>`).join('');
-        }
-
-        async function saveNewSample() {
-            const payload = {
-                y_dna: document.getElementById('add-y').value.trim() || '—',
-                snp_path: document.getElementById('add-snp').value.trim() || '—',
-                mt_dna: document.getElementById('add-mt').value.trim() || '—',
-                governorate: document.getElementById('add-gov').value,
-                name: document.getElementById('add-name').value.trim() || '—',
-                kit_number: document.getElementById('add-kit').value.trim() || '—',
-                y_link_1: document.getElementById('add-y1').value.trim() || '—',
-                y_link_2: document.getElementById('add-y2').value.trim() || '—',
-                mt_link_1: document.getElementById('add-m1').value.trim() || '—',
-                mt_link_2: document.getElementById('add-m2').value.trim() || '—'
-            };
-            const { error } = await _supabase.from('published_samples').insert([payload]);
-            if (error) alert(error.message); else location.reload();
-        }
-
-        function updateDropdowns() {
-            document.getElementById('add-gov').innerHTML = GOV_LIST.map(g => `<option value="${g}">${g}</option>`).join('');
-        }
-
-        function handleAdminBtnClick() { 
-            if (localStorage.getItem('is_admin') === 'true') {
-                if (confirm("Logout?")) { localStorage.removeItem('is_admin'); location.reload(); }
-            } else document.getElementById('login-modal').classList.add('active'); 
-        }
-        function tryLogin() { if (document.getElementById('admin-pw').value === ADMIN_PW) { localStorage.setItem('is_admin', 'true'); location.reload(); } else alert("Denied."); }
-        function closeLogin() { document.getElementById('login-modal').classList.remove('active'); }
-        function closeModal(e) { if (!e || e.target.id === 'detail-modal') document.getElementById('detail-modal').classList.remove('active'); }
-        function checkAuthUI() { if (localStorage.getItem('is_admin') === 'true') document.getElementById('admin-panel').classList.add('active'); }
-
-        init();
-    </script>
-</body>
-</html>
+                <div onclick="showHaploDetails('${gov}', '${name}')" class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl cursor-pointer hover:bg-secondary/10 hover:scale-[1.02] transition-all group">
+                    <div class="flex items-center gap-4 font-black">
