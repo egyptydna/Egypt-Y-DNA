@@ -3,22 +3,34 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Egyptian Y-DNA Project</title>
+    <title>Egyptian Y-DNA Project | National Genomic Archive</title>
+    
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@800&family=Inter:wght@400;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
     <script>
         tailwind.config = {
-            theme: { extend: { colors: { "primary": "#001736", "secondary": "#775a19", "background": "#f8f9fa" } } }
+            theme: {
+                extend: {
+                    colors: { "primary": "#001736", "secondary": "#775a19", "background": "#f8f9fa" },
+                    fontFamily: { "headline": ["Manrope"], "body": ["Inter"] },
+                },
+            },
         }
     </script>
     <style>
-        #detail-modal, #login-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0, 23, 54, 0.6); backdrop-filter: blur(15px); align-items: center; justify-content: center; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        #admin-panel { display: none; } #admin-panel.active { display: block; animation: slideDown 0.4s ease; }
+        #detail-modal, #login-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0, 23, 54, 0.6); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
         #detail-modal.active, #login-modal.active { display: flex; }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .stat-card { transition: all 0.3s ease; border: 1px solid #eef0f2; cursor: pointer; background: white; padding: 1.5rem; border-radius: 2.5rem; display: flex; align-items: center; gap: 1.25rem; }
-        .stat-card:hover { border-color: #001736; transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .stat-card:hover { border-color: #001736; transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,23,54,0.1); }
+        canvas { max-width: 100% !important; max-height: 100% !important; }
     </style>
 </head>
 <body class="bg-background text-primary font-body antialiased">
@@ -26,8 +38,8 @@
     <!-- LOGIN MODAL -->
     <div id="login-modal">
         <div class="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full text-center">
-            <h2 class="text-2xl font-black mb-4 uppercase">Admin Access</h2>
-            <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border mb-4 text-center font-bold" placeholder="Password">
+            <h2 class="text-2xl font-black font-headline mb-4 uppercase text-primary">Admin Access</h2>
+            <input type="password" id="admin-pw" class="w-full p-4 rounded-xl border mb-4 text-center outline-none focus:ring-2 focus:ring-primary font-bold" placeholder="Password">
             <div class="flex gap-3">
                 <button onclick="closeLogin()" class="flex-1 p-3 rounded-xl bg-gray-100 font-bold">Cancel</button>
                 <button onclick="tryLogin()" class="flex-1 p-3 rounded-xl bg-primary text-white font-bold">Login</button>
@@ -37,100 +49,116 @@
 
     <!-- DETAIL MODAL -->
     <div id="detail-modal" onclick="closeModal(event)">
-        <div class="bg-white w-full max-w-4xl rounded-[3rem] shadow-2xl p-10 relative" onclick="event.stopPropagation()">
-            <button onclick="closeModal(null)" class="absolute top-8 right-8 text-gray-400 hover:text-red-500 transition-colors"><span class="material-symbols-outlined font-bold">close</span></button>
+        <div class="bg-white w-full max-w-4xl rounded-[3rem] shadow-2xl p-10 relative border border-gray-100" onclick="event.stopPropagation()">
+            <button onclick="closeModal(null)" class="absolute top-8 right-8 text-gray-400 hover:text-red-500"><span class="material-symbols-outlined text-4xl font-bold">close</span></button>
             <div class="flex flex-col md:flex-row gap-12 items-center">
-                <div class="w-[320px] h-[320px]"><canvas id="modalChartCanvas"></canvas></div>
-                <div class="flex-1">
-                    <h2 id="modal-title" class="text-5xl font-black uppercase tracking-tighter">Governorate</h2>
-                    <p id="modal-sample" class="text-2xl font-black text-secondary mt-2">TOTAL: 0</p>
-                    <div id="modal-legend" class="space-y-2 mt-8 overflow-y-auto max-h-[300px] pr-4"></div>
+                <div class="w-[320px] h-[320px] flex-shrink-0"><canvas id="modalChartCanvas"></canvas></div>
+                <div class="flex-1 w-full text-center md:text-left">
+                    <h2 id="modal-title" class="text-5xl font-black font-headline uppercase text-primary tracking-tighter">Governorate</h2>
+                    <p id="modal-sample" class="text-3xl font-black text-secondary uppercase bg-secondary/5 px-6 py-1 rounded-full inline-block mt-4">TOTAL: 0</p>
+                    <div id="modal-legend" class="space-y-2 border-t pt-8 mt-8 overflow-y-auto max-h-[300px]"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b h-20 flex justify-between items-center px-6">
-        <div>
-            <h1 class="text-xl font-black uppercase leading-none tracking-tighter">Egyptian Y-DNA Project</h1>
-            <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1">National Genomic Archive</p>
+    <!-- NAVIGATION -->
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100 h-20">
+        <div class="flex justify-between items-center px-6 h-full max-w-screen-2xl mx-auto">
+            <div class="flex flex-col">
+                <h1 class="text-xl font-black uppercase tracking-tighter leading-none">Egyptian Y-DNA Project</h1>
+                <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1">National Genomic Archive</p>
+            </div>
+            <button onclick="handleAdminBtnClick()" id="admin-btn" class="bg-primary text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg">
+                <span id="admin-text">Admin Login</span>
+            </button>
         </div>
-        <button onclick="handleAdminBtnClick()" id="admin-btn" class="bg-primary text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg">Admin Login</button>
     </nav>
 
     <main class="pt-28 pb-20 px-6 max-w-screen-2xl mx-auto space-y-16">
+        
         <!-- NATIONAL SUMMARY -->
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-10 rounded-[4rem] shadow-xl border border-gray-100">
-            <div class="lg:col-span-5">
-                <h2 class="text-6xl font-black tracking-tighter mb-8 leading-tight">National Summary</h2>
+            <div class="lg:col-span-5 font-headline">
+                <h2 class="text-6xl font-black tracking-tighter mb-8 leading-tight text-primary">National Summary</h2>
                 <div class="grid grid-cols-2 gap-8 border-t pt-8">
-                    <div><p class="text-[11px] font-bold text-gray-400 uppercase">Total Samples</p><p id="total-national-samples" class="text-5xl font-black">0</p></div>
-                    <div><p class="text-[11px] font-bold text-gray-400 uppercase">Mapped Regions</p><p id="total-gov-count" class="text-5xl font-black">24</p></div>
+                    <div><p class="text-[11px] font-bold text-gray-400 uppercase">Total Samples</p><p id="total-national-samples" class="text-5xl font-black text-primary">0</p></div>
+                    <div><p class="text-[11px] font-bold text-gray-400 uppercase">Mapped Regions</p><p id="total-gov-count" class="text-5xl font-black text-primary">24</p></div>
                 </div>
             </div>
             <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-12 justify-center lg:justify-end">
                 <div class="w-[300px] h-[300px]"><canvas id="nationalChartCanvas"></canvas></div>
-                <div id="national-legend" class="space-y-1 w-full max-w-[220px]"></div>
+                <div id="national-legend" class="space-y-1.5 w-full max-w-[240px]"></div>
             </div>
+        </section>
+
+        <!-- MAP -->
+        <section class="h-[600px] w-full bg-white rounded-[4rem] overflow-hidden shadow-2xl border border-gray-100">
+            <iframe src="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&editMode=disabled&moreControl=false&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=false#6/26.938/30.802" class="w-full h-full border-none"></iframe>
         </section>
 
         <!-- PUBLISHED DATABASE -->
         <section class="space-y-8">
-            <div class="flex justify-between items-end">
-                <h2 class="text-5xl font-black uppercase tracking-tighter">Published Database</h2>
-                <input type="text" id="dbSearch" oninput="renderDatabase()" placeholder="Search kit, haplo or name..." class="w-full md:w-96 p-4 rounded-2xl shadow-lg border-none bg-white font-bold text-sm focus:ring-2 focus:ring-secondary outline-none">
+            <div class="flex flex-col md:flex-row justify-between items-end gap-6">
+                <div>
+                    <h2 class="text-5xl font-black font-headline tracking-tighter uppercase text-primary">Published Database</h2>
+                    <p class="text-gray-400 font-medium mt-2">Verified paternal and maternal lineages</p>
+                </div>
+                <input type="text" id="dbSearch" oninput="renderDatabase()" placeholder="Search kit, haplo or name..." class="w-full md:w-96 p-4 rounded-2xl shadow-lg border-none focus:ring-2 focus:ring-secondary outline-none font-bold text-sm bg-white">
             </div>
-            <div class="bg-white rounded-[3rem] shadow-2xl border border-gray-100 overflow-hidden overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-primary text-white text-[10px] uppercase font-black tracking-widest">
-                        <tr>
-                            <th class="px-8 py-6">Y-DNA & SNP Path</th>
-                            <th class="px-6 py-6">mtDNA</th>
-                            <th class="px-6 py-6">Governorate</th>
-                            <th class="px-6 py-6">Name</th>
-                            <th class="px-6 py-6 text-center">Kit</th>
-                            <th class="px-8 py-6 text-right">Links</th>
-                        </tr>
-                    </thead>
-                    <tbody id="database-body" class="text-sm font-bold divide-y divide-gray-50"></tbody>
-                </table>
+            <div class="bg-white rounded-[3rem] shadow-2xl border border-gray-100 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-primary text-white text-[10px] font-black uppercase tracking-widest">
+                                <th class="px-8 py-6">Y-DNA & SNP Path</th>
+                                <th class="px-6 py-6">mtDNA</th>
+                                <th class="px-6 py-6">Governorate</th>
+                                <th class="px-6 py-6">Name</th>
+                                <th class="px-6 py-6 text-center">Kit</th>
+                                <th class="px-8 py-6 text-right">Links</th>
+                            </tr>
+                        </thead>
+                        <tbody id="database-body" class="text-sm font-bold divide-y divide-gray-50"></tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
         <!-- ADMIN PANEL -->
-        <section id="admin-panel" class="hidden bg-secondary/5 p-10 rounded-[3rem] border-2 border-secondary/20 shadow-inner">
-            <h3 class="text-2xl font-black text-secondary mb-8 flex items-center gap-2">
+        <section id="admin-panel" class="bg-secondary/5 p-10 rounded-[3rem] border-2 border-secondary/20 shadow-inner">
+            <h3 class="text-2xl font-black font-headline uppercase text-secondary mb-8 flex items-center gap-2">
                 <span class="material-symbols-outlined">edit_square</span> Database Live Editor
             </h3>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                <div class="space-y-4">
-                    <h4 class="text-[10px] font-black uppercase text-gray-400 tracking-widest">Add New Kit</h4>
+                <div class="space-y-6">
+                    <h4 class="text-[10px] font-black uppercase text-gray-400 tracking-widest">Add New Kit Details</h4>
                     <div class="grid grid-cols-2 gap-4">
-                        <input type="text" id="add-y" class="p-4 rounded-xl shadow-md font-bold text-sm" placeholder="Y-DNA (e.g. J-M267)">
-                        <input type="text" id="add-snp" class="p-4 rounded-xl shadow-md font-bold text-sm" placeholder="SNP Path">
+                        <input type="text" id="add-y" class="p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="Y-DNA (z.B. J1)">
+                        <input type="text" id="add-snp" class="p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="SNP Path">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
-                        <input type="text" id="add-mt" class="p-4 rounded-xl shadow-md font-bold text-sm" placeholder="mtDNA">
-                        <select id="add-gov" class="p-4 rounded-xl shadow-md font-bold text-sm bg-white"></select>
+                        <input type="text" id="add-mt" class="p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="mtDNA">
+                        <select id="add-gov" class="p-4 rounded-2xl shadow-md text-sm font-bold bg-white"></select>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
-                        <input type="text" id="add-name" class="p-4 rounded-xl shadow-md font-bold text-sm" placeholder="Name">
-                        <input type="text" id="add-kit" class="p-4 rounded-xl shadow-md font-bold text-sm" placeholder="Kit Number">
+                        <input type="text" id="add-name" class="p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="Name/Lineage">
+                        <input type="text" id="add-kit" class="p-4 rounded-2xl shadow-md text-sm font-bold" placeholder="Kit Number">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
-                        <input type="text" id="add-y1" class="p-3 rounded-xl border text-xs" placeholder="Y Link 1">
-                        <input type="text" id="add-y2" class="p-3 rounded-xl border text-xs" placeholder="Y Link 2">
-                        <input type="text" id="add-m1" class="p-3 rounded-xl border text-xs" placeholder="mt Link 1">
-                        <input type="text" id="add-m2" class="p-3 rounded-xl border text-xs" placeholder="mt Link 2">
+                        <input type="text" id="add-y1" class="p-3 rounded-xl border text-xs bg-white" placeholder="Y Link 1">
+                        <input type="text" id="add-y2" class="p-3 rounded-xl border text-xs bg-white" placeholder="Y Link 2">
+                        <input type="text" id="add-m1" class="p-3 rounded-xl border text-xs bg-white" placeholder="mt Link 1">
+                        <input type="text" id="add-m2" class="p-3 rounded-xl border text-xs bg-white" placeholder="mt Link 2">
                     </div>
-                    <button onclick="saveNewSample()" class="w-full bg-primary text-white p-4 rounded-xl font-black uppercase tracking-widest text-xs">Save to Database</button>
+                    <button onclick="saveNewSample()" class="w-full bg-primary text-white p-4 rounded-2xl font-black uppercase text-xs shadow-xl">Save to Database</button>
                 </div>
             </div>
         </section>
 
         <!-- REGIONAL GRID -->
         <section class="space-y-10">
-            <h2 class="text-5xl font-black uppercase tracking-tighter">Regional Archives</h2>
+            <h2 class="text-5xl font-black font-headline tracking-tighter uppercase text-primary">Regional Archives</h2>
             <div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div>
         </section>
     </main>
@@ -154,13 +182,14 @@
 
         async function init() {
             updateDropdowns();
-            if (localStorage.getItem('is_admin') === 'true') document.getElementById('admin-panel').classList.remove('hidden');
+            checkAuthUI();
             await loadAllData();
             renderUI(); renderDatabase();
         }
 
         async function loadAllData() {
             try {
+                // Wir laden beide Tabellen getrennt
                 const [statsRes, samplesRes] = await Promise.all([
                     _supabase.from('dna_stats').select('*'),
                     _supabase.from('published_samples').select('*')
@@ -170,10 +199,11 @@
                 regionalData = {}; 
                 GOV_LIST.forEach(g => regionalData[g] = {});
 
-                // 1. Statistiken aus dna_stats (anonyme Daten)
+                // WICHTIG: Nur dna_stats wird für die Diagramme verwendet!
+                // Das verhindert, dass Kits aus der anderen Tabelle doppelt addiert werden.
                 if (statsRes.data) {
                     statsRes.data.forEach(row => {
-                        const reg = row.region || "—";
+                        const reg = (row.region === "Unassigned Origin" || !row.region) ? "—" : row.region;
                         if (regionalData[reg]) {
                             let hp = row.haplogroup.toUpperCase().trim();
                             if (hp === "J") hp = "J1";
@@ -181,20 +211,7 @@
                         }
                     });
                 }
-                
-                // 2. Kits aus published_samples für die Charts addieren 
-                // (Nur wenn sie nicht schon in dna_stats drin sind!)
-                databaseSamples.forEach(s => {
-                    const reg = s.governorate || "—";
-                    if (regionalData[reg] && s.y_dna && s.y_dna !== '—') {
-                        let hp = s.y_dna.split('-')[0].split(' ')[0].toUpperCase().trim();
-                        if (hp === "J") hp = "J1";
-                        // Hinweis: Wir addieren hier +1, weil wir davon ausgehen, 
-                        // dass Kits NICHT in der anonymen dna_stats CSV enthalten sind.
-                        regionalData[reg][hp] = (regionalData[reg][hp] || 0) + 1;
-                    }
-                });
-            } catch (err) { console.error("Load Error:", err); }
+            } catch (err) { console.error("Data Load Error:", err); }
         }
 
         function createPieChart(canvasId, dataMap, isMini) {
@@ -229,7 +246,7 @@
             tbody.innerHTML = '';
 
             databaseSamples.filter(s => 
-                (s.y_dna + s.name + s.kit_number + s.snp_path).toLowerCase().includes(search)
+                (s.y_dna + s.name + s.kit_number).toLowerCase().includes(search)
             ).forEach(s => {
                 const base = s.y_dna && s.y_dna !== '—' ? s.y_dna.split('-')[0].split(' ')[0].toUpperCase() : "";
                 tbody.innerHTML += `
@@ -241,7 +258,7 @@
                             </div>
                         </td>
                         <td class="px-6 py-5 text-gray-500 font-mono text-xs">${s.mt_dna || '—'}</td>
-                        <td class="px-6 py-5 uppercase text-[10px] font-bold text-primary">${s.governorate || '—'}</td>
+                        <td class="px-6 py-5 uppercase text-[10px] font-bold text-primary">${(s.governorate === 'Unassigned Origin' || !s.governorate) ? '—' : s.governorate}</td>
                         <td class="px-6 py-5 font-black text-primary">${s.name || 'Anonymous'}</td>
                         <td class="px-6 py-5 text-xs text-gray-400 font-mono text-center">${s.kit_number || '—'}</td>
                         <td class="px-8 py-5 text-right flex justify-end gap-1">
@@ -286,12 +303,12 @@
             if (grandTotal > 0) createPieChart('nationalChartCanvas', totals, false);
             const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 10);
             document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `
-                <div class="flex items-center justify-between text-[11px] font-black border-b border-gray-50 pb-1 uppercase">
+                <div class="flex items-center justify-between text-[11px] font-black border-b border-gray-50 pb-1 uppercase tracking-tighter">
                     <div class="flex items-center gap-2">
                         <div class="w-2 h-2 rounded-full" style="background: ${HAPLO_COLORS[name] || '#CCC'}"></div>
                         <span>${name}</span>
                     </div>
-                    <span>${((count/grandTotal)*100).toFixed(1)}%</span>
+                    <span>${((count/grandTotal)*100).toFixed(1)}% <span class="text-[9px] text-gray-300">(${count})</span></span>
                 </div>`).join('');
         }
 
@@ -342,6 +359,7 @@
         function tryLogin() { if (document.getElementById('admin-pw').value === ADMIN_PW) { localStorage.setItem('is_admin', 'true'); location.reload(); } else alert("Denied."); }
         function closeLogin() { document.getElementById('login-modal').classList.remove('active'); }
         function closeModal(e) { if (!e || e.target.id === 'detail-modal') document.getElementById('detail-modal').classList.remove('active'); }
+        function checkAuthUI() { if (localStorage.getItem('is_admin') === 'true') document.getElementById('admin-panel').classList.add('active'); }
 
         init();
     </script>
