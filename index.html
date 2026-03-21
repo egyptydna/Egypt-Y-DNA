@@ -24,12 +24,11 @@
     </script>
     <style>
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        #admin-panel { display: none; } #admin-panel.active { display: block; }
-        #detail-modal, #login-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0, 23, 54, 0.6); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
-        #detail-modal.active, #login-modal.active { display: flex; }
+        #detail-modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0, 23, 54, 0.6); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
+        #detail-modal.active { display: flex; }
         .stat-card { transition: all 0.3s ease; border: 1px solid #eef0f2; cursor: pointer; background: white; padding: 1.5rem; border-radius: 2.5rem; display: flex; align-items: center; gap: 1.25rem; }
         .stat-card:hover { border-color: #001736; transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,23,54,0.1); }
-        .modal-content { max-height: 90vh; overflow-y: auto; scroll-behavior: smooth; width: 100%; max-width: 900px; }
+        .modal-content { max-height: 90vh; overflow-y: auto; scroll-behavior: smooth; width: 100%; max-width: 950px; }
         canvas { cursor: pointer; }
     </style>
 </head>
@@ -57,7 +56,9 @@
                     <span class="material-symbols-outlined text-secondary">database</span> 
                     Lineage Details: <span id="selected-haplo-name" class="text-secondary">—</span>
                 </h3>
-                <div id="kits-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                <div id="kits-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Kits will be injected here -->
+                </div>
             </div>
         </div>
     </div>
@@ -117,7 +118,7 @@
         const HAPLO_COLORS = { 
             "R1B": "#FF0000", "E": "#00008B", "T": "#FFA500", "J1": "#006400", 
             "L1": "#00FFFF", "B": "#008B8B", "G": "#444444", "G2": "#444444",
-            "J2": "#32CD32", "R1A": "#DEB887", "A": "#000"
+            "J2": "#32CD32", "R1A": "#DEB887", "A": "#000", "I2": "#C0C0C0"
         };
         
         const GOV_LIST = ["Ad Daqahlīyah", "Al Fayyūm", "Al Gharbīyah", "Al Iskandarīyah", "Al Ismā`īlīyah", "Al Minūfīyah", "Al Minyā", "Al Qalyūbīyah", "As Suways", "Ash Sharqīyah", "Aswān", "Asyūt", "Banī Suwayf", "Cairo", "Dumyāt", "Giza", "Janūb Sīnā’", "Kafr ash Shaykh", "Luxor", "Matrouh", "Qinā", "Shamal Sīnā’", "Sūhāj", "—"].sort();
@@ -187,35 +188,54 @@
         function showHaploDetails(gov, haplo) {
             const container = document.getElementById('kits-container');
             const listArea = document.getElementById('modal-kit-list');
+            
+            // FIX 1: Container leeren, damit alte Linien verschwinden!
+            container.innerHTML = '';
+            
             document.getElementById('selected-haplo-name').innerText = haplo;
 
+            // FIX 2: Präziser Filter
             const matches = databaseSamples.filter(s => {
                 const sGov = s.governorate || "—";
                 if (sGov !== gov) return false;
 
-                // Intelligenter Filter: Prüfe ob Kit-Y-DNA mit dem Legenden-Namen startet
-                // Beispiel: "R1b" passt auf "R-...", "E" passt auf "E-..."
-                const kitHaploPrefix = s.y_dna ? s.y_dna.split('-')[0].split(' ')[0].toUpperCase() : "";
+                const fullY = (s.y_dna || "").toUpperCase();
                 const legendHaplo = haplo.toUpperCase();
 
-                // Spezialregeln für die Suche
-                if (legendHaplo === "R1B") return kitHaploPrefix === "R";
-                if (legendHaplo === "R1A") return kitHaploPrefix === "R";
-                if (legendHaplo === "J1" || legendHaplo === "J2") return kitHaploPrefix === "J";
+                // Logik: "R1b" in Legende passt auf Kits die mit "R-" starten, "J1" auf "J-", etc.
+                const kitPrefix = fullY.split('-')[0].split(' ')[0];
                 
-                return kitHaploPrefix.startsWith(legendHaplo) || legendHaplo.startsWith(kitHaploPrefix);
+                if (legendHaplo === "R1B" || legendHaplo === "R1A") return kitPrefix === "R";
+                if (legendHaplo === "J1" || legendHaplo === "J2") return kitPrefix === "J";
+                if (legendHaplo === "I2") return kitPrefix === "I";
+                
+                return kitPrefix === legendHaplo;
             });
 
-            container.innerHTML = matches.length ? matches.map(s => `
-                <div class="p-5 border rounded-[2rem] bg-gray-50">
-                    <span class="px-3 py-1 bg-primary text-white text-[10px] font-black rounded-full">${s.y_dna}</span>
-                    <p class="font-black text-primary uppercase mt-2">${s.name || 'Anonymous'}</p>
-                    <p class="text-[10px] text-gray-400 font-mono truncate">${s.snp_path || '—'}</p>
-                    <p class="text-[10px] text-secondary font-bold mt-1">KIT: ${s.kit_number || '—'}</p>
-                </div>`).join('') : `<p class="col-span-full text-gray-400 italic p-6 text-center">Only anonymous statistical data available for ${haplo}.</p>`;
+            if (matches.length > 0) {
+                container.innerHTML = matches.map(s => `
+                    <div class="p-6 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm hover:border-secondary transition-all">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="px-3 py-1 bg-primary text-white text-[10px] font-black rounded-full">${s.y_dna}</span>
+                            <span class="text-[10px] font-mono text-gray-400 font-bold">KIT: ${s.kit_number || '—'}</span>
+                        </div>
+                        <p class="font-black text-primary uppercase text-sm mb-1 leading-tight">${s.name || 'Anonymous'}</p>
+                        <p class="text-[9px] text-gray-400 font-mono truncate mb-4">${s.snp_path || '—'}</p>
+                        <div class="flex gap-2">
+                            ${s.y_link_1 && s.y_link_1 !== '—' ? `<a href="${s.y_link_1}" target="_blank" class="px-3 py-1 rounded-lg bg-secondary/10 text-secondary text-[9px] font-black hover:bg-secondary hover:text-white transition-colors">YFULL</a>` : ''}
+                            ${s.y_link_2 && s.y_link_2 !== '—' ? `<a href="${s.y_link_2}" target="_blank" class="px-3 py-1 rounded-lg bg-secondary/10 text-secondary text-[9px] font-black hover:bg-secondary hover:text-white transition-colors">FTDNA</a>` : ''}
+                        </div>
+                    </div>`).join('');
+            } else {
+                container.innerHTML = `<p class="col-span-full text-gray-400 italic font-bold p-8 bg-gray-50 rounded-[2rem] text-center">No detailed kits available for ${haplo} in ${gov}. Only anonymous CSV data.</p>`;
+            }
             
             listArea.classList.remove('hidden');
-            listArea.scrollIntoView({ behavior: 'smooth' });
+            
+            // FIX 3: Sanftes Scrollen zur Liste
+            setTimeout(() => {
+                listArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 50);
         }
 
         function openModal(gov) {
@@ -230,9 +250,9 @@
             
             const sorted = Object.entries(data).sort((a,b) => b[1] - a[1]);
             document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `
-                <div onclick="showHaploDetails('${gov}', '${name}')" class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl cursor-pointer hover:bg-secondary/10 transition-all">
+                <div onclick="showHaploDetails('${gov}', '${name}')" class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl cursor-pointer hover:bg-secondary/10 transition-all group">
                     <div class="flex items-center gap-4 font-black">
-                        <div class="w-5 h-5 rounded-full" style="background:${HAPLO_COLORS[name] || '#CCC'}"></div>
+                        <div class="w-5 h-5 rounded-full shadow-sm" style="background:${HAPLO_COLORS[name] || '#CCC'}"></div>
                         <span class="text-xl uppercase">${name}</span>
                     </div>
                     <span class="text-xl font-black">${((count/total)*100).toFixed(1)}%</span>
@@ -242,7 +262,7 @@
         function renderUI() {
             const grid = document.getElementById('stats-grid'); grid.innerHTML = '';
             GOV_LIST.forEach((gov, idx) => {
-                const data = regionalData[gov] || {}; const total = Object.values(data).reduce((a, b) => a + b, 0);
+                const data = regionalData[gov] || {}; const total = Object.values(data).reduce((a,b)=>a+b, 0);
                 const canvasId = `chart-${idx}`;
                 const card = document.createElement('div'); card.className = "stat-card"; card.onclick = () => openModal(gov);
                 card.innerHTML = `<div class="w-16 h-16 flex-shrink-0"><canvas id="${canvasId}"></canvas></div><div class="min-w-0"><h4 class="font-black text-xs uppercase truncate">${gov}</h4><p class="text-[10px] text-gray-400 font-bold uppercase">Total: ${total}</p></div>`;
