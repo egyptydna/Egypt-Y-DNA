@@ -394,4 +394,80 @@
         function showHaploDetails(gov, haplo) {
             const container = document.getElementById('kits-container');
             const listArea = document.getElementById('modal-kit-list');
-            document.getElementById('selected-haplo-name').
+            document.getElementById('selected-haplo-name').innerText = haplo;
+
+            const matches = databaseSamples.filter(s => {
+                let sGov = s.governorate;
+                if (!sGov || sGov === "Unassigned Origin" || sGov.trim() === "") sGov = "—";
+                
+                let sHaplo = "—";
+                if (s.y_dna && s.y_dna !== '—') {
+                    sHaplo = s.y_dna.split('-')[0].split(' ')[0].toUpperCase().trim();
+                    if (sHaplo === "J") sHaplo = "J1";
+                }
+                
+                const targetHaplo = haplo.toUpperCase().trim();
+                return (sGov === gov) && (sHaplo === targetHaplo);
+            });
+
+            if (matches.length === 0) {
+                container.innerHTML = `<div class="col-span-full p-6 bg-gray-50 rounded-3xl text-center"><p class="text-gray-400 italic font-bold">No detailed kits available for ${haplo} in ${gov}. Only anonymous statistical data from CSV is present.</p></div>`;
+            } else {
+                container.innerHTML = matches.map(s => `
+                    <div class="p-5 border border-gray-100 rounded-[2rem] bg-white shadow-sm hover:border-secondary transition-all">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="px-3 py-1 bg-primary text-white text-[10px] font-black rounded-full">${s.y_dna}</span>
+                            <span class="text-[10px] font-mono text-gray-400 font-bold">${s.kit_number || '—'}</span>
+                        </div>
+                        <p class="font-black text-primary uppercase text-sm mb-1">${s.name || 'Anonymous'}</p>
+                        <p class="text-[10px] text-gray-400 font-mono truncate mb-4 font-medium">${s.snp_path || '—'}</p>
+                        <div class="flex gap-2">
+                            ${s.y_link_1 && s.y_link_1 !== '—' ? `<a href="${s.y_link_1}" target="_blank" class="px-3 py-1 rounded-lg bg-secondary/10 text-secondary text-[9px] font-black hover:bg-secondary hover:text-white transition-colors">YFull</a>` : ''}
+                            ${s.y_link_2 && s.y_link_2 !== '—' ? `<a href="${s.y_link_2}" target="_blank" class="px-3 py-1 rounded-lg bg-secondary/10 text-secondary text-[9px] font-black hover:bg-secondary hover:text-white transition-colors">FTDNA</a>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            listArea.classList.remove('hidden');
+            
+            setTimeout(() => {
+                listArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        async function saveNewSample() {
+            const payload = {
+                y_dna: document.getElementById('add-y').value.trim() || '—',
+                snp_path: document.getElementById('add-snp').value.trim() || '—',
+                mt_dna: document.getElementById('add-mt').value.trim() || '—',
+                governorate: document.getElementById('add-gov').value,
+                name: document.getElementById('add-name').value.trim() || '—',
+                kit_number: document.getElementById('add-kit').value.trim() || '—',
+                y_link_1: document.getElementById('add-y1').value.trim() || '—',
+                y_link_2: document.getElementById('add-y2').value.trim() || '—',
+                mt_link_1: document.getElementById('add-m1').value.trim() || '—',
+                mt_link_2: document.getElementById('add-m2').value.trim() || '—'
+            };
+            const { error } = await _supabase.from('published_samples').insert([payload]);
+            if (error) alert(error.message); else location.reload();
+        }
+
+        function updateDropdowns() {
+            document.getElementById('add-gov').innerHTML = GOV_LIST.map(g => `<option value="${g}">${g}</option>`).join('');
+        }
+
+        function handleAdminBtnClick() { 
+            if (localStorage.getItem('is_admin') === 'true') {
+                if (confirm("Logout?")) { localStorage.removeItem('is_admin'); location.reload(); }
+            } else document.getElementById('login-modal').classList.add('active'); 
+        }
+        function tryLogin() { if (document.getElementById('admin-pw').value === ADMIN_PW) { localStorage.setItem('is_admin', 'true'); location.reload(); } else alert("Denied."); }
+        function closeLogin() { document.getElementById('login-modal').classList.remove('active'); }
+        function closeModal(e) { if (!e || e.target.id === 'detail-modal') document.getElementById('detail-modal').classList.remove('active'); }
+        function checkAuthUI() { if (localStorage.getItem('is_admin') === 'true') document.getElementById('admin-panel').classList.add('active'); }
+
+        init();
+    </script>
+</body>
+</html>
