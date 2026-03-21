@@ -32,7 +32,7 @@
         .stat-card:hover { border-color: #001736; transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,23,54,0.1); }
         canvas { max-width: 100% !important; max-height: 100% !important; }
         
-        /* Modal Scrollbar Fix */
+        /* Modal Scrollbar */
         .modal-content { max-height: 90vh; overflow-y: auto; scroll-behavior: smooth; }
         .modal-content::-webkit-scrollbar { width: 6px; }
         .modal-content::-webkit-scrollbar-thumb { background: #eef0f2; border-radius: 10px; }
@@ -62,23 +62,19 @@
                 <div class="flex-1 w-full text-center md:text-left">
                     <h2 id="modal-title" class="text-5xl font-black font-headline uppercase text-primary tracking-tighter leading-none">Governorate</h2>
                     <p id="modal-sample" class="text-2xl font-black text-secondary uppercase bg-secondary/5 px-6 py-1 rounded-full inline-block mt-4 tracking-tight">TOTAL: 0</p>
-                    <div id="modal-legend" class="space-y-2 border-t pt-8 mt-8">
-                        <!-- Legend items injected here -->
-                    </div>
+                    <div id="modal-legend" class="space-y-2 border-t pt-8 mt-8"></div>
                 </div>
             </div>
 
-            <!-- Detailed Kit List Area (Hidden by default) -->
+            <!-- Detailed Kit List Area -->
             <div id="modal-kit-list" class="mt-12 border-t pt-10 hidden">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-2xl font-black uppercase text-primary tracking-tighter flex items-center gap-3">
-                        <span class="material-symbols-outlined text-secondary">database</span> 
-                        Lineage Details: <span id="selected-haplo-name" class="text-secondary">—</span>
+                        <span class="material-symbols-outlined text-secondary">groups</span> 
+                        Detailed Kits: <span id="selected-haplo-name" class="text-secondary">—</span>
                     </h3>
                 </div>
-                <div id="kits-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Kits injected here -->
-                </div>
+                <div id="kits-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
         </div>
     </div>
@@ -190,39 +186,51 @@
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
         const ADMIN_PW = "LM10KING10.cba1312";
 
+        // KOMPLETTE FARBLISTE FÜR ALLE HAPLOGRUPPEN
         const HAPLO_COLORS = { 
             "R1B": "#FF0000", "E": "#00008B", "T": "#FFA500", "J1": "#006400", 
             "L1": "#00FFFF", "B": "#008B8B", "G": "#444444", "G2": "#444444",
-            "Q": "#9400D3", "H": "#8B4513", "R2": "#FFFF00", "R1A": "#DEB887",
-            "I": "#EE82EE", "C": "#666666", "J2": "#32CD32", "A": "#000000"
+            "Q": "#9400D3", "Q1": "#9400D3", "Q2": "#9400D3", "H": "#8B4513", 
+            "H2": "#8B4513", "R2": "#FFFF00", "R1A": "#DEB887", "I": "#EE82EE", 
+            "I2": "#EE82EE", "C": "#666666", "J2": "#32CD32", "A": "#000000",
+            "A1A": "#000000", "A1B1": "#000000"
         };
         
-        const GOV_LIST = ["Ad Daqahlīyah", "Al Fayyūm", "Al Gharbīyah", "Al Iskandarīyah", "Al Ismā`īlīyah", "Al Minūfīyah", "Al Minyā", "Al Qalyūbīyah", "As Suways", "Ash Sharqīyah", "Aswān", "Asyūt", "Banī Suwayf", "Cairo", "Dumyāt", "Giza", "Janūb Sīnā’", "Kafr ash Shaykh", "Luxor", "Matrouh", "Qinā", "Shamal Sīnā’", "Sūhāj", "—"].sort();
+        const GOV_LIST =["Ad Daqahlīyah", "Al Fayyūm", "Al Gharbīyah", "Al Iskandarīyah", "Al Ismā`īlīyah", "Al Minūfīyah", "Al Minyā", "Al Qalyūbīyah", "As Suways", "Ash Sharqīyah", "Aswān", "Asyūt", "Banī Suwayf", "Cairo", "Dumyāt", "Giza", "Janūb Sīnā’", "Kafr ash Shaykh", "Luxor", "Matrouh", "Qinā", "Shamal Sīnā’", "Sūhāj", "—"].sort();
 
-        let regionalData = {}; let databaseSamples = []; let charts = {};
+        let regionalData = {}; 
+        let databaseSamples =[]; 
+        let charts = {};
 
         async function init() {
             updateDropdowns();
             checkAuthUI();
             await loadAllData();
-            renderUI(); renderDatabase();
+            renderUI(); 
+            renderDatabase();
         }
 
         async function loadAllData() {
             try {
+                // Wir laden die Tabellen direkt von Supabase
                 const [statsRes, samplesRes] = await Promise.all([
                     _supabase.from('dna_stats').select('*'),
                     _supabase.from('published_samples').select('*')
                 ]);
                 
-                databaseSamples = samplesRes.data || [];
+                databaseSamples = samplesRes.data ||[];
                 regionalData = {}; 
                 GOV_LIST.forEach(g => regionalData[g] = {});
 
-                // FIX: Diagramme nutzen NUR dna_stats. Keine Doppel-Addition mehr!
+                // NUR die Tabelle dna_stats wird zum Zählen für die Diagramme genutzt!
                 if (statsRes.data) {
                     statsRes.data.forEach(row => {
-                        const reg = (row.region === "Unassigned Origin" || !row.region) ? "—" : row.region;
+                        // Jedes leere Feld, null, oder "Unassigned Origin" wird zu "—"
+                        let reg = row.region;
+                        if (!reg || reg.trim() === "" || reg === "Unassigned Origin") {
+                            reg = "—";
+                        }
+
                         if (regionalData[reg]) {
                             let hp = row.haplogroup.toUpperCase().trim();
                             if (hp === "J") hp = "J1";
@@ -230,7 +238,9 @@
                         }
                     });
                 }
-            } catch (err) { console.error("Error loading data:", err); }
+            } catch (err) { 
+                console.error("Daten konnten nicht geladen werden:", err); 
+            }
         }
 
         function createPieChart(canvasId, dataMap, isMini) {
@@ -246,7 +256,7 @@
                 type: 'pie',
                 data: {
                     labels: labels,
-                    datasets: [{ 
+                    datasets:[{ 
                         data: values, 
                         backgroundColor: labels.map(l => HAPLO_COLORS[l] || "#CCC"),
                         borderWidth: isMini ? 1 : 2, borderColor: '#fff'
@@ -265,19 +275,24 @@
             tbody.innerHTML = '';
 
             databaseSamples.filter(s => 
-                (s.y_dna + s.name + s.kit_number + s.governorate).toLowerCase().includes(search)
+                (s.y_dna + s.name + s.kit_number + s.governorate + s.snp_path).toLowerCase().includes(search)
             ).forEach(s => {
                 const base = (s.y_dna && s.y_dna !== '—') ? s.y_dna.split('-')[0].split(' ')[0].toUpperCase() : "";
+                
+                // Behandle leere Gouvernorate für die Tabelle
+                let displayGov = s.governorate;
+                if (!displayGov || displayGov === "Unassigned Origin" || displayGov.trim() === "") displayGov = "—";
+
                 tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 transition-colors">
+                    <tr class="hover:bg-gray-50 transition-colors border-b border-gray-50">
                         <td class="px-8 py-5">
                             <div class="flex flex-col">
                                 <span class="px-3 py-0.5 rounded-full text-white text-[10px] font-black w-fit mb-1" style="background:${HAPLO_COLORS[base] || '#666'}">${s.y_dna || '—'}</span>
-                                <span class="text-[10px] text-gray-400 font-mono truncate max-w-[200px]">${s.snp_path || ''}</span>
+                                <span class="text-[10px] text-gray-400 font-mono truncate max-w-[200px]">${s.snp_path || '—'}</span>
                             </div>
                         </td>
                         <td class="px-6 py-5 text-gray-500 font-mono text-xs">${s.mt_dna || '—'}</td>
-                        <td class="px-6 py-5 uppercase text-[10px] font-bold text-primary">${s.governorate || '—'}</td>
+                        <td class="px-6 py-5 uppercase text-[10px] font-bold text-primary">${displayGov}</td>
                         <td class="px-6 py-5 font-black text-primary">${s.name || 'Anonymous'}</td>
                         <td class="px-6 py-5 text-xs text-gray-400 font-mono text-center">${s.kit_number || '—'}</td>
                         <td class="px-8 py-5 text-right flex justify-end gap-1">
@@ -291,11 +306,14 @@
         }
 
         function renderUI() {
-            const grid = document.getElementById('stats-grid'); grid.innerHTML = '';
+            const grid = document.getElementById('stats-grid'); 
+            grid.innerHTML = '';
+            
             GOV_LIST.forEach((gov, idx) => {
                 const data = regionalData[gov] || {}; 
                 const total = Object.values(data).reduce((a, b) => a + b, 0);
                 const canvasId = `chart-${idx}`;
+                
                 const card = document.createElement('div');
                 card.className = "stat-card";
                 card.onclick = () => openModal(gov);
@@ -306,20 +324,31 @@
                         <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Total: ${total}</p>
                     </div>`;
                 grid.appendChild(card);
-                if (total > 0) setTimeout(() => createPieChart(canvasId, data, true), 50);
+                
+                if (total > 0) {
+                    setTimeout(() => createPieChart(canvasId, data, true), 50);
+                }
             });
             updateNationalSummary();
         }
 
         function updateNationalSummary() {
-            const totals = {}; let grandTotal = 0;
+            const totals = {}; 
+            let grandTotal = 0;
+            
             Object.values(regionalData).forEach(reg => {
                 Object.entries(reg).forEach(([hp, count]) => {
-                    totals[hp] = (totals[hp] || 0) + count; grandTotal += count;
+                    totals[hp] = (totals[hp] || 0) + count; 
+                    grandTotal += count;
                 });
             });
+            
             document.getElementById('total-national-samples').innerText = grandTotal;
-            if (grandTotal > 0) createPieChart('nationalChartCanvas', totals, false);
+            
+            if (grandTotal > 0) {
+                createPieChart('nationalChartCanvas', totals, false);
+            }
+            
             const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 10);
             document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `
                 <div class="flex items-center justify-between text-[11px] font-black border-b border-gray-50 pb-1 uppercase tracking-tighter">
@@ -327,23 +356,42 @@
                         <div class="w-2 h-2 rounded-full" style="background: ${HAPLO_COLORS[name] || '#CCC'}"></div>
                         <span>${name}</span>
                     </div>
-                    <span>${((count/grandTotal)*100).toFixed(1)}%</span>
+                    <span>${((count/grandTotal)*100).toFixed(1)}% <span class="text-[9px] text-gray-300">(${count})</span></span>
                 </div>`).join('');
         }
 
         function openModal(gov) {
             const data = regionalData[gov] || {}; 
             const total = Object.values(data).reduce((a, b) => a + b, 0);
+            
             document.getElementById('modal-title').innerText = gov;
             document.getElementById('modal-sample').innerText = `TOTAL: ${total}`;
             
-            // Hide kit list when opening new modal
+            // Verstecke die Personen-Liste, wenn ein neues Modal aufgemacht wird
             document.getElementById('modal-kit-list').classList.add('hidden');
             
             document.getElementById('detail-modal').classList.add('active');
-            if (total > 0) setTimeout(() => createPieChart('modalChartCanvas', data, false), 50);
+            
+            if (total > 0) {
+                setTimeout(() => createPieChart('modalChartCanvas', data, false), 50);
+            }
             
             const sorted = Object.entries(data).sort((a,b) => b[1] - a[1]);
             document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `
                 <div onclick="showHaploDetails('${gov}', '${name}')" class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl cursor-pointer hover:bg-secondary/10 hover:scale-[1.02] transition-all group">
                     <div class="flex items-center gap-4 font-black">
+                        <div class="w-6 h-6 rounded-full shadow-sm" style="background:${HAPLO_COLORS[name] || '#CCC'}"></div>
+                        <span class="text-xl uppercase">${name}</span>
+                    </div>
+                    <div class="text-right flex flex-col items-end">
+                        <span class="text-xl font-black">${((count/total)*100).toFixed(1)}%</span>
+                        <p class="text-[9px] text-secondary font-bold uppercase opacity-0 group-hover:opacity-100 transition-opacity">Click to view kits</p>
+                    </div>
+                </div>`).join('');
+        }
+
+        // Zeigt alle Personen an, die in diesem Bundesland die angeklickte Haplogruppe haben
+        function showHaploDetails(gov, haplo) {
+            const container = document.getElementById('kits-container');
+            const listArea = document.getElementById('modal-kit-list');
+            document.getElementById('selected-haplo-name').
