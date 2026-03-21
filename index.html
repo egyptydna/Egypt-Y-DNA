@@ -44,20 +44,15 @@
         
         .snp-path-text { word-break: break-all; white-space: normal; line-height: 1.4; display: block; }
 
-        /* --- DER FIX FÜR DIE KOPFZEILE --- */
+        /* FIXIERTER TABELLENKOPF */
         .sticky-thead th {
             position: sticky !important;
-            top: 80px !important; /* Exakt unter der h-20 (80px) Navigation */
+            top: 79px !important; 
             z-index: 50 !important;
             background-color: #001736 !important;
             color: white !important;
-            /* Verhindert Lücken beim Scrollen */
-            transform: translateZ(0); 
-            -webkit-transform: translateZ(0);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
-        
-        /* Sorgt dafür, dass der Table-Wrapper die Stickiness nicht bricht */
-        .table-container { overflow: visible !important; }
         
         table { border-collapse: separate; border-spacing: 0; }
     </style>
@@ -88,7 +83,7 @@
                     <span class="material-symbols-outlined text-secondary text-3xl">database</span> 
                     KITS: <span id="selected-haplo-display" class="text-secondary">—</span>
                 </h3>
-                <div id="kits-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                <div id="kits-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
         </div>
     </div>
@@ -109,9 +104,10 @@
 
     <!-- SECTION DASHBOARD -->
     <main id="section-home" class="page-section active pt-28 pb-20 px-8 max-w-screen-2xl mx-auto space-y-16">
+        <!-- NATIONAL SUMMARY -->
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-12 rounded-[4rem] shadow-xl border border-gray-100">
             <div class="lg:col-span-5 font-headline">
-                <h2 class="text-7xl font-black tracking-tighter mb-8 leading-tight text-primary">National Summary</h2>
+                <h2 class="text-7xl font-black tracking-tighter mb-8 leading-tight">National Summary</h2>
                 <div class="grid grid-cols-2 gap-8 border-t pt-8">
                     <div><p class="text-[11px] font-bold text-gray-400 uppercase">Total Samples</p><p id="total-national-samples" class="text-6xl font-black text-primary">0</p></div>
                     <div><p class="text-[11px] font-bold text-gray-400 uppercase">Mapped Regions</p><p class="text-6xl font-black text-primary">24</p></div>
@@ -123,8 +119,14 @@
             </div>
         </section>
 
+        <!-- MAP (uMap) -->
+        <section class="h-[600px] w-full bg-white rounded-[4rem] overflow-hidden shadow-2xl border border-gray-100">
+            <iframe src="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&editMode=disabled&moreControl=false&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=false#6/26.938/30.802" class="w-full h-full border-none"></iframe>
+        </section>
+
+        <!-- REGIONAL GRID -->
         <section class="space-y-10">
-            <h2 class="text-5xl font-black font-headline tracking-tighter uppercase">Regional Archives</h2>
+            <h2 class="text-5xl font-black font-headline uppercase tracking-tighter">Regional Archives</h2>
             <div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div>
         </section>
     </main>
@@ -136,7 +138,7 @@
             <input type="text" id="archiveSearch" oninput="renderArchive()" placeholder="Search kit, name or city..." class="w-96 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none">
         </header>
 
-        <div class="bg-white rounded-[3rem] border border-gray-100 shadow-2xl overflow-x-auto table-container">
+        <div class="bg-white rounded-[3rem] border border-gray-100 shadow-2xl overflow-x-auto">
             <table class="w-full text-left border-collapse table-fixed min-w-[1200px]">
                 <thead class="sticky-thead">
                     <tr class="font-headline text-[9px] font-black uppercase tracking-widest">
@@ -145,12 +147,11 @@
                         <th class="w-[12%] px-4 py-6 text-center">Governorate</th>
                         <th class="w-[28%] px-6 py-6">SNP Path (Y-DNA)</th>
                         <th class="w-[10%] px-4 py-6 text-center">Y-Links</th>
-                        <!-- Getauscht: mtDNA vor mt-Links -->
                         <th class="w-[12%] px-4 py-6 text-center">mtDNA</th>
                         <th class="w-[10%] px-8 py-6 text-center rounded-tr-[3rem]">mt-Links</th>
                     </tr>
                 </thead>
-                <tbody id="archive-table-body" class="divide-y divide-gray-50 bg-white"></tbody>
+                <tbody id="archive-table-body" class="divide-y divide-gray-50 bg-white text-primary"></tbody>
             </table>
         </div>
     </main>
@@ -259,7 +260,9 @@
                 data: { labels, datasets: [{ data: labels.map(k => dataMap[k]), backgroundColor: labels.map(l => HAPLO_COLORS[l] || "#CCC"), borderWidth: 1, borderColor: '#fff' }] },
                 options: { 
                     responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-                    onClick: (evt, el) => { if (el.length > 0) showHaploDetails(govName, labels[el[0].index]); }
+                    onClick: (evt, el) => {
+                        if (el.length > 0) showHaploDetails(govName, labels[el[0].index]);
+                    }
                 }
             });
         }
@@ -302,7 +305,6 @@
             const tbody = document.getElementById('archive-table-body');
             const search = document.getElementById('archiveSearch').value.toLowerCase();
             
-            // SORTIERUNG: Erst alle mit Namen, dann alphabetisch, dann "-" ans Ende
             const filtered = [...databaseSamples]
                 .filter(s => (s.name + (s.kit_number||'') + (s.governorate||'') + (s.y_dna||'')).toLowerCase().includes(search))
                 .sort((a, b) => {
