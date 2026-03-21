@@ -34,18 +34,44 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .snp-path-text { word-break: break-all; white-space: normal; line-height: 1.4; display: block; }
         .modal-content { max-height: 90vh; overflow-y: auto; width: 100%; max-width: 1000px; scroll-behavior: smooth; border-radius: 3rem; }
-        thead th { position: sticky; top: 80px; z-index: 30; background: white; box-shadow: 0 1px 0 #e5e7eb; }
+
+        /* FIXIERTER TABELLENKOPF (Sticky Header) */
+        #archive-table thead th { 
+            position: sticky; 
+            top: 80px; /* Direkt unter der Navigation */
+            z-index: 40; 
+            background-color: #001736; /* Dunkelblaues Design */
+            color: white; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
+            border: none;
+        }
     </style>
 </head>
 <body class="bg-background text-primary font-body antialiased">
 
+    <!-- DETAIL MODAL -->
+    <div id="detail-modal" onclick="closeModal(event)">
+        <div class="bg-white p-10 relative border border-gray-100 modal-content shadow-2xl" onclick="event.stopPropagation()">
+            <button onclick="closeModal(null)" class="absolute top-8 right-8 text-gray-400 hover:text-red-500 transition-colors"><span class="material-symbols-outlined text-4xl font-bold">close</span></button>
+            <div class="flex flex-col md:flex-row gap-12 items-center">
+                <div class="w-[280px] h-[280px] flex-shrink-0"><canvas id="modalChartCanvas"></canvas></div>
+                <div class="flex-1 w-full text-center md:text-left">
+                    <h2 id="modal-title" class="text-5xl font-black font-headline uppercase tracking-tighter leading-tight text-primary">Governorate</h2>
+                    <div class="mt-4"><p id="modal-sample-count" class="text-2xl font-black text-secondary uppercase bg-secondary/5 px-6 py-1 rounded-full inline-block tracking-tight">TOTAL: 0</p></div>
+                    <div id="modal-legend" class="space-y-2 border-t pt-8 mt-8"></div>
+                </div>
+            </div>
+            <div id="modal-kit-list" class="mt-12 border-t pt-10 hidden">
+                <h3 class="text-2xl font-black uppercase text-primary mb-8 flex items-center gap-3"><span class="material-symbols-outlined text-secondary text-3xl">database</span> KITS: <span id="selected-haplo-display" class="text-secondary">—</span></h3>
+                <div id="kits-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- NAVIGATION -->
     <nav class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-xl border-b border-gray-100 h-20">
         <div class="flex justify-between items-center px-8 h-full max-w-screen-2xl mx-auto">
-            <div class="flex flex-col">
-                <h1 class="text-xl font-black uppercase tracking-tighter leading-none text-primary">Egyptian Y-DNA Project</h1>
-                <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1 text-center">National Genomic Archive</p>
-            </div>
+            <div class="flex flex-col"><h1 class="text-xl font-black uppercase tracking-tighter leading-none text-primary">Egyptian Y-DNA Project</h1><p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1 text-center">National Genomic Archive</p></div>
             <div class="flex gap-8 items-center font-headline">
                 <span onclick="showSection('home')" id="nav-home" class="nav-link active text-xs font-bold uppercase tracking-widest">Dashboard</span>
                 <span onclick="showSection('archive')" id="nav-archive" class="nav-link text-xs font-bold uppercase tracking-widest text-gray-400">Sample Archive</span>
@@ -53,7 +79,7 @@
         </div>
     </nav>
 
-    <!-- SECTION DASHBOARD -->
+    <!-- DASHBOARD -->
     <main id="section-home" class="page-section active pt-28 pb-20 px-8 max-w-screen-2xl mx-auto space-y-16">
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-12 rounded-[4rem] shadow-xl border border-gray-100">
             <div class="lg:col-span-5 font-headline">
@@ -71,23 +97,23 @@
         <section class="space-y-10"><h2 class="text-5xl font-black font-headline uppercase tracking-tighter">Regional Archives</h2><div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div></section>
     </main>
 
-    <!-- SECTION ARCHIVE -->
+    <!-- ARCHIVE -->
     <main id="section-archive" class="page-section pt-28 pb-20 px-8 max-w-screen-2xl mx-auto space-y-12">
         <header class="flex justify-between items-end">
-            <div><p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2">— Genomic Catalog</p><h2 class="text-7xl font-black font-headline tracking-tighter leading-none text-primary">DNA Sample <span class="italic text-secondary font-medium text-6xl">Archive</span></h2></div>
+            <div><p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2">— Genomic Catalog</p><h2 class="text-7xl font-black font-headline tracking-tighter leading-none">DNA Sample <span class="italic text-secondary font-medium text-6xl">Archive</span></h2></div>
             <input type="text" id="archiveSearch" oninput="renderArchive()" placeholder="Search kit, name or city..." class="w-96 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none">
         </header>
-        <div class="bg-white rounded-[3rem] border border-gray-100 shadow-2xl overflow-x-auto">
-            <table class="w-full text-left border-collapse table-fixed min-w-[1200px]">
+        <div class="bg-white rounded-[3rem] border border-gray-100 shadow-2xl overflow-x-auto relative">
+            <table id="archive-table" class="w-full text-left border-collapse table-fixed min-w-[1200px]">
                 <thead>
-                    <tr class="font-headline text-[9px] font-black uppercase tracking-widest text-gray-400">
-                        <th class="w-[18%] px-8 py-6">Identification</th>
+                    <tr class="font-headline text-[9px] font-black uppercase tracking-widest">
+                        <th class="w-[18%] px-8 py-6 rounded-tl-[3rem]">Identification</th>
                         <th class="w-[10%] px-4 py-6">Kit/ID</th>
                         <th class="w-[12%] px-4 py-6 text-center">Governorate</th>
                         <th class="w-[28%] px-6 py-6">SNP Path (Y-DNA)</th>
                         <th class="w-[10%] px-4 py-6 text-center">Y-Links</th>
                         <th class="w-[12%] px-4 py-6 text-center">mtDNA</th>
-                        <th class="w-[10%] px-8 py-6 text-center">mt-Links</th>
+                        <th class="w-[10%] px-8 py-6 text-center rounded-tr-[3rem]">mt-Links</th>
                     </tr>
                 </thead>
                 <tbody id="archive-table-body" class="divide-y divide-gray-50"></tbody>
@@ -128,7 +154,6 @@
             const tbody = document.getElementById('archive-table-body');
             const search = document.getElementById('archiveSearch').value.toLowerCase();
             
-            // FILTERN & SORTIEREN NACH BUNDESLAND (GOVERNORATE)
             const filtered = databaseSamples
                 .filter(s => (s.name + (s.kit_number||'') + (s.governorate||'') + (s.y_dna||'')).toLowerCase().includes(search))
                 .sort((a, b) => (a.governorate || "—").localeCompare(b.governorate || "—"));
@@ -138,13 +163,11 @@
                 return `
                 <tr class="hover:bg-gray-50 transition-colors">
                     <td class="px-8 py-7"><p class="font-black text-primary uppercase text-sm leading-tight">${s.name || 'Anonymous'}</p></td>
-                    <td class="px-4 py-7 font-mono text-[10px] font-bold text-gray-400">${s.kit_number || '—'}</td>
+                    <td class="px-4 py-7 font-mono text-[10px] font-bold text-gray-400 tracking-tighter">${s.kit_number || '—'}</td>
                     <td class="px-4 py-7 text-[10px] font-black text-gray-400 uppercase text-center">${s.governorate || '—'}</td>
                     <td class="px-6 py-7"><div class="flex items-start gap-3"><span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${HAPLO_COLORS[kitH] || '#CCC'}"></span><span class="text-[10px] font-mono font-bold text-gray-500 snp-path-text">${s.snp_path || s.y_dna || '—'}</span></div></td>
                     <td class="px-4 py-7 text-center">${buildLinks(s, 'y')}</td>
-                    <!-- Position getauscht: Erst mtDNA Text -->
                     <td class="px-4 py-7 text-center uppercase text-[11px] font-black text-secondary">${s.mt_dna || '—'}</td>
-                    <!-- Dann mt-Links -->
                     <td class="px-8 py-7 text-center">${buildLinks(s, 'mt')}</td>
                 </tr>`;
             }).join('');
@@ -155,8 +178,13 @@
             const l2 = type === 'y' ? s.y_link_2 : s.mt_link_2;
             const color = type === 'y' ? 'bg-primary' : 'bg-secondary';
             let html = '<div class="flex gap-1.5 justify-center">';
-            if (l1 && l1.length > 5 && l1 !== '—') html += `<a href="${l1}" target="_blank" class="w-7 h-7 rounded-lg ${color} text-white flex items-center justify-center hover:scale-110 transition-transform"><span class="material-symbols-outlined text-[14px]">${type === 'y' ? 'database' : 'link'}</span></a>`;
-            if (l2 && l2.length > 5 && l2 !== '—') html += `<a href="${l2}" target="_blank" class="w-7 h-7 rounded-lg ${color} text-white flex items-center justify-center hover:scale-110 transition-transform"><span class="material-symbols-outlined text-[14px]">link</span></a>`;
+            [l1, l2].forEach((link, i) => {
+                if (link && link.length > 5 && link !== '—') {
+                    html += `<a href="${link}" target="_blank" class="w-7 h-7 rounded-lg ${color} text-white flex items-center justify-center hover:scale-110 transition-transform shadow-sm">
+                                <span class="material-symbols-outlined text-[14px]">${i === 0 && type === 'y' ? 'database' : 'link'}</span>
+                             </a>`;
+                }
+            });
             html += '</div>';
             return html;
         }
@@ -168,14 +196,24 @@
             document.getElementById(`nav-${id}`).classList.add('active');
         }
 
-        // Dashboard UI & Charts
+        function createPieChart(canvasId, dataMap, govName = null) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            if (charts[canvasId]) charts[canvasId].destroy();
+            const labels = Object.keys(dataMap).filter(k => dataMap[k] > 0);
+            charts[canvasId] = new Chart(ctx, {
+                type: 'pie',
+                data: { labels, datasets: [{ data: labels.map(k => dataMap[k]), backgroundColor: labels.map(l => HAPLO_COLORS[l] || "#CCC"), borderWidth: 1, borderColor: '#fff' }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
         function renderUI() {
             const grid = document.getElementById('stats-grid'); grid.innerHTML = '';
             GOV_LIST.forEach((gov, idx) => {
                 const data = regionalData[gov] || {}; const total = Object.values(data).reduce((a,b)=>a+b, 0);
                 const canvasId = `chart-${idx}`;
                 const card = document.createElement('div'); card.className = "stat-card"; 
-                card.innerHTML = `<div class="w-16 h-16 flex-shrink-0"><canvas id="${canvasId}"></canvas></div><div class="min-w-0"><h4 class="font-black text-xs uppercase truncate">${gov}</h4><p class="text-[10px] text-gray-400 font-bold">Total: ${total}</p></div>`;
+                card.innerHTML = `<div class="w-16 h-16 flex-shrink-0"><canvas id="${canvasId}"></canvas></div><div class="min-w-0"><h4 class="font-black text-xs uppercase truncate">${gov}</h4><p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Total: ${total}</p></div>`;
                 grid.appendChild(card);
                 if (total > 0) setTimeout(() => createPieChart(canvasId, data), 50);
             });
@@ -187,17 +225,8 @@
             Object.values(regionalData).forEach(reg => Object.entries(reg).forEach(([hp, count]) => { totals[hp] = (totals[hp] || 0) + count; grandTotal += count; }));
             document.getElementById('total-national-samples').innerText = grandTotal;
             if (grandTotal > 0) createPieChart('nationalChartCanvas', totals);
-        }
-
-        function createPieChart(canvasId, dataMap) {
-            const ctx = document.getElementById(canvasId).getContext('2d');
-            if (charts[canvasId]) charts[canvasId].destroy();
-            const labels = Object.keys(dataMap).filter(k => dataMap[k] > 0);
-            charts[canvasId] = new Chart(ctx, {
-                type: 'pie',
-                data: { labels, datasets: [{ data: labels.map(k => dataMap[k]), backgroundColor: labels.map(l => HAPLO_COLORS[l] || "#CCC"), borderWidth: 1 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-            });
+            const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 15);
+            document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `<div class="flex items-center justify-between text-[11px] font-black border-b border-gray-50 pb-1 uppercase tracking-tighter font-headline"><span>${name}</span><span>${((count/grandTotal)*100).toFixed(1)}%</span></div>`).join('');
         }
 
         init();
