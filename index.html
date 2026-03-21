@@ -35,8 +35,6 @@
         
         .snp-path-text { word-break: break-all; white-space: normal; line-height: 1.4; display: block; }
         .modal-content { max-height: 90vh; overflow-y: auto; width: 100%; max-width: 950px; scroll-behavior: smooth; }
-
-        /* Fixed Table Header */
         thead th { position: sticky; top: 80px; z-index: 30; background: white; box-shadow: 0 1px 0 #e5e7eb; }
     </style>
 </head>
@@ -60,8 +58,11 @@
 
             <!-- KIT LIST AREA -->
             <div id="modal-kit-list" class="mt-12 border-t pt-10 hidden">
-                <h3 class="text-2xl font-black uppercase text-primary mb-6 flex items-center gap-3"><span class="material-symbols-outlined text-secondary">database</span> Kits: <span id="selected-haplo-name" class="text-secondary">—</span></h3>
-                <div id="kits-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                <h3 class="text-2xl font-black uppercase text-primary mb-6 flex items-center gap-3">
+                    <span class="material-symbols-outlined text-secondary">database</span> 
+                    Kits: <span id="selected-haplo-name" class="text-secondary">—</span>
+                </h3>
+                <div id="kits-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
             </div>
         </div>
     </div>
@@ -128,7 +129,7 @@
                     <tr class="font-headline">
                         <th class="w-[20%] px-8 py-6 text-[9px] font-black uppercase tracking-widest text-gray-400 rounded-tl-[3rem]">Name / Identification</th>
                         <th class="w-[10%] px-4 py-6 text-[9px] font-black uppercase tracking-widest text-gray-400">Kit/ID</th>
-                        <th class="w-[12%] px-4 py-6 text-[9px] font-black uppercase tracking-widest text-gray-400">Governorate</th>
+                        <th class="w-[12%] px-4 py-6 text-[9px] font-black uppercase tracking-widest text-gray-400 text-center">Governorate</th>
                         <th class="w-[30%] px-6 py-6 text-[9px] font-black uppercase tracking-widest text-gray-400">SNP Path (Y-DNA)</th>
                         <th class="w-[10%] px-4 py-6 text-[9px] font-black uppercase tracking-widest text-gray-400 text-center">Y-Links</th>
                         <th class="w-[10%] px-4 py-6 text-[9px] font-black uppercase tracking-widest text-gray-400 text-right">mtDNA</th>
@@ -199,7 +200,7 @@
                     <td class="px-4 py-7">
                         <span class="bg-gray-100 px-2 py-1 rounded text-[10px] font-black text-gray-500 font-mono border border-gray-200">${s.kit_number || '—'}</span>
                     </td>
-                    <td class="px-4 py-7 text-[10px] font-black text-gray-400 uppercase tracking-tighter">${s.governorate || '—'}</td>
+                    <td class="px-4 py-7 text-[10px] font-black text-gray-400 uppercase tracking-tighter text-center">${s.governorate || '—'}</td>
                     <td class="px-6 py-7">
                         <div class="flex items-start gap-3">
                             <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${HAPLO_COLORS[baseHaplo] || '#CCC'}"></span>
@@ -212,7 +213,7 @@
                             ${s.y_link_2 && s.y_link_2 !== '—' ? `<a href="${s.y_link_2}" target="_blank" class="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center hover:scale-110 transition-all shadow-sm"><span class="material-symbols-outlined text-[14px]">link</span></a>` : ''}
                         </div>
                     </td>
-                    <td class="px-4 py-7 text-right">
+                    <td class="px-4 py-7 text-right uppercase">
                         <p class="text-[11px] font-black text-secondary tracking-widest">${s.mt_dna || '—'}</p>
                     </td>
                     <td class="px-8 py-7">
@@ -238,8 +239,7 @@
                     onClick: (evt, el) => { 
                         if (el.length > 0) {
                             const haplo = labels[el[0].index];
-                            if (govName) showHaploDetails(govName, haplo);
-                            else showHaploDetails(null, haplo); // National Summary click
+                            showHaploDetails(govName, haplo);
                         }
                     }
                 }
@@ -249,24 +249,26 @@
         function showHaploDetails(gov, haplo) {
             const container = document.getElementById('kits-container');
             const listArea = document.getElementById('modal-kit-list');
-            container.innerHTML = '';
-            document.getElementById('selected-haplo-name').innerText = haplo + (gov ? ` in ${gov}` : ` (National)`);
             
-            // Intelligenter Filter für Haplogruppen (A1a, R1b, etc.)
+            // 1. Container leeren (WICHTIG gegen alte Linien)
+            container.innerHTML = '';
+            
+            // 2. Titel setzen
+            const titleGov = gov ? gov : "National";
+            document.getElementById('selected-haplo-name').innerText = `${haplo} (${titleGov})`;
+            
+            // 3. Präziser Filter: Wir vergleichen nur den ERSTEN BUCHSTABEN
+            // (Funktioniert perfekt für A, E, G, I, J, L, Q, R, T)
+            const searchLetter = haplo.charAt(0).toUpperCase();
+
             const matches = databaseSamples.filter(s => {
+                // Wenn ein Gouvernement gewählt ist, muss es übereinstimmen
                 if (gov && s.governorate !== gov) return false;
                 
-                const fullY = (s.y_dna || "").toUpperCase();
-                const legendHaplo = haplo.toUpperCase();
-                const kitPrefix = fullY.split('-')[0].split(' ')[0]; // Holt "A" von "A-FTB" oder "J" von "J-M267"
-
-                // Spezialregeln für National/Unassigned
-                if (legendHaplo === "R1B" || legendHaplo === "R1A") return kitPrefix === "R";
-                if (legendHaplo === "J1" || legendHaplo === "J2") return kitPrefix === "J";
-                if (legendHaplo === "I2") return kitPrefix === "I";
+                // Erster Buchstabe des Kits (z.B. "J" von "J-M267")
+                const kitLetter = (s.y_dna || "").charAt(0).toUpperCase();
                 
-                // Für A1A, A1B1, Q1, etc: Prüfe ob Kit mit Legendennamen startet oder Kit-Präfix mit Legendennamen
-                return fullY.startsWith(legendHaplo) || legendHaplo.startsWith(kitPrefix);
+                return kitLetter === searchLetter;
             });
             
             if (matches.length > 0) {
@@ -283,21 +285,30 @@
                 container.innerHTML = `<p class="col-span-full text-gray-400 italic font-bold p-8 bg-gray-50 rounded-[2rem] text-center text-xs">Only anonymous statistical data available for ${haplo}.</p>`;
             }
             
-            if (!gov) document.getElementById('detail-modal').classList.add('active'); // Öffne Modal falls National Summary Klick
+            // Modal immer öffnen (falls es vom Dashboard kommt)
+            document.getElementById('detail-modal').classList.add('active');
             listArea.classList.remove('hidden');
+            
+            // Scroll zur Liste
             setTimeout(() => listArea.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
         }
 
         function openModal(gov) {
             const data = regionalData[gov] || {}; const total = Object.values(data).reduce((a, b) => a + b, 0);
-            document.getElementById('modal-title').innerText = gov; document.getElementById('modal-sample').innerText = `TOTAL: ${total}`;
+            document.getElementById('modal-title').innerText = gov; 
+            document.getElementById('modal-sample').innerText = `TOTAL: ${total}`;
             document.getElementById('modal-kit-list').classList.add('hidden');
             document.getElementById('detail-modal').classList.add('active');
+            
             setTimeout(() => createPieChart('modalChartCanvas', data, false, gov), 50);
+            
             const sorted = Object.entries(data).sort((a,b) => b[1] - a[1]);
             document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `
                 <div onclick="showHaploDetails('${gov}', '${name}')" class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl cursor-pointer hover:bg-secondary/10 transition-all">
-                    <div class="flex items-center gap-4 font-black"><div class="w-5 h-5 rounded-full shadow-sm" style="background:${HAPLO_COLORS[name] || '#CCC'}"></div><span class="text-xl uppercase">${name}</span></div>
+                    <div class="flex items-center gap-4 font-black">
+                        <div class="w-5 h-5 rounded-full shadow-sm" style="background:${HAPLO_COLORS[name] || '#CCC'}"></div>
+                        <span class="text-xl uppercase">${name}</span>
+                    </div>
                     <span class="text-xl font-black">${((count/total)*100).toFixed(1)}%</span>
                 </div>`).join('');
         }
@@ -310,7 +321,7 @@
                 const card = document.createElement('div'); card.className = "stat-card"; card.onclick = () => openModal(gov);
                 card.innerHTML = `<div class="w-16 h-16 flex-shrink-0"><canvas id="${canvasId}"></canvas></div><div class="min-w-0"><h4 class="font-black text-xs uppercase truncate">${gov}</h4><p class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Total: ${total}</p></div>`;
                 grid.appendChild(card);
-                if (total > 0) setTimeout(() => createPieChart(canvasId, data, true), 50);
+                if (total > 0) setTimeout(() => createPieChart(canvasId, data, true, gov), 50);
             });
             updateNationalSummary();
         }
@@ -319,10 +330,10 @@
             const totals = {}; let grandTotal = 0;
             Object.values(regionalData).forEach(reg => Object.entries(reg).forEach(([hp, count]) => { totals[hp] = (totals[hp] || 0) + count; grandTotal += count; }));
             document.getElementById('total-national-samples').innerText = grandTotal;
-            if (grandTotal > 0) createPieChart('nationalChartCanvas', totals, false, null); // null = National mode
+            if (grandTotal > 0) createPieChart('nationalChartCanvas', totals, false, null);
             const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 10);
             document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `
-                <div onclick="showHaploDetails(null, '${name}')" class="flex items-center justify-between text-[11px] font-black border-b border-gray-50 pb-1 uppercase tracking-tighter cursor-pointer hover:text-secondary">
+                <div onclick="showHaploDetails(null, '${name}')" class="flex items-center justify-between text-[11px] font-black border-b border-gray-50 pb-1 uppercase tracking-tighter cursor-pointer hover:text-secondary transition-colors">
                     <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full" style="background: ${HAPLO_COLORS[name] || '#CCC'}"></div><span>${name}</span></div>
                     <span>${((count/grandTotal)*100).toFixed(1)}%</span>
                 </div>`).join('');
