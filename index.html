@@ -25,17 +25,14 @@
     <style>
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         
-        /* Modal Style */
         #detail-modal { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0, 23, 54, 0.6); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
         #detail-modal.active { display: flex; }
         .modal-content { max-height: 90vh; overflow-y: auto; width: 100%; max-width: 1000px; scroll-behavior: smooth; border-radius: 3rem; }
 
-        /* Navigation Links */
         .nav-link { cursor: pointer; position: relative; transition: all 0.3s; }
         .nav-link.active { color: #001736; font-weight: 800; }
         .nav-link.active::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 100%; height: 2px; background: #775a19; }
         
-        /* Page Sections */
         .page-section { display: none; }
         .page-section.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -45,11 +42,11 @@
         
         .snp-path-text { word-break: break-all; white-space: normal; line-height: 1.4; display: block; }
 
-        /* --- DER ENTSCHEIDENDE FIX --- */
+        /* --- STICKY HEADER POSITIONIERUNG --- */
         .sticky-thead th {
-            position: -webkit-sticky !important; /* Safari/iPad Support */
+            position: -webkit-sticky !important; 
             position: sticky !important;
-            top: 80px !important; /* Exakt unter der h-20 (80px) Navigation */
+            top: 80px !important; 
             z-index: 50 !important;
             background-color: #001736 !important;
             color: white !important;
@@ -59,26 +56,23 @@
             padding-bottom: 24px !important;
         }
 
-        /* Entfernt den weißen Streifen oben im Kasten */
         .archive-inner-scroll {
             overflow-x: auto;
             overflow-y: visible !important;
             border-radius: 3rem;
             border: 1px solid #e5e7eb;
             background: white;
-            overflow: hidden; /* Zwingt Inhalt in die abgerundeten Ecken */
+            overflow: hidden; 
         }
 
-        table { border-collapse: separate; border-spacing: 0; width: 100%; margin: 0 !important; }
-        
-        /* Rundung der blauen Ecken direkt an die Kante des Containers anpassen */
         .sticky-thead th:first-child { border-top-left-radius: 2.9rem; padding-left: 2rem !important; }
         .sticky-thead th:last-child { border-top-right-radius: 2.9rem; padding-right: 2rem !important; }
+
+        table { border-collapse: separate; border-spacing: 0; width: 100%; margin: 0 !important; }
     </style>
 </head>
 <body class="bg-background text-primary font-body antialiased">
 
-    <!-- NAVIGATION (Höhe: 80px) -->
     <nav class="fixed top-0 w-full z-[100] bg-white/90 backdrop-blur-xl border-b border-gray-100 h-20">
         <div class="flex justify-between items-center px-8 h-full max-w-screen-2xl mx-auto">
             <div class="flex flex-col">
@@ -92,7 +86,7 @@
         </div>
     </nav>
 
-    <!-- SECTION DASHBOARD (Optimierte Abstände) -->
+    <!-- DASHBOARD -->
     <main id="section-home" class="page-section active pt-24 pb-20 px-8 max-w-screen-2xl mx-auto space-y-12">
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-12 rounded-[4rem] shadow-xl border border-gray-100">
             <div class="lg:col-span-5 font-headline">
@@ -113,16 +107,12 @@
         <section class="space-y-10"><h2 class="text-5xl font-black font-headline uppercase tracking-tighter">Regional Archives</h2><div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div></section>
     </main>
 
-    <!-- SECTION ARCHIVE (Viel kompaktere Abstände) -->
+    <!-- ARCHIVE -->
     <main id="section-archive" class="page-section pt-24 pb-20 px-8 max-w-screen-2xl mx-auto space-y-6">
         <header class="flex justify-between items-end">
-            <div>
-                <p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-1">— Genomic Catalog</p>
-                <h2 class="text-6xl font-black font-headline tracking-tighter leading-none text-primary">DNA Sample Archive</h2>
-            </div>
-            <input type="text" id="archiveSearch" oninput="renderArchive()" placeholder="Search kit, name or city..." class="w-96 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold outline-none focus:ring-2 focus:ring-primary/10">
+            <div><p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-1">— Genomic Catalog</p><h2 class="text-6xl font-black font-headline tracking-tighter leading-none text-primary">DNA Sample Archive</h2></div>
+            <input type="text" id="archiveSearch" oninput="renderArchive()" placeholder="Search kit, name or city..." class="w-96 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold outline-none">
         </header>
-
         <div class="archive-outer-container">
             <div class="archive-inner-scroll shadow-2xl">
                 <table class="table-fixed min-w-[1200px]">
@@ -143,7 +133,7 @@
         </div>
     </main>
 
-    <!-- Modal und Scripts bleiben identisch -->
+    <!-- MODAL -->
     <div id="detail-modal" onclick="closeModal(event)">
         <div class="bg-white p-10 relative border border-gray-100 modal-content shadow-2xl" onclick="event.stopPropagation()">
             <button onclick="closeModal(null)" class="absolute top-8 right-8 text-gray-400 hover:text-red-500 transition-colors"><span class="material-symbols-outlined text-4xl font-bold">close</span></button>
@@ -177,7 +167,11 @@
 
         let databaseSamples = []; let regionalData = {}; let charts = {};
 
-        async function init() { await loadAllData(); renderUI(); renderArchive(); }
+        async function init() { 
+            await loadAllData(); 
+            renderUI(); 
+            renderArchive(); 
+        }
 
         function superClean(str) {
             if(!str || str === '—') return "";
@@ -186,13 +180,17 @@
 
         async function loadAllData() {
             try {
-                const [statsRes, samplesRes] = await Promise.all([ _supabase.from('dna_stats').select('*'), _supabase.from('published_samples').select('*') ]);
+                const [statsRes, samplesRes] = await Promise.all([ 
+                    _supabase.from('dna_stats').select('*'), 
+                    _supabase.from('published_samples').select('*') 
+                ]);
                 databaseSamples = samplesRes.data || [];
-                regionalData = {}; GOV_LIST.forEach(g => regionalData[g] = {});
+                regionalData = {}; 
+                GOV_LIST.forEach(g => regionalData[g] = {});
+                
                 if (statsRes.data) {
                     statsRes.data.forEach(row => {
-                        const dbRegClean = superClean(row.region);
-                        const match = GOV_LIST.find(g => superClean(g) === dbRegClean);
+                        const match = GOV_LIST.find(g => superClean(g) === superClean(row.region));
                         const finalReg = match || "—";
                         let hp = row.haplogroup.toUpperCase().trim();
                         if (hp === "J") hp = "J1";
@@ -203,14 +201,13 @@
             } catch (err) { console.error(err); }
         }
 
-        function getKitHaploGroup(yDnaStr, snpPath) {
-            const y = (yDnaStr || "").trim().toUpperCase();
-            const s = (snpPath || "").trim().toUpperCase();
+        function getKitHaploGroup(y, s) {
+            y = (y || "").toUpperCase(); s = (s || "").toUpperCase();
             if (y.includes("J2") || s.startsWith("J2")) return "J2";
             if (y.startsWith("J1") || y.startsWith("J-")) return "J1";
             if (s.includes("R1A") || y.startsWith("R1A")) return "R1A";
             if (s.includes("R1B") || y.startsWith("R1B")) return "R1B";
-            return y.substring(0,1);
+            return y.substring(0,1) || "—";
         }
 
         function renderLinks(s, type) {
@@ -226,26 +223,52 @@
             return html + '</div>';
         }
 
+        function createPieChart(canvasId, dataMap, govName = null) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            if (charts[canvasId]) charts[canvasId].destroy();
+            const labels = Object.keys(dataMap).filter(k => dataMap[k] > 0);
+            charts[canvasId] = new Chart(ctx, {
+                type: 'pie',
+                data: { labels, datasets: [{ data: labels.map(k => dataMap[k]), backgroundColor: labels.map(l => HAPLO_COLORS[l] || HAPLO_COLORS[l.substring(0,1)] || "#CCC"), borderWidth: 1, borderColor: '#fff' }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, onClick: (evt, el) => { if (el.length > 0) openModal(govName); } }
+            });
+        }
+
+        function renderUI() {
+            const grid = document.getElementById('stats-grid'); grid.innerHTML = '';
+            GOV_LIST.forEach((gov, idx) => {
+                const data = regionalData[gov] || {}; 
+                const total = Object.values(data).reduce((a,b)=>a+b, 0);
+                const canvasId = `chart-${idx}`;
+                const card = document.createElement('div'); card.className = "stat-card"; 
+                card.onclick = () => openModal(gov);
+                card.innerHTML = `<div class="w-16 h-16 flex-shrink-0"><canvas id="${canvasId}"></canvas></div><div class="min-w-0"><h4 class="font-black text-xs uppercase truncate text-primary">${gov}</h4><p class="text-[10px] text-gray-400 font-bold uppercase">Total: ${total}</p></div>`;
+                grid.appendChild(card);
+                if (total > 0) setTimeout(() => createPieChart(canvasId, data, gov), 50);
+            });
+            updateNationalSummary();
+        }
+
+        function updateNationalSummary() {
+            const totals = {}; let grandTotal = 0;
+            Object.values(regionalData).forEach(reg => Object.entries(reg).forEach(([hp, count]) => { totals[hp] = (totals[hp] || 0) + count; grandTotal += count; }));
+            document.getElementById('total-national-samples').innerText = grandTotal;
+            if (grandTotal > 0) createPieChart('nationalChartCanvas', totals, null);
+            const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 15);
+            document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `<div class="flex items-center justify-between text-[11px] font-black border-b border-gray-50 pb-1 uppercase font-headline text-primary"><span>${name}</span><span>${((count/grandTotal)*100).toFixed(1)}%</span></div>`).join('');
+        }
+
         function renderArchive() {
             const tbody = document.getElementById('archive-table-body');
             const search = document.getElementById('archiveSearch').value.toLowerCase();
-            const filtered = [...databaseSamples]
-                .filter(s => (s.name + (s.kit_number||'') + (s.governorate||'') + (s.y_dna||'')).toLowerCase().includes(search))
-                .sort((a, b) => {
-                    const govA = a.governorate || "—";
-                    const govB = b.governorate || "—";
-                    if (govA === "—" && govB !== "—") return 1;
-                    if (govA !== "—" && govB === "—") return -1;
-                    return govA.localeCompare(govB);
-                });
+            const filtered = databaseSamples.filter(s => (s.name + (s.kit_number||'') + (s.governorate||'') + (s.y_dna||'')).toLowerCase().includes(search));
             tbody.innerHTML = filtered.map(s => {
-                const hapGroup = getKitHaploGroup(s.y_dna, s.snp_path);
-                const kitColor = HAPLO_COLORS[hapGroup] || HAPLO_COLORS[hapGroup.substring(0,1)] || '#CCC';
+                const h = getKitHaploGroup(s.y_dna, s.snp_path);
                 return `<tr class="hover:bg-gray-50/80 transition-colors">
                     <td class="px-8 py-8"><p class="font-black text-primary uppercase text-sm leading-tight">${s.name || 'Anonymous'}</p></td>
                     <td class="px-4 py-8 font-mono text-[10px] font-bold text-gray-400 text-center">${s.kit_number || '—'}</td>
                     <td class="px-4 py-8 text-[10px] font-black text-gray-400 uppercase text-center">${s.governorate || '—'}</td>
-                    <td class="px-6 py-8"><div class="flex items-start gap-3"><span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${kitColor}"></span><span class="text-[10px] font-mono font-bold text-gray-500 snp-path-text">${s.snp_path || s.y_dna || '—'}</span></div></td>
+                    <td class="px-6 py-8"><div class="flex items-start gap-3"><span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${HAPLO_COLORS[h] || '#CCC'}"></span><span class="text-[10px] font-mono font-bold text-gray-500 snp-path-text">${s.snp_path || s.y_dna || '—'}</span></div></td>
                     <td class="px-4 py-8 text-center">${renderLinks(s, 'y')}</td>
                     <td class="px-4 py-8 text-center uppercase text-[11px] font-black text-secondary">${s.mt_dna || '—'}</td>
                     <td class="px-8 py-8 text-center">${renderLinks(s, 'mt')}</td>
@@ -269,17 +292,6 @@
             setTimeout(() => createPieChart('modalChartCanvas', data, gov), 50);
             const sorted = Object.entries(data).sort((a,b) => b[1] - a[1]);
             document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `<div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl font-headline"><div class="flex items-center gap-4 font-black"><div class="w-5 h-5 rounded-full" style="background:${HAPLO_COLORS[name] || '#CCC'}"></div><span class="text-xl uppercase">${name}</span></div><span class="text-xl font-black">${((count/total)*100).toFixed(1)}%</span></div>`).join('');
-        }
-
-        function createPieChart(canvasId, dataMap, govName = null) {
-            const ctx = document.getElementById(canvasId).getContext('2d');
-            if (charts[canvasId]) charts[canvasId].destroy();
-            const labels = Object.keys(dataMap).filter(k => dataMap[k] > 0);
-            charts[canvasId] = new Chart(ctx, {
-                type: 'pie',
-                data: { labels, datasets: [{ data: labels.map(k => dataMap[k]), backgroundColor: labels.map(l => HAPLO_COLORS[l] || HAPLO_COLORS[l.substring(0,1)] || "#CCC"), borderWidth: 1, borderColor: '#fff' }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-            });
         }
 
         function closeModal(e) { if (!e || e.target.id === 'detail-modal') document.getElementById('detail-modal').classList.remove('active'); }
