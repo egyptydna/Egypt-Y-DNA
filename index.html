@@ -25,10 +25,13 @@
     <style>
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         
+        /* Modal Style */
         #detail-modal { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0, 23, 54, 0.6); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
         #detail-modal.active { display: flex; }
         .modal-content { max-height: 90vh; overflow-y: auto; width: 100%; max-width: 1000px; scroll-behavior: smooth; border-radius: 3rem; }
 
+        /* Top Navigation (Normal fixiert) */
+        nav { height: 80px; }
         .nav-link { cursor: pointer; position: relative; transition: all 0.3s; }
         .nav-link.active { color: #001736; font-weight: 800; }
         .nav-link.active::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 100%; height: 2px; background: #775a19; }
@@ -42,28 +45,34 @@
         
         .snp-path-text { word-break: break-all; white-space: normal; line-height: 1.4; display: block; }
 
-        /* --- SCHWEBENDE KOPFZEILE (FLOATING HEADER) --- */
+        /* --- DER SCHWEBENDE TABELLEN-HEADER --- */
         .sticky-thead th {
             position: sticky !important;
-            top: 79px !important; /* Direkt unter der Navigation */
-            z-index: 50 !important;
-            background-color: #ffffff !important; /* Weißer Hintergrund */
-            color: #001736 !important; /* Dunkelblaue Schrift */
-            padding-top: 20px !important;
-            padding-bottom: 20px !important;
-            border-bottom: 1px solid #f1f1f1 !important;
-            /* Der schwebende Schatten-Effekt */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            top: 79px !important; /* Klebt direkt unter der Navigationsleiste */
+            z-index: 40 !important;
+            background-color: #e2e8f0 !important; /* Schwebende Farbe: Slate-200 */
+            color: #001736 !important;
+            padding-top: 15px !important;
+            padding-bottom: 15px !important;
+            /* Schatten-Effekt fürs "Schweben" */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: none !important;
         }
 
+        /* Container-Einstellungen damit Sticky funktioniert */
         .archive-outer-container { overflow: visible !important; }
-        .archive-inner-scroll { overflow-x: auto; border-radius: 3rem; background: white; }
+        .archive-inner-scroll { 
+            overflow-x: auto; 
+            border-radius: 3rem; 
+            border: 1px solid #e5e7eb; 
+            background: white; 
+        }
 
         table { border-collapse: separate; border-spacing: 0; width: 100%; }
-        
-        /* Sorgt für Abstand zur ersten Zeile */
+
+        /* Padding für die erste Zeile, damit sie nicht unter dem schwebenden Header startet */
         #archive-table-body tr:first-child td {
-            padding-top: 30px !important;
+            padding-top: 25px !important;
         }
     </style>
 </head>
@@ -89,7 +98,7 @@
     </div>
 
     <!-- NAVIGATION -->
-    <nav class="fixed top-0 w-full z-[100] bg-white/95 backdrop-blur-xl border-b border-gray-100 h-20">
+    <nav class="fixed top-0 w-full z-[100] bg-white/95 backdrop-blur-xl border-b border-gray-100">
         <div class="flex justify-between items-center px-8 h-full max-w-screen-2xl mx-auto">
             <div class="flex flex-col">
                 <h1 class="text-xl font-black uppercase tracking-tighter leading-none text-primary">Egyptian Y-DNA Project</h1>
@@ -127,24 +136,24 @@
     <main id="section-archive" class="page-section pt-28 pb-20 px-8 max-w-screen-2xl mx-auto space-y-12">
         <header class="flex justify-between items-end">
             <div><p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2">— Genomic Catalog</p><h2 class="text-7xl font-black font-headline tracking-tighter leading-none text-primary text-6xl">DNA Sample Archive</h2></div>
-            <input type="text" id="archiveSearch" oninput="renderArchive()" placeholder="Search..." class="w-96 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none">
+            <input type="text" id="archiveSearch" oninput="renderArchive()" placeholder="Search kit, name or city..." class="w-96 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none">
         </header>
 
         <div class="archive-outer-container">
             <div class="archive-inner-scroll shadow-2xl">
                 <table class="table-fixed min-w-[1250px]">
                     <thead class="sticky-thead">
-                        <tr class="font-headline text-[9px] font-black uppercase tracking-widest text-gray-400">
-                            <th class="w-[18%] px-8 py-5 text-left rounded-tl-[3rem]">Identification</th>
-                            <th class="w-[10%] px-4 py-5 text-center">Kit / ID</th>
-                            <th class="w-[12%] px-4 py-5 text-center">Location</th>
-                            <th class="w-[28%] px-6 py-5 text-left">Y-Lineage (SNP)</th>
-                            <th class="w-[10%] px-4 py-5 text-center">Y-Sources</th>
-                            <th class="w-[12%] px-4 py-5 text-center">mt-DNA</th>
-                            <th class="w-[10%] px-8 py-5 text-center rounded-tr-[3rem]">mt-Sources</th>
+                        <tr class="font-headline text-[9px] font-black uppercase tracking-widest">
+                            <th class="w-[18%] px-8 rounded-tl-[3rem]">Identification</th>
+                            <th class="w-[10%] px-4 text-center">Kit / ID</th>
+                            <th class="w-[12%] px-4 text-center">Location</th>
+                            <th class="w-[28%] px-6 text-left">Y-Lineage (SNP)</th>
+                            <th class="w-[10%] px-4 text-center">Y-Sources</th>
+                            <th class="w-[12%] px-4 text-center">mt-DNA</th>
+                            <th class="w-[10%] px-8 text-center rounded-tr-[3rem]">mt-Sources</th>
                         </tr>
                     </thead>
-                    <tbody id="archive-table-body" class="divide-y divide-gray-50 bg-white"></tbody>
+                    <tbody id="archive-table-body" class="divide-y divide-gray-100 bg-white"></tbody>
                 </table>
             </div>
         </div>
@@ -155,6 +164,7 @@
         const SB_KEY = "sb_publishable_dnaPmhIN6Lp4irUSxYuAMQ_vzE_CCKT";
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
+        // --- DEINE FARBEN-LISTE ---
         const HAPLO_COLORS = { 
             "J1": "#006400", "T": "#FFA500", "E": "#00008B", "R1B": "#FF0000", "L": "#00FFFF", 
             "B": "#008B8B", "G": "#808080", "I": "#EE82EE", "R1A": "#DEB887", "R2": "#FFFF00", 
@@ -222,13 +232,16 @@
             const container = document.getElementById('kits-container'); container.innerHTML = '';
             document.getElementById('modal-title').innerText = gov ? gov.toUpperCase() : "NATIONAL SUMMARY";
             document.getElementById('selected-haplo-display').innerText = `${haplo} ${gov ? '' : '(NATIONAL)'}`;
+            
             const targetH = haplo.toUpperCase();
             const targetGov = superClean(gov);
+            
             const matches = databaseSamples.filter(s => {
                 if (gov && superClean(s.governorate) !== targetGov) return false;
                 const kitH = getKitHaploGroup(s.y_dna, s.snp_path);
                 return kitH === targetH || (targetH.length === 1 && kitH.startsWith(targetH));
             });
+
             document.getElementById('modal-sample-count').innerText = `TOTAL ${haplo}: ${matches.length}`;
             if (matches.length > 0) {
                 container.innerHTML = matches.map(s => `
@@ -305,8 +318,8 @@
                     return gA.localeCompare(gB);
                 });
             tbody.innerHTML = filtered.map(s => {
-                const kitH = getKitHaploGroup(s.y_dna, s.snp_path);
-                const kitColor = HAPLO_COLORS[kitH] || HAPLO_COLORS[kitH.substring(0,1)] || '#CCC';
+                const hapGroup = getKitHaploGroup(s.y_dna, s.snp_path);
+                const kitColor = HAPLO_COLORS[hapGroup] || HAPLO_COLORS[hapGroup.substring(0,1)] || '#CCC';
                 return `<tr class="hover:bg-gray-50/80 transition-colors">
                     <td class="px-8 py-7"><p class="font-black text-primary uppercase text-sm leading-tight">${s.name || 'Anonymous'}</p></td>
                     <td class="px-4 py-7 font-mono text-[10px] font-bold text-gray-400 text-center">${s.kit_number || '—'}</td>
