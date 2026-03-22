@@ -27,7 +27,7 @@
         
         #detail-modal { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0, 23, 54, 0.6); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
         #detail-modal.active { display: flex; }
-        .modal-content { max-height: 90vh; overflow-y: auto; width: 100%; max-width: 1000px; scroll-behavior: smooth; border-radius: 3rem; }
+        .modal-content { max-height: 90vh; overflow-y: auto; width: 100%; max-width: 1000px; border-radius: 3rem; }
 
         .nav-link { cursor: pointer; position: relative; transition: all 0.3s; }
         .nav-link.active { color: #001736; font-weight: 800; }
@@ -42,34 +42,29 @@
         
         .snp-path-text { word-break: break-all; white-space: normal; line-height: 1.4; display: block; }
 
-        /* --- DER ENTSCHEIDENDE FIX FÜR DIE KOPFZEILE --- */
-        /* Wir setzen Sticky auf die th-Zellen direkt */
-        .sticky-thead th {
-            position: sticky !important;
-            top: 80px !important; /* Exakt unter der fixierten 80px Navi-Leiste */
-            z-index: 90 !important; /* Unter Nav (100), aber über Daten */
-            background-color: #001736 !important;
-            color: white !important;
-            padding-top: 20px !important;
-            padding-bottom: 20px !important;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            border: none !important;
-        }
-
-        /* Container muss overflow-y: visible haben, sonst bricht sticky */
-        .archive-outer-container { overflow: visible !important; }
+        /* TABELLE KOMPLETT NORMAL (KEIN STICKY) */
         .archive-inner-scroll { 
             overflow-x: auto; 
             border-radius: 3rem; 
+            border: 1px solid #e5e7eb; 
             background: white; 
-            overflow-y: visible !important;
         }
 
-        table { border-collapse: separate; border-spacing: 0; width: 100%; }
-
-        /* Abstand für die erste Zeile, damit sie nicht unter dem Header verschwindet */
-        #archive-table-body tr:first-child td {
-            padding-top: 30px !important;
+        table { width: 100%; border-collapse: collapse; }
+        
+        /* Klassischer Header, der mitscrollt */
+        .static-thead {
+            background-color: #f1f5f9; /* Ganz helles Grau/Blau */
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .static-thead th {
+            padding: 20px 10px;
+            color: #475569;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 800;
         }
     </style>
 </head>
@@ -80,9 +75,9 @@
         <div class="flex justify-between items-center px-8 h-full max-w-screen-2xl mx-auto">
             <div class="flex flex-col">
                 <h1 class="text-xl font-black uppercase tracking-tighter leading-none text-primary">Egyptian Y-DNA Project</h1>
-                <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1">National Genomic Archive</p>
+                <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1 text-center">National Genomic Archive</p>
             </div>
-            <div class="flex gap-8 items-center font-headline text-primary">
+            <div class="flex gap-8 items-center font-headline">
                 <span onclick="showSection('home')" id="nav-home" class="nav-link active text-xs font-bold uppercase tracking-widest">Dashboard</span>
                 <span onclick="showSection('archive')" id="nav-archive" class="nav-link text-xs font-bold uppercase tracking-widest text-gray-400">Sample Archive</span>
             </div>
@@ -94,9 +89,9 @@
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-12 rounded-[4rem] shadow-xl border border-gray-100">
             <div class="lg:col-span-5 font-headline">
                 <h2 class="text-7xl font-black tracking-tighter mb-8 leading-tight text-primary">National Summary</h2>
-                <div class="grid grid-cols-2 gap-8 border-t pt-8 text-primary">
-                    <div><p class="text-[11px] font-bold text-gray-400 uppercase">Total Samples</p><p id="total-national-samples" class="text-6xl font-black">0</p></div>
-                    <div><p class="text-[11px] font-bold text-gray-400 uppercase">Mapped Regions</p><p class="text-6xl font-black">24</p></div>
+                <div class="grid grid-cols-2 gap-8 border-t pt-8">
+                    <div><p class="text-[11px] font-bold text-gray-400 uppercase">Total Samples</p><p id="total-national-samples" class="text-6xl font-black text-primary">0</p></div>
+                    <div><p class="text-[11px] font-bold text-gray-400 uppercase">Mapped Regions</p><p class="text-6xl font-black text-primary">24</p></div>
                 </div>
             </div>
             <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-12 justify-center lg:justify-end">
@@ -107,33 +102,31 @@
         <section class="h-[500px] w-full bg-white rounded-[4rem] overflow-hidden shadow-2xl border border-gray-100">
             <iframe src="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746?scaleControl=false&miniMap=false&scrollWheelZoom=false&datalayersControl=true#6/26.938/30.802" class="w-full h-full border-none"></iframe>
         </section>
-        <section class="space-y-10"><h2 class="text-5xl font-black font-headline uppercase tracking-tighter">Regional Archives</h2><div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div></section>
+        <section class="space-y-10"><h2 class="text-5xl font-black font-headline uppercase tracking-tighter text-primary">Regional Archives</h2><div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div></section>
     </main>
 
     <!-- SECTION ARCHIVE -->
-    <main id="section-archive" class="page-section pt-28 pb-20 px-8 max-w-screen-2xl mx-auto space-y-12">
+    <main id="section-archive" class="page-section pt-28 pb-20 px-8 max-w-screen-2xl mx-auto space-y-8">
         <header class="flex justify-between items-end mb-4">
             <div><p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2">— Genomic Catalog</p><h2 class="text-7xl font-black font-headline tracking-tighter leading-none text-primary text-6xl">DNA Sample Archive</h2></div>
-            <input type="text" id="archiveSearch" oninput="renderArchive()" placeholder="Search..." class="w-96 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none text-primary">
+            <input type="text" id="archiveSearch" oninput="renderArchive()" placeholder="Search kit, name or city..." class="w-96 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none text-primary">
         </header>
 
-        <div class="archive-outer-container">
-            <div class="archive-inner-scroll shadow-2xl">
-                <table class="table-fixed min-w-[1200px]">
-                    <thead class="sticky-thead">
-                        <tr class="font-headline text-[9px] font-black uppercase tracking-widest">
-                            <th class="w-[18%] px-8 rounded-tl-[3rem] text-left">Identification</th>
-                            <th class="w-[10%] px-4 text-center">Kit / ID</th>
-                            <th class="w-[12%] px-4 text-center">Location</th>
-                            <th class="w-[28%] px-6 text-left">Y-Lineage (SNP)</th>
-                            <th class="w-[10%] px-4 text-center">Y-Sources</th>
-                            <th class="w-[12%] px-4 text-center">mtDNA</th>
-                            <th class="w-[10%] px-8 text-center rounded-tr-[3rem]">mt-Links</th>
-                        </tr>
-                    </thead>
-                    <tbody id="archive-table-body" class="divide-y divide-gray-50 bg-white"></tbody>
-                </table>
-            </div>
+        <div class="archive-inner-scroll shadow-2xl">
+            <table class="table-fixed min-w-[1250px]">
+                <thead class="static-thead">
+                    <tr class="font-headline">
+                        <th class="w-[18%] text-left pl-8">Identification</th>
+                        <th class="w-[10%] text-center">Kit / ID</th>
+                        <th class="w-[12%] text-center">Location</th>
+                        <th class="w-[28%] text-left">Y-Lineage (SNP)</th>
+                        <th class="w-[10%] text-center">Y-Sources</th>
+                        <th class="w-[12%] text-center">mt-DNA</th>
+                        <th class="w-[10%] text-center pr-8">mt-Sources</th>
+                    </tr>
+                </thead>
+                <tbody id="archive-table-body" class="divide-y divide-gray-50 bg-white"></tbody>
+            </table>
         </div>
     </main>
 
@@ -151,7 +144,7 @@
             </div>
             <div id="modal-kit-list" class="mt-12 border-t pt-10 hidden text-primary">
                 <h3 class="text-2xl font-black uppercase mb-8 flex items-center gap-3"><span class="material-symbols-outlined text-secondary text-3xl">database</span> KITS: <span id="selected-haplo-display" class="text-secondary">—</span></h3>
-                <div id="kits-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                <div id="kits-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left"></div>
             </div>
         </div>
     </div>
@@ -241,11 +234,11 @@
                         <p class="font-black uppercase text-sm mb-1 leading-tight">${s.name || 'Anonymous'}</p>
                         <span class="text-[9px] text-gray-400 font-mono snp-path-text mb-4">${s.snp_path || '—'}</span>
                         <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
-                            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest">Y-DNA</p>${renderLinks(s, 'y')}</div>
-                            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 text-right tracking-widest">mt-DNA</p>${renderLinks(s, 'mt')}</div>
+                            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest text-center">Y-DNA</p>${renderLinks(s, 'y')}</div>
+                            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 text-center tracking-widest">mt-DNA</p>${renderLinks(s, 'mt')}</div>
                         </div>
                     </div>`).join('');
-            } else { container.innerHTML = `<p class="col-span-full text-gray-400 italic font-bold p-12 bg-gray-50 rounded-[3rem] text-center text-xs tracking-widest uppercase">Only anonymous statistical data available.</p>`; }
+            }
             document.getElementById('detail-modal').classList.add('active');
             document.getElementById('modal-kit-list').classList.remove('hidden');
             setTimeout(() => document.getElementById('modal-kit-list').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
@@ -281,9 +274,8 @@
             GOV_LIST.forEach((gov, idx) => {
                 const data = regionalData[gov] || {}; const total = Object.values(data).reduce((a,b)=>a+b, 0);
                 const canvasId = `chart-${idx}`;
-                const card = document.createElement('div'); card.className = "stat-card"; 
-                card.onclick = () => openModal(gov);
-                card.innerHTML = `<div class="w-16 h-16 flex-shrink-0"><canvas id="${canvasId}"></canvas></div><div class="min-w-0"><h4 class="font-black text-xs uppercase truncate text-primary tracking-tighter">${gov}</h4><p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Total: ${total}</p></div>`;
+                const card = document.createElement('div'); card.className = "stat-card text-primary"; card.onclick = () => openModal(gov);
+                card.innerHTML = `<div class="w-16 h-16 flex-shrink-0"><canvas id="${canvasId}"></canvas></div><div class="min-w-0 text-left"><h4 class="font-black text-xs uppercase truncate">${gov}</h4><p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Total: ${total}</p></div>`;
                 grid.appendChild(card);
                 if (total > 0) setTimeout(() => createPieChart(canvasId, data, gov), 50);
             });
