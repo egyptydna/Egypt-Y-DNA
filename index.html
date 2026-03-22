@@ -42,21 +42,29 @@
         
         .snp-path-text { word-break: break-all; white-space: normal; line-height: 1.4; display: block; }
 
-        /* --- STICKY HEADER FIX --- */
+        /* --- SCHWEBENDE KOPFZEILE (FLOATING HEADER) --- */
         .sticky-thead th {
             position: sticky !important;
-            top: 79px !important; /* Unter der 80px Navi */
+            top: 79px !important; /* Direkt unter der Navigation */
             z-index: 50 !important;
-            background-color: #fcfcfc !important; /* Sehr helles Grau */
-            color: #001736 !important;
-            border-bottom: 1px solid #eee !important;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            background-color: #ffffff !important; /* Weißer Hintergrund */
+            color: #001736 !important; /* Dunkelblaue Schrift */
+            padding-top: 20px !important;
+            padding-bottom: 20px !important;
+            border-bottom: 1px solid #f1f1f1 !important;
+            /* Der schwebende Schatten-Effekt */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
         }
 
         .archive-outer-container { overflow: visible !important; }
-        .archive-inner-scroll { overflow-x: auto; border-radius: 3rem; border: 1px solid #e5e7eb; background: white; }
+        .archive-inner-scroll { overflow-x: auto; border-radius: 3rem; background: white; }
 
         table { border-collapse: separate; border-spacing: 0; width: 100%; }
+        
+        /* Sorgt für Abstand zur ersten Zeile */
+        #archive-table-body tr:first-child td {
+            padding-top: 30px !important;
+        }
     </style>
 </head>
 <body class="bg-background text-primary font-body antialiased">
@@ -81,11 +89,11 @@
     </div>
 
     <!-- NAVIGATION -->
-    <nav class="fixed top-0 w-full z-[100] bg-white/90 backdrop-blur-xl border-b border-gray-100 h-20">
+    <nav class="fixed top-0 w-full z-[100] bg-white/95 backdrop-blur-xl border-b border-gray-100 h-20">
         <div class="flex justify-between items-center px-8 h-full max-w-screen-2xl mx-auto">
             <div class="flex flex-col">
                 <h1 class="text-xl font-black uppercase tracking-tighter leading-none text-primary">Egyptian Y-DNA Project</h1>
-                <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1 text-center">National Genomic Archive</p>
+                <p class="text-[9px] font-bold text-secondary uppercase tracking-widest mt-1">National Genomic Archive</p>
             </div>
             <div class="flex gap-8 items-center font-headline">
                 <span onclick="showSection('home')" id="nav-home" class="nav-link active text-xs font-bold uppercase tracking-widest">Dashboard</span>
@@ -119,21 +127,21 @@
     <main id="section-archive" class="page-section pt-28 pb-20 px-8 max-w-screen-2xl mx-auto space-y-12">
         <header class="flex justify-between items-end">
             <div><p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2">— Genomic Catalog</p><h2 class="text-7xl font-black font-headline tracking-tighter leading-none text-primary text-6xl">DNA Sample Archive</h2></div>
-            <input type="text" id="archiveSearch" oninput="renderArchive()" placeholder="Search kit, name or city..." class="w-96 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none">
+            <input type="text" id="archiveSearch" oninput="renderArchive()" placeholder="Search..." class="w-96 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none">
         </header>
 
         <div class="archive-outer-container">
             <div class="archive-inner-scroll shadow-2xl">
                 <table class="table-fixed min-w-[1250px]">
                     <thead class="sticky-thead">
-                        <tr class="font-headline text-[9px] font-black uppercase tracking-[0.2em] text-gray-500">
-                            <th class="w-[18%] px-8 py-5 text-left">Identification</th>
+                        <tr class="font-headline text-[9px] font-black uppercase tracking-widest text-gray-400">
+                            <th class="w-[18%] px-8 py-5 text-left rounded-tl-[3rem]">Identification</th>
                             <th class="w-[10%] px-4 py-5 text-center">Kit / ID</th>
                             <th class="w-[12%] px-4 py-5 text-center">Location</th>
                             <th class="w-[28%] px-6 py-5 text-left">Y-Lineage (SNP)</th>
                             <th class="w-[10%] px-4 py-5 text-center">Y-Sources</th>
                             <th class="w-[12%] px-4 py-5 text-center">mt-DNA</th>
-                            <th class="w-[10%] px-8 py-5 text-center">mt-Sources</th>
+                            <th class="w-[10%] px-8 py-5 text-center rounded-tr-[3rem]">mt-Sources</th>
                         </tr>
                     </thead>
                     <tbody id="archive-table-body" class="divide-y divide-gray-50 bg-white"></tbody>
@@ -214,16 +222,13 @@
             const container = document.getElementById('kits-container'); container.innerHTML = '';
             document.getElementById('modal-title').innerText = gov ? gov.toUpperCase() : "NATIONAL SUMMARY";
             document.getElementById('selected-haplo-display').innerText = `${haplo} ${gov ? '' : '(NATIONAL)'}`;
-            
             const targetH = haplo.toUpperCase();
             const targetGov = superClean(gov);
-            
             const matches = databaseSamples.filter(s => {
                 if (gov && superClean(s.governorate) !== targetGov) return false;
                 const kitH = getKitHaploGroup(s.y_dna, s.snp_path);
                 return kitH === targetH || (targetH.length === 1 && kitH.startsWith(targetH));
             });
-
             document.getElementById('modal-sample-count').innerText = `TOTAL ${haplo}: ${matches.length}`;
             if (matches.length > 0) {
                 container.innerHTML = matches.map(s => `
@@ -232,11 +237,11 @@
                         <p class="font-black uppercase text-sm mb-1 leading-tight">${s.name || 'Anonymous'}</p>
                         <span class="text-[9px] text-gray-400 font-mono snp-path-text mb-4">${s.snp_path || '—'}</span>
                         <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
-                            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest text-center">Y-DNA</p>${renderLinks(s, 'y')}</div>
-                            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 text-center tracking-widest">mt-DNA</p>${renderLinks(s, 'mt')}</div>
+                            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest">Y-DNA</p>${renderLinks(s, 'y')}</div>
+                            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 text-right tracking-widest">mt-DNA</p>${renderLinks(s, 'mt')}</div>
                         </div>
                     </div>`).join('');
-            } else { container.innerHTML = `<p class="col-span-full text-gray-400 italic font-bold p-12 bg-gray-50 rounded-[3rem] text-center text-xs tracking-widest uppercase">No detailed kits found for ${haplo}.</p>`; }
+            }
             document.getElementById('detail-modal').classList.add('active');
             document.getElementById('modal-kit-list').classList.remove('hidden');
             setTimeout(() => document.getElementById('modal-kit-list').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
@@ -272,8 +277,7 @@
             GOV_LIST.forEach((gov, idx) => {
                 const data = regionalData[gov] || {}; const total = Object.values(data).reduce((a,b)=>a+b, 0);
                 const canvasId = `chart-${idx}`;
-                const card = document.createElement('div'); card.className = "stat-card"; 
-                card.onclick = () => openModal(gov);
+                const card = document.createElement('div'); card.className = "stat-card"; card.onclick = () => openModal(gov);
                 card.innerHTML = `<div class="w-16 h-16 flex-shrink-0"><canvas id="${canvasId}"></canvas></div><div class="min-w-0"><h4 class="font-black text-xs uppercase truncate text-primary tracking-tighter">${gov}</h4><p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Total: ${total}</p></div>`;
                 grid.appendChild(card);
                 if (total > 0) setTimeout(() => createPieChart(canvasId, data, gov), 50);
