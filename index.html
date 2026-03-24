@@ -31,6 +31,7 @@
     </script>
     <style>
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        
         #detail-modal { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0, 23, 54, 0.6); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 15px; }
         #detail-modal.active { display: flex; }
         .modal-content { max-height: 90vh; overflow-y: auto; width: 100%; max-width: 1000px; border-radius: 2rem; }
@@ -47,30 +48,38 @@
         .stat-card { transition: all 0.3s ease; border: 1px solid #eef0f2; cursor: pointer; background: white; padding: 1.5rem; border-radius: 2rem; display: flex; align-items: center; gap: 1.25rem; }
         .stat-card:hover { border-color: #001736; transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,23,54,0.1); }
         
-        /* Archiv Tabelle Container */
-        .archive-outer-container { overflow: visible !important; }
-        .archive-inner-scroll { overflow-x: auto; border-radius: 2rem; border: 1px solid #e5e7eb; background: white; -webkit-overflow-scrolling: touch; }
+        /* --- ARCHIVE TABLE FIXES --- */
+        .archive-outer-container { overflow: visible !important; position: relative; }
+        
+        /* Sorgt dafür, dass man horizontal swipen kann, aber Sticky Header bleibt */
+        .archive-inner-scroll { 
+            overflow-x: auto; 
+            overflow-y: visible !important;
+            border-radius: 2rem; 
+            border: 1px solid #e5e7eb; 
+            background: white; 
+            -webkit-overflow-scrolling: touch; 
+        }
 
         table { width: 100%; border-collapse: separate; border-spacing: 0; }
         
-        /* --- STICKY KOPFZEILE FIX --- */
+        /* DER KOPFZEILEN-FIX: Klebt am oberen Bildschirmrand (Sticky) */
         .static-thead th { 
-            position: -webkit-sticky; /* Safari Support */
+            position: -webkit-sticky;
             position: sticky; 
             top: 0; 
-            z-index: 50; 
-            background-color: #f1f5f9 !important; /* Helle schwebende Farbe */
-            padding: 18px 10px; 
+            z-index: 40; 
+            background-color: #f1f5f9 !important; 
+            border-bottom: 2px solid #e2e8f0;
+            padding: 15px 10px; 
             color: #475569; 
             font-size: 10px; 
             text-transform: uppercase; 
             letter-spacing: 0.1em; 
             font-weight: 800;
-            /* Schatten damit man sieht dass es schwebt */
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         
-        /* Vertikale Zentrierung */
         .align-v-center { vertical-align: middle !important; }
 
         .social-icon { width: 36px; height: 36px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; color: #9ca3af; }
@@ -79,27 +88,27 @@
 </head>
 <body class="bg-background text-primary font-body antialiased text-left">
 
-    <!-- NAVIGATION BAR (Scrollt jetzt mit weg) -->
+    <!-- NAVIGATION BAR (RELATIVE, SCROLLS AWAY) -->
     <nav class="relative w-full bg-white border-b border-gray-100 h-20">
         <div class="flex justify-between items-center px-4 md:px-8 h-full max-w-screen-2xl mx-auto">
             
             <div class="flex items-center gap-2 md:gap-8">
                 <!-- Branding -->
                 <a href="#" onclick="window.location.reload(); return false;" class="flex flex-col group">
-                    <h1 class="text-xs md:text-xl font-black uppercase tracking-tighter leading-none text-primary group-hover:text-secondary transition-colors text-left">Egyptian Y-DNA Project</h1>
+                    <h1 class="text-xs md:text-xl font-black uppercase tracking-tighter leading-none text-primary group-hover:text-secondary transition-colors text-left font-headline">Egyptian Y-DNA Project</h1>
                     <p class="text-[7px] md:text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1 text-left">National Genomic Archive</p>
                 </a>
 
                 <!-- Top Social Icons -->
                 <div class="flex items-center gap-1 md:gap-2 border-l pl-2 md:pl-6 border-gray-100 mr-10 md:mr-0">
-                    <a href="https://x.com/egyptydna?s=21" target="_blank" class="social-icon"><span class="material-symbols-outlined text-lg md:text-xl">alternate_email</span></a>
-                    <a href="mailto:egyptydna@gmail.com" class="social-icon"><span class="material-symbols-outlined text-lg md:text-xl">mail</span></a>
+                    <a href="https://x.com/egyptydna?s=21" target="_blank" class="social-icon" title="Twitter"><span class="material-symbols-outlined text-lg md:text-xl">alternate_email</span></a>
+                    <a href="mailto:egyptydna@gmail.com" class="social-icon" title="Email"><span class="material-symbols-outlined text-lg md:text-xl">mail</span></a>
                 </div>
             </div>
 
             <div class="flex gap-4 md:gap-8 items-center font-headline text-primary whitespace-nowrap">
                 <span onclick="showSection('home')" id="nav-home" class="nav-link active uppercase tracking-widest font-bold">Dashboard</span>
-                <span onclick="showSection('archive')" id="nav-archive" class="nav-link uppercase tracking-widest text-gray-400 font-bold">Archive</span>
+                <span onclick="showSection('archive')" id="nav-archive" class="nav-link uppercase tracking-widest text-gray-400 font-bold font-headline">Archive</span>
             </div>
         </div>
     </nav>
@@ -108,8 +117,8 @@
     <main id="section-home" class="page-section active py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-8 md:space-y-16">
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-8 md:p-12 rounded-[3rem] md:rounded-[4rem] shadow-xl border border-gray-100">
             <div class="lg:col-span-5 font-headline">
-                <h2 class="text-4xl md:text-7xl font-black tracking-tighter mb-8 leading-tight text-primary">National Summary</h2>
-                <div class="grid grid-cols-2 gap-8 border-t pt-8">
+                <h2 class="text-4xl md:text-7xl font-black tracking-tighter mb-8 leading-tight text-primary text-left">National Summary</h2>
+                <div class="grid grid-cols-2 gap-8 border-t pt-8 text-primary">
                     <div><p class="text-[11px] font-bold text-gray-400 uppercase">Total Samples</p><p id="total-national-samples" class="text-4xl md:text-6xl font-black text-primary">0</p></div>
                     <div><p class="text-[11px] font-bold text-gray-400 uppercase">Mapped Regions</p><p class="text-4xl md:text-6xl font-black text-primary">24</p></div>
                 </div>
@@ -120,17 +129,21 @@
             </div>
         </section>
 
+        <!-- uMap Map Area -->
         <section class="h-[450px] md:h-[650px] w-full bg-white rounded-[3rem] md:rounded-[4rem] overflow-hidden shadow-2xl border border-gray-100">
             <iframe src="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746?scaleControl=false&miniMap=false&scrollWheelZoom=false&datalayersControl=true#6/26.938/30.802" class="w-full h-full border-none"></iframe>
         </section>
 
-        <section class="space-y-10"><h2 class="text-3xl md:text-5xl font-black font-headline uppercase tracking-tighter text-primary">Regional Archives</h2><div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8"></div></section>
+        <section class="space-y-10"><h2 class="text-3xl md:text-5xl font-black font-headline uppercase tracking-tighter text-primary text-left">Regional Archives</h2><div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8"></div></section>
     </main>
 
     <!-- SECTION ARCHIVE -->
     <main id="section-archive" class="page-section py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-12">
         <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-4 text-primary">
-            <div><p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2">— Genomic Catalog</p><h2 class="text-4xl md:text-7xl font-black font-headline tracking-tighter leading-none text-primary">DNA Archive</h2></div>
+            <div class="text-left">
+                <p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2">— Genomic Catalog</p>
+                <h2 class="text-4xl md:text-7xl font-black font-headline tracking-tighter leading-none text-primary">DNA Archive</h2>
+            </div>
             <input type="text" id="archiveSearch" oninput="renderArchive()" placeholder="Search kit, name or city..." class="w-full md:w-96 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none">
         </header>
 
@@ -138,17 +151,17 @@
             <div class="archive-inner-scroll shadow-2xl">
                 <table class="table-fixed min-w-[1200px]">
                     <thead class="static-thead">
-                        <tr class="font-headline text-center">
-                            <th class="w-[18%] text-center pl-8 uppercase">Identification</th>
-                            <th class="w-[10%] uppercase">Kit / ID</th>
-                            <th class="w-[12%] uppercase">Location</th>
-                            <th class="w-[28%] text-center uppercase">Y-Lineage (SNP)</th>
-                            <th class="w-[10%] uppercase">Y-Sources</th>
-                            <th class="w-[12%] uppercase text-center">mt-DNA</th>
-                            <th class="w-[10%] pr-8 uppercase text-center">mt-Sources</th>
+                        <tr class="font-headline">
+                            <th class="w-[18%] text-center pl-8 uppercase tracking-widest">Identification</th>
+                            <th class="w-[10%] uppercase tracking-widest text-center">Kit / ID</th>
+                            <th class="w-[12%] uppercase tracking-widest text-center">Location</th>
+                            <th class="w-[28%] uppercase tracking-widest text-center">Y-Lineage (SNP)</th>
+                            <th class="w-[10%] uppercase tracking-widest text-center">Y-Sources</th>
+                            <th class="w-[12%] uppercase tracking-widest text-center">mt-DNA</th>
+                            <th class="w-[10%] pr-8 uppercase tracking-widest text-center">mt-Sources</th>
                         </tr>
                     </thead>
-                    <tbody id="archive-table-body" class="divide-y divide-gray-100 bg-white"></tbody>
+                    <tbody id="archive-table-body" class="divide-y divide-gray-50 bg-white"></tbody>
                 </table>
             </div>
         </div>
@@ -158,15 +171,15 @@
     <footer class="bg-primary text-white py-16 px-8 mt-20 text-center md:text-left">
         <div class="max-w-screen-2xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 border-b border-white/10 pb-16">
             <div>
-                <h3 class="text-3xl font-black uppercase tracking-tighter mb-6">Contact & Inquiries</h3>
-                <p class="text-gray-400 text-sm max-w-md mx-auto md:mx-0 leading-relaxed font-medium">Join the project or contribute your results.</p>
+                <h3 class="text-3xl font-black uppercase tracking-tighter mb-6 font-headline">Contact & Inquiries</h3>
+                <p class="text-gray-400 text-sm max-w-md mx-auto md:mx-0 leading-relaxed font-medium">Join the project or contribute your results. We are constantly expanding the archive to provide a comprehensive genetic map of Egypt.</p>
             </div>
-            <div class="flex flex-col items-center md:items-end gap-4 md:gap-6 justify-center">
+            <div class="flex flex-col items-center md:items-end gap-6 justify-center">
                 <div class="flex gap-4">
-                    <a href="https://x.com/egyptydna?s=21" target="_blank" class="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/5 flex items-center justify-center hover:bg-secondary transition-all"><span class="material-symbols-outlined text-xl md:text-2xl">alternate_email</span></a>
-                    <a href="mailto:egyptydna@gmail.com" class="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/5 flex items-center justify-center hover:bg-secondary transition-all"><span class="material-symbols-outlined text-xl md:text-2xl">mail</span></a>
+                    <a href="https://x.com/egyptydna?s=21" target="_blank" class="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center hover:bg-secondary transition-all"><span class="material-symbols-outlined text-2xl">alternate_email</span></a>
+                    <a href="mailto:egyptydna@gmail.com" class="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center hover:bg-secondary transition-all"><span class="material-symbols-outlined text-2xl">mail</span></a>
                 </div>
-                <p class="text-[10px] font-black uppercase text-gray-500 tracking-widest">Email: egyptydna@gmail.com</p>
+                <p class="text-[10px] font-black uppercase text-gray-500 tracking-widest mt-2">Email: egyptydna@gmail.com</p>
             </div>
         </div>
         <div class="max-w-screen-2xl mx-auto pt-8 flex justify-between items-center text-[10px] font-bold text-gray-500 uppercase tracking-widest">
@@ -180,14 +193,14 @@
             <button onclick="closeModal(null)" class="absolute top-6 right-6 text-gray-400 hover:text-red-500 transition-colors"><span class="material-symbols-outlined text-4xl font-bold">close</span></button>
             <div class="flex flex-col md:flex-row gap-8 md:gap-12 items-center text-left text-primary">
                 <div class="w-full max-w-[250px] md:w-[280px] aspect-square flex-shrink-0"><canvas id="modalChartCanvas"></canvas></div>
-                <div class="flex-1 w-full md:border-l md:pl-10 border-gray-100 text-primary">
+                <div class="flex-1 w-full md:border-l md:pl-10 border-gray-100">
                     <h2 id="modal-title" class="text-3xl md:text-5xl font-black font-headline uppercase tracking-tighter leading-tight text-primary">Governorate</h2>
                     <div class="mt-4"><p id="modal-sample-count" class="text-xl md:text-2xl font-black text-secondary uppercase bg-secondary/5 px-6 py-1 rounded-full inline-block tracking-tight font-headline">TOTAL: 0</p></div>
                     <div id="modal-legend" class="space-y-2 border-t pt-8 mt-8 text-primary font-headline"></div>
                 </div>
             </div>
             <div id="modal-kit-list" class="mt-10 md:mt-12 border-t pt-8 md:pt-10 hidden text-primary">
-                <h3 class="text-xl md:text-2xl font-black uppercase mb-8 flex items-center gap-3"><span class="material-symbols-outlined text-secondary text-3xl text-primary font-bold">database</span> KITS: <span id="selected-haplo-display" class="text-secondary">—</span></h3>
+                <h3 class="text-xs md:text-2xl font-black uppercase mb-8 flex items-center gap-3"><span class="material-symbols-outlined text-secondary text-3xl text-primary font-bold">database</span> KITS: <span id="selected-haplo-display" class="text-secondary">—</span></h3>
                 <div id="kits-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 text-left"></div>
             </div>
         </div>
@@ -200,7 +213,7 @@
 
         const HAPLO_COLORS = { 
             "J1": "#006400", "T": "#FFA500", "E": "#00008B", "R1B": "#FF0000", "L": "#00FFFF", "L1": "#00FFFF",
-            "B": "#008B8B", "G": "#808080", "G2": "#808080", "I": "#EE82EE", "I2": "#EE82EE", "R1A": "#DEB887", 
+            "B": "#008B8B", "G": "#808080", "I": "#EE82EE", "I2": "#EE82EE", "R1A": "#DEB887", 
             "R2": "#FFFF00", "H": "#8B4513", "H2": "#8B4513", "J2": "#32CD32", "Q": "#9400D3", "Q1": "#9400D3", "Q2": "#9400D3",
             "C": "#FFFFFF", "A": "#000000", "A1A": "#000000", "A1B1": "#000000"
         };
@@ -267,24 +280,36 @@
             const govTitle = gov === "—" ? "Unassigned Origin" : (gov || "National Summary");
             document.getElementById('modal-title').innerText = govTitle.toUpperCase();
             document.getElementById('selected-haplo-display').innerText = `${haplo} ${gov ? '' : '(NATIONAL)'}`;
+            
+            const targetH = haplo.toUpperCase().trim();
+            const targetGov = superClean(gov);
+            
             const matches = databaseSamples.filter(s => {
-                if (gov && superClean(s.governorate) !== superClean(gov)) return false;
-                const kitH = getKitHaploGroup(s.y_dna, s.snp_path);
-                return kitH === haplo.toUpperCase() || (haplo.toUpperCase().length === 1 && kitH.startsWith(haplo.toUpperCase()));
+                if (gov && superClean(s.governorate) !== targetGov) return false;
+                const y = (s.y_dna || "").trim().toUpperCase();
+                const snp = (s.snp_path || "").trim().toUpperCase();
+                if (snp.startsWith(targetH + ">") || snp.startsWith(targetH + " >") || snp.startsWith(targetH)) return true;
+                if (y.startsWith(targetH + "-") || y.startsWith(targetH + " ") || y === targetH) return true;
+                if (targetH === "J1" && (y.startsWith("J-") || y.startsWith("J1")) && !y.includes("J2") && !snp.includes("J2")) return true;
+                if (targetH === "J2" && (y.includes("J2") || snp.includes("J2") || y.includes("J-PH"))) return true;
+                if (targetH === "R1A" && (snp.includes("R1A") || y.startsWith("R1A") || y.startsWith("R-FTA"))) return true;
+                if (targetH === "R1B" && (snp.includes("R1B") || y.startsWith("R1B") || y.startsWith("R-PF6"))) return true;
+                return false;
             });
+
             document.getElementById('modal-sample-count').innerText = `TOTAL ${haplo}: ${matches.length}`;
             if (matches.length > 0) {
                 container.innerHTML = matches.map(s => `
-                    <div class="p-4 md:p-6 border border-gray-100 rounded-[1.5rem] md:rounded-[2.5rem] bg-gray-50 shadow-sm hover:border-secondary transition-all text-primary text-left">
-                        <div class="flex justify-between mb-4 font-bold text-[9px] md:text-[10px] text-primary"><span class="px-3 py-1 bg-primary text-white rounded-full font-black tracking-tighter">${(s.y_dna||'').trim()}</span><span class="text-gray-400 uppercase">${s.governorate || '—'}</span></div>
-                        <p class="font-black uppercase text-xs md:text-sm mb-1 leading-tight text-primary font-bold">${s.name || 'Anonymous'}</p>
-                        <span class="text-[8px] md:text-[9px] text-gray-400 font-mono snp-path-text mb-4 text-primary font-bold">${s.snp_path || '—'}</span>
+                    <div class="p-6 border border-gray-100 rounded-[2.5rem] bg-gray-50 shadow-sm hover:border-secondary transition-all text-primary text-left">
+                        <div class="flex justify-between mb-4 font-bold text-[10px] text-primary"><span class="px-3 py-1 bg-primary text-white rounded-full font-black tracking-tighter">${(s.y_dna||'').trim()}</span><span class="text-gray-400 uppercase">${s.governorate || '—'}</span></div>
+                        <p class="font-black uppercase text-sm mb-1 leading-tight text-primary font-bold text-center">${s.name || 'Anonymous'}</p>
+                        <span class="text-[9px] text-gray-400 font-mono snp-path-text mb-4 text-primary font-bold text-center">${s.snp_path || '—'}</span>
                         <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
-                            <div><p class="text-[7px] md:text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest text-center font-headline font-bold">Y-DNA</p>${renderLinks(s, 'y')}</div>
-                            <div><p class="text-[7px] md:text-[8px] font-black uppercase text-gray-300 mb-1 text-center tracking-widest font-headline font-bold">mt-DNA</p>${renderLinks(s, 'mt')}</div>
+                            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest text-center font-headline font-bold">Y-DNA</p>${renderLinks(s, 'y')}</div>
+                            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 text-center tracking-widest font-headline font-bold">mt-DNA</p>${renderLinks(s, 'mt')}</div>
                         </div>
                     </div>`).join('');
-            }
+            } else { container.innerHTML = `<p class="col-span-full text-gray-400 italic font-bold p-12 bg-gray-50 rounded-[3rem] text-center text-xs tracking-widest uppercase">Only anonymous statistical data available.</p>`; }
             document.getElementById('detail-modal').classList.add('active');
             document.getElementById('modal-kit-list').classList.remove('hidden');
             setTimeout(() => document.getElementById('modal-kit-list').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
@@ -310,7 +335,7 @@
             document.getElementById('detail-modal').classList.add('active');
             setTimeout(() => createPieChart('modalChartCanvas', data, gov), 50);
             const sorted = Object.entries(data).sort((a,b) => b[1] - a[1]);
-            document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `<div onclick="showHaploDetails('${gov}', '${name}')" class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl cursor-pointer hover:bg-secondary/10 transition-all group font-headline font-bold text-primary"><div class="flex items-center gap-4 font-black text-primary font-bold"><div class="w-5 h-5 rounded-full shadow-sm" style="background:${HAPLO_COLORS[name] || HAPLO_COLORS[name.substring(0,1)] || '#CCC'}"></div><span class="text-xs md:text-xl uppercase font-bold">${name}</span></div><span class="text-xs md:text-xl font-black text-primary font-bold">${((count/total)*100).toFixed(1)}%</span></div>`).join('');
+            document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `<div onclick="showHaploDetails('${gov}', '${name}')" class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl cursor-pointer hover:bg-secondary/10 transition-all group font-headline font-bold text-primary"><div class="flex items-center gap-4 font-black text-primary font-bold"><div class="w-5 h-5 rounded-full shadow-sm" style="background:${HAPLO_COLORS[name] || HAPLO_COLORS[name.substring(0,1)] || '#CCC'}"></div><span class="text-lg uppercase font-bold text-center">${name}</span></div><span class="text-xl font-black text-primary font-bold">${((count/total)*100).toFixed(1)}%</span></div>`).join('');
         }
 
         function renderUI() {
@@ -320,7 +345,7 @@
                 const canvasId = `chart-${idx}`;
                 const card = document.createElement('div'); card.className = "stat-card text-primary text-left font-bold"; card.onclick = () => openModal(gov);
                 const displayGovName = gov === "—" ? "Unassigned Origin" : gov;
-                card.innerHTML = `<div class="w-12 h-12 md:w-16 md:h-16 flex-shrink-0"><canvas id="${canvasId}"></canvas></div><div class="min-w-0 text-left"><h4 class="font-black text-[10px] md:text-xs uppercase truncate text-primary tracking-tighter text-left font-headline font-bold">${displayGovName}</h4><p class="text-[8px] md:text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Total: ${total}</p></div>`;
+                card.innerHTML = `<div class="w-16 h-16 flex-shrink-0"><canvas id="${canvasId}"></canvas></div><div class="min-w-0 text-left"><h4 class="font-black text-xs uppercase truncate text-primary tracking-tighter text-left font-headline font-bold">${displayGovName}</h4><p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Total: ${total}</p></div>`;
                 grid.appendChild(card);
                 if (total > 0) setTimeout(() => createPieChart(canvasId, data, gov), 50);
             });
@@ -333,7 +358,7 @@
             document.getElementById('total-national-samples').innerText = grandTotal;
             if (grandTotal > 0) createPieChart('nationalChartCanvas', totals, null);
             const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 15);
-            document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `<div onclick="showHaploDetails(null, '${name}')" class="flex items-center justify-between text-[9px] md:text-[11px] font-black border-b border-gray-50 pb-1 uppercase cursor-pointer hover:text-secondary transition-colors font-headline text-primary font-bold"><span>${name}</span><span>${((count/grandTotal)*100).toFixed(1)}%</span></div>`).join('');
+            document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `<div onclick="showHaploDetails(null, '${name}')" class="flex items-center justify-between text-[11px] font-black border-b border-gray-50 pb-1 uppercase cursor-pointer hover:text-secondary transition-colors font-headline text-primary font-bold"><span>${name}</span><span>${((count/grandTotal)*100).toFixed(1)}%</span></div>`).join('');
         }
 
         function renderArchive() {
@@ -342,13 +367,14 @@
             const filtered = [...databaseSamples]
                 .filter(s => (s.name + (s.kit_number||'') + (s.governorate||'') + (s.y_dna||'')).toLowerCase().includes(search))
                 .sort((a, b) => {
-                    const gA = a.governorate || "—"; const gB = b.governorate || "—";
-                    if (gA === "—" && gB !== "—") return 1; if (gA !== "—" && gB === "—") return -1;
+                    const gA = a.governorate === "—" || !a.governorate ? "zzz" : a.governorate;
+                    const gB = b.governorate === "—" || !b.governorate ? "zzz" : b.governorate;
                     return gA.localeCompare(gB);
                 });
+
             tbody.innerHTML = filtered.map(s => {
-                const kitH = getKitHaploGroup(s.y_dna, s.snp_path);
-                const kitColor = HAPLO_COLORS[kitH] || HAPLO_COLORS[kitH.substring(0,1)] || '#CCC';
+                const kitH = (s.y_dna || "").trim().substring(0,1).toUpperCase();
+                const kitColor = HAPLO_COLORS[kitH] || '#CCC';
                 return `<tr class="hover:bg-gray-50/80 transition-colors text-center text-primary font-bold">
                     <td class="px-4 md:px-8 py-4 md:py-7 align-v-center font-black uppercase text-[10px] md:text-sm leading-tight text-center text-primary font-bold align-v-center text-primary font-headline">${s.name || 'Anonymous'}</td>
                     <td class="px-2 py-4 md:py-7 align-v-center font-mono text-[9px] md:text-[10px] font-bold text-gray-400 font-bold text-center align-v-center">${s.kit_number || '—'}</td>
