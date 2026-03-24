@@ -49,10 +49,22 @@
         
         .archive-inner-scroll { overflow-x: auto; border-radius: 2rem; border: 1px solid #e5e7eb; background: white; -webkit-overflow-scrolling: touch; }
         table { width: 100%; border-collapse: collapse; }
-        .static-thead { background-color: #f1f5f9; border-bottom: 2px solid #e2e8f0; }
-        .static-thead th { padding: 15px 10px; color: #475569; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; }
         
-        /* Vertikale Zentrierung der Zellen */
+        /* --- SCHWEBENDER TABELLEN-HEADER --- */
+        .static-thead th { 
+            position: sticky; 
+            top: 0; 
+            z-index: 10; 
+            background-color: #f1f5f9; 
+            border-bottom: 2px solid #e2e8f0;
+            padding: 15px 10px; 
+            color: #475569; 
+            font-size: 10px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.1em; 
+            font-weight: 800;
+        }
+        
         .align-v-center { vertical-align: middle !important; }
 
         .social-icon { width: 36px; height: 36px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; color: #9ca3af; }
@@ -61,18 +73,16 @@
 </head>
 <body class="bg-background text-primary font-body antialiased text-left">
 
-    <!-- NAVIGATION BAR -->
-    <nav class="fixed top-0 w-full z-[100] bg-white/95 backdrop-blur-xl border-b border-gray-100 h-20">
+    <!-- NAVIGATION BAR (NICHT MEHR SCHWEBEND / RELATIVE) -->
+    <nav class="relative w-full bg-white border-b border-gray-100 h-20">
         <div class="flex justify-between items-center px-4 md:px-8 h-full max-w-screen-2xl mx-auto">
             
             <div class="flex items-center gap-2 md:gap-8">
-                <!-- Branding -->
                 <a href="#" onclick="window.location.reload(); return false;" class="flex flex-col group">
                     <h1 class="text-xs md:text-xl font-black uppercase tracking-tighter leading-none text-primary group-hover:text-secondary transition-colors">Egyptian Y-DNA Project</h1>
                     <p class="text-[7px] md:text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">National Genomic Archive</p>
                 </a>
 
-                <!-- Social Icons (Mobile-Abstand optimiert) -->
                 <div class="flex items-center gap-1 md:gap-2 border-l pl-2 md:pl-6 border-gray-100 mr-10 md:mr-0">
                     <a href="https://x.com/egyptydna?s=21" target="_blank" class="social-icon"><span class="material-symbols-outlined text-lg md:text-xl">alternate_email</span></a>
                     <a href="mailto:egyptydna@gmail.com" class="social-icon"><span class="material-symbols-outlined text-lg md:text-xl">mail</span></a>
@@ -87,7 +97,7 @@
     </nav>
 
     <!-- SECTION DASHBOARD -->
-    <main id="section-home" class="page-section active pt-24 md:pt-28 pb-10 md:pb-20 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-8 md:space-y-16">
+    <main id="section-home" class="page-section active py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-8 md:space-y-16">
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-8 md:p-12 rounded-[3rem] md:rounded-[4rem] shadow-xl border border-gray-100">
             <div class="lg:col-span-5 font-headline">
                 <h2 class="text-4xl md:text-7xl font-black tracking-tighter mb-8 leading-tight text-primary">National Summary</h2>
@@ -102,7 +112,6 @@
             </div>
         </section>
 
-        <!-- uMap Map Area (Groß) -->
         <section class="h-[450px] md:h-[650px] w-full bg-white rounded-[3rem] md:rounded-[4rem] overflow-hidden shadow-2xl border border-gray-100">
             <iframe src="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746?scaleControl=false&miniMap=false&scrollWheelZoom=false&datalayersControl=true#6/26.938/30.802" class="w-full h-full border-none"></iframe>
         </section>
@@ -111,14 +120,14 @@
     </main>
 
     <!-- SECTION ARCHIVE -->
-    <main id="section-archive" class="page-section pt-24 md:pt-28 pb-10 md:pb-20 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-12">
+    <main id="section-archive" class="page-section py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-12">
         <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-4">
             <div><p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2">— Genomic Catalog</p><h2 class="text-4xl md:text-7xl font-black font-headline tracking-tighter leading-none text-primary">DNA Archive</h2></div>
             <input type="text" id="archiveSearch" oninput="renderArchive()" placeholder="Search kit, name..." class="w-full md:w-96 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none">
         </header>
         <div class="archive-inner-scroll shadow-2xl">
             <table class="table-fixed min-w-[1200px]">
-                <thead class="static-thead text-primary">
+                <thead class="static-thead">
                     <tr class="font-headline text-center">
                         <th class="w-[18%] text-left pl-8 uppercase">Identification</th>
                         <th class="w-[10%] uppercase">Kit / ID</th>
@@ -138,8 +147,8 @@
     <footer class="bg-primary text-white py-16 px-8 mt-20 text-center md:text-left">
         <div class="max-w-screen-2xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 border-b border-white/10 pb-16">
             <div>
-                <h3 class="text-3xl font-black font-headline uppercase tracking-tighter mb-6">Contact & Inquiries</h3>
-                <p class="text-gray-400 text-sm max-w-md mx-auto md:mx-0 leading-relaxed font-medium">Join the project or contribute your results. We are constantly expanding the archive to provide a comprehensive genetic map of Egypt.</p>
+                <h3 class="text-3xl font-black uppercase tracking-tighter mb-6">Contact & Inquiries</h3>
+                <p class="text-gray-400 text-sm max-w-md mx-auto md:mx-0 leading-relaxed font-medium">Join the project or contribute your results.</p>
             </div>
             <div class="flex flex-col items-center md:items-end gap-6 justify-center">
                 <div class="flex gap-4">
@@ -185,7 +194,7 @@
             "C": "#FFFFFF", "A": "#000000", "A1A": "#000000", "A1B1": "#000000"
         };
         
-        const GOV_LIST = ["Al Buhayrah", "Ad Daqahlīyah", "Al Fayyūm", "Al Gharbīyah", "Al Iskandarīyah", "Al Ismā`īlīyah", "Al Minūfīyah", "Al Minyā", "Al Qalyūbīyah", "As Suways", "Ash Sharqīyah", "Aswān", "Asyūt", "Banī Suwayf", "Cairo", "Dumyāt", "Giza", "Janūb Sīnā’", "Kafr ash Shaykh", "Luxor", "Matrouh", "Qinā", "Shamal Sīnā’", "Sūhāj", "—"].sort();
+        const GOV_LIST = ["Ad Daqahlīyah", "Al Fayyūm", "Al Gharbīyah", "Al Iskandarīyah", "Al Ismā`īlīyah", "Al Minūfīyah", "Al Minyā", "Al Qalyūbīyah", "As Suways", "Ash Sharqīyah", "Aswān", "Asyūt", "Banī Suwayf", "Cairo", "Dumyāt", "Giza", "Janūb Sīnā’", "Kafr ash Shaykh", "Luxor", "Matrouh", "Qinā", "Shamal Sīnā’", "Sūhāj", "—"].sort();
 
         let databaseSamples = []; let regionalData = {}; let charts = {};
 
@@ -290,9 +299,7 @@
             charts[canvasId] = new Chart(ctx, {
                 type: 'pie',
                 data: { labels, datasets: [{ data: labels.map(k => dataMap[k]), backgroundColor: labels.map(l => HAPLO_COLORS[l] || HAPLO_COLORS[l.substring(0,1)] || "#CCC"), borderWidth: 1, borderColor: '#fff' }] },
-                options: { 
-                    responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, onClick: (evt, el) => { if (el.length > 0) showHaploDetails(govName, labels[el[0].index]); }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, onClick: (evt, el) => { if (el.length > 0) showHaploDetails(govName, labels[el[0].index]); } }
             });
         }
 
@@ -305,7 +312,7 @@
             document.getElementById('detail-modal').classList.add('active');
             setTimeout(() => createPieChart('modalChartCanvas', data, gov), 50);
             const sorted = Object.entries(data).sort((a,b) => b[1] - a[1]);
-            document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `<div onclick="showHaploDetails('${gov}', '${name}')" class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl cursor-pointer hover:bg-secondary/10 transition-all group font-headline font-bold text-primary"><div class="flex items-center gap-4 font-black text-primary font-bold"><div class="w-5 h-5 rounded-full shadow-sm" style="background:${HAPLO_COLORS[name] || HAPLO_COLORS[name.substring(0,1)] || '#CCC'}"></div><span class="text-lg uppercase font-bold">${name}</span></div><span class="text-lg font-black text-primary font-bold">${((count/total)*100).toFixed(1)}%</span></div>`).join('');
+            document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `<div onclick="showHaploDetails('${gov}', '${name}')" class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl cursor-pointer hover:bg-secondary/10 transition-all group font-headline"><div class="flex items-center gap-3 md:gap-4 font-black text-primary font-bold"><div class="w-4 h-4 md:w-5 md:h-5 rounded-full shadow-sm" style="background:${HAPLO_COLORS[name] || HAPLO_COLORS[name.substring(0,1)] || '#CCC'}"></div><span class="text-xs md:text-xl uppercase font-bold">${name}</span></div><span class="text-xs md:text-xl font-black text-primary font-bold">${((count/total)*100).toFixed(1)}%</span></div>`).join('');
         }
 
         function renderUI() {
@@ -315,7 +322,7 @@
                 const canvasId = `chart-${idx}`;
                 const card = document.createElement('div'); card.className = "stat-card text-primary text-left font-bold"; card.onclick = () => openModal(gov);
                 const displayGovName = gov === "—" ? "Unassigned Origin" : gov;
-                card.innerHTML = `<div class="w-16 h-16 flex-shrink-0"><canvas id="${canvasId}"></canvas></div><div class="min-w-0 text-left"><h4 class="font-black text-xs uppercase truncate text-primary tracking-tighter">${displayGovName}</h4><p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Total: ${total}</p></div>`;
+                card.innerHTML = `<div class="w-12 h-12 md:w-16 md:h-16 flex-shrink-0"><canvas id="${canvasId}"></canvas></div><div class="min-w-0 text-left"><h4 class="font-black text-[10px] md:text-xs uppercase truncate text-primary tracking-tighter">${displayGovName}</h4><p class="text-[8px] md:text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Total: ${total}</p></div>`;
                 grid.appendChild(card);
                 if (total > 0) setTimeout(() => createPieChart(canvasId, data, gov), 50);
             });
@@ -328,7 +335,7 @@
             document.getElementById('total-national-samples').innerText = grandTotal;
             if (grandTotal > 0) createPieChart('nationalChartCanvas', totals, null);
             const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 15);
-            document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `<div onclick="showHaploDetails(null, '${name}')" class="flex items-center justify-between text-[11px] font-black border-b border-gray-50 pb-1 uppercase cursor-pointer hover:text-secondary transition-colors font-headline text-primary font-bold"><span>${name}</span><span>${((count/grandTotal)*100).toFixed(1)}%</span></div>`).join('');
+            document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `<div onclick="showHaploDetails(null, '${name}')" class="flex items-center justify-between text-[9px] md:text-[11px] font-black border-b border-gray-50 pb-1 uppercase cursor-pointer hover:text-secondary transition-colors font-headline text-primary font-bold"><span>${name}</span><span>${((count/grandTotal)*100).toFixed(1)}%</span></div>`).join('');
         }
 
         function renderArchive() {
@@ -342,16 +349,16 @@
                     return gA.localeCompare(gB);
                 });
             tbody.innerHTML = filtered.map(s => {
-                const kitH = getKitHaploGroup(s.y_dna, s.snp_path);
+                const kitH = (s.y_dna || "").trim().substring(0,1).toUpperCase();
                 const kitColor = HAPLO_COLORS[kitH] || '#CCC';
                 return `<tr class="hover:bg-gray-50/80 transition-colors text-center text-primary font-bold">
-                    <td class="px-4 md:px-8 py-4 md:py-7 align-v-center font-black uppercase text-[10px] md:text-sm leading-tight text-left text-primary font-bold">${s.name || 'Anonymous'}</td>
-                    <td class="px-2 py-4 md:py-7 align-v-center font-mono text-[9px] md:text-[10px] font-bold text-gray-400 font-bold text-center font-bold">${s.kit_number || '—'}</td>
-                    <td class="px-2 py-4 md:py-7 align-v-center text-[9px] md:text-[10px] font-black text-gray-400 uppercase font-bold text-center">${s.governorate || '—'}</td>
-                    <td class="px-4 py-4 md:py-7 align-v-center text-left"><div class="flex items-start gap-2"><span class="w-2 h-2 rounded-full mt-1 flex-shrink-0" style="background:${kitColor}"></span><span class="text-[9px] md:text-[10px] font-mono font-bold text-gray-500 snp-path-text font-bold">${s.snp_path || s.y_dna || '—'}</span></div></td>
-                    <td class="px-2 py-4 md:py-7 align-v-center text-center font-bold">${renderLinks(s, 'y')}</td>
-                    <td class="px-2 py-4 md:py-7 align-v-center text-center uppercase text-[10px] md:text-[11px] font-black text-secondary font-bold">${s.mt_dna || '—'}</td>
-                    <td class="px-4 md:px-8 py-4 md:py-7 align-v-center text-center font-bold">${renderLinks(s, 'mt')}</td>
+                    <td class="px-4 md:px-8 py-4 md:py-7 align-v-center font-black uppercase text-[10px] md:text-sm leading-tight text-left text-primary font-bold align-v-center text-primary">${s.name || 'Anonymous'}</td>
+                    <td class="px-2 py-4 md:py-7 align-v-center font-mono text-[9px] md:text-[10px] font-bold text-gray-400 font-bold text-center align-v-center">${s.kit_number || '—'}</td>
+                    <td class="px-2 py-4 md:py-7 align-v-center text-[9px] md:text-[10px] font-black text-gray-400 uppercase font-bold text-center align-v-center text-primary">${s.governorate || '—'}</td>
+                    <td class="px-4 py-4 md:py-7 align-v-center text-left align-v-center"><div class="flex items-start gap-2"><span class="w-2 h-2 rounded-full mt-1 flex-shrink-0" style="background:${kitColor}"></span><span class="text-[9px] md:text-[10px] font-mono font-bold text-gray-500 snp-path-text font-bold">${s.snp_path || s.y_dna || '—'}</span></div></td>
+                    <td class="px-2 py-4 md:py-7 align-v-center text-center font-bold align-v-center">${renderLinks(s, 'y')}</td>
+                    <td class="px-2 py-4 md:py-7 align-v-center text-center uppercase text-[10px] md:text-[11px] font-black text-secondary font-bold align-v-center">${s.mt_dna || '—'}</td>
+                    <td class="px-4 md:px-8 py-4 md:py-7 align-v-center text-center font-bold align-v-center">${renderLinks(s, 'mt')}</td>
                 </tr>`;
             }).join('');
         }
