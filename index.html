@@ -64,9 +64,10 @@
                     <h1 class="text-xs md:text-xl font-black uppercase tracking-tighter leading-none text-primary group-hover:text-secondary transition-colors text-left font-headline">Egyptian Y-DNA Project</h1>
                     <p class="text-[7px] md:text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1 text-left font-headline">National Genomic Archive</p>
                 </a>
-                <div class="flex items-center gap-4 border-l pl-4 md:pl-6 border-gray-100 mr-10 md:mr-0">
+                <!-- Minimalist Contact Header -->
+                <div class="hidden md:flex items-center gap-6 border-l pl-6 border-gray-100 ml-4">
                     <a href="https://x.com/egyptydna?s=21" target="_blank" class="social-link">Twitter (X)</a>
-                    <a href="mailto:egyptydna@gmail.com" class="social-link">Email</a>
+                    <a href="mailto:egyptydna@gmail.com" class="social-link">Contact</a>
                 </div>
             </div>
             <div class="flex gap-4 md:gap-8 items-center font-headline text-primary whitespace-nowrap">
@@ -108,7 +109,6 @@
                 <h2 class="text-4xl md:text-7xl font-black tracking-tighter leading-none text-primary">DNA Archive</h2>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full md:w-auto">
-                <!-- SEARCH FIELD WITH INFO TEXT -->
                 <div class="flex flex-col">
                     <div class="relative group font-headline">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-secondary font-bold">search</span>
@@ -147,19 +147,25 @@
     <footer class="bg-primary text-white py-16 px-8 mt-20 text-center md:text-left font-bold">
         <div class="max-w-screen-2xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 border-b border-white/10 pb-16">
             <div>
-                <h3 class="text-3xl font-black uppercase tracking-tighter mb-6 font-headline">Contact & Inquiries</h3>
-                <p class="text-gray-400 text-sm max-w-md mx-auto md:mx-0 leading-relaxed font-medium">Join the project or contribute your results.</p>
+                <h3 class="text-3xl font-black uppercase tracking-tighter mb-6 font-headline">Project Inquiries</h3>
+                <p class="text-gray-400 text-sm max-w-md mx-auto md:mx-0 leading-relaxed font-medium">Have questions or want to contribute? Reach out to our team through our official channels.</p>
             </div>
             <div class="flex flex-col items-center md:items-end gap-6 justify-center">
-                <div class="flex gap-4">
-                    <a href="https://x.com/egyptydna?s=21" target="_blank" class="px-6 py-3 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-secondary transition-all text-[10px] uppercase tracking-widest font-black">Twitter (X)</a>
-                    <a href="mailto:egyptydna@gmail.com" class="px-6 py-3 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-secondary transition-all text-[10px] uppercase tracking-widest font-black">Email Archive</a>
+                <div class="flex flex-col items-center md:items-end gap-2">
+                    <p class="text-[10px] font-black uppercase text-secondary tracking-[0.2em] mb-2">Contact Details</p>
+                    <div class="flex gap-4">
+                        <a href="https://x.com/egyptydna?s=21" target="_blank" class="px-8 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-secondary transition-all text-[11px] uppercase tracking-widest font-black">Twitter (X)</a>
+                        <a href="mailto:egyptydna@gmail.com" class="px-8 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-secondary transition-all text-[11px] uppercase tracking-widest font-black">Email Project</a>
+                    </div>
                 </div>
-                <p class="text-[10px] font-black uppercase text-gray-500 tracking-widest mt-2 font-headline">Official Project Support</p>
             </div>
         </div>
-        <div class="max-w-screen-2xl mx-auto pt-8 flex justify-between items-center text-[10px] font-bold text-gray-500 uppercase tracking-widest font-headline">
-            <p>© 2026 National Genomic Archive of Egypt</p><p>Scholarly Research Project</p>
+        <div class="max-w-screen-2xl mx-auto pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest font-headline">
+            <p>© 2026 National Genomic Archive of Egypt</p>
+            <div class="flex gap-6">
+                <span>Scholarly Research Project</span>
+                <span>Paternal & Maternal Lineages</span>
+            </div>
         </div>
     </footer>
 
