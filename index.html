@@ -113,7 +113,7 @@
                 <div class="flex flex-col">
                     <div class="relative group font-headline">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-secondary font-bold">biotech</span>
-                        <input type="text" id="archiveSearch" onkeydown="if(event.key==='Enter') renderArchive()" placeholder="Search SNP (A, B, J, E...)" class="w-full md:w-72 pl-12 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none transition-all">
+                        <input type="text" id="archiveSearch" onkeydown="if(event.key==='Enter') renderArchive()" placeholder="Search SNP (Enter)..." class="w-full md:w-72 pl-12 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none transition-all">
                     </div>
                     <p class="text-[9px] text-gray-400 mt-2 ml-1 font-bold uppercase tracking-widest italic">Press Enter to filter SNPs</p>
                 </div>
@@ -279,10 +279,14 @@
 
                 let matchesSearch = true;
                 if (search !== "") {
-                    // Optimized Pure Genetics Search (Haplogroup or SNP in Path)
-                    const geneticsString = (s.y_dna + ' ' + s.snp_path).toLowerCase();
-                    // Split search into individual terms if necessary, or just match the string
-                    matchesSearch = geneticsString.includes(search);
+                    // "Smarter" Search: Splits Path into segments to avoid partial letter matches (like 's' in 'cts')
+                    const segments = (s.y_dna + '>' + s.snp_path).toLowerCase().split(/[>\-\s,;]+/).map(t => t.trim());
+                    if (search.length === 1) {
+                        // If searching for 'J', 'S', 'E', look for segments STARTING with that letter
+                        matchesSearch = segments.some(seg => seg.startsWith(search)) || (s.name||"").toLowerCase().includes(search);
+                    } else {
+                        matchesSearch = segments.some(seg => seg.includes(search)) || (s.name||"").toLowerCase().includes(search);
+                    }
                 }
                 return matchesSearch && matchesHaplo && matchesGov;
             }).sort((a, b) => {
