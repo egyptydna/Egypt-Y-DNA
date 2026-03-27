@@ -279,13 +279,16 @@
 
                 let matchesSearch = true;
                 if (search !== "") {
-                    // "Smarter" Search: Splits Path into segments to avoid partial letter matches (like 's' in 'cts')
-                    const segments = (s.y_dna + '>' + s.snp_path).toLowerCase().split(/[>\-\s,;]+/).map(t => t.trim());
+                    // Zerlegung in Segmente anhand von Trennzeichen wie ">"
+                    const segments = (s.y_dna + '>' + s.snp_path).toLowerCase().split(/[>\s,;]+/).map(t => t.trim());
+                    
                     if (search.length === 1) {
-                        // If searching for 'J', 'S', 'E', look for segments STARTING with that letter
+                        // Für einzelne Buchstaben (E, J, R...) -> Treffer wenn ein Segment damit beginnt
                         matchesSearch = segments.some(seg => seg.startsWith(search)) || (s.name||"").toLowerCase().includes(search);
                     } else {
-                        matchesSearch = segments.some(seg => seg.includes(search)) || (s.name||"").toLowerCase().includes(search);
+                        // KORREKTUR: Für SNPs (fgc2) -> NUR EXAKTE ÜBEREINSTIMMUNG innerhalb der Segmente
+                        // Ein Segment wie "fgc22807" wird also NICHT mehr gefunden, wenn man nach "fgc2" sucht.
+                        matchesSearch = segments.some(seg => seg === search) || (s.name||"").toLowerCase().includes(search);
                     }
                 }
                 return matchesSearch && matchesHaplo && matchesGov;
