@@ -41,7 +41,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .stat-card { transition: all 0.3s ease; border: 1px solid #eef0f2; cursor: pointer; background: white; padding: 1.5rem; border-radius: 2rem; display: flex; align-items: center; gap: 1.25rem; }
-        .stat-card:hover { border-color: #001736; transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,23,54,0.1); }
+        .stat-card:hover { border-color: #001736; transform: translateY(-5px); box-shadow: 0 15px 300px rgba(0,23,54,0.1); }
         
         .archive-inner-scroll { overflow-x: auto; border-radius: 2rem; border: 1px solid #e5e7eb; background: white; -webkit-overflow-scrolling: touch; }
         table { width: 100%; border-collapse: collapse; }
@@ -279,12 +279,13 @@
 
                 let matchesSearch = true;
                 if (search !== "") {
-                    // KORREKTUR: Jetzt wird auch beim Bindestrich '-' getrennt
+                    // KORREKTUR: Trennung an >, -, Leerzeichen, Semikolon etc.
                     const segments = (s.y_dna + '>' + s.snp_path).toLowerCase().split(/[>\-\s,;]+/).map(t => t.trim());
                     
                     if (search.length === 1) {
                         matchesSearch = kitHaplo.toLowerCase().startsWith(search);
                     } else {
+                        // EXAKTE Suche nach V12, M81 etc. innerhalb der Segmente
                         matchesSearch = segments.some(seg => seg === search) || (s.name||"").toLowerCase().includes(search);
                     }
                 }
