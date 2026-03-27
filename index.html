@@ -90,7 +90,7 @@
             </div>
             <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-8 md:gap-12 justify-center lg:justify-end font-headline font-bold">
                 <div class="w-full max-w-[300px] md:w-[320px] cursor-pointer"><canvas id="nationalChartCanvas"></canvas></div>
-                <div id="national-legend" class="space-y-1.5 w-full max-w-[240px] text-[11px] font-headline font-bold"></div>
+                <div id="national-legend" class="space-y-1 w-full max-w-[260px] text-[11px] font-headline font-bold"></div>
             </div>
         </section>
         <section class="h-[450px] md:h-[650px] w-full bg-white rounded-[3rem] md:rounded-[4rem] overflow-hidden shadow-2xl border border-gray-100">
@@ -155,8 +155,8 @@
                 <div class="flex flex-col items-center md:items-end gap-2">
                     <p class="text-[10px] font-black uppercase text-secondary tracking-[0.2em] mb-2">Contact Details</p>
                     <div class="flex gap-4">
-                        <a href="https://x.com/egyptydna?s=21" target="_blank" class="px-8 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-secondary transition-all text-[11px] uppercase tracking-widest font-black flex items-center justify-center">Twitter (X)</a>
-                        <a href="mailto:egyptydna@gmail.com" class="px-8 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-secondary transition-all text-[11px] uppercase tracking-widest font-black flex items-center justify-center gap-3">
+                        <a href="https://x.com/egyptydna?s=21" target="_blank" class="w-40 h-14 rounded-xl bg-white/5 border border-white/10 hover:bg-secondary transition-all text-[11px] uppercase tracking-widest font-black flex items-center justify-center">Twitter (X)</a>
+                        <a href="mailto:egyptydna@gmail.com" class="w-40 h-14 rounded-xl bg-white/5 border border-white/10 hover:bg-secondary transition-all text-[11px] uppercase tracking-widest font-black flex items-center justify-center gap-3">
                             Email <span class="material-symbols-outlined text-lg">mail</span>
                         </a>
                     </div>
@@ -447,14 +447,13 @@
             if (grandTotal > 0) createPieChart('nationalChartCanvas', totals, null);
             const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 15);
             
-            // KORREKTUR: HIER WERDEN DIE FARBPUNKTE HINZUGEFÜGT
             document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `
-                <div onclick="showHaploDetails(null, '${name}')" class="flex items-center justify-between text-[11px] font-black border-b border-gray-50 pb-1 uppercase cursor-pointer hover:text-secondary transition-colors font-headline">
+                <div onclick="showHaploDetails(null, '${name}')" class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase cursor-pointer hover:bg-primary/5 hover:text-secondary transition-all duration-200 font-headline active:scale-[0.98] group">
                     <div class="flex items-center gap-2">
-                        <div class="w-2 h-2 rounded-full" style="background:${HAPLO_COLORS[name] || HAPLO_COLORS[name.substring(0,1)] || '#CCC'}"></div>
-                        <span>${name}</span>
+                        <div class="w-2 h-2 rounded-full transition-transform duration-200 group-hover:scale-125 shadow-sm" style="background:${HAPLO_COLORS[name] || HAPLO_COLORS[name.substring(0,1)] || '#CCC'}"></div>
+                        <span class="tracking-widest">${name}</span>
                     </div>
-                    <span>${((count/grandTotal)*100).toFixed(1)}%</span>
+                    <span class="opacity-80">${((count/grandTotal)*100).toFixed(1)}%</span>
                 </div>`).join('');
         }
 
