@@ -50,7 +50,7 @@
         
         .align-v-center { vertical-align: middle !important; }
         .snp-path-text { word-break: break-word; overflow-wrap: anywhere; white-space: normal; line-height: 1.6; display: inline-block; width: 100%; }
-        .social-link { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #9ca3af; transition: all 0.3s; display: flex; align-items: center; gap: 8px; }
+        .social-link { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #9ca3af; transition: all 0.3s; display: flex; align-items: center; gap: 10px; }
         .social-link:hover { color: #001736; }
     </style>
 </head>
@@ -64,10 +64,9 @@
                     <h1 class="text-xs md:text-xl font-black uppercase tracking-tighter leading-none text-primary group-hover:text-secondary transition-colors text-left font-headline">Egyptian Y-DNA Project</h1>
                     <p class="text-[7px] md:text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1 text-left font-headline">National Genomic Archive</p>
                 </a>
-                <!-- Updated Header Contact -->
                 <div class="hidden md:flex items-center gap-6 border-l pl-6 border-gray-100 ml-4">
                     <a href="https://x.com/egyptydna?s=21" target="_blank" class="social-link">Twitter (X)</a>
-                    <a href="mailto:egyptydna@gmail.com" class="social-link" title="Email Us">
+                    <a href="mailto:egyptydna@gmail.com" class="social-link" title="Contact Us">
                         <span class="material-symbols-outlined text-xl">mail</span>
                     </a>
                 </div>
@@ -114,9 +113,9 @@
                 <div class="flex flex-col">
                     <div class="relative group font-headline">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-secondary font-bold">biotech</span>
-                        <input type="text" id="archiveSearch" onkeydown="if(event.key==='Enter') renderArchive()" placeholder="Search SNP (e.g. V1889)..." class="w-full md:w-72 pl-12 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none transition-all">
+                        <input type="text" id="archiveSearch" onkeydown="if(event.key==='Enter') renderArchive()" placeholder="Search SNP (A, B, J, E...)" class="w-full md:w-72 pl-12 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none transition-all">
                     </div>
-                    <p class="text-[9px] text-gray-400 mt-2 ml-1 font-bold uppercase tracking-widest italic">Press Enter to Search SNP Path</p>
+                    <p class="text-[9px] text-gray-400 mt-2 ml-1 font-bold uppercase tracking-widest italic">Press Enter to filter SNPs</p>
                 </div>
                 
                 <select id="filterHaplo" onchange="renderArchive()" class="p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none h-[50px] md:h-[58px]">
@@ -150,7 +149,7 @@
         <div class="max-w-screen-2xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 border-b border-white/10 pb-16">
             <div>
                 <h3 class="text-3xl font-black uppercase tracking-tighter mb-6 font-headline">Project Inquiries</h3>
-                <p class="text-gray-400 text-sm max-w-md mx-auto md:mx-0 leading-relaxed font-medium">Have questions or want to contribute your genomic data? Reach out to our team.</p>
+                <p class="text-gray-400 text-sm max-w-md mx-auto md:mx-0 leading-relaxed font-medium">Have questions or want to contribute? Reach out to our team.</p>
             </div>
             <div class="flex flex-col items-center md:items-end gap-6 justify-center">
                 <div class="flex flex-col items-center md:items-end gap-2">
@@ -158,7 +157,7 @@
                     <div class="flex gap-4">
                         <a href="https://x.com/egyptydna?s=21" target="_blank" class="px-8 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-secondary transition-all text-[11px] uppercase tracking-widest font-black">Twitter (X)</a>
                         <a href="mailto:egyptydna@gmail.com" class="px-8 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-secondary transition-all text-[11px] uppercase tracking-widest font-black flex items-center gap-3">
-                            Email <span class="material-symbols-outlined text-lg">mail</span>
+                            Email <span class="material-symbols-outlined text-xl">mail</span>
                         </a>
                     </div>
                 </div>
@@ -168,7 +167,7 @@
             <p>© 2026 National Genomic Archive of Egypt</p>
             <div class="flex gap-6">
                 <span>Scholarly Research Project</span>
-                <span>Genomic Paternal lineages</span>
+                <span>Paternal DNA lineages</span>
             </div>
         </div>
     </footer>
@@ -280,9 +279,10 @@
 
                 let matchesSearch = true;
                 if (search !== "") {
-                    // Optimized SNP / Path Search
-                    const fullPath = (s.y_dna + '>' + s.snp_path).toLowerCase();
-                    matchesSearch = fullPath.includes(search) || (s.name || "").toLowerCase().includes(search);
+                    // Optimized Pure Genetics Search (Haplogroup or SNP in Path)
+                    const geneticsString = (s.y_dna + ' ' + s.snp_path).toLowerCase();
+                    // Split search into individual terms if necessary, or just match the string
+                    matchesSearch = geneticsString.includes(search);
                 }
                 return matchesSearch && matchesHaplo && matchesGov;
             }).sort((a, b) => {
