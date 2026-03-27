@@ -155,9 +155,9 @@
                 <div class="flex flex-col items-center md:items-end gap-2">
                     <p class="text-[10px] font-black uppercase text-secondary tracking-[0.2em] mb-2">Contact Details</p>
                     <div class="flex gap-4">
-                        <a href="https://x.com/egyptydna?s=21" target="_blank" class="px-8 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-secondary transition-all text-[11px] uppercase tracking-widest font-black">Twitter (X)</a>
-                        <a href="mailto:egyptydna@gmail.com" class="px-8 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-secondary transition-all text-[11px] uppercase tracking-widest font-black flex items-center gap-3">
-                            Email <span class="material-symbols-outlined text-xl">mail</span>
+                        <a href="https://x.com/egyptydna?s=21" target="_blank" class="px-8 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-secondary transition-all text-[11px] uppercase tracking-widest font-black flex items-center justify-center">Twitter (X)</a>
+                        <a href="mailto:egyptydna@gmail.com" class="px-8 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-secondary transition-all text-[11px] uppercase tracking-widest font-black flex items-center justify-center gap-3">
+                            Email <span class="material-symbols-outlined text-lg">mail</span>
                         </a>
                     </div>
                 </div>
@@ -280,12 +280,9 @@
                 let matchesSearch = true;
                 if (search !== "") {
                     const segments = (s.y_dna + '>' + s.snp_path).toLowerCase().split(/[>\s,;]+/).map(t => t.trim());
-                    
                     if (search.length === 1) {
-                        // KORREKTUR: Bei einzelnen Buchstaben NUR in der Haplogruppe suchen, NICHT im Namen
                         matchesSearch = kitHaplo.toLowerCase().startsWith(search);
                     } else {
-                        // Bei SNPs (fgc2) exakt in Pfaden suchen ODER im Namen
                         matchesSearch = segments.some(seg => seg === search) || (s.name||"").toLowerCase().includes(search);
                     }
                 }
@@ -449,7 +446,16 @@
             document.getElementById('total-national-samples').innerText = grandTotal;
             if (grandTotal > 0) createPieChart('nationalChartCanvas', totals, null);
             const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 15);
-            document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `<div onclick="showHaploDetails(null, '${name}')" class="flex items-center justify-between text-[11px] font-black border-b border-gray-50 pb-1 uppercase cursor-pointer hover:text-secondary transition-colors font-headline"><span>${name}</span><span>${((count/grandTotal)*100).toFixed(1)}%</span></div>`).join('');
+            
+            // KORREKTUR: HIER WERDEN DIE FARBPUNKTE HINZUGEFÜGT
+            document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `
+                <div onclick="showHaploDetails(null, '${name}')" class="flex items-center justify-between text-[11px] font-black border-b border-gray-50 pb-1 uppercase cursor-pointer hover:text-secondary transition-colors font-headline">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full" style="background:${HAPLO_COLORS[name] || HAPLO_COLORS[name.substring(0,1)] || '#CCC'}"></div>
+                        <span>${name}</span>
+                    </div>
+                    <span>${((count/grandTotal)*100).toFixed(1)}%</span>
+                </div>`).join('');
         }
 
         function showSection(id) {
