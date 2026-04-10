@@ -122,8 +122,8 @@
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-secondary font-bold">biotech</span>
                         <input type="text" id="archiveSearch" onkeydown="if(event.key==='Enter') renderArchive()" placeholder="Search SNP (Enter)..." class="w-full md:w-72 pl-12 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none transition-all">
                     </div>
-                    <p class="text-[9px] text-gray-400 mt-2 ml-1 font-bold uppercase tracking-widest italic">Press Enter to filter SNPs</p>
                 </div>
+                
                 <select id="filterHaplo" onchange="renderArchive()" class="p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none h-[50px] md:h-[58px]">
                     <option value="">All Haplogroups</option>
                 </select>
@@ -188,7 +188,7 @@
     </main>
 
     <!-- FOOTER -->
-    <footer class="bg-primary text-white py-16 px-8 mt-20 text-center md:text-left font-bold font-headline font-bold">
+    <footer class="bg-primary text-white py-16 px-8 mt-20 text-center md:text-left font-bold font-headline">
         <div class="max-w-screen-2xl mx-auto border-b border-white/10 pb-12 mb-12 flex flex-col md:flex-row justify-between items-center gap-8">
             <p>© 2026 National Genomic Archive of Egypt</p>
             <div class="flex gap-4">
@@ -209,6 +209,7 @@
                     <div id="modal-legend" class="space-y-2 border-t pt-8 mt-8 font-headline font-bold"></div>
                 </div>
             </div>
+            
             <div id="modal-kit-list" class="mt-10 md:mt-12 border-t pt-8 md:pt-10 hidden rounded-3xl p-6 transition-all border-l-[12px] shadow-sm">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
                     <h3 class="text-xl md:text-3xl font-black uppercase font-headline flex items-center gap-4 text-primary">
@@ -298,16 +299,26 @@
             } catch (err) { console.error(err); }
         }
 
+        // VERBESSERTE ERKENNUNG DER GRUPPEN
         function getKitHaploGroup(y, s) {
             y = (y || "").trim().toUpperCase(); s = (s || "").trim().toUpperCase();
-            if (y.startsWith("J2") || s.startsWith("J2")) return "J2";
-            if (y.startsWith("J1") || y.startsWith("J-")) return "J1";
-            if (y.startsWith("R1A")) return "R1A";
-            if (y.startsWith("R1B")) return "R1B";
-            if (y.startsWith("Q1")) return "Q1";
-            if (y.startsWith("Q2")) return "Q2";
-            if (y.startsWith("L1")) return "L1";
-            if (y.startsWith("L2")) return "L2";
+            const full = (y + " " + s);
+            
+            // Priorität auf detaillierte Treffer (Q1, R1B etc.)
+            if (full.includes("R1B")) return "R1B";
+            if (full.includes("R1A")) return "R1A";
+            if (full.includes("Q1")) return "Q1";
+            if (full.includes("Q2")) return "Q2";
+            if (full.includes("L1")) return "L1";
+            if (full.includes("L2")) return "L2";
+            if (full.includes("G2")) return "G2";
+            if (full.includes("H2")) return "H2";
+            if (full.includes("J1")) return "J1";
+            if (full.includes("J2")) return "J2";
+            if (full.includes("A1A")) return "A1A";
+            if (full.includes("A1B1")) return "A1B1";
+            if (full.includes("I2")) return "I2";
+
             return y.substring(0,1) || "UNKNOWN";
         }
 
@@ -324,12 +335,22 @@
             document.getElementById('selected-haplo-display').innerText = haplo;
             listArea.style.borderColor = color; listArea.style.backgroundColor = `${color}05`;
 
+            // VERBESSERTER FILTER: Findet jetzt auch Untergruppen
             const matches = sourceData.filter(s => {
                 if (targetGov && superClean(s.governorate) !== targetGov) return false;
-                const kitH = getKitHaploGroup(s.y_dna, s.snp_path);
-                const yRaw = (s.y_dna || "").toUpperCase();
-                // Verbesserter Filter: Prüft auf exakte Übereinstimmung ODER ob y_dna mit targetH beginnt (z.B. Q1b startet mit Q1)
-                return kitH === targetH || yRaw.startsWith(targetH) || (targetH.length === 1 && yRaw.startsWith(targetH));
+                
+                const calculatedH = getKitHaploGroup(s.y_dna, s.snp_path);
+                const rawY = (s.y_dna || "").toUpperCase();
+                const rawS = (s.snp_path || "").toUpperCase();
+
+                // 1. Check ob die berechnete Gruppe passt (z.B. "R1B" === "R1B")
+                if (calculatedH === targetH) return true;
+                // 2. Check ob der Raw-Text mit dem Target beginnt (z.B. Probe "Q-M242" passt zu Target "Q")
+                if (rawY.startsWith(targetH) || rawY.startsWith(targetH + "-") || rawY.startsWith(targetH + "1")) return true;
+                // 3. Check ob Target im SNP Path vorkommt
+                if (rawS.includes(targetH)) return true;
+
+                return false;
             });
 
             document.getElementById('modal-sample-count').innerText = `${matches.length} Kits Found`;
@@ -429,9 +450,13 @@
             document.getElementById('total-national-samples').innerText = grandTotal;
             if (grandTotal > 0) createPieChart('nationalChartCanvas', totals, null);
             const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 15);
+            
             document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `
-                <div onclick="showHaploDetails(null, '${name}')" class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase cursor-pointer hover:bg-primary/5 transition-all group">
-                    <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full transition-transform shadow-sm" style="background:${HAPLO_COLORS[name] || HAPLO_COLORS[name.substring(0,1)] || '#CCC'}"></div><span>${name}</span></div>
+                <div onclick="showHaploDetails(null, '${name}')" class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase cursor-pointer hover:bg-primary/5 hover:text-secondary transition-all duration-200 font-headline active:scale-[0.98] group">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full transition-transform duration-200 group-hover:scale-125 shadow-sm" style="background:${HAPLO_COLORS[name] || HAPLO_COLORS[name.substring(0,1)] || '#CCC'}"></div>
+                        <span class="tracking-widest">${name}</span>
+                    </div>
                     <span class="opacity-80">${((count/grandTotal)*100).toFixed(1)}%</span>
                 </div>`).join('');
         }
@@ -454,7 +479,7 @@
             const total = Object.values(data).reduce((a, b) => a + b, 0); const sorted = Object.entries(data).sort((a,b) => b[1] - a[1]);
             document.getElementById('modal-legend').innerHTML = sorted.map(([name, count]) => `
                 <div onclick="showHaploDetails('${gov || ''}', '${name}')" class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl cursor-pointer hover:bg-secondary/10 transition-all group font-bold">
-                    <div class="flex items-center gap-4"><div class="w-5 h-5 rounded-full" style="background:${HAPLO_COLORS[name] || HAPLO_COLORS[name.substring(0,1)] || '#CCC'}"></div><span class="text-lg uppercase font-bold">${name}</span></div>
+                    <div class="flex items-center gap-4"><div class="w-5 h-5 rounded-full shadow-sm" style="background:${HAPLO_COLORS[name] || HAPLO_COLORS[name.substring(0,1)] || '#CCC'}"></div><span class="text-lg uppercase font-bold">${name}</span></div>
                     <span class="text-xl font-black">${((count/total)*100).toFixed(1)}%</span>
                 </div>`).join('');
         }
