@@ -80,6 +80,7 @@
             <div class="flex gap-4 md:gap-8 items-center font-headline text-primary whitespace-nowrap">
                 <span onclick="showSection('home')" id="nav-home" class="nav-link active uppercase tracking-widest font-bold font-headline">Dashboard</span>
                 <span onclick="showSection('archive')" id="nav-archive" class="nav-link uppercase tracking-widest text-gray-400 font-bold font-headline">Archive</span>
+                <span onclick="showSection('ancient')" id="nav-ancient" class="nav-link uppercase tracking-widest text-gray-400 font-bold font-headline">Ancient DNA</span>
             </div>
         </div>
     </nav>
@@ -146,6 +147,46 @@
                     </tr>
                 </thead>
                 <tbody id="archive-table-body" class="divide-y divide-gray-50 bg-white font-headline"></tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- SECTION ANCIENT DNA (NEU) -->
+    <main id="section-ancient" class="page-section py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-12">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-4 text-left font-headline">
+            <div>
+                <p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2">— Paleogenetic Archive</p>
+                <h2 class="text-4xl md:text-7xl font-black tracking-tighter leading-none text-primary uppercase">Ancient DNA</h2>
+            </div>
+        </header>
+
+        <!-- DASHBOARD FÜR ANCIENT DNA -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-8 md:p-12 rounded-[3rem] md:rounded-[4rem] shadow-xl border border-gray-100">
+            <div class="lg:col-span-5 font-headline">
+                <h2 class="text-3xl md:text-5xl font-black tracking-tighter mb-4 leading-tight text-primary">Ancient Summary</h2>
+                <div class="border-t pt-8">
+                    <div id="ancient-legend" class="space-y-1 w-full text-[11px] font-headline font-bold"></div>
+                </div>
+            </div>
+            <div class="lg:col-span-7 flex justify-center lg:justify-end">
+                <div class="w-full max-w-[320px] cursor-pointer"><canvas id="ancientChartCanvas"></canvas></div>
+            </div>
+        </section>
+
+        <!-- TABELLE FÜR ANCIENT DNA -->
+        <div class="archive-inner-scroll shadow-2xl">
+            <table class="table-fixed min-w-[1200px]">
+                <thead class="static-thead">
+                    <tr class="font-headline text-center font-bold">
+                        <th class="w-[15%] pl-8 text-left">Region</th>
+                        <th class="w-[15%] text-left">Site / Origin</th>
+                        <th class="w-[20%] text-left">Period / Dynasty</th>
+                        <th class="w-[15%]">Sample ID</th>
+                        <th class="w-[20%] text-left">Haplogroup</th>
+                        <th class="w-[15%] pr-8">Source</th>
+                    </tr>
+                </thead>
+                <tbody id="ancient-table-body" class="divide-y divide-gray-50 bg-white font-headline"></tbody>
             </table>
         </div>
     </main>
@@ -217,9 +258,15 @@
         
         const GOV_LIST = ["Al Bahr al Ahmar", "Al Buhayrah", "Ad Daqahlīyah", "Al Fayyūm", "Al Gharbīyah", "Al Iskandarīyah", "Al Ismā`īlīyah", "Al Minūfīyah", "Al Minyā", "Al Qalyūbīyah", "As Suways", "Ash Sharqīyah", "Aswān", "Asyūt", "Banī Suwayf", "Cairo", "Dumyāt", "Al Jīzah", "Janūb Sīnā’", "Kafr ash Shaykh", "Luxor", "Matrouh", "Qinā", "Shamal Sīnā’", "Sūhāj", "—"].sort();
 
-        let databaseSamples = []; let regionalData = {}; let charts = {};
+        let databaseSamples = []; let ancientSamples = []; let regionalData = {}; let charts = {};
 
-        async function init() { await loadAllData(); populateFilters(); renderUI(); renderArchive(); }
+        async function init() { 
+            await loadAllData(); 
+            await loadAncientData(); // Lädt die antiken Proben
+            populateFilters(); 
+            renderUI(); 
+            renderArchive(); 
+        }
 
         function superClean(str) {
             if(!str || str === '—') return "";
@@ -243,6 +290,16 @@
                     });
                 }
             } catch (err) { console.error(err); }
+        }
+
+        // NEU: Lädt Daten für die antiken Proben
+        async function loadAncientData() {
+            try {
+                const { data, error } = await _supabase.from('ancient_samples').select('*');
+                if (error) throw error;
+                ancientSamples = data || [];
+                renderAncientUI();
+            } catch (err) { console.warn("Ancient DNA table not found yet:", err.message); }
         }
 
         function populateFilters() {
@@ -285,13 +342,10 @@
 
                 let matchesSearch = true;
                 if (search !== "") {
-                    // KORREKTUR: Trennung an >, -, Leerzeichen, Semikolon etc.
                     const segments = (s.y_dna + '>' + s.snp_path).toLowerCase().split(/[>\-\s,;]+/).map(t => t.trim());
-                    
                     if (search.length === 1) {
                         matchesSearch = kitHaplo.toLowerCase().startsWith(search);
                     } else {
-                        // EXAKTE Suche nach V12, M81 etc. innerhalb der Segmente
                         matchesSearch = segments.some(seg => seg === search) || (s.name||"").toLowerCase().includes(search);
                     }
                 }
@@ -315,6 +369,39 @@
                     <td class="px-4 md:px-8 py-4 md:py-7 align-v-center text-center font-bold">${renderLinks(s, 'mt')}</td>
                 </tr>`;
             }).join('');
+        }
+
+        // NEU: Rendert Diagramm und Tabelle für Ancient DNA
+        function renderAncientUI() {
+            const tbody = document.getElementById('ancient-table-body');
+            const totals = {};
+            
+            tbody.innerHTML = ancientSamples.map(s => {
+                const h = (s.haplogroup || '').trim().toUpperCase();
+                if(h) totals[h] = (totals[h] || 0) + 1;
+                return `<tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
+                    <td class="px-8 py-6 text-left text-[10px] font-black uppercase text-secondary">${s.region || '—'}</td>
+                    <td class="px-4 py-6 text-left text-[11px] font-bold text-primary uppercase">${s.site || '—'}</td>
+                    <td class="px-4 py-6 text-left text-[10px] text-gray-400 font-bold uppercase tracking-widest">${s.period || '—'}</td>
+                    <td class="px-4 py-6 text-center font-mono text-xs text-gray-400 font-bold">${s.sample_id || '—'}</td>
+                    <td class="px-4 py-6 text-left"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full" style="background:${HAPLO_COLORS[h] || HAPLO_COLORS[h.substring(0,1)] || '#CCC'}"></span><span class="text-xs font-black uppercase">${h || '—'}</span></div></td>
+                    <td class="px-8 py-6 text-center"><a href="${s.source_link}" target="_blank" class="w-8 h-8 rounded-lg bg-secondary text-white flex items-center justify-center mx-auto hover:scale-110 transition-transform shadow-sm"><span class="material-symbols-outlined text-[16px] font-bold">description</span></a></td>
+                </tr>`;
+            }).join('');
+
+            const grandTotal = ancientSamples.length;
+            if (grandTotal > 0) {
+                createPieChart('ancientChartCanvas', totals, 'ANCIENT');
+                const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]);
+                document.getElementById('ancient-legend').innerHTML = sorted.map(([name, count]) => `
+                    <div class="flex items-center justify-between text-[11px] font-black py-2 px-4 rounded-2xl uppercase bg-gray-50 mb-1 border border-gray-100 hover:border-secondary transition-all">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 rounded-full shadow-sm" style="background:${HAPLO_COLORS[name] || HAPLO_COLORS[name.substring(0,1)] || '#CCC'}"></div>
+                            <span class="tracking-widest">${name}</span>
+                        </div>
+                        <span class="opacity-80">${((count/grandTotal)*100).toFixed(1)}%</span>
+                    </div>`).join('');
+            }
         }
 
         function showHaploDetails(gov, haplo) {
@@ -405,7 +492,7 @@
                 type: 'pie',
                 data: { labels, datasets: [{ data: labels.map(k => dataMap[k]), backgroundColor: labels.map(l => HAPLO_COLORS[l] || HAPLO_COLORS[l.substring(0,1)] || "#CCC"), borderWidth: 1, borderColor: '#fff' }] },
                 options: { 
-                    responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, onClick: (evt, el) => { if (el.length > 0) showHaploDetails(govName, labels[el[0].index]); }
+                    responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, onClick: (evt, el) => { if (el.length > 0 && govName !== 'ANCIENT') showHaploDetails(govName, labels[el[0].index]); }
                 }
             });
         }
@@ -471,6 +558,7 @@
             document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active', 'text-gray-400'));
             document.getElementById(`section-${id}`).classList.add('active');
             document.getElementById(`nav-${id}`).classList.add('active');
+            window.scrollTo(0,0);
         }
 
         function closeModal(e) { if (!e || e.target.id === 'detail-modal') document.getElementById('detail-modal').classList.remove('active'); }
