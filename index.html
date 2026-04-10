@@ -122,6 +122,7 @@
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-secondary font-bold">biotech</span>
                         <input type="text" id="archiveSearch" onkeydown="if(event.key==='Enter') renderArchive()" placeholder="Search SNP (Enter)..." class="w-full md:w-72 pl-12 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none transition-all">
                     </div>
+                    <p class="text-[9px] text-gray-400 mt-2 ml-1 font-bold uppercase tracking-widest italic">Press Enter to filter SNPs</p>
                 </div>
                 
                 <select id="filterHaplo" onchange="renderArchive()" class="p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none h-[50px] md:h-[58px]">
@@ -158,6 +159,7 @@
                 <h2 class="text-4xl md:text-7xl font-black tracking-tighter leading-none text-primary uppercase">Ancient DNA</h2>
             </div>
         </header>
+
         <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-8 md:p-12 rounded-[3rem] md:rounded-[4rem] shadow-xl border border-gray-100">
             <div class="lg:col-span-5 font-headline">
                 <h2 class="text-3xl md:text-5xl font-black tracking-tighter mb-4 leading-tight text-primary">Ancient Summary</h2>
@@ -169,6 +171,7 @@
                 <div class="w-full max-w-[320px] cursor-pointer"><canvas id="ancientChartCanvas"></canvas></div>
             </div>
         </section>
+
         <div class="archive-inner-scroll shadow-2xl">
             <table class="table-fixed min-w-[1200px]">
                 <thead class="static-thead">
@@ -259,7 +262,7 @@
                         regionalData[finalReg][hp] = (regionalData[finalReg][hp] || 0) + parseInt(row.count);
                     });
                 }
-            } catch (err) { console.error(err); }
+            } catch (err) { console.error("Error loading modern data:", err); }
         }
 
         async function loadAncientData() {
@@ -296,30 +299,33 @@
                         <td class="px-8 py-6 text-center">${renderLinks(s, 'mt')}</td>
                     </tr>`;
                 }).join('');
-            } catch (err) { console.error(err); }
+            } catch (err) { console.error("Error loading ancient data:", err); }
         }
 
-        // VERBESSERTE ERKENNUNG DER GRUPPEN
+        // STRIKT-FILTER LOGIK (NUR ERSTE SNP)
         function getKitHaploGroup(y, s) {
-            y = (y || "").trim().toUpperCase(); s = (s || "").trim().toUpperCase();
-            const full = (y + " " + s);
-            
-            // Priorität auf detaillierte Treffer (Q1, R1B etc.)
-            if (full.includes("R1B")) return "R1B";
-            if (full.includes("R1A")) return "R1A";
-            if (full.includes("Q1")) return "Q1";
-            if (full.includes("Q2")) return "Q2";
-            if (full.includes("L1")) return "L1";
-            if (full.includes("L2")) return "L2";
-            if (full.includes("G2")) return "G2";
-            if (full.includes("H2")) return "H2";
-            if (full.includes("J1")) return "J1";
-            if (full.includes("J2")) return "J2";
-            if (full.includes("A1A")) return "A1A";
-            if (full.includes("A1B1")) return "A1B1";
-            if (full.includes("I2")) return "I2";
+            y = (y || "").trim().toUpperCase();
+            // Wir schauen uns primär die Y-DNA an
+            if (y.startsWith("R1B") || y.startsWith("R-M269") || y.startsWith("R-L23") || y.startsWith("R-PF")) return "R1B";
+            if (y.startsWith("R1A")) return "R1A";
+            if (y.startsWith("J1") || y.startsWith("J-M267") || y.startsWith("J-P58") || y.startsWith("J-L858") || y.startsWith("J-")) {
+                // Wenn es mit J anfängt aber nicht J2 ist, dann J1
+                if (!y.startsWith("J2")) return "J1";
+            }
+            if (y.startsWith("J2")) return "J2";
+            if (y.startsWith("E")) return "E";
+            if (y.startsWith("T")) return "T";
+            if (y.startsWith("G2") || y.startsWith("G-")) return "G2";
+            if (y.startsWith("L1") || y.startsWith("L-M20")) return "L1";
+            if (y.startsWith("L2")) return "L2";
+            if (y.startsWith("Q1")) return "Q1";
+            if (y.startsWith("Q2")) return "Q2";
+            if (y.startsWith("H2")) return "H2";
+            if (y.startsWith("A1A")) return "A1A";
+            if (y.startsWith("A1B1") || y.startsWith("A-M13")) return "A1B1";
+            if (y.startsWith("I2")) return "I2";
 
-            return y.substring(0,1) || "UNKNOWN";
+            return y.substring(0, 1) || "UNKNOWN";
         }
 
         function showHaploDetails(gov, haplo) {
@@ -335,22 +341,15 @@
             document.getElementById('selected-haplo-display').innerText = haplo;
             listArea.style.borderColor = color; listArea.style.backgroundColor = `${color}05`;
 
-            // VERBESSERTER FILTER: Findet jetzt auch Untergruppen
+            // STRIKTER FILTER: Die Probe muss exakt der Gruppe zugeordnet sein
             const matches = sourceData.filter(s => {
                 if (targetGov && superClean(s.governorate) !== targetGov) return false;
                 
-                const calculatedH = getKitHaploGroup(s.y_dna, s.snp_path);
-                const rawY = (s.y_dna || "").toUpperCase();
-                const rawS = (s.snp_path || "").toUpperCase();
-
-                // 1. Check ob die berechnete Gruppe passt (z.B. "R1B" === "R1B")
-                if (calculatedH === targetH) return true;
-                // 2. Check ob der Raw-Text mit dem Target beginnt (z.B. Probe "Q-M242" passt zu Target "Q")
-                if (rawY.startsWith(targetH) || rawY.startsWith(targetH + "-") || rawY.startsWith(targetH + "1")) return true;
-                // 3. Check ob Target im SNP Path vorkommt
-                if (rawS.includes(targetH)) return true;
-
-                return false;
+                // Wir berechnen die Gruppe für dieses Kit neu
+                const kitH = getKitHaploGroup(s.y_dna, s.snp_path);
+                
+                // Wenn wir auf "J1" klicken, muss das Kit auch als "J1" eingestuft sein
+                return kitH === targetH;
             });
 
             document.getElementById('modal-sample-count').innerText = `${matches.length} Kits Found`;
