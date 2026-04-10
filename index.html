@@ -88,7 +88,7 @@
             </div>
             <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-8 md:gap-12 justify-center lg:justify-end font-headline font-bold">
                 <div class="w-full max-w-[300px] md:w-[320px] cursor-pointer"><canvas id="nationalChartCanvas"></canvas></div>
-                <div id="national-legend" class="space-y-1 w-full max-w-[260px] text-[11px] font-headline font-bold"></div>
+                <div id="national-legend" class="space-y-1 w-full max-w-[240px] text-[11px] font-headline font-bold"></div>
             </div>
         </section>
         <section class="h-[450px] md:h-[650px] w-full bg-white rounded-[3rem] md:rounded-[4rem] overflow-hidden shadow-2xl border border-gray-100">
@@ -159,7 +159,7 @@
             <table class="table-fixed min-w-[1200px]">
                 <thead class="static-thead">
                     <tr class="font-headline text-center font-bold">
-                        <th class="w-[18%] text-center pl-8 uppercase tracking-widest">Ancient ID</th>
+                        <th class="w-[18%] text-center pl-8 uppercase tracking-widest">Ancient ID & Culture</th>
                         <th class="w-[10%] text-center uppercase tracking-widest">Time Period</th>
                         <th class="w-[12%] text-center uppercase tracking-widest">Site Location</th>
                         <th class="w-[25%] text-center uppercase tracking-widest">Y-Haplogroup (SNP)</th>
@@ -265,8 +265,7 @@
         function checkExactMatch(sample, search) {
             const searchLower = search.toLowerCase().trim();
             if (!searchLower) return true;
-            // Name, ID, Site, Period etc. durchsuchen
-            const fields = [sample.name, sample.kit_number, sample.sample_id, sample.governorate, sample.site, sample.period, sample.study_reference];
+            const fields = [sample.name, sample.kit_number, sample.sample_id, sample.governorate, sample.site, sample.period, sample.study_reference, sample.cultural_group];
             if (fields.some(f => (f||'').toLowerCase().includes(searchLower))) return true;
             const segments = (sample.y_dna + '>' + (sample.snp_path||'')).toLowerCase().split(/[>\s\-,;]+/).map(t => t.trim());
             return segments.includes(searchLower);
@@ -308,6 +307,7 @@
                     <td class="px-4 py-6 text-left">
                         <div class="font-black uppercase text-sm">${s.name || '—'}</div>
                         <div class="text-[10px] text-secondary font-mono">${s.sample_id || '—'}</div>
+                        <div class="text-[9px] text-gray-400 font-bold uppercase mt-1 leading-tight">${s.cultural_group || '—'}</div>
                     </td>
                     <td class="px-2 py-6 text-[10px] font-black text-primary uppercase">${s.period || '—'}</td>
                     <td class="px-2 py-6 text-left">
@@ -326,7 +326,6 @@
                     <td class="px-2 py-6 text-center font-bold">${renderLinks(s, 'y')}</td>
                     <td class="px-2 py-6">
                         <div class="text-[11px] font-black text-secondary">${s.mt_dna || '—'}</div>
-                        <div class="text-[9px] text-gray-400 uppercase">${s.cultural_group || '—'}</div>
                     </td>
                     <td class="px-4 py-6 text-center font-bold">${renderLinks(s, 'mt')}</td>
                 </tr>`;
@@ -355,9 +354,10 @@
                     <div class="p-6 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm hover:border-secondary transition-all text-primary text-left font-bold">
                         <div class="flex justify-between mb-4 text-[10px]">
                             <span class="px-3 py-1 bg-primary text-white rounded-full font-black tracking-tighter">${(s.y_dna||'').trim()}</span>
-                            <span class="text-gray-400 uppercase font-bold">${s.governorate || '—'}</span>
+                            <span class="text-gray-400 uppercase font-bold">${s.governorate || s.site || '—'}</span>
                         </div>
                         <p class="font-black uppercase text-sm mb-1 leading-tight text-center">${s.name || '—'}</p>
+                        <p class="text-[10px] text-secondary font-mono text-center mb-2">${s.sample_id || ''}</p>
                         <span class="text-[9px] text-gray-400 font-mono snp-path-text mb-4 text-center block">${s.snp_path || '—'}</span>
                         <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
                             <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest text-center">Y-DNA</p>${renderLinks(s, 'y')}</div>
@@ -418,14 +418,12 @@
             GOV_LIST.forEach((gov, idx) => {
                 const pool = databaseSamples.filter(s => superClean(s.governorate) === superClean(gov));
                 if (pool.length === 0 && gov !== "—") return;
+                const totals = {}; pool.forEach(s => { const h = getKitHaploGroup(s.y_dna, s.snp_path); totals[h] = (totals[h] || 0) + 1; });
                 const canvasId = `chart-${idx}`;
                 const card = document.createElement('div'); card.className = "stat-card font-bold"; card.onclick = () => openModal(gov);
                 card.innerHTML = `<div class="w-16 h-16 flex-shrink-0"><canvas id="${canvasId}"></canvas></div><div class="min-w-0 text-left"><h4 class="font-black text-xs uppercase truncate tracking-tighter">${gov === "—" ? "Unassigned" : gov}</h4><p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Total: ${pool.length}</p></div>`;
                 grid.appendChild(card);
-                if (pool.length > 0) {
-                    const totals = {}; pool.forEach(s => { const h = getKitHaploGroup(s.y_dna, s.snp_path); totals[h] = (totals[h] || 0) + 1; });
-                    setTimeout(() => createPieChart(canvasId, totals, gov), 50);
-                }
+                if (pool.length > 0) setTimeout(() => createPieChart(canvasId, totals, gov), 50);
             });
             updateModernSummary();
         }
