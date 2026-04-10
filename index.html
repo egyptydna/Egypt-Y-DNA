@@ -80,6 +80,7 @@
             <div class="flex gap-4 md:gap-8 items-center font-headline text-primary whitespace-nowrap">
                 <span onclick="showSection('home')" id="nav-home" class="nav-link active uppercase tracking-widest font-bold font-headline">Dashboard</span>
                 <span onclick="showSection('archive')" id="nav-archive" class="nav-link uppercase tracking-widest text-gray-400 font-bold font-headline">Archive</span>
+                <span onclick="showSection('ancient')" id="nav-ancient" class="nav-link uppercase tracking-widest text-gray-400 font-bold font-headline">Ancient DNA</span>
             </div>
         </div>
     </nav>
@@ -150,30 +151,52 @@
         </div>
     </main>
 
-    <!-- FOOTER -->
-    <footer class="bg-primary text-white py-16 px-8 mt-20 text-center md:text-left font-bold">
-        <div class="max-w-screen-2xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 border-b border-white/10 pb-16">
+    <!-- SECTION ANCIENT DNA -->
+    <main id="section-ancient" class="page-section py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-12">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-4 text-left font-headline">
             <div>
-                <h3 class="text-3xl font-black uppercase tracking-tighter mb-6 font-headline">Project Inquiries</h3>
-                <p class="text-gray-400 text-sm max-w-md mx-auto md:mx-0 leading-relaxed font-medium">Have questions or want to contribute? Reach out to our team.</p>
+                <p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2">— Paleogenetic Archive</p>
+                <h2 class="text-4xl md:text-7xl font-black tracking-tighter leading-none text-primary uppercase">Ancient DNA</h2>
             </div>
-            <div class="flex flex-col items-center md:items-end gap-6 justify-center">
-                <div class="flex flex-col items-center md:items-end gap-2">
-                    <p class="text-[10px] font-black uppercase text-secondary tracking-[0.2em] mb-2">Contact Details</p>
-                    <div class="flex gap-4">
-                        <a href="https://x.com/egyptydna?s=21" target="_blank" class="w-40 h-14 rounded-xl bg-white/5 border border-white/10 hover:bg-secondary transition-all text-[11px] uppercase tracking-widest font-black flex items-center justify-center">Twitter (X)</a>
-                        <a href="mailto:egyptydna@gmail.com" class="w-40 h-14 rounded-xl bg-white/5 border border-white/10 hover:bg-secondary transition-all text-[11px] uppercase tracking-widest font-black flex items-center justify-center gap-3">
-                            Email <span class="material-symbols-outlined text-lg">mail</span>
-                        </a>
-                    </div>
+        </header>
+
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-8 md:p-12 rounded-[3rem] md:rounded-[4rem] shadow-xl border border-gray-100">
+            <div class="lg:col-span-5 font-headline">
+                <h2 class="text-3xl md:text-5xl font-black tracking-tighter mb-4 leading-tight text-primary">Ancient Summary</h2>
+                <div class="border-t pt-8">
+                    <div id="ancient-legend" class="space-y-1 w-full text-[11px] font-headline font-bold"></div>
                 </div>
             </div>
+            <div class="lg:col-span-7 flex justify-center lg:justify-end">
+                <div class="w-full max-w-[320px] cursor-pointer"><canvas id="ancientChartCanvas"></canvas></div>
+            </div>
+        </section>
+
+        <div class="archive-inner-scroll shadow-2xl">
+            <table class="table-fixed min-w-[1200px]">
+                <thead class="static-thead">
+                    <tr class="font-headline text-center font-bold">
+                        <th class="w-[18%] pl-8">Identification</th>
+                        <th class="w-[10%]">Kit / ID</th>
+                        <th class="w-[12%] text-left">Location / Site</th>
+                        <th class="w-[28%] text-left">Ancient Y-Lineage</th>
+                        <th class="w-[10%] text-center">Y-Sources</th>
+                        <th class="w-[12%] text-center">Ancient mt-DNA</th>
+                        <th class="w-[10%] pr-8 text-center">mt-Sources</th>
+                    </tr>
+                </thead>
+                <tbody id="ancient-table-body" class="divide-y divide-gray-50 bg-white font-headline"></tbody>
+            </table>
         </div>
-        <div class="max-w-screen-2xl mx-auto pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest font-headline">
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-primary text-white py-16 px-8 mt-20 text-center md:text-left font-bold font-headline">
+        <div class="max-w-screen-2xl mx-auto border-b border-white/10 pb-12 mb-12 flex flex-col md:flex-row justify-between items-center gap-8">
             <p>© 2026 National Genomic Archive of Egypt</p>
-            <div class="flex gap-6">
-                <span>Scholarly Research Project</span>
-                <span>Paternal DNA lineages</span>
+            <div class="flex gap-4">
+                <a href="https://x.com/egyptydna?s=21" target="_blank" class="social-link">Twitter (X)</a>
+                <a href="mailto:egyptydna@gmail.com" class="social-link">Email Support</a>
             </div>
         </div>
     </footer>
@@ -192,7 +215,7 @@
             
             <div id="modal-kit-list" class="mt-10 md:mt-12 border-t pt-8 md:pt-10 hidden rounded-3xl p-6 transition-all border-l-[12px] shadow-sm">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
-                    <h3 class="text-xl md:text-3xl font-black uppercase font-headline flex items-center gap-4">
+                    <h3 class="text-xl md:text-3xl font-black uppercase font-headline flex items-center gap-4 text-primary">
                         <span class="material-symbols-outlined text-4xl font-bold">database</span> 
                         KITS: <span id="selected-haplo-display"></span>
                     </h3>
@@ -209,7 +232,7 @@
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
         const HAPLO_COLORS = { 
-            "J1": "#006400", "T": "#FFA500", "E": "#00008B", "R1B": "#FF0000", "L": "#00FFFF", "L1": "#00FFFF",
+            "J1": "#006400", "T": "#FFA500", "E": "#00008B", "R1B": "#FF0000", "L": "#00FFFF", "L1": "#00FFFF", "L2": "#00FFFF",
             "B": "#008B8B", "G": "#808080", "G2": "#808080", "I": "#EE82EE", "I2": "#EE82EE", "R1A": "#DEB887", 
             "R2": "#FFFF00", "H": "#8B4513", "H2": "#8B4513", "J2": "#32CD32", "Q": "#9400D3", "Q1": "#9400D3", "Q2": "#9400D3",
             "C": "#FFFFFF", "A": "#000000", "A1A": "#000000", "A1B1": "#000000"
@@ -217,9 +240,9 @@
         
         const GOV_LIST = ["Al Bahr al Ahmar", "Al Buhayrah", "Ad Daqahlīyah", "Al Fayyūm", "Al Gharbīyah", "Al Iskandarīyah", "Al Ismā`īlīyah", "Al Minūfīyah", "Al Minyā", "Al Qalyūbīyah", "As Suways", "Ash Sharqīyah", "Aswān", "Asyūt", "Banī Suwayf", "Cairo", "Dumyāt", "Al Jīzah", "Janūb Sīnā’", "Kafr ash Shaykh", "Luxor", "Matrouh", "Qinā", "Shamal Sīnā’", "Sūhāj", "—"].sort();
 
-        let databaseSamples = []; let regionalData = {}; let charts = {};
+        let databaseSamples = []; let ancientSamples = []; let regionalData = {}; let charts = {};
 
-        async function init() { await loadAllData(); populateFilters(); renderUI(); renderArchive(); }
+        async function init() { await loadAllData(); await loadAncientData(); populateFilters(); renderUI(); renderArchive(); }
 
         function superClean(str) {
             if(!str || str === '—') return "";
@@ -228,7 +251,11 @@
 
         async function loadAllData() {
             try {
-                const [statsRes, samplesRes] = await Promise.all([ _supabase.from('dna_stats').select('*'), _supabase.from('published_samples').select('*') ]);
+                // MODERNE TABELLEN
+                const [statsRes, samplesRes] = await Promise.all([ 
+                    _supabase.from('Modern_dna_stats').select('*'), 
+                    _supabase.from('Modern_published_samples').select('*') 
+                ]);
                 databaseSamples = samplesRes.data || [];
                 regionalData = {}; GOV_LIST.forEach(g => regionalData[g] = {});
                 if (statsRes.data) {
@@ -242,7 +269,54 @@
                         regionalData[finalReg][hp] = (regionalData[finalReg][hp] || 0) + parseInt(row.count);
                     });
                 }
-            } catch (err) { console.error(err); }
+            } catch (err) { console.error("Error loading modern data:", err); }
+        }
+
+        async function loadAncientData() {
+            try {
+                // ANCIENT TABELLEN
+                const [statsRes, samplesRes] = await Promise.all([ 
+                    _supabase.from('Ancient_dna_stats').select('*'), 
+                    _supabase.from('Ancient_published_samples').select('*') 
+                ]);
+                ancientSamples = samplesRes.data || [];
+                
+                if (statsRes.data) {
+                    const counts = {}; let total = 0;
+                    statsRes.data.forEach(row => {
+                        let hp = row.haplogroup.toUpperCase().trim();
+                        counts[hp] = (counts[hp] || 0) + parseInt(row.count);
+                        total += parseInt(row.count);
+                    });
+                    if (total > 0) {
+                        createPieChart('ancientChartCanvas', counts, 'ANCIENT');
+                        const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
+                        document.getElementById('ancient-legend').innerHTML = sorted.map(([name, count]) => `
+                            <div onclick="showHaploDetails('ANCIENT', '${name}')" class="flex items-center justify-between text-[11px] font-black py-2 px-4 rounded-2xl uppercase bg-gray-50 mb-1 border border-gray-100 hover:border-secondary transition-all cursor-pointer">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-2 h-2 rounded-full shadow-sm" style="background:${HAPLO_COLORS[name] || '#CCC'}"></div>
+                                    <span>${name}</span>
+                                </div>
+                                <span class="opacity-80">${((count/total)*100).toFixed(1)}%</span>
+                            </div>`).join('');
+                    }
+                }
+                
+                const tbody = document.getElementById('ancient-table-body');
+                tbody.innerHTML = ancientSamples.map(s => {
+                    const kitH = getKitHaploGroup(s.y_dna, s.snp_path);
+                    const kitColor = HAPLO_COLORS[kitH] || '#CCC';
+                    return `<tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
+                        <td class="px-8 py-6 text-left text-sm font-black uppercase text-primary">${s.name || '—'}</td>
+                        <td class="px-4 py-6 text-center font-mono text-xs text-gray-400 font-bold">${s.kit_number || '—'}</td>
+                        <td class="px-4 py-6 text-left text-[10px] font-black text-gray-400 uppercase leading-tight">${s.region || '—'}<br><span class="text-[8px] opacity-60">${s.site || ''}</span></td>
+                        <td class="px-4 py-6 text-left"><div class="flex items-start justify-start gap-2"><span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${kitColor}"></span><span class="text-[10px] font-mono text-gray-500 snp-path-text">${s.snp_path || s.y_dna || '—'}</span></div></td>
+                        <td class="px-4 py-6 text-center">${renderLinks(s, 'y')}</td>
+                        <td class="px-4 py-6 text-center uppercase text-[11px] font-black text-secondary">${s.mt_dna || '—'}</td>
+                        <td class="px-8 py-6 text-center">${renderLinks(s, 'mt')}</td>
+                    </tr>`;
+                }).join('');
+            } catch (err) { console.error("Error loading ancient data:", err); }
         }
 
         function populateFilters() {
@@ -259,17 +333,26 @@
                 '<option value="—">Unassigned Origin</option>';
         }
 
-        function getKitHaploGroup(yDnaStr, snpPath) {
-            const y = (yDnaStr || "").trim().toUpperCase();
-            const s = (snpPath || "").trim().toUpperCase();
-            if (y.includes("J2") || s.startsWith("J2") || y.includes("J-PH") || y.includes("J-FTE")) return "J2";
-            if (y.startsWith("J1") || y.startsWith("J-")) return "J1";
-            if (s.includes("R1A") || y.startsWith("R1A")) return "R1A";
-            if (s.includes("R1B") || y.startsWith("R1B") || y.startsWith("R-PF6") || y.startsWith("R-FT2")) return "R1B";
-            if (s.includes("R2") || y.startsWith("R2")) return "R2";
-            if (y.startsWith("A1A") || s.startsWith("A1A")) return "A1A";
-            if (y.startsWith("A1B1") || s.startsWith("A1B1")) return "A1B1";
-            return y.substring(0,1);
+        // STRIKTES GRUPPIERUNGS-SYSTEM
+        function getKitHaploGroup(y, s) {
+            y = (y || "").trim().toUpperCase();
+            if (y.startsWith("J2") || y.startsWith("J-PH") || y.startsWith("J-FTE")) return "J2";
+            if (y.startsWith("J1") || (y.startsWith("J") && !y.startsWith("J2"))) return "J1";
+            if (y.startsWith("R1B") || y.startsWith("R-M269") || y.startsWith("R-L23") || y.startsWith("R-PF6") || y.startsWith("R-FT2")) return "R1B";
+            if (y.startsWith("R1A")) return "R1A";
+            if (y.startsWith("R2")) return "R2";
+            if (y.startsWith("E")) return "E";
+            if (y.startsWith("T")) return "T";
+            if (y.startsWith("G2") || y.startsWith("G-")) return "G2";
+            if (y.startsWith("L1") || y.startsWith("L-M20")) return "L1";
+            if (y.startsWith("L2")) return "L2";
+            if (y.startsWith("Q1")) return "Q1";
+            if (y.startsWith("Q2")) return "Q2";
+            if (y.startsWith("H2")) return "H2";
+            if (y.startsWith("A1A")) return "A1A";
+            if (y.startsWith("A1B1") || y.startsWith("A-M13")) return "A1B1";
+            if (y.startsWith("I2")) return "I2";
+            return y.substring(0,1) || "UNKNOWN";
         }
 
         function renderArchive() {
@@ -285,13 +368,10 @@
 
                 let matchesSearch = true;
                 if (search !== "") {
-                    // KORREKTUR: Trennung an >, -, Leerzeichen, Semikolon etc.
                     const segments = (s.y_dna + '>' + s.snp_path).toLowerCase().split(/[>\-\s,;]+/).map(t => t.trim());
-                    
                     if (search.length === 1) {
                         matchesSearch = kitHaplo.toLowerCase().startsWith(search);
                     } else {
-                        // EXAKTE Suche nach V12, M81 etc. innerhalb der Segmente
                         matchesSearch = segments.some(seg => seg === search) || (s.name||"").toLowerCase().includes(search);
                     }
                 }
@@ -321,60 +401,39 @@
             const container = document.getElementById('kits-container'); container.innerHTML = '';
             const listArea = document.getElementById('modal-kit-list');
             const targetH = haplo.toUpperCase().trim();
-            const targetGov = gov ? superClean(gov) : null;
+            const isAncient = gov === 'ANCIENT';
+            const sourceData = isAncient ? ancientSamples : databaseSamples;
+            const targetGov = (gov && !isAncient) ? superClean(gov) : null;
             const color = HAPLO_COLORS[targetH] || HAPLO_COLORS[targetH.substring(0,1)] || '#CCC';
 
-            if (!gov) {
-                document.getElementById('modal-title').innerText = "NATIONAL ARCHIVE";
-                const totals = {};
-                databaseSamples.forEach(s => { const h = getKitHaploGroup(s.y_dna, s.snp_path); totals[h] = (totals[h] || 0) + 1; });
-                createPieChart('modalChartCanvas', totals, null);
-                updateModalLegend(totals, null);
-            } else {
-                document.getElementById('modal-title').innerText = (gov === "—" ? "Unassigned Origin" : gov).toUpperCase();
-            }
+            document.getElementById('modal-title').innerText = isAncient ? "ANCIENT DNA" : (gov ? gov.toUpperCase() : "NATIONAL ARCHIVE");
+            document.getElementById('selected-haplo-display').innerText = haplo;
+            listArea.style.borderColor = color; listArea.style.backgroundColor = `${color}05`;
 
-            document.getElementById('selected-haplo-display').innerText = `${haplo} ${gov ? '' : '(NATIONAL)'}`;
-            
-            listArea.style.borderColor = color;
-            listArea.style.backgroundColor = `${color}05`;
-
-            const matches = databaseSamples.filter(s => {
-                if (gov && superClean(s.governorate) !== targetGov) return false;
-                const snp = (s.snp_path || "").trim().toUpperCase();
-                if (snp.startsWith(targetH + ">") || snp.startsWith(targetH + " >")) return true;
+            // STRIKTER PRÄFIX-FILTER
+            const matches = sourceData.filter(s => {
+                if (targetGov && superClean(s.governorate) !== targetGov) return false;
                 const kitH = getKitHaploGroup(s.y_dna, s.snp_path);
-                return kitH === targetH || (targetH.length === 1 && kitH.startsWith(targetH));
+                return kitH === targetH;
             });
 
-            let percentText = "";
-            if (!gov) {
-                const totalDatabase = databaseSamples.length;
-                const percent = ((matches.length / totalDatabase) * 100).toFixed(1);
-                percentText = `${matches.length} Kits • ${percent}% of National Archive`;
-            } else {
-                const totalInGov = databaseSamples.filter(s => superClean(s.governorate) === targetGov).length;
-                const percent = ((matches.length / totalInGov) * 100).toFixed(1);
-                percentText = `${matches.length} Kits • ${percent}% of ${gov}`;
-            }
-            document.getElementById('modal-sample-count').innerText = percentText;
-
+            document.getElementById('modal-sample-count').innerText = `${matches.length} Kits Found`;
             if (matches.length > 0) {
                 container.innerHTML = matches.map(s => `
                     <div class="p-6 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm hover:border-secondary transition-all text-primary text-left font-bold">
                         <div class="flex justify-between mb-4 text-[10px]">
-                            <span class="px-3 py-1 bg-primary text-white rounded-full font-black tracking-tighter">${(s.y_dna||'').trim()}</span>
-                            <span class="text-gray-400 uppercase font-bold">${s.governorate || '—'}</span>
+                            <span class="px-3 py-1 bg-primary text-white rounded-full font-black tracking-tighter uppercase">${(s.y_dna||'').trim()}</span>
+                            <span class="text-gray-400 uppercase font-bold">${isAncient ? s.site : (s.governorate || '—')}</span>
                         </div>
                         <p class="font-black uppercase text-sm mb-1 leading-tight text-center">${s.name || '—'}</p>
                         <span class="text-[9px] text-gray-400 font-mono snp-path-text mb-4 text-center block">${s.snp_path || '—'}</span>
                         <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
-                            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest text-center">Y-DNA</p>${renderLinks(s, 'y')}</div>
+                            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 text-center tracking-widest">Y-DNA</p>${renderLinks(s, 'y')}</div>
                             <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 text-center tracking-widest">mt-DNA</p>${renderLinks(s, 'mt')}</div>
                         </div>
                     </div>`).join('');
             } else {
-                container.innerHTML = `<p class="col-span-full text-gray-400 italic font-bold p-12 bg-gray-50 rounded-[3rem] text-center text-xs tracking-widest uppercase">Only anonymous statistical data available.</p>`;
+                container.innerHTML = `<p class="col-span-full text-center py-10 text-gray-400 uppercase font-black tracking-widest">No detailed kits available for ${haplo}.</p>`;
             }
             document.getElementById('detail-modal').classList.add('active');
             listArea.classList.remove('hidden');
@@ -471,6 +530,7 @@
             document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active', 'text-gray-400'));
             document.getElementById(`section-${id}`).classList.add('active');
             document.getElementById(`nav-${id}`).classList.add('active');
+            window.scrollTo(0,0);
         }
 
         function closeModal(e) { if (!e || e.target.id === 'detail-modal') document.getElementById('detail-modal').classList.remove('active'); }
