@@ -151,7 +151,7 @@
         </div>
     </main>
 
-    <!-- SECTION ANCIENT DNA (NEU) -->
+    <!-- SECTION ANCIENT DNA -->
     <main id="section-ancient" class="page-section py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-12">
         <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-4 text-left font-headline">
             <div>
@@ -256,7 +256,6 @@
 
         async function loadAllData() {
             try {
-                // HIER SIND DIE NEUEN TABELLENNAMEN
                 const [statsRes, samplesRes] = await Promise.all([ 
                     _supabase.from('Modern_dna_stats').select('*'), 
                     _supabase.from('Modern_published_samples').select('*') 
@@ -278,13 +277,56 @@
             } catch (err) { console.error("Error loading modern data:", err); }
         }
 
+        // HIER WURDE DIE FUNKTION VERBESSERT
         async function loadAncientData() {
             try {
-                const { data, error } = await _supabase.from('ancient_samples').select('*');
-                if (error) throw error;
-                ancientSamples = data || [];
-                renderAncientUI();
-            } catch (err) { console.warn("Ancient DNA table not found or error:", err.message); }
+                // Lädt Daten von den zwei neuen Tabellen
+                const [statsRes, samplesRes] = await Promise.all([ 
+                    _supabase.from('ancient_dna_stats').select('*'), 
+                    _supabase.from('Ancient_published_samples').select('*') 
+                ]);
+
+                ancientSamples = samplesRes.data || [];
+                
+                // Rendert das Ancient Diagramm
+                if (statsRes.data) {
+                    const counts = {};
+                    let grandTotal = 0;
+                    statsRes.data.forEach(row => {
+                        let hp = row.haplogroup.toUpperCase().trim();
+                        counts[hp] = (counts[hp] || 0) + parseInt(row.count);
+                        grandTotal += parseInt(row.count);
+                    });
+
+                    if (grandTotal > 0) {
+                        createPieChart('ancientChartCanvas', counts, 'ANCIENT');
+                        const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
+                        document.getElementById('ancient-legend').innerHTML = sorted.map(([name, count]) => `
+                            <div class="flex items-center justify-between text-[11px] font-black py-2 px-4 rounded-2xl uppercase bg-gray-50 mb-1 border border-gray-100">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-2 h-2 rounded-full shadow-sm" style="background:${HAPLO_COLORS[name] || '#CCC'}"></div>
+                                    <span class="tracking-widest">${name}</span>
+                                </div>
+                                <span class="opacity-80">${((count/grandTotal)*100).toFixed(1)}%</span>
+                            </div>`).join('');
+                    }
+                }
+                
+                // Rendert die Ancient Tabelle
+                const tbody = document.getElementById('ancient-table-body');
+                tbody.innerHTML = ancientSamples.map(s => {
+                    const h = (s.y_dna || '').trim().toUpperCase();
+                    return `<tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
+                        <td class="px-8 py-6 text-left text-[10px] font-black uppercase text-secondary">${s.region || '—'}</td>
+                        <td class="px-4 py-6 text-left text-[11px] font-bold text-primary uppercase">${s.site || '—'}</td>
+                        <td class="px-4 py-6 text-left text-[10px] text-gray-400 font-bold uppercase tracking-widest">${s.period || '—'}</td>
+                        <td class="px-4 py-6 text-center font-mono text-xs text-gray-400 font-bold">${s.kit_number || '—'}</td>
+                        <td class="px-4 py-6 text-left"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full" style="background:${HAPLO_COLORS[h] || HAPLO_COLORS[h.substring(0,1)] || '#CCC'}"></span><span class="text-xs font-black uppercase">${h || '—'}</span></div></td>
+                        <td class="px-8 py-6 text-center"><a href="${s.y_link_1}" target="_blank" class="w-8 h-8 rounded-lg bg-secondary text-white flex items-center justify-center mx-auto hover:scale-110 transition-transform shadow-sm"><span class="material-symbols-outlined text-[16px] font-bold">description</span></a></td>
+                    </tr>`;
+                }).join('');
+
+            } catch (err) { console.error("Error loading ancient data:", err); }
         }
 
         function populateFilters() {
@@ -354,99 +396,6 @@
                     <td class="px-4 md:px-8 py-4 md:py-7 align-v-center text-center font-bold">${renderLinks(s, 'mt')}</td>
                 </tr>`;
             }).join('');
-        }
-
-        function renderAncientUI() {
-            const tbody = document.getElementById('ancient-table-body');
-            const totals = {};
-            tbody.innerHTML = ancientSamples.map(s => {
-                const h = (s.haplogroup || '').trim().toUpperCase();
-                if(h) totals[h] = (totals[h] || 0) + 1;
-                return `<tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
-                    <td class="px-8 py-6 text-left text-[10px] font-black uppercase text-secondary">${s.region || '—'}</td>
-                    <td class="px-4 py-6 text-left text-[11px] font-bold text-primary uppercase">${s.site || '—'}</td>
-                    <td class="px-4 py-6 text-left text-[10px] text-gray-400 font-bold uppercase tracking-widest">${s.period || '—'}</td>
-                    <td class="px-4 py-6 text-center font-mono text-xs text-gray-400 font-bold">${s.sample_id || '—'}</td>
-                    <td class="px-4 py-6 text-left"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full" style="background:${HAPLO_COLORS[h] || HAPLO_COLORS[h.substring(0,1)] || '#CCC'}"></span><span class="text-xs font-black uppercase">${h || '—'}</span></div></td>
-                    <td class="px-8 py-6 text-center"><a href="${s.source_link}" target="_blank" class="w-8 h-8 rounded-lg bg-secondary text-white flex items-center justify-center mx-auto hover:scale-110 transition-transform shadow-sm"><span class="material-symbols-outlined text-[16px] font-bold">description</span></a></td>
-                </tr>`;
-            }).join('');
-            const grandTotal = ancientSamples.length;
-            if (grandTotal > 0) {
-                createPieChart('ancientChartCanvas', totals, 'ANCIENT');
-                const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]);
-                document.getElementById('ancient-legend').innerHTML = sorted.map(([name, count]) => `
-                    <div class="flex items-center justify-between text-[11px] font-black py-2 px-4 rounded-2xl uppercase bg-gray-50 mb-1 border border-gray-100 hover:border-secondary transition-all">
-                        <div class="flex items-center gap-3">
-                            <div class="w-2 h-2 rounded-full shadow-sm" style="background:${HAPLO_COLORS[name] || HAPLO_COLORS[name.substring(0,1)] || '#CCC'}"></div>
-                            <span class="tracking-widest">${name}</span>
-                        </div>
-                        <span class="opacity-80">${((count/grandTotal)*100).toFixed(1)}%</span>
-                    </div>`).join('');
-            }
-        }
-
-        function showHaploDetails(gov, haplo) {
-            const container = document.getElementById('kits-container'); container.innerHTML = '';
-            const listArea = document.getElementById('modal-kit-list');
-            const targetH = haplo.toUpperCase().trim();
-            const targetGov = gov ? superClean(gov) : null;
-            const color = HAPLO_COLORS[targetH] || HAPLO_COLORS[targetH.substring(0,1)] || '#CCC';
-
-            if (!gov) {
-                document.getElementById('modal-title').innerText = "NATIONAL ARCHIVE";
-                const totals = {};
-                databaseSamples.forEach(s => { const h = getKitHaploGroup(s.y_dna, s.snp_path); totals[h] = (totals[h] || 0) + 1; });
-                createPieChart('modalChartCanvas', totals, null);
-                updateModalLegend(totals, null);
-            } else {
-                document.getElementById('modal-title').innerText = (gov === "—" ? "Unassigned Origin" : gov).toUpperCase();
-            }
-
-            document.getElementById('selected-haplo-display').innerText = `${haplo} ${gov ? '' : '(NATIONAL)'}`;
-            listArea.style.borderColor = color;
-            listArea.style.backgroundColor = `${color}05`;
-
-            const matches = databaseSamples.filter(s => {
-                if (gov && superClean(s.governorate) !== targetGov) return false;
-                const snp = (s.snp_path || "").trim().toUpperCase();
-                if (snp.startsWith(targetH + ">") || snp.startsWith(targetH + " >")) return true;
-                const kitH = getKitHaploGroup(s.y_dna, s.snp_path);
-                return kitH === targetH || (targetH.length === 1 && kitH.startsWith(targetH));
-            });
-
-            let percentText = "";
-            if (!gov) {
-                const totalDatabase = databaseSamples.length;
-                const percent = ((matches.length / totalDatabase) * 100).toFixed(1);
-                percentText = `${matches.length} Kits • ${percent}% of National Archive`;
-            } else {
-                const totalInGov = databaseSamples.filter(s => superClean(s.governorate) === targetGov).length;
-                const percent = ((matches.length / totalInGov) * 100).toFixed(1);
-                percentText = `${matches.length} Kits • ${percent}% of ${gov}`;
-            }
-            document.getElementById('modal-sample-count').innerText = percentText;
-
-            if (matches.length > 0) {
-                container.innerHTML = matches.map(s => `
-                    <div class="p-6 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm hover:border-secondary transition-all text-primary text-left font-bold">
-                        <div class="flex justify-between mb-4 text-[10px]">
-                            <span class="px-3 py-1 bg-primary text-white rounded-full font-black tracking-tighter">${(s.y_dna||'').trim()}</span>
-                            <span class="text-gray-400 uppercase font-bold">${s.governorate || '—'}</span>
-                        </div>
-                        <p class="font-black uppercase text-sm mb-1 leading-tight text-center">${s.name || '—'}</p>
-                        <span class="text-[9px] text-gray-400 font-mono snp-path-text mb-4 text-center block">${s.snp_path || '—'}</span>
-                        <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
-                            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest text-center">Y-DNA</p>${renderLinks(s, 'y')}</div>
-                            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 text-center tracking-widest">mt-DNA</p>${renderLinks(s, 'mt')}</div>
-                        </div>
-                    </div>`).join('');
-            } else {
-                container.innerHTML = `<p class="col-span-full text-gray-400 italic font-bold p-12 bg-gray-50 rounded-[3rem] text-center text-xs tracking-widest uppercase">Only anonymous statistical data available.</p>`;
-            }
-            document.getElementById('detail-modal').classList.add('active');
-            listArea.classList.remove('hidden');
-            setTimeout(() => listArea.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
         }
 
         function renderLinks(s, type) {
