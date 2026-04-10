@@ -88,7 +88,7 @@
             </div>
             <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-8 md:gap-12 justify-center lg:justify-end font-headline font-bold">
                 <div class="w-full max-w-[300px] md:w-[320px] cursor-pointer"><canvas id="nationalChartCanvas"></canvas></div>
-                <div id="national-legend" class="space-y-1 w-full max-w-[240px] text-[11px] font-headline font-bold"></div>
+                <div id="national-legend" class="space-y-1 w-full max-w-[260px] text-[11px] font-headline font-bold"></div>
             </div>
         </section>
         <section class="h-[450px] md:h-[650px] w-full bg-white rounded-[3rem] md:rounded-[4rem] overflow-hidden shadow-2xl border border-gray-100">
@@ -262,16 +262,13 @@
             return y.substring(0,1);
         }
 
-        // --- VERBESSERTE SUCHE LOGIK ---
         function checkExactMatch(sample, search) {
             const searchLower = search.toLowerCase().trim();
             if (!searchLower) return true;
-            
-            // Name oder Kit-Nummer Teilsuche (erlaubt)
-            if ((sample.name||'').toLowerCase().includes(searchLower) || (sample.kit_number||'').toLowerCase().includes(searchLower)) return true;
-            
-            // SNP-Pfad exakte Segment-Suche
-            const segments = (sample.y_dna + '>' + sample.snp_path).toLowerCase().split(/[>\s\-,;]+/).map(t => t.trim());
+            // Name, ID, Site, Period etc. durchsuchen
+            const fields = [sample.name, sample.kit_number, sample.sample_id, sample.governorate, sample.site, sample.period, sample.study_reference];
+            if (fields.some(f => (f||'').toLowerCase().includes(searchLower))) return true;
+            const segments = (sample.y_dna + '>' + (sample.snp_path||'')).toLowerCase().split(/[>\s\-,;]+/).map(t => t.trim());
             return segments.includes(searchLower);
         }
 
@@ -280,14 +277,12 @@
             const search = document.getElementById('archiveSearch').value.toLowerCase().trim();
             const hapFilter = document.getElementById('filterHaplo').value;
             const govFilter = document.getElementById('filterGov').value;
-
             const filtered = databaseSamples.filter(s => {
                 const matchSearch = checkExactMatch(s, search);
                 const matchHap = hapFilter === "" || getKitHaploGroup(s.y_dna, s.snp_path) === hapFilter;
                 const matchGov = govFilter === "" || s.governorate === govFilter;
                 return matchSearch && matchHap && matchGov;
             });
-
             tbody.innerHTML = filtered.map(s => {
                 const kitH = getKitHaploGroup(s.y_dna, s.snp_path);
                 return `<tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
@@ -308,13 +303,31 @@
             const filtered = ancientSamples.filter(s => checkExactMatch(s, search));
             tbody.innerHTML = filtered.map(s => {
                 const kitH = getKitHaploGroup(s.y_dna, s.snp_path);
+                const kitColor = HAPLO_COLORS[kitH] || '#CCC';
                 return `<tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
-                    <td class="px-4 py-6 font-black uppercase text-sm">${s.name || '—'}</td>
-                    <td class="px-2 py-6 font-mono text-[10px] text-secondary font-black uppercase">${s.test_type || '—'}</td>
-                    <td class="px-2 py-6 text-[10px] font-black text-gray-400 uppercase">${s.governorate || '—'}</td>
-                    <td class="px-4 py-6 text-left"><div class="flex items-start justify-center gap-2"><span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${HAPLO_COLORS[kitH] || '#CCC'}"></span><span class="text-[10px] font-mono font-bold text-gray-500 snp-path-text">${s.snp_path || s.y_dna || '—'}</span></div></td>
+                    <td class="px-4 py-6 text-left">
+                        <div class="font-black uppercase text-sm">${s.name || '—'}</div>
+                        <div class="text-[10px] text-secondary font-mono">${s.sample_id || '—'}</div>
+                    </td>
+                    <td class="px-2 py-6 text-[10px] font-black text-primary uppercase">${s.period || '—'}</td>
+                    <td class="px-2 py-6 text-left">
+                        <div class="text-[10px] font-black uppercase text-gray-500">${s.governorate || '—'}</div>
+                        <div class="text-[9px] text-gray-400 italic">${s.site || '—'}</div>
+                    </td>
+                    <td class="px-4 py-6 text-left">
+                        <div class="flex items-start gap-2">
+                            <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${kitColor}"></span>
+                            <div>
+                                <div class="text-[11px] font-black text-primary">${s.y_dna || '—'}</div>
+                                <div class="text-[9px] font-mono text-gray-400 snp-path-text">${s.snp_path || '—'}</div>
+                            </div>
+                        </div>
+                    </td>
                     <td class="px-2 py-6 text-center font-bold">${renderLinks(s, 'y')}</td>
-                    <td class="px-2 py-6 text-center uppercase text-[11px] font-black text-secondary">${s.mt_dna || '—'}</td>
+                    <td class="px-2 py-6">
+                        <div class="text-[11px] font-black text-secondary">${s.mt_dna || '—'}</div>
+                        <div class="text-[9px] text-gray-400 uppercase">${s.cultural_group || '—'}</div>
+                    </td>
                     <td class="px-4 py-6 text-center font-bold">${renderLinks(s, 'mt')}</td>
                 </tr>`;
             }).join('');
@@ -340,7 +353,10 @@
             if (matches.length > 0) {
                 container.innerHTML = matches.map(s => `
                     <div class="p-6 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm hover:border-secondary transition-all text-primary text-left font-bold">
-                        <div class="flex justify-between mb-4 text-[10px]"><span class="px-3 py-1 bg-primary text-white rounded-full font-black tracking-tighter">${(s.y_dna||'').trim()}</span><span class="text-gray-400 uppercase font-bold">${s.governorate || '—'}</span></div>
+                        <div class="flex justify-between mb-4 text-[10px]">
+                            <span class="px-3 py-1 bg-primary text-white rounded-full font-black tracking-tighter">${(s.y_dna||'').trim()}</span>
+                            <span class="text-gray-400 uppercase font-bold">${s.governorate || '—'}</span>
+                        </div>
                         <p class="font-black uppercase text-sm mb-1 leading-tight text-center">${s.name || '—'}</p>
                         <span class="text-[9px] text-gray-400 font-mono snp-path-text mb-4 text-center block">${s.snp_path || '—'}</span>
                         <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
@@ -358,7 +374,7 @@
             const l2 = type === 'y' ? s.y_link_2 : s.mt_link_2;
             const color = type === 'y' ? 'bg-primary' : 'bg-secondary';
             let html = '<div class="flex gap-1.5 justify-center">';
-            [l1, l2].forEach((link, i) => { if (link && link.length > 5 && link !== '—') html += `<a href="${link}" target="_blank" class="w-7 h-7 rounded-lg ${color} text-white flex items-center justify-center hover:scale-110 transition-transform shadow-sm"><span class="material-symbols-outlined text-[14px] font-bold">${i === 0 && type === 'y' ? 'database' : 'link'}</span></a>`; });
+            [l1, l2].forEach((link, i) => { if (link && link.length > 5 && link !== '—') html += `<a href="${link}" target="_blank" class="w-7 h-7 rounded-lg ${color} text-white flex items-center justify-center hover:scale-110 transition-transform shadow-sm"><span class="material-symbols-outlined text-[14px] font-bold">${i === 0 ? 'database' : 'link'}</span></a>`; });
             return html + '</div>';
         }
 
@@ -432,14 +448,12 @@
         }
 
         function closeModal(e) { if (!e || e.target.id === 'detail-modal') document.getElementById('detail-modal').classList.remove('active'); }
-        
         function populateFilters() {
             const haplos = new Set();
             databaseSamples.forEach(s => { const g = getKitHaploGroup(s.y_dna, s.snp_path); if(g) haplos.add(g); });
             document.getElementById('filterHaplo').innerHTML = '<option value="">All Haplogroups</option>' + Array.from(haplos).sort().map(h => `<option value="${h}">${h}</option>`).join('');
             document.getElementById('filterGov').innerHTML = '<option value="">All Governorates</option>' + GOV_LIST.filter(g => g !== "—").map(g => `<option value="${g}">${g}</option>`).join('') + '<option value="—">Unassigned</option>';
         }
-
         init();
     </script>
 </body>
