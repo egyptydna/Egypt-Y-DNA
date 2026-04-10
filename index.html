@@ -51,12 +51,20 @@
         .snp-path-text { word-break: break-word; overflow-wrap: anywhere; white-space: normal; line-height: 1.6; display: inline-block; width: 100%; }
         .social-link { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #9ca3af; transition: all 0.3s; display: flex; align-items: center; gap: 10px; }
         .social-link:hover { color: #001736; }
+
+        /* Phylogeny Tree Styles */
+        .tree-node { border-left: 2px solid #e5e7eb; margin-left: 1.5rem; padding-left: 1.25rem; position: relative; }
+        .tree-node::before { content: ""; position: absolute; left: 0; top: 1rem; width: 1rem; height: 2px; background: #e5e7eb; }
+        .branch-content { display: block; }
+        .branch-content.collapsed { display: none; }
+        .tree-toggle { cursor: pointer; user-select: none; transition: transform 0.2s; display: inline-block; }
+        .tree-toggle.collapsed { transform: rotate(-90deg); }
     </style>
 </head>
 <body class="bg-background text-primary font-body antialiased text-left">
 
     <!-- NAVIGATION BAR -->
-    <nav class="relative w-full bg-white border-b border-gray-100 h-20">
+    <nav class="relative w-full bg-white border-b border-gray-100 h-20 z-50">
         <div class="flex justify-between items-center px-4 md:px-8 h-full max-w-screen-2xl mx-auto">
             <div class="flex items-center gap-2 md:gap-8">
                 <a href="#" onclick="window.location.reload(); return false;" class="flex flex-col group">
@@ -72,6 +80,8 @@
                 <span onclick="showSection('home')" id="nav-home" class="nav-link active uppercase tracking-widest font-bold font-headline">Dashboard</span>
                 <span onclick="showSection('archive')" id="nav-archive" class="nav-link uppercase tracking-widest text-gray-400 font-bold font-headline">Archive</span>
                 <span onclick="showSection('ancient')" id="nav-ancient" class="nav-link uppercase tracking-widest text-gray-400 font-bold font-headline">Ancient DNA</span>
+                <!-- NEUER LINK -->
+                <span onclick="showSection('tree')" id="nav-tree" class="nav-link uppercase tracking-widest text-gray-400 font-bold font-headline">Phylogeny</span>
             </div>
         </div>
     </nav>
@@ -173,6 +183,26 @@
         </div>
     </main>
 
+    <!-- NEUE SEKTION: PHYLOGENETIC TREE -->
+    <main id="section-tree" class="page-section py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-10">
+        <header class="flex flex-col md:flex-row justify-between items-end gap-6 border-b pb-10">
+            <div class="text-left font-headline">
+                <p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2">— Genomic Evolution</p>
+                <h2 class="text-4xl md:text-7xl font-black tracking-tighter leading-none text-primary">Phylogenetic Tree</h2>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="expandAllTree()" class="px-4 py-2 bg-white border border-gray-200 rounded-xl text-[10px] font-black uppercase hover:bg-gray-50 transition-all font-headline">Expand All</button>
+                <button onclick="collapseAllTree()" class="px-4 py-2 bg-white border border-gray-200 rounded-xl text-[10px] font-black uppercase hover:bg-gray-50 transition-all font-headline">Collapse All</button>
+            </div>
+        </header>
+
+        <div class="bg-white rounded-[3rem] p-8 md:p-16 shadow-2xl border border-gray-100 min-h-[600px] overflow-x-auto">
+            <div id="phylogeny-container" class="font-mono text-xs text-primary leading-relaxed">
+                <!-- Tree will be injected here -->
+            </div>
+        </div>
+    </main>
+
     <!-- FOOTER -->
     <footer class="bg-primary text-white py-16 px-8 mt-20 text-center md:text-left font-bold text-sm">
         <div class="max-w-screen-2xl mx-auto pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -221,7 +251,7 @@
 
         let databaseSamples = []; let ancientSamples = []; let regionalData = {}; let charts = {};
 
-        async function init() { await loadAllData(); populateFilters(); renderUI(); renderArchive(); renderAncientArchive(); }
+        async function init() { await loadAllData(); populateFilters(); renderUI(); renderArchive(); renderAncientArchive(); renderPhylogeny(); }
 
         function superClean(str) { if(!str || str === '—') return ""; return str.toString().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, ""); }
 
@@ -330,6 +360,56 @@
                     <td class="px-4 py-6 text-center font-bold">${renderLinks(s, 'mt')}</td>
                 </tr>`;
             }).join('');
+        }
+
+        // --- PHYLOGENY TREE ---
+        function renderPhylogeny() {
+            const container = document.getElementById('phylogeny-container');
+            const allSamples = [...databaseSamples.map(s=>({...s, t:'m'})), ...ancientSamples.map(s=>({...s, t:'a'}))];
+            const tree = {};
+            allSamples.forEach(s => {
+                const path = (s.snp_path || s.y_dna || '').split(/[>]+/).map(x => x.trim());
+                if (!path[0]) return;
+                let curr = tree;
+                path.forEach((snp, i) => {
+                    if(!curr[snp]) curr[snp] = { _s: [], _c: {} };
+                    if(i === path.length - 1) curr[snp]._s.push(s);
+                    curr = curr[snp]._c;
+                });
+            });
+            const build = (obj) => {
+                let keys = Object.keys(obj).sort();
+                if (keys.length === 0) return '';
+                let html = '<ul class="space-y-2 mt-2">';
+                keys.forEach(key => {
+                    html += `<li class="tree-node"><div class="flex items-center gap-2 py-1"><span class="tree-toggle material-symbols-outlined text-sm text-gray-300" onclick="toggleBranch(this)">arrow_drop_down</span><span class="font-black uppercase text-primary">${key}</span>`;
+                    obj[key]._s.forEach(s => {
+                        const color = s.t === 'a' ? 'bg-secondary' : 'bg-primary';
+                        html += `<span class="px-2 py-0.5 ${color} text-white text-[8px] rounded-full font-black uppercase ml-2">${s.t==='a'?'Ancient ':''}${s.name}</span>`;
+                    });
+                    html += `</div><div class="branch-content">${build(obj[key]._c)}</div></li>`;
+                });
+                return html + '</ul>';
+            };
+            container.innerHTML = build(tree);
+        }
+
+        function toggleBranch(el) {
+            const content = el.parentElement.nextElementSibling;
+            if (content) {
+                content.classList.toggle('collapsed');
+                el.classList.toggle('collapsed');
+            }
+        }
+
+        function expandAllTree() {
+            document.querySelectorAll('.branch-content').forEach(b => b.classList.remove('collapsed'));
+            document.querySelectorAll('.tree-toggle').forEach(t => t.classList.remove('collapsed'));
+        }
+
+        function collapseAllTree() {
+            document.querySelectorAll('.branch-content').forEach(b => b.classList.add('collapsed'));
+            document.querySelectorAll('.tree-toggle').forEach(t => t.classList.add('collapsed'));
         }
 
         function showHaploDetails(type, haplo) {
