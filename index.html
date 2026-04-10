@@ -137,7 +137,7 @@
             <div class="lg:col-span-5 font-headline">
                 <p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2">— Archaeogenetics</p>
                 <h2 class="text-4xl md:text-7xl font-black tracking-tighter mb-8 leading-tight text-primary text-left">Ancient Summary</h2>
-                <div class="grid grid-cols-1 gap-8 border-t pt-8 text-primary font-bold">
+                <div class="grid grid-cols-2 gap-8 border-t pt-8 text-primary font-bold">
                     <div><p class="text-[11px] font-bold text-gray-400 uppercase">Total Ancient Samples</p><p id="total-ancient-samples" class="text-4xl md:text-6xl font-black">0</p></div>
                 </div>
             </div>
@@ -261,39 +261,19 @@
         function renderAncientArchive() {
             const tbody = document.getElementById('ancient-table-body');
             const search = document.getElementById('ancientSearch').value.toLowerCase().trim();
-            const filtered = ancientSamples.filter(s => {
-                const fullText = (s.name + s.governorate + s.y_dna + s.snp_path + s.test_type).toLowerCase();
-                return search === "" || fullText.includes(search);
-            });
+            const filtered = ancientSamples.filter(s => (s.name + s.governorate + s.y_dna + s.snp_path + s.test_type).toLowerCase().includes(search));
             tbody.innerHTML = filtered.map(s => {
                 const kitH = getKitHaploGroup(s.y_dna, s.snp_path);
-                const kitColor = HAPLO_COLORS[kitH] || '#CCC';
                 return `<tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
                     <td class="px-4 py-6 font-black uppercase text-sm">${s.name || '—'}</td>
                     <td class="px-2 py-6 font-mono text-[10px] text-secondary font-black uppercase">${s.test_type || '—'}</td>
                     <td class="px-2 py-6 text-[10px] font-black text-gray-400 uppercase">${s.governorate || '—'}</td>
-                    <td class="px-4 py-6 text-left"><div class="flex items-start justify-center gap-2"><span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${kitColor}"></span><span class="text-[10px] font-mono font-bold text-gray-500 snp-path-text">${s.snp_path || s.y_dna || '—'}</span></div></td>
+                    <td class="px-4 py-6 text-left"><div class="flex items-start justify-center gap-2"><span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${HAPLO_COLORS[kitH] || '#CCC'}"></span><span class="text-[10px] font-mono font-bold text-gray-500 snp-path-text">${s.snp_path || s.y_dna || '—'}</span></div></td>
                     <td class="px-2 py-6 text-center font-bold">${renderLinks(s, 'y')}</td>
                     <td class="px-2 py-6 text-center uppercase text-[11px] font-black text-secondary">${s.mt_dna || '—'}</td>
                     <td class="px-4 py-6 text-center font-bold">${renderLinks(s, 'mt')}</td>
                 </tr>`;
             }).join('');
-        }
-
-        function updateAncientSummary() {
-            const totals = {}; let grandTotal = 0;
-            ancientSamples.forEach(s => {
-                const hp = getKitHaploGroup(s.y_dna, s.snp_path);
-                if(hp && hp !== '—') { totals[hp] = (totals[hp] || 0) + 1; grandTotal++; }
-            });
-            document.getElementById('total-ancient-samples').innerText = grandTotal;
-            if (grandTotal > 0) createPieChart('ancientChartCanvas', totals, 'ANCIENT');
-            const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]);
-            document.getElementById('ancient-legend').innerHTML = sorted.map(([name, count]) => `
-                <div onclick="showHaploDetails('ANCIENT', '${name}')" class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all cursor-pointer group">
-                    <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full group-hover:scale-125 transition-transform shadow-sm" style="background:${HAPLO_COLORS[name] || '#CCC'}"></div><span>${name}</span></div>
-                    <span>${((count/grandTotal)*100).toFixed(1)}%</span>
-                </div>`).join('');
         }
 
         function showHaploDetails(type, haplo) {
@@ -302,11 +282,28 @@
             const targetH = haplo.toUpperCase().trim();
             const color = HAPLO_COLORS[targetH] || HAPLO_COLORS[targetH.substring(0,1)] || '#CCC';
             
-            document.getElementById('modal-title').innerText = type === 'ANCIENT' ? "ANCIENT SAMPLES" : type.toUpperCase();
+            // TITEL-LOGIK KORRIGIERT
+            if (type === 'ANCIENT') {
+                document.getElementById('modal-title').innerText = "ANCIENT DNA SAMPLES";
+            } else if (type === 'NATIONAL') {
+                document.getElementById('modal-title').innerText = "NATIONAL ARCHIVE";
+            } else {
+                document.getElementById('modal-title').innerText = type.toUpperCase();
+            }
+
             document.getElementById('selected-haplo-display').innerText = haplo;
             listArea.style.borderColor = color; listArea.style.backgroundColor = `${color}05`;
 
-            const pool = type === 'ANCIENT' ? ancientSamples : databaseSamples.filter(s => superClean(s.governorate) === superClean(type));
+            // POOL-FILTERUNG KORRIGIERT
+            let pool = [];
+            if (type === 'ANCIENT') {
+                pool = ancientSamples;
+            } else if (type === 'NATIONAL') {
+                pool = databaseSamples;
+            } else {
+                pool = databaseSamples.filter(s => superClean(s.governorate) === superClean(type));
+            }
+
             const matches = pool.filter(s => getKitHaploGroup(s.y_dna, s.snp_path) === targetH);
 
             document.getElementById('modal-sample-count').innerText = `${matches.length} Kits FOUND`;
@@ -344,9 +341,22 @@
                 data: { labels, datasets: [{ data: labels.map(k => dataMap[k]), backgroundColor: labels.map(l => HAPLO_COLORS[l] || "#CCC"), borderWidth: 1, borderColor: '#fff' }] },
                 options: { 
                     responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-                    onClick: (evt, el) => { if (el.length > 0) showHaploDetails(context || 'NATIONAL', labels[el[0].index]); }
+                    onClick: (evt, el) => { if (el.length > 0) showHaploDetails(context, labels[el[0].index]); }
                 }
             });
+        }
+
+        function updateAncientSummary() {
+            const totals = {}; let grandTotal = 0;
+            ancientSamples.forEach(s => { const hp = getKitHaploGroup(s.y_dna, s.snp_path); totals[hp] = (totals[hp] || 0) + 1; grandTotal++; });
+            document.getElementById('total-ancient-samples').innerText = grandTotal;
+            if (grandTotal > 0) createPieChart('ancientChartCanvas', totals, 'ANCIENT');
+            const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]);
+            document.getElementById('ancient-legend').innerHTML = sorted.map(([name, count]) => `
+                <div onclick="showHaploDetails('ANCIENT', '${name}')" class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all cursor-pointer group">
+                    <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full group-hover:scale-125 transition-transform shadow-sm" style="background:${HAPLO_COLORS[name] || '#CCC'}"></div><span>${name}</span></div>
+                    <span>${((count/grandTotal)*100).toFixed(1)}%</span>
+                </div>`).join('');
         }
 
         function openModal(gov) {
@@ -384,7 +394,7 @@
             const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]).slice(0, 15);
             document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `
                 <div onclick="showHaploDetails('NATIONAL', '${name}')" class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all cursor-pointer font-headline group">
-                    <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full group-hover:scale-125 transition-transform" style="background:${HAPLO_COLORS[name] || '#CCC'}"></div><span>${name}</span></div>
+                    <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full group-hover:scale-125" style="background:${HAPLO_COLORS[name] || '#CCC'}"></div><span>${name}</span></div>
                     <span>${((count/grandTotal)*100).toFixed(1)}%</span>
                 </div>`).join('');
         }
