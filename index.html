@@ -43,49 +43,52 @@
         
         .archive-inner-scroll { overflow-x: auto; border-radius: 2rem; border: 1px solid #e5e7eb; background: white; }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .static-thead th { padding: 15px 10px; background-color: #f1f5f9; border-bottom: 2px solid #e2e8f0; color: #475569; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; }
-        .snp-path-text { word-break: break-all; white-space: normal; line-height: 1.4; display: block; width: 100%; }
-
-        /* --- YFULL 1:1 STYLE TREE (LINE FIX) --- */
-        .tree-root-container { padding: 40px; background: white; border-radius: 3rem; border: 1px solid #e5e7eb; min-height: 600px; }
-        .yfull-branch { list-style: none; padding-left: 30px; border-left: 1px solid currentColor; position: relative; margin-left: 10px; }
-        .yfull-node { position: relative; margin-bottom: 10px; text-align: left; }
+        .static-thead th { padding: 15px 10px; background-color: #f1f5f9; color: #475569; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; }
         
-        /* Horizontale Linie vom Stamm zur Box */
-        .yfull-node::before { content: ""; position: absolute; left: -30px; top: 18px; width: 30px; height: 1px; background: currentColor; }
+        /* --- YFULL PROFESSIONAL TREE --- */
+        .tree-root-container { padding: 50px; background: #f1f3f5; border-radius: 3rem; border: 1px solid #e5e7eb; min-height: 700px; }
+        .yfull-branch { list-style: none; padding-left: 32px; border-left: 2px solid currentColor; position: relative; margin-left: 10px; }
+        .yfull-node { position: relative; margin-bottom: 15px; text-align: left; }
         
-        /* FIX: Die vertikale Linie am Ende abschneiden */
+        /* Durchgehende horizontale Verbindungslinie */
+        .yfull-node::before { content: ""; position: absolute; left: -32px; top: 18px; width: 32px; height: 2px; background: currentColor; }
+        
+        /* Letzte vertikale Linie im Zweig präzise beenden */
         .yfull-branch > .yfull-node:last-child::after {
-            content: ""; position: absolute; left: -31px; top: 18px; width: 3px; height: 100%; background: white; z-index: 1;
+            content: ""; position: absolute; left: -2px; top: 18px; width: 4px; height: 100%; background: #f1f3f5; z-index: 1;
         }
 
-        .snp-header { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; position: relative; z-index: 5; }
+        .snp-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; position: relative; z-index: 5; }
         .snp-box {
-            background: currentColor; color: white !important; padding: 4px 14px; border-radius: 4px;
-            font-family: monospace; font-weight: 800; font-size: 13px; cursor: default;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: inline-flex; align-items: center;
+            background: currentColor; color: white !important; padding: 5px 16px; border-radius: 6px;
+            font-family: monospace; font-weight: 900; font-size: 13px; cursor: default;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1); display: inline-flex; align-items: center;
         }
-        /* Haplo C Sichtbarkeit */
-        .snp-box.haplo-c { background: white !important; color: black !important; border: 1px solid #ccc; }
-        .snp-box.haplo-c span { color: black !important; }
         .snp-box span { color: white !important; }
 
+        /* Haplogruppe C Styling */
+        .snp-box.haplo-c { background: #FFFFFF !important; color: #000000 !important; border: 2px solid #ccc; }
+        .snp-box.haplo-c span { color: #000000 !important; }
+
+        /* Proben-Karten im Baum */
         .tree-sample-link {
             display: inline-block; background: #fff; border: 1px solid #eee;
-            padding: 5px 14px; border-radius: 8px; margin: 2px 0 2px 10px;
+            padding: 6px 16px; border-radius: 8px; margin: 4px 0 4px 10px;
             font-weight: 800; font-size: 11px; text-transform: uppercase; color: #001736;
-            cursor: pointer; transition: all 0.2s; border-left: 4px solid currentColor;
+            cursor: pointer; transition: all 0.2s; border-left: 5px solid currentColor;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
-        .tree-sample-link.ancient { border: 2px solid #775a19; border-left: 6px solid #775a19; background: #fffcf5; color: #775a19; }
+        .tree-sample-link:hover { transform: translateX(5px); box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .tree-sample-link.ancient { border: 2px solid #775a19; border-left: 8px solid #775a19; background: #fffdf5; color: #775a19; }
         
-        .tree-toggle-icon { font-size: 18px; cursor: pointer; color: #adb5bd; transition: transform 0.2s; user-select: none; }
+        .tree-toggle-icon { font-size: 22px; cursor: pointer; color: #adb5bd; transition: transform 0.2s; }
         .tree-toggle-icon.collapsed { transform: rotate(-90deg); }
         .hidden-branch { display: none; }
     </style>
 </head>
 <body class="bg-background text-primary font-body antialiased text-left">
 
-    <!-- NAVIGATION -->
+    <!-- NAVIGATION BAR -->
     <nav class="relative w-full bg-white border-b border-gray-100 h-20 z-50">
         <div class="flex justify-between items-center px-4 md:px-8 h-full max-w-screen-2xl mx-auto">
             <div class="flex items-center gap-2 md:gap-8">
@@ -94,7 +97,7 @@
                     <p class="text-[7px] md:text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1 font-headline">National Genomic Archive</p>
                 </a>
             </div>
-            <div class="flex gap-4 md:gap-8 items-center font-headline text-primary whitespace-nowrap overflow-x-auto no-scrollbar">
+            <div class="flex gap-4 md:gap-8 items-center font-headline text-primary whitespace-nowrap overflow-x-auto">
                 <span onclick="showSection('home')" id="nav-home" class="nav-link active uppercase tracking-widest font-bold">Dashboard</span>
                 <span onclick="showSection('archive')" id="nav-archive" class="nav-link uppercase tracking-widest text-gray-400 font-bold">Archive</span>
                 <span onclick="showSection('ancient')" id="nav-ancient" class="nav-link uppercase tracking-widest text-gray-400 font-bold">Ancient DNA</span>
@@ -103,14 +106,14 @@
         </div>
     </nav>
 
-    <!-- SECTION DASHBOARD -->
-    <main id="section-home" class="page-section active py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-16">
-        <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-8 md:p-12 rounded-[3rem] shadow-xl border border-gray-100 text-primary">
+    <!-- DASHBOARD -->
+    <main id="section-home" class="page-section active py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-16 text-primary">
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-8 md:p-12 rounded-[3rem] shadow-xl border border-gray-100">
             <div class="lg:col-span-5 font-headline">
                 <h2 class="text-4xl md:text-7xl font-black tracking-tighter mb-8 leading-tight">Modern Summary</h2>
                 <div class="grid grid-cols-2 gap-8 border-t pt-8 font-bold">
-                    <div><p class="text-[11px] text-gray-400 uppercase">Total Samples</p><p id="total-national-samples" class="text-4xl md:text-6xl font-black text-primary">0</p></div>
-                    <div><p class="text-[11px] text-gray-400 uppercase">Mapped Regions</p><p class="text-4xl md:text-6xl font-black text-primary">25</p></div>
+                    <div><p class="text-[11px] text-gray-400 uppercase">Total Samples</p><p id="total-national-samples" class="text-4xl md:text-6xl font-black">0</p></div>
+                    <div><p class="text-[11px] text-gray-400 uppercase">Mapped Regions</p><p class="text-4xl md:text-6xl font-black">25</p></div>
                 </div>
             </div>
             <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-8 md:gap-12 justify-center lg:justify-end font-headline font-bold">
@@ -124,49 +127,45 @@
         <div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8"></div>
     </main>
 
-    <!-- SECTION ARCHIVE -->
-    <main id="section-archive" class="page-section py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-12 text-primary font-headline">
-        <header class="flex justify-between items-end mb-4">
+    <!-- ARCHIVE -->
+    <main id="section-archive" class="page-section py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-12">
+        <header class="flex justify-between items-end mb-4 font-headline text-primary">
             <div><p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2">— Genomic Catalog</p><h2 class="text-4xl md:text-7xl font-black tracking-tighter leading-none">Modern Archive</h2></div>
-            <input type="text" id="archiveSearch" onkeydown="if(event.key==='Enter') renderArchive()" placeholder="Search SNP (Enter)..." class="p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold outline-none w-72">
+            <input type="text" id="archiveSearch" onkeydown="if(event.key==='Enter') renderArchive()" placeholder="Search SNP (Enter)..." class="p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none w-72">
         </header>
         <div class="archive-inner-scroll shadow-2xl">
             <table class="table-fixed min-w-[1200px]">
-                <thead class="static-thead"><tr class="font-headline text-center font-bold">
-                    <th class="w-[18%]">Identification</th><th class="w-[10%]">Kit / ID</th><th class="w-[12%]">Location</th><th class="w-[28%]">Y-Lineage (SNP Path)</th><th class="w-[10%]">Y-Sources</th><th class="w-[12%]">mt-DNA</th><th class="w-[10%] pr-8">mt-Sources</th>
-                </tr></thead>
-                <tbody id="archive-table-body" class="divide-y divide-gray-50 bg-white font-headline text-center"></tbody>
+                <thead class="static-thead"><tr class="font-headline text-center font-bold"><th>Identification</th><th>Kit / ID</th><th>Location</th><th>Y-Lineage</th><th>Y-Sources</th><th>mt-DNA</th><th>mt-Sources</th></tr></thead>
+                <tbody id="archive-table-body" class="divide-y divide-gray-50 bg-white font-headline text-center text-primary"></tbody>
             </table>
         </div>
     </main>
 
-    <!-- SECTION ANCIENT DNA -->
-    <main id="section-ancient" class="page-section py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-16 text-primary font-headline">
-        <header class="text-left mb-4"><p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2">— Archaeogenetics</p><h2 class="text-4xl md:text-7xl font-black tracking-tighter leading-none">Ancient DNA</h2></header>
+    <!-- ANCIENT DNA -->
+    <main id="section-ancient" class="page-section py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-16">
+        <header class="text-left font-headline text-primary mb-4"><p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2">— Archaeogenetics</p><h2 class="text-4xl md:text-7xl font-black tracking-tighter leading-none">Ancient DNA</h2></header>
         <div class="archive-inner-scroll shadow-2xl">
             <table class="table-fixed min-w-[1200px]">
-                <thead class="static-thead"><tr class="font-headline text-center font-bold">
-                    <th class="w-[20%]">Ancient ID & Culture</th><th class="w-[12%]">Time Period</th><th class="w-[15%]">Site Location</th><th class="w-[23%]">Y-Haplogroup (SNP)</th><th class="w-[10%]">Y-Sources</th><th class="w-[10%]">mt-DNA</th><th class="w-[10%] pr-8">mt-Sources</th>
-                </tr></thead>
-                <tbody id="ancient-table-body" class="divide-y divide-gray-50 bg-white text-center"></tbody>
+                <thead class="static-thead"><tr class="font-headline text-center font-bold"><th>Ancient ID & Culture</th><th>Time Period</th><th>Site Location</th><th>Y-Haplogroup</th><th>Y-Sources</th><th>mt-DNA</th><th>mt-Sources</th></tr></thead>
+                <tbody id="ancient-table-body" class="divide-y divide-gray-50 bg-white font-headline text-center text-primary"></tbody>
             </table>
         </div>
     </main>
 
-    <!-- SECTION PHYLOGENY -->
-    <main id="section-tree" class="page-section py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-10 text-primary font-headline">
-        <header class="flex justify-between items-end border-b pb-10">
-            <div><p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2">— Genomic Hierarchy</p><h2 class="text-4xl md:text-7xl font-black tracking-tighter leading-none">YTree Egy</h2></div>
-            <input type="text" id="treeSearchInput" onkeyup="searchTree()" placeholder="Search SNP or Sample..." class="w-full md:w-80 pl-12 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold outline-none">
+    <!-- PHYLOGENY -->
+    <main id="section-tree" class="page-section py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-10 text-primary">
+        <header class="flex flex-col md:flex-row justify-between items-end gap-6 border-b pb-10">
+            <div class="text-left font-headline"><p class="text-[10px] font-black text-secondary uppercase tracking-[0.3em] mb-2">— Genomic Hierarchy</p><h2 class="text-4xl md:text-7xl font-black tracking-tighter leading-none">YTree Egy</h2></div>
+            <input type="text" id="treeSearchInput" onkeyup="searchTree()" placeholder="Search SNP or Name..." class="w-full md:w-80 pl-12 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold outline-none">
         </header>
         <div id="phylogeny-container" class="tree-root-container shadow-2xl overflow-x-auto"></div>
     </main>
 
     <!-- DETAIL MODAL -->
     <div id="detail-modal" onclick="closeModal(event)">
-        <div class="bg-white p-6 md:p-10 relative border border-gray-100 modal-content shadow-2xl font-headline text-primary" onclick="event.stopPropagation()">
+        <div class="bg-white p-6 md:p-10 relative border border-gray-100 modal-content shadow-2xl font-headline" onclick="event.stopPropagation()">
             <button onclick="closeModal(null)" class="absolute top-6 right-6 text-gray-400 hover:text-red-500 transition-colors font-bold"><span class="material-symbols-outlined text-4xl font-bold">close</span></button>
-            <div id="kits-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 text-left"></div>
+            <div id="kits-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 text-left text-primary"></div>
         </div>
     </div>
 
@@ -183,14 +182,15 @@
         };
         
         const Y_BACKBONE = { 
-            "Y-Adam": null, "A": "Y-Adam", "B": "Y-Adam", "CT": "Y-Adam", "DE": "CT", "CF": "CT", "GHIJK": "F", "IJK": "GHIJK", "IJ": "IJK", "K": "IJK", "LT": "K",
-            "E": "DE", "D": "DE", "F": "CF", "G": "F", "H": "F", "I": "IJ", "J": "IJ", "J-M267": "J", "J-M172": "J", "J1": "J-M267", "J2": "J-M172",
-            "L": "LT", "T": "LT", "P": "K", "Q": "P", "R": "P", "R1": "R", "R2": "R", "R1a": "R1", "R1b": "R1"
+            "Y-Adam": null, "A": "Y-Adam", "B": "Y-Adam", "BT": "Y-Adam", "CT": "BT", "DE": "CT", "CF": "CT",
+            "E": "DE", "D": "DE", "F": "CF", "GHIJK": "F", "IJK": "GHIJK", "IJ": "IJK", "K": "IJK", "LT": "K",
+            "L": "LT", "T": "LT", "I": "IJ", "J": "IJ", "J-M267": "J", "J1": "J-M267", "J-M172": "J", "J2": "J-M172",
+            "P": "K", "Q": "P", "R": "P", "R1": "R", "R2": "R", "R1a": "R1", "R1b": "R1"
         };
 
         const GOV_LIST = ["Al Bahr al Ahmar", "Al Buhayrah", "Ad Daqahlīyah", "Al Fayyūm", "Al Gharbīyah", "Al Iskandarīyah", "Al Ismā`īlīyah", "Al Minūfīyah", "Al Minyā", "Al Qalyūbīyah", "As Suways", "Ash Sharqīyah", "Aswān", "Asyūt", "Banī Suwayf", "Cairo", "Dumyāt", "Al Jīzah", "Janūb Sīnā’", "Kafr ash Shaykh", "Luxor", "Matrouh", "Qinā", "Shamal Sīnā’", "Sūhāj", "—"].sort();
 
-        let databaseSamples = [], ancientSamples = [], regionalData = {}, charts = {};
+        let databaseSamples = [], ancientSamples = [], charts = {};
 
         async function init() { await loadAllData(); renderUI(); renderArchive(); renderAncientArchive(); renderPhylogeny(); populateFilters(); }
 
@@ -198,12 +198,7 @@
             try {
                 const [mRes, aRes] = await Promise.all([ _supabase.from('Modern_published_samples').select('*'), _supabase.from('Ancient_published_samples').select('*') ]);
                 databaseSamples = mRes.data || []; ancientSamples = aRes.data || [];
-                databaseSamples.forEach(s => {
-                    const reg = GOV_LIST.find(g => superClean(g) === superClean(s.governorate)) || "—";
-                    const hp = getKitHaploGroup(s.y_dna, s.snp_path);
-                    if (!regionalData[reg]) regionalData[reg] = {}; regionalData[reg][hp] = (regionalData[reg][hp] || 0) + 1;
-                });
-            } catch (err) { console.error("Load Error:", err); }
+            } catch (err) { console.error(err); }
         }
 
         function getKitHaploGroup(y, s) {
@@ -214,13 +209,18 @@
             if (s.includes("R1B") || y.startsWith("R1B")) return "R1B";
             if (y.startsWith("E") || s.startsWith("E")) return "E";
             if (y.startsWith("C")) return "C";
+            if (y.startsWith("G")) return "G";
+            if (y.startsWith("L")) return "L";
+            if (y.startsWith("T")) return "T";
+            if (y.startsWith("Q")) return "Q";
+            if (y.startsWith("A")) return "A";
             return y.substring(0,1);
         }
 
+        // --- PHYLOGENY LOGIC (TRUE BACKBONE & ALPHABETICAL) ---
         function renderPhylogeny() {
             const container = document.getElementById('phylogeny-container');
-            if(!container) return;
-            const all = [...databaseSamples.map(s=>({...s, t:'m'})), ...ancientSamples.map(s=>({...s, t:'a'}))];
+            const allSamples = [...databaseSamples.map(s=>({...s, t:'m'})), ...ancientSamples.map(s=>({...s, t:'a'}))];
             const tree = { name: "Y-Adam", children: {}, samples: [] };
             const nodeMap = { "Y-Adam": tree };
 
@@ -233,12 +233,19 @@
                 return newNode;
             }
 
-            all.forEach(s => {
+            allSamples.forEach(s => {
                 const pathStr = (s.full_snp_path && s.full_snp_path !== '—') ? s.full_snp_path : (s.snp_path || s.y_dna || '');
                 const parts = pathStr.split('>').map(x => x.trim()).filter(x => x && x !== '—');
                 if (parts.length === 0) return;
-                const baseH = getKitHaploGroup(s.y_dna, s.snp_path);
-                const fullPath = parts.map(snp => (snp.includes('-') || ['Y-Adam','BT','CT','DE','CF','GHIJK','IJK','HIJK','IJ','LT'].includes(snp) || snp === baseH) ? snp : `${baseH}-${snp}`);
+                
+                let currentLineage = "";
+                const fullPath = parts.map(seg => {
+                    const roots = ['Y-Adam','BT','CT','DE','CF','F','GHIJK','IJK','HIJK','IJ','K','LT'];
+                    if (['A','B','C','E','G','J','L','T','R','Q','I'].includes(seg)) currentLineage = seg;
+                    if (!seg.includes('-') && !roots.includes(seg) && currentLineage && seg !== currentLineage) return `${currentLineage}-${seg}`;
+                    return seg;
+                });
+
                 let leaf = ensureNode(fullPath[0]);
                 for (let i = 1; i < fullPath.length; i++) {
                     const snp = fullPath[i];
@@ -248,25 +255,26 @@
                 leaf.samples.push(s);
             });
 
-            function buildHTML(node, parentColor = "#ccc") {
+            function buildHTML(node, parentLineage = "") {
                 const childKeys = Object.keys(node.children).sort();
-                const nodeBase = node.name.split('-')[0].toUpperCase();
-                let color = HAPLO_COLORS[nodeBase] || HAPLO_COLORS[nodeBase.substring(0,1)] || parentColor;
+                const currentLineage = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T'].includes(node.name) ? node.name : parentLineage;
                 
-                // Smart Pruning
+                // Smart Pruning: Überspringe leere Zwischenknoten
                 if (node.name !== "Y-Adam" && node.samples.length === 0 && childKeys.length === 1) {
-                    return buildHTML(node.children[childKeys[0]], color);
+                    return buildHTML(node.children[childKeys[0]], currentLineage);
                 }
+
+                const color = HAPLO_COLORS[currentLineage] || HAPLO_COLORS[node.name.split('-')[0]] || "#ccc";
 
                 let html = `<div class="yfull-node" style="color: ${color}">
                     <div class="snp-header">
                         ${childKeys.length > 0 ? `<span class="tree-toggle-icon material-symbols-outlined" onclick="toggleTree(this)">arrow_drop_down</span>` : '<span class="w-[18px]"></span>'}
-                        <div class="snp-box ${node.name.startsWith('C') ? 'haplo-c' : ''}" style="background:${color}"><span>${node.name}</span>${node.samples.length > 0 && childKeys.length > 0 ? '*' : ''}</div>
+                        <div class="snp-box ${node.name.startsWith('C')?'haplo-c':''}" style="background:${color}"><span>${node.name}</span>${node.samples.length > 0 && childKeys.length > 0 ? '*' : ''}</div>
                     </div>
                     <div class="sample-wrapper">
                         ${node.samples.map(s => `<div class="tree-sample-link ${s.t === 'a' ? 'ancient' : ''}" style="border-left-color: ${color}" onclick="showSampleDetails('${s.t}', '${s.id}')">${s.name} ${s.t === 'a' ? '<span class="anc-badge-inline">ANC</span>' : ''}</div>`).join('')}
                     </div>`;
-                if (childKeys.length > 0) html += `<ul class="yfull-branch" style="border-left-color: ${color}">${childKeys.map(k => buildHTML(node.children[k], color)).join('')}</ul>`;
+                if (childKeys.length > 0) html += `<ul class="yfull-branch" style="border-left-color: ${color}">${childKeys.map(k => buildHTML(node.children[k], currentLineage)).join('')}</ul>`;
                 return html + `</div>`;
             }
             container.innerHTML = buildHTML(tree);
@@ -278,25 +286,17 @@
         function renderArchive() {
             const tbody = document.getElementById('archive-table-body');
             tbody.innerHTML = databaseSamples.map(s => `<tr class="hover:bg-gray-50/80 transition-colors">
-                <td class="px-4 py-6 font-black uppercase text-sm">${s.name}</td><td class="font-mono text-[10px] text-gray-400">${s.kit_number}</td>
+                <td class="px-4 py-6 font-black uppercase text-sm">${s.name}</td><td class="font-mono text-[10px] text-gray-400">${s.kit_number || '—'}</td>
                 <td class="text-[10px] uppercase text-gray-400">${s.governorate}</td><td class="text-left font-mono text-[10px] text-gray-500 snp-path-text">${s.snp_path}</td>
                 <td>${renderLinks(s, 'y')}</td><td class="text-secondary font-black text-[11px]">${s.mt_dna}</td><td>${renderLinks(s, 'mt')}</td></tr>`).join('');
         }
 
         function renderAncientArchive() {
             const tbody = document.getElementById('ancient-table-body');
-            tbody.innerHTML = ancientSamples.map(s => `<tr class="hover:bg-gray-50/80 transition-colors">
+            tbody.innerHTML = ancientSamples.map(s => `<tr class="hover:bg-gray-50/80 transition-colors text-primary text-center">
                 <td class="px-4 py-6 text-left"><div>${s.name}</div><div class="text-[10px] text-secondary font-mono">${s.sample_id}</div><div class="text-[9px] text-gray-400 font-bold uppercase mt-1">${s.cultural_group}</div></td>
-                <td class="px-2 py-6 text-[10px] font-black text-primary uppercase">${s.period}</td><td class="px-2 py-6 text-gray-400 text-[10px]">${s.site}</td>
+                <td class="px-2 py-6 text-[10px] font-black uppercase">${s.period}</td><td class="px-2 py-6 text-[10px] text-gray-400">${s.site}</td>
                 <td class="text-left font-mono text-[10px]">${s.snp_path}</td><td>${renderLinks(s, 'y')}</td><td class="text-secondary font-black text-[11px]">${s.mt_dna}</td><td>${renderLinks(s, 'mt')}</td></tr>`).join('');
-        }
-
-        function renderLinks(s, type) {
-            const l1 = type === 'y' ? s.y_link_1 : s.mt_link_1; const l2 = type === 'y' ? s.y_link_2 : s.mt_link_2;
-            const color = type === 'y' ? 'bg-primary' : 'bg-secondary';
-            let html = '<div class="flex gap-1.5 justify-center">';
-            [l1, l2].forEach((link, i) => { if (link && link.length > 5 && link !== '—') html += `<a href="${link}" target="_blank" class="w-7 h-7 rounded-lg ${color} text-white flex items-center justify-center hover:scale-110 shadow-sm"><span class="material-symbols-outlined text-[14px] font-bold">${i === 0 ? 'database' : 'link'}</span></a>`; });
-            return html + '</div>';
         }
 
         function renderUI() {
@@ -305,10 +305,11 @@
             document.getElementById('total-national-samples').innerText = grandTotal;
             if (grandTotal > 0) {
                 const ctx = document.getElementById('nationalChartCanvas').getContext('2d');
-                new Chart(ctx, { type: 'pie', data: { labels: Object.keys(totals), datasets: [{ data: Object.values(totals), backgroundColor: Object.keys(totals).map(l => HAPLO_COLORS[l.toUpperCase()] || "#CCC") }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, onClick: (evt, el) => { if (el.length > 0) showHaploDetails('NATIONAL', Object.keys(totals)[el[0].index]); } } });
+                new Chart(ctx, { type: 'pie', data: { labels: Object.keys(totals), datasets: [{ data: Object.values(totals), backgroundColor: Object.keys(totals).map(l => l === 'C' ? '#eee' : HAPLO_COLORS[l.toUpperCase()] || "#CCC") }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
                 const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]);
                 document.getElementById('national-legend').innerHTML = sorted.map(([name, count]) => `<div onclick="showHaploDetails('NATIONAL', '${name}')" class="flex items-center justify-between py-1 px-3 rounded-xl uppercase hover:bg-primary/5 cursor-pointer font-headline group"><div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full shadow-sm" style="background:${HAPLO_COLORS[name] || '#CCC'}"></div><span>${name}</span></div><span>${((count/grandTotal)*100).toFixed(1)}%</span></div>`).join('');
             }
+            updateAncientSummary();
         }
 
         function showSampleDetails(type, id) {
@@ -316,7 +317,7 @@
             if (s) {
                 const container = document.getElementById('kits-container'); container.innerHTML = '';
                 const listArea = document.getElementById('modal-kit-list');
-                container.innerHTML = `<div class="p-8 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm font-bold text-primary col-span-2"><div class="flex justify-between mb-4 text-[10px]"><span class="px-3 py-1 bg-primary text-white rounded-full font-black">${s.y_dna}</span><span class="text-gray-400 uppercase">${s.governorate || s.site || '—'}</span></div><p class="font-black uppercase text-xl mb-1 text-center">${s.name}</p><p class="text-[12px] text-secondary font-mono text-center mb-6">${s.sample_id || s.kit_number || ''}</p><div class="grid grid-cols-2 gap-10 mt-6 border-t pt-6"><div><p class="text-[9px] uppercase text-gray-400 mb-2">Y-Lineage Path</p><p class="text-[10px] font-mono leading-relaxed">${s.snp_path}</p><div class="mt-4 flex gap-2">${renderLinks(s, 'y')}</div></div><div><p class="text-[9px] uppercase text-gray-400 mb-2">mt-DNA</p><p class="text-[11px] font-black">${s.mt_dna || '—'}</p><div class="mt-4 flex gap-2">${renderLinks(s, 'mt')}</div></div></div></div>`;
+                container.innerHTML = `<div class="p-8 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm font-bold text-primary col-span-2 text-center"><div class="flex justify-between mb-4 text-[10px]"><span class="px-3 py-1 bg-primary text-white rounded-full font-black">${s.y_dna}</span><span class="text-gray-400 uppercase">${s.governorate || s.site || '—'}</span></div><p class="font-black uppercase text-2xl mb-1">${s.name}</p><p class="text-[12px] text-secondary font-mono mb-6">${s.sample_id || s.kit_number || ''}</p><div class="grid grid-cols-2 gap-10 mt-6 border-t pt-6"><div><p class="text-[9px] uppercase text-gray-400 mb-2">Y-Lineage Path</p><p class="text-[10px] font-mono leading-relaxed">${s.snp_path}</p><div class="mt-4 flex justify-center gap-2">${renderLinks(s, 'y')}</div></div><div><p class="text-[9px] uppercase text-gray-400 mb-2">mt-DNA</p><p class="text-[11px] font-black">${s.mt_dna || '—'}</p><div class="mt-4 flex justify-center gap-2">${renderLinks(s, 'mt')}</div></div></div></div>`;
                 document.getElementById('detail-modal').classList.add('active'); listArea.classList.remove('hidden');
             }
         }
@@ -324,19 +325,27 @@
         function showHaploDetails(type, haplo) {
             const container = document.getElementById('kits-container'); container.innerHTML = '';
             const listArea = document.getElementById('modal-kit-list');
-            const matches = (type === 'ANCIENT' ? ancientSamples : databaseSamples).filter(s => getKitHaploGroup(s.y_dna, s.snp_path) === haplo.toUpperCase().trim());
+            const pool = type === 'ANCIENT' ? ancientSamples : databaseSamples;
+            const matches = pool.filter(s => getKitHaploGroup(s.y_dna, s.snp_path) === haplo.toUpperCase().trim());
             container.innerHTML = matches.map(s => `<div class="p-6 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm font-bold text-primary"><div class="flex justify-between mb-4 text-[10px]"><span class="px-3 py-1 bg-primary text-white rounded-full font-black">${s.y_dna}</span><span class="text-gray-400 uppercase">${s.governorate || s.site || '—'}</span></div><p class="font-black uppercase text-sm mb-1 text-center">${s.name}</p><p class="text-[10px] text-secondary font-mono text-center">${s.kit_number || s.sample_id || ''}</p><div class="mt-4 flex justify-center gap-4">${renderLinks(s, 'y')}${renderLinks(s, 'mt')}</div></div>`).join('');
             document.getElementById('detail-modal').classList.add('active'); listArea.classList.remove('hidden');
         }
 
-        function openModal(gov) {
-            const pool = databaseSamples.filter(s => superClean(s.governorate) === superClean(gov));
-            const totals = {}; pool.forEach(s => { const h = getKitHaploGroup(s.y_dna, s.snp_path); totals[h] = (totals[h] || 0) + 1; });
-            document.getElementById('detail-modal').classList.add('active'); document.getElementById('modal-kit-list').classList.add('hidden');
-            setTimeout(() => {
-                const ctx = document.getElementById('modalChartCanvas').getContext('2d');
-                new Chart(ctx, { type: 'pie', data: { labels: Object.keys(totals), datasets: [{ data: Object.values(totals), backgroundColor: Object.keys(totals).map(l => HAPLO_COLORS[l.toUpperCase()] || "#CCC") }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
-            }, 50);
+        function updateAncientSummary() {
+            const totals = {}; let grandTotal = 0;
+            ancientSamples.forEach(s => { const hp = getKitHaploGroup(s.y_dna, s.snp_path); totals[hp] = (totals[hp] || 0) + 1; grandTotal++; });
+            if (grandTotal > 0) {
+                const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]);
+                document.getElementById('ancient-legend').innerHTML = sorted.map(([name, count]) => `<div onclick="showHaploDetails('ANCIENT', '${name}')" class="flex items-center justify-between py-1 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all cursor-pointer font-headline group"><div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full shadow-sm" style="background:${HAPLO_COLORS[name] || '#CCC'}"></div><span>${name}</span></div><span>${((count/grandTotal)*100).toFixed(1)}%</span></div>`).join('');
+            }
+        }
+
+        function renderLinks(s, type) {
+            const l1 = type === 'y' ? s.y_link_1 : s.mt_link_1; const l2 = type === 'y' ? s.y_link_2 : s.mt_link_2;
+            const color = type === 'y' ? 'bg-primary' : 'bg-secondary';
+            let html = '<div class="flex gap-1.5 justify-center">';
+            [l1, l2].forEach((link, i) => { if (link && link.length > 5 && link !== '—') html += `<a href="${link}" target="_blank" class="w-7 h-7 rounded-lg ${color} text-white flex items-center justify-center hover:scale-110 shadow-sm"><span class="material-symbols-outlined text-[14px] font-bold">${i === 0 ? 'database' : 'link'}</span></a>`; });
+            return html + '</div>';
         }
 
         function showSection(id) { document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active')); document.querySelectorAll('.nav-link').forEach(n => { n.classList.remove('active'); n.classList.add('text-gray-400'); }); document.getElementById(`section-${id}`).classList.add('active'); const nav = document.getElementById(`nav-${id}`); nav.classList.add('active'); nav.classList.remove('text-gray-400'); }
