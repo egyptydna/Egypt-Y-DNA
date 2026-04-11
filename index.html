@@ -554,47 +554,92 @@ function renderAncientArchive() {
 ════════════════════════════════════════════════ */
 
 /**
- * Parse a Full_snp_path string like:
- *   "J1 > J-M267 > J-Z1828 > J-BY60 > J-Y19722"
- * and return array of SNP labels in order.
+ * Parse Full_snp_path like "J1 > J-M267 > J-Z1828 > J-BY60"
+ * Returns array of normalised SNP labels.
  */
 function parseSnpPath(raw) {
     if (!raw || raw === '—') return [];
-    // support ">" or ">" separators, and plain space-separated
     return raw.split(/\s*[>→\/]\s*/).map(s => s.trim()).filter(Boolean);
 }
 
 /**
- * Build a hierarchical tree from sample list.
- * Each node: { id, label, children: [], samples: [], color }
+ * Detect the haplogroup letter(s) that prefix a SNP segment.
+ * E.g. "J-M267" → "J", "E-M2" → "E", "R1b-L21" → "R1B"
+ * Returns uppercase prefix string or null.
+ */
+function snpHaploPrefix(seg) {
+    const m = seg.match(/^([A-Za-z][A-Za-z0-9]*)-/);
+    return m ? m[1].toUpperCase() : null;
+}
+
+/**
+ * Given a SNP segment and the running haplogroup prefix from the path,
+ * return the display label always in "PREFIX-SNP" form.
+ *
+ * Rules:
+ *  - If segment already contains "-" (e.g. "J-M267", "E-V13"), keep as-is.
+ *  - If segment is plain SNP (e.g. "M267", "V13", "BY60"), prepend
+ *    the haplogroup prefix inferred from the path's first segment.
+ *  - Prefix is extracted from the first segment of the full path.
+ */
+function normaliseSegmentLabel(seg, pathHaploPrefix) {
+    if (!seg) return seg;
+    // Already has a letter-dash prefix → fine as-is
+    if (/^[A-Za-z][A-Za-z0-9]*-/.test(seg)) return seg;
+    // Pure haplogroup root token like "J1", "E1b1a", "R1b" (no dash, but not a raw SNP)
+    // Heuristic: if it starts with a letter and has no digits-only body, treat as root label
+    if (/^[A-Za-z][A-Za-z0-9]*$/.test(seg) && !/^\d/.test(seg)) {
+        // It could be "J1", "E", "R1b" – these are fine as-is (they ARE the prefix)
+        return seg;
+    }
+    // Raw SNP (starts with letter+digits OR pure digits, no dash) → prefix it
+    if (pathHaploPrefix) return `${pathHaploPrefix}-${seg}`;
+    return seg;
+}
+
+/**
+ * Build a hierarchical tree from sample list using Full_snp_path only.
  */
 function buildPhyloTree(samples) {
     const root = { id: '__root__', label: 'Root', children: [], samples: [], depth: 0 };
     const nodeMap = { '__root__': root };
 
     samples.forEach(sample => {
-        // Use Full_snp_path if available, else fall back to snp_path or y_dna
-        const rawPath = sample.Full_snp_path || sample.snp_path || sample.y_dna || '';
+        // ONLY use Full_snp_path — this is the fix
+        const rawPath = sample.Full_snp_path || '';
         const segments = parseSnpPath(rawPath);
         if (!segments.length) {
             root.samples.push(sample);
             return;
         }
 
+        // Determine the haplogroup prefix from the first segment
+        // e.g. first segment "J1" → prefix "J1", "J-M267" → "J"
+        const firstSeg = segments[0];
+        let hapPrefix = snpHaploPrefix(firstSeg);   // e.g. "J" from "J-M267"
+        if (!hapPrefix) hapPrefix = firstSeg.toUpperCase(); // e.g. "J1" used directly
+
         let parentId = '__root__';
-        segments.forEach((seg, i) => {
-            // Build unique ID from full path up to this point
-            const nodeId = segments.slice(0, i+1).join('>');
+        segments.forEach((rawSeg, i) => {
+            const seg = normaliseSegmentLabel(rawSeg, hapPrefix);
+            const nodeId = segments.slice(0, i+1).join('>');   // key by raw path so merging works
+
             if (!nodeMap[nodeId]) {
-                const hapBase = getKitHaploGroup(seg, seg);
-                const color = HAPLO_COLORS[hapBase] || HAPLO_COLORS[seg.charAt(0).toUpperCase()] || '#64748b';
+                // Colour: derive haplo from the label prefix
+                const labelPrefix = snpHaploPrefix(seg) || seg.charAt(0).toUpperCase();
+                const hapBase = getKitHaploGroup(seg, seg) || labelPrefix;
+                const color = HAPLO_COLORS[hapBase]
+                    || HAPLO_COLORS[labelPrefix]
+                    || HAPLO_COLORS[labelPrefix.charAt(0)]
+                    || '#64748b';
+
                 const node = {
                     id: nodeId,
-                    label: seg,
+                    label: seg,          // ← always "PREFIX-SNP" form
                     children: [],
                     samples: [],
                     color,
-                    depth: i+1,
+                    depth: i + 1,
                     haplo: hapBase
                 };
                 nodeMap[nodeId] = node;
@@ -602,12 +647,9 @@ function buildPhyloTree(samples) {
             }
             parentId = nodeId;
         });
-        // attach sample to deepest node
         nodeMap[parentId].samples.push(sample);
     });
 
-    // Prune nodes with single child and no samples (collapse linear paths)
-    // (optional – skip for full YFull-style view)
     return root;
 }
 
