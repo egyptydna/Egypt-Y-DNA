@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title>Egyptian Y-DNA Project | National Genomic Archive</title>
   <meta name="google-site-verification" content="Uaawg80AzlTHbqfR-OfSFSJdBAtg9OIjpOVgCRrWXHY"/>
   <meta name="description" content="Official archive of the Egyptian Y-DNA Project."/>
@@ -20,7 +20,7 @@
         extend: {
           colors: {
             primary: "#001736",
-            secondary: "#8a6a1c",
+            secondary: "#775a19",
             background: "#f8f9fa"
           },
           fontFamily: {
@@ -35,8 +35,6 @@
 
   <style>
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { overflow-x: hidden; }
     .material-symbols-outlined {
       font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     }
@@ -44,13 +42,15 @@
     .nav-link {
       cursor: pointer;
       position: relative;
-      transition: all .25s ease;
+      transition: all .3s;
       font-size: .75rem;
     }
+
     .nav-link.active {
       color: #001736;
       font-weight: 800;
     }
+
     .nav-link.active::after {
       content: '';
       position: absolute;
@@ -58,70 +58,52 @@
       left: 0;
       width: 100%;
       height: 2px;
-      background: #8a6a1c;
+      background: #775a19;
     }
 
     .page-section { display: none; }
     .page-section.active {
       display: block;
-      animation: fadeIn .28s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity:0; transform:translateY(8px); }
-      to   { opacity:1; transform:translateY(0); }
+      animation: fadeIn .35s ease;
     }
 
-    .social-link {
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: .1em;
-      color: #9ca3af;
-      transition: all .2s;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    .social-link:hover { color: #001736; }
 
     .stat-card {
-      transition: all .25s ease;
-      border: 1px solid #e9edf2;
+      transition: all .3s;
+      border: 1px solid #eef0f2;
       cursor: pointer;
       background: white;
-      padding: 1.25rem;
+      padding: 1.5rem;
       border-radius: 2rem;
       display: flex;
       align-items: center;
-      gap: 1rem;
-      position: relative;
-      overflow: hidden;
+      gap: 1.25rem;
     }
+
     .stat-card:hover {
       border-color: #001736;
-      transform: translateY(-2px);
-      box-shadow: 0 12px 24px rgba(0,23,54,.08);
+      transform: translateY(-4px);
+      box-shadow: 0 15px 30px rgba(0,23,54,.1);
     }
 
     .archive-scroll {
-      overflow: auto;
+      overflow-x: auto;
       border-radius: 2rem;
       border: 1px solid #e5e7eb;
       background: white;
-      box-shadow: 0 20px 45px rgba(0,23,54,.06);
     }
 
     table {
       width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      min-width: 1200px;
+      border-collapse: collapse;
     }
 
     .thead-row th {
-      position: sticky;
-      top: 0;
-      z-index: 5;
+      padding: 14px 10px;
       background: #f1f5f9;
       border-bottom: 2px solid #e2e8f0;
       color: #475569;
@@ -129,7 +111,6 @@
       text-transform: uppercase;
       letter-spacing: .1em;
       font-weight: 800;
-      padding: 14px 10px;
     }
 
     .snp-text {
@@ -139,40 +120,354 @@
       line-height: 1.6;
     }
 
+    .social-link {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: #9ca3af;
+      transition: all .3s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .social-link:hover { color: #001736; }
+
     #detail-modal,
     #sample-detail-modal {
       display: none;
       position: fixed;
       inset: 0;
       z-index: 1000;
-      background: rgba(0,23,54,.55);
-      backdrop-filter: blur(12px);
+      background: rgba(0,23,54,.6);
+      backdrop-filter: blur(15px);
       align-items: center;
       justify-content: center;
-      padding: 16px;
+      padding: 15px;
     }
+
     #detail-modal.active,
     #sample-detail-modal.active {
       display: flex;
     }
 
     .modal-content {
-      max-height: 92vh;
+      max-height: 90vh;
       overflow-y: auto;
       width: 100%;
-      max-width: 1320px;
+      max-width: 1050px;
       border-radius: 2rem;
-      background: #fff;
     }
 
     .sample-modal-content {
       max-height: 90vh;
       overflow-y: auto;
       width: 100%;
-      max-width: 840px;
+      max-width: 780px;
       border-radius: 2rem;
-      background: #fff;
     }
+
+    #tree-wrap {
+      background: #fff;
+      border-radius: 2rem;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 20px 60px rgba(0,23,54,.06);
+      overflow: auto;
+      position: relative;
+      min-height: 300px;
+    }
+
+    #tree-inner {
+      padding: 28px 24px 48px 24px;
+      min-width: 1200px;
+      font-family: 'Manrope', sans-serif;
+      font-size: 13px;
+      line-height: 1;
+      transform-origin: top left;
+    }
+
+    .tree-search {
+      padding: 8px 12px 8px 36px;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      font-family: 'Manrope', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      outline: none;
+      width: 235px;
+      transition: all .2s;
+    }
+
+    .tree-search:focus {
+      border-color: #775a19;
+      box-shadow: 0 0 0 3px rgba(119,90,25,.12);
+    }
+
+    .ctrl-btn {
+      padding: 7px 14px;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      font-family: 'Manrope', sans-serif;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      cursor: pointer;
+      transition: all .2s;
+      color: #001736;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .ctrl-btn:hover {
+      background: #001736;
+      color: #fff;
+      border-color: #001736;
+    }
+
+    .ctrl-btn.on {
+      background: #775a19;
+      color: #fff;
+      border-color: #775a19;
+    }
+
+    .haplo-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all .2s;
+    }
+
+    .haplo-pill.on {
+      border-color: currentColor;
+    }
+
+    .tree-focus-path {
+      font-size: 11px;
+      font-weight: 900;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 10px 14px;
+      line-height: 1.5;
+    }
+
+    .tree-list,
+    .tree-children {
+      list-style: none;
+      margin: 0;
+      padding-left: 0;
+    }
+
+    .tree-item {
+      position: relative;
+      margin: 0;
+      padding: 0 0 0 34px;
+    }
+
+    .tree-item-root {
+      padding-left: 0;
+    }
+
+    .tree-row {
+      position: relative;
+      min-height: 46px;
+      display: flex;
+      align-items: center;
+    }
+
+    .tree-item:not(.tree-item-root)::before {
+      content: "";
+      position: absolute;
+      left: 12px;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      background: #cbd5e1;
+    }
+
+    .tree-item:not(.tree-item-root):last-child::before {
+      height: 23px;
+    }
+
+    .tree-item:not(.tree-item-root) > .tree-row::before {
+      content: "";
+      position: absolute;
+      left: -22px;
+      top: 23px;
+      width: 22px;
+      height: 2px;
+      background: #cbd5e1;
+    }
+
+    .tree-root-row {
+      display: flex;
+      align-items: center;
+      min-height: 38px;
+      margin-bottom: 8px;
+    }
+
+    .tree-root-badge {
+      background: #001736;
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      white-space: nowrap;
+      box-shadow: 0 6px 14px rgba(0,23,54,.08);
+    }
+
+    .tree-root-count,
+    .tree-node-count {
+      background: rgba(255,255,255,.22);
+      border-radius: 999px;
+      padding: 1px 7px;
+      font-size: 9px;
+      font-weight: 900;
+    }
+
+    .tree-node-main {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      font-size: 11px;
+      font-weight: 900;
+      border-radius: 10px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      border: 1px solid rgba(0,0,0,.08);
+      box-shadow: 0 6px 14px rgba(0,23,54,.08);
+    }
+
+    .tree-node-label-btn {
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tree-node-label-btn:hover {
+      filter: brightness(1.08);
+    }
+
+    .tree-arrow-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.22);
+      cursor: pointer;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .tree-arrow {
+      font-size: 9px;
+      opacity: .9;
+      line-height: 1;
+    }
+
+    .tree-sample-main {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all .15s;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      min-width: 290px;
+      max-width: 560px;
+    }
+
+    .tree-sample-main:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    .tree-sample-line1 {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .tree-sample-line2 {
+      padding-left: 16px;
+      font-size: 10px;
+      color: #94a3b8;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .tree-sample-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 4px;
+      background: #775a19;
+    }
+
+    .tree-sample-name {
+      font-size: 12px;
+      font-weight: 800;
+      color: #775a19;
+      line-height: 1.25;
+      word-break: break-word;
+      white-space: normal;
+    }
+
+    .tree-sample-gov {
+      font-size: 10px;
+      color: #94a3b8;
+      font-weight: 700;
+    }
+
+    .tree-ancient-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      background: #dc2626;
+      color: #fff;
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+
+    .tree-children.collapsed {
+      display: none;
+    }
+
+    .dim { opacity: .18; }
+    .hl  { background: #fef9c3 !important; border-radius: 10px; }
 
     .sample-detail-label {
       font-size: 10px;
@@ -209,339 +504,9 @@
       background: #001736;
       transition: transform .15s;
     }
-    .sample-link-btn:hover { transform: scale(1.06); }
 
-    .ctrl-btn {
-      padding: 7px 14px;
-      border-radius: 14px;
-      border: 1px solid #e5e7eb;
-      background: #fff;
-      font-family: 'Manrope', sans-serif;
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: .07em;
-      cursor: pointer;
-      transition: all .2s;
-      color: #001736;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      white-space: nowrap;
-    }
-    .ctrl-btn:hover {
-      background: #001736;
-      color: #fff;
-      border-color: #001736;
-    }
-    .ctrl-btn.on {
-      background: #8a6a1c;
-      color: #fff;
-      border-color: #8a6a1c;
-    }
-
-    .haplo-pill {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      padding: 4px 12px;
-      border-radius: 999px;
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-      cursor: pointer;
-      border: 2px solid transparent;
-      transition: all .2s ease;
-      min-width: 60px;
-      background: #fff;
-    }
-    .haplo-pill.on { border-color: currentColor; }
-
-    .tree-search-wrap {
-      position: relative;
-      width: 100%;
-      max-width: 360px;
-    }
-    .tree-search {
-      padding: 10px 12px 10px 38px;
-      border-radius: 14px;
-      border: 1px solid #d8dee8;
-      font-family: 'Manrope', sans-serif;
-      font-size: 12px;
-      font-weight: 700;
-      outline: none;
-      width: 100%;
-      transition: all .2s;
-      background: white;
-    }
-    .tree-search:focus {
-      border-color: #8a6a1c;
-      box-shadow: 0 0 0 3px rgba(138,106,28,.12);
-    }
-    .tree-search-wrap.has-text .search-icon {
-      display: none;
-    }
-
-    #tree-wrap {
-      background: #fff;
-      border-radius: 2rem;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 20px 60px rgba(0,23,54,.06);
-      overflow: auto;
-      position: relative;
-      min-height: 380px;
-    }
-
-    #tree-inner {
-      padding: 28px 28px 60px 28px;
-      min-width: 1050px;
-      font-family: 'Manrope', sans-serif;
-      transform-origin: top left;
-    }
-
-    .tree-search-result {
-      background: #f8fafc;
-      border: 1px solid #e5e7eb;
-      border-radius: 1rem;
-      padding: 12px 16px;
-      color: #64748b;
-      font-size: 11px;
-      font-weight: 800;
-      line-height: 1.7;
-    }
-
-    .tree-root-row {
-      margin-bottom: 6px;
-      position: relative;
-    }
-
-    .tree-node-row {
-      position: relative;
-      padding-left: 46px;
-      margin: 4px 0;
-      min-height: 52px;
-    }
-
-    .tree-node-branch {
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 46px;
-    }
-
-    .tree-node-branch::before {
-      content: "";
-      position: absolute;
-      left: 18px;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: #d7dde7;
-    }
-
-    .tree-node-branch::after {
-      content: "";
-      position: absolute;
-      left: 18px;
-      top: 25px;
-      width: 24px;
-      height: 2px;
-      background: #d7dde7;
-    }
-
-    .tree-node-row.last > .tree-node-branch::before {
-      top: 0;
-      height: 26px;
-      bottom: auto;
-    }
-
-    .tree-row-inner {
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-      position: relative;
-      min-height: 52px;
-    }
-
-    .tree-node-main {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      color: #fff;
-      padding: 7px 14px;
-      font-size: 12px;
-      font-weight: 900;
-      border-radius: 16px;
-      border: 1px solid rgba(0,0,0,.08);
-      box-shadow: 0 7px 14px rgba(0,23,54,.08);
-      white-space: nowrap;
-      min-height: 40px;
-      flex-shrink: 0;
-    }
-
-    .tree-node-toggle {
-      width: 30px;
-      height: 30px;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(255,255,255,.15);
-      cursor: pointer;
-      flex-shrink: 0;
-      user-select: none;
-    }
-
-    .tree-node-body {
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      min-height: 30px;
-    }
-
-    .tree-node-count {
-      background: rgba(255,255,255,.16);
-      border-radius: 999px;
-      padding: 2px 8px;
-      font-size: 10px;
-      font-weight: 900;
-    }
-
-    .tree-node-main.c-text-dark {
-      color: #111827;
-      border-color: #d1d5db;
-    }
-
-    .tree-children {
-      margin-left: 38px;
-      position: relative;
-    }
-
-    .tree-children.collapsed { display: none; }
-
-    .tree-sample-row {
-      position: relative;
-      padding-left: 46px;
-      margin: 6px 0;
-      min-height: 46px;
-    }
-
-    .tree-sample-row .tree-node-branch::before {
-      content: "";
-      position: absolute;
-      left: 18px;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: #d7dde7;
-    }
-    .tree-sample-row .tree-node-branch::after {
-      content: "";
-      position: absolute;
-      left: 18px;
-      top: 21px;
-      width: 24px;
-      height: 2px;
-      background: #d7dde7;
-    }
-    .tree-sample-row.last > .tree-node-branch::before {
-      top: 0;
-      height: 22px;
-      bottom: auto;
-    }
-
-    .tree-sample-main {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 1.5rem;
-      padding: 10px 16px;
-      min-width: 340px;
-      max-width: 600px;
-      box-shadow: 0 4px 12px rgba(0,23,54,.04);
-      cursor: pointer;
-      transition: all .15s ease;
-    }
-    .tree-sample-main:hover {
-      border-color: #cfd6e1;
-      box-shadow: 0 8px 16px rgba(0,23,54,.06);
-    }
-
-    .tree-sample-dot {
-      width: 14px;
-      height: 14px;
-      border-radius: 999px;
-      background: #9c7b28;
-      flex-shrink: 0;
-    }
-
-    .tree-sample-text {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-
-    .tree-sample-name {
-      font-size: 12px;
-      line-height: 1.35;
-      font-weight: 900;
-      color: #8a6a1c;
-      word-break: break-word;
-    }
-    .tree-sample-gov {
-      font-size: 10px;
-      line-height: 1.4;
-      color: #94a3b8;
-      font-weight: 800;
-      margin-top: 2px;
-    }
-
-    .tree-ancient-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 3px 9px;
-      border-radius: 999px;
-      font-size: 9px;
-      font-weight: 900;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      background: #dc2626;
-      color: #fff;
-      flex-shrink: 0;
-    }
-
-    .pie-hover-label {
-      font-size: 10px;
-      color: #64748b;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-    }
-
-    .mini-chart-wrap {
-      width: 84px;
-      height: 84px;
-      flex-shrink: 0;
-      position: relative;
-      overflow: visible;
-    }
-
-    .region-summary-line {
-      color: #64748b;
-      font-size: 14px;
-      font-weight: 800;
-      line-height: 1.6;
-    }
-
-    @media (max-width: 900px) {
-      #tree-inner { min-width: 860px; }
-      .tree-sample-main { min-width: 280px; max-width: 520px; }
+    .sample-link-btn:hover {
+      transform: scale(1.08);
     }
   </style>
 </head>
@@ -584,8 +549,8 @@
         </div>
       </div>
       <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-8 md:gap-12 justify-end font-headline font-bold">
-        <div class="w-full max-w-[320px] md:w-[360px]"><canvas id="nationalChartCanvas"></canvas></div>
-        <div id="national-legend" class="space-y-1 w-full max-w-[280px] text-[11px]"></div>
+        <div class="w-full max-w-[300px] md:w-[320px]"><canvas id="nationalChartCanvas"></canvas></div>
+        <div id="national-legend" class="space-y-1 w-full max-w-[260px] text-[11px]"></div>
       </div>
     </section>
 
@@ -595,7 +560,7 @@
 
     <section class="space-y-10">
       <h2 class="text-3xl md:text-5xl font-black font-headline uppercase tracking-tighter">Regional Archives</h2>
-      <div id="stats-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8"></div>
+      <div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8"></div>
     </section>
   </main>
 
@@ -613,14 +578,14 @@
         <select id="filterHaplo" onchange="renderArchive()" class="p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold outline-none w-full md:w-48">
           <option value="">All Haplogroups</option>
         </select>
-        <select id="filterGov" onchange="renderArchive()" class="p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold outline-none w-full md:w-56">
+        <select id="filterGov" onchange="renderArchive()" class="p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold outline-none w-full md:w-48">
           <option value="">All Governorates</option>
         </select>
       </div>
     </header>
 
-    <div class="archive-scroll">
-      <table>
+    <div class="archive-scroll shadow-2xl">
+      <table class="table-fixed min-w-[1200px]">
         <thead>
           <tr class="thead-row text-center font-headline">
             <th class="w-[18%] pl-8">Identification</th>
@@ -638,38 +603,37 @@
   </main>
 
   <main id="section-tree" class="page-section py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-8">
-    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
-      <div class="xl:col-span-3 font-headline">
+    <div class="flex flex-col md:flex-row justify-between items-start gap-6">
+      <div class="font-headline">
         <p class="text-[10px] font-black text-secondary uppercase tracking-[.3em] mb-2">— Phylogenetics</p>
-        <h2 class="text-5xl md:text-7xl font-black tracking-tighter leading-[0.9]">Y-DNA Tree</h2>
+        <h2 class="text-4xl md:text-7xl font-black tracking-tighter leading-none">Y-DNA Tree</h2>
       </div>
 
-      <div class="xl:col-span-9 flex flex-col gap-4">
-        <div class="flex flex-wrap gap-3 items-center">
-          <div id="treeSearchWrap" class="tree-search-wrap">
-            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 search-icon">search</span>
-            <input id="treeSearch" type="text" placeholder="Search SNP / node…" class="tree-search"/>
+      <div class="flex flex-col gap-3 w-full md:w-auto">
+        <div class="flex flex-wrap gap-2 items-center">
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" style="font-size:16px">search</span>
+            <input id="treeSearch" type="text" placeholder="Search node / sample…" oninput="treeApplySearch()" class="tree-search"/>
           </div>
 
           <button id="btn-modern" class="ctrl-btn on" onclick="treeToggleSource('modern')">Modern</button>
           <button id="btn-ancient" class="ctrl-btn on" onclick="treeToggleSource('ancient')">Ancient</button>
-          <button id="btn-direct" class="ctrl-btn on" onclick="setTreeMode('direct')">Direct Ancestors</button>
-          <button id="btn-full" class="ctrl-btn" onclick="setTreeMode('full')">Full SNP Path</button>
-          <button class="ctrl-btn" onclick="treeZoom(1.15)"><span class="material-symbols-outlined text-[18px]">zoom_in</span></button>
-          <button class="ctrl-btn" onclick="treeZoom(0.87)"><span class="material-symbols-outlined text-[18px]">zoom_out</span></button>
+          <button id="btn-tree-direct" class="ctrl-btn on" onclick="setTreeMode('direct')">Direct Ancestors</button>
+          <button id="btn-tree-full" class="ctrl-btn" onclick="setTreeMode('full')">Full SNP Path</button>
+          <button class="ctrl-btn" onclick="treeZoom(1.18)"><span class="material-symbols-outlined" style="font-size:16px">zoom_in</span></button>
+          <button class="ctrl-btn" onclick="treeZoom(.85)"><span class="material-symbols-outlined" style="font-size:16px">zoom_out</span></button>
           <button class="ctrl-btn" onclick="treeReset()">Reset</button>
           <button id="btn-tree-back" class="ctrl-btn hidden" onclick="clearTreeFocus()">Back</button>
         </div>
 
-        <div class="text-[11px] font-black uppercase tracking-[.14em] text-gray-400">Press Enter to search</div>
-        <div id="tree-search-result" class="tree-search-result hidden"></div>
+        <div id="tree-focus-path" class="tree-focus-path hidden"></div>
         <div id="tree-pills" class="flex flex-wrap gap-2"></div>
       </div>
     </div>
 
     <div class="flex flex-wrap gap-5 items-center text-[10px] font-headline font-black uppercase tracking-widest text-gray-400">
       <span class="flex items-center gap-1.5"><span class="inline-block w-5 h-3 rounded" style="background:#001736"></span>Node</span>
-      <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:#9c7b28"></span>Egyptian sample</span>
+      <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:#775a19"></span>Egyptian sample</span>
       <span class="flex items-center gap-1.5"><span class="inline-block px-2 py-[2px] rounded-full text-[9px] font-black text-white" style="background:#dc2626;">ANCIENT</span></span>
     </div>
 
@@ -678,6 +642,8 @@
         <div style="padding:40px;text-align:center;color:#94a3b8;font-weight:700;">Loading tree…</div>
       </div>
     </div>
+
+    <div id="tree-stats" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
   </main>
 
   <main id="section-ancient" class="page-section py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-16">
@@ -693,8 +659,8 @@
         </div>
       </div>
       <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-8 md:gap-12 justify-end font-headline font-bold">
-        <div class="w-full max-w-[320px] md:w-[360px]"><canvas id="ancientChartCanvas"></canvas></div>
-        <div id="ancient-legend" class="space-y-1 w-full max-w-[280px] text-[11px]"></div>
+        <div class="w-full max-w-[300px] md:w-[320px]"><canvas id="ancientChartCanvas"></canvas></div>
+        <div id="ancient-legend" class="space-y-1 w-full max-w-[260px] text-[11px]"></div>
       </div>
     </section>
 
@@ -706,8 +672,8 @@
       </div>
     </div>
 
-    <div class="archive-scroll">
-      <table>
+    <div class="archive-scroll shadow-2xl">
+      <table class="table-fixed min-w-[1200px]">
         <thead>
           <tr class="thead-row text-center font-headline">
             <th class="w-[18%] pl-8">Ancient ID & Culture</th>
@@ -735,34 +701,27 @@
   </footer>
 
   <div id="detail-modal" onclick="closeModal(event)">
-    <div class="modal-content p-6 md:p-10 relative border border-gray-100 shadow-2xl font-headline" onclick="event.stopPropagation()">
+    <div class="bg-white p-6 md:p-10 relative border border-gray-100 modal-content shadow-2xl font-headline" onclick="event.stopPropagation()">
       <button onclick="closeModal(null)" class="absolute top-6 right-6 text-gray-400 hover:text-red-500 transition-colors">
         <span class="material-symbols-outlined text-4xl">close</span>
       </button>
 
-      <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
-        <div class="xl:col-span-5">
-          <div class="w-full max-w-[520px] mx-auto aspect-square">
-            <canvas id="modalChartCanvas"></canvas>
-          </div>
+      <div class="flex flex-col md:flex-row gap-8 md:gap-12 items-center">
+        <div class="w-full max-w-[250px] md:w-[280px] aspect-square flex-shrink-0">
+          <canvas id="modalChartCanvas"></canvas>
         </div>
-
-        <div class="xl:col-span-7">
-          <h2 id="modal-title" class="text-3xl md:text-6xl font-black tracking-tighter leading-tight"></h2>
-          <p id="modal-summary-line" class="region-summary-line mt-4"></p>
-          <div id="modal-legend" class="space-y-3 border-t pt-8 mt-8 font-bold"></div>
+        <div class="flex-1 w-full md:border-l md:pl-10 border-gray-100">
+          <h2 id="modal-title" class="text-3xl md:text-5xl font-black font-headline uppercase tracking-tighter leading-tight"></h2>
+          <div id="modal-legend" class="space-y-2 border-t pt-8 mt-8 font-bold"></div>
         </div>
       </div>
 
       <div id="modal-kit-list" class="mt-10 border-t pt-8 hidden rounded-3xl p-6 border-l-[12px] shadow-sm">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
-          <div>
-            <h3 class="text-xl md:text-3xl font-black uppercase font-headline flex items-center gap-4">
-              <span class="material-symbols-outlined text-4xl">database</span>
-              KITS: <span id="selected-haplo-display"></span>
-            </h3>
-            <p id="modal-haplo-extra" class="text-sm text-gray-500 font-bold mt-2"></p>
-          </div>
+          <h3 class="text-xl md:text-3xl font-black uppercase font-headline flex items-center gap-4">
+            <span class="material-symbols-outlined text-4xl">database</span>
+            KITS: <span id="selected-haplo-display"></span>
+          </h3>
           <p id="modal-sample-count" class="text-sm md:text-xl font-black text-secondary uppercase bg-white px-6 py-3 rounded-full inline-block tracking-tighter shadow-sm border border-gray-100"></p>
         </div>
         <div id="kits-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8"></div>
@@ -771,18 +730,20 @@
   </div>
 
   <div id="sample-detail-modal" onclick="closeSampleModal(event)">
-    <div class="sample-modal-content p-6 md:p-10 relative border border-gray-100 shadow-2xl font-headline" onclick="event.stopPropagation()">
+    <div class="bg-white p-6 md:p-10 relative border border-gray-100 sample-modal-content shadow-2xl font-headline" onclick="event.stopPropagation()">
       <button onclick="closeSampleModal(null)" class="absolute top-6 right-6 text-gray-400 hover:text-red-500 transition-colors">
         <span class="material-symbols-outlined text-4xl">close</span>
       </button>
 
       <div class="space-y-8">
-        <div>
-          <div class="flex items-center gap-3 flex-wrap">
-            <h2 id="sample-modal-name" class="text-2xl md:text-4xl font-black tracking-tighter text-primary"></h2>
-            <span id="sample-modal-ancient" class="tree-ancient-badge hidden">ANCIENT</span>
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-3 flex-wrap">
+              <h2 id="sample-modal-name" class="text-2xl md:text-4xl font-black tracking-tighter text-primary"></h2>
+              <span id="sample-modal-ancient" class="tree-ancient-badge hidden">ANCIENT</span>
+            </div>
+            <p id="sample-modal-subtitle" class="text-sm md:text-base font-bold text-gray-400 mt-2"></p>
           </div>
-          <p id="sample-modal-subtitle" class="text-sm md:text-base font-bold text-gray-400 mt-2"></p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -825,11 +786,19 @@
     const _sb = supabase.createClient(SB_URL, SB_KEY);
 
     const HC = {
+      "A": "#000000",
+      "A1A": "#000000",
+      "A1B1": "#000000",
+      "A1B": "#000000",
+      "A1": "#000000",
+      "A1b": "#000000",
       "J1": "#006400",
       "J2": "#32CD32",
       "T": "#FFA500",
       "E": "#00008B",
       "R1B": "#FF0000",
+      "R1A": "#DEB887",
+      "R2": "#FFFF00",
       "L": "#00FFFF",
       "L1": "#00FFFF",
       "B": "#008B8B",
@@ -837,17 +806,12 @@
       "G2": "#808080",
       "I": "#EE82EE",
       "I2": "#EE82EE",
-      "R1A": "#DEB887",
-      "R2": "#FFFF00",
       "H": "#8B4513",
       "H2": "#8B4513",
       "Q": "#9400D3",
       "Q1": "#9400D3",
       "Q2": "#9400D3",
-      "C": "#FFFFFF",
-      "A": "#000000",
-      "A1A": "#000000",
-      "A1B1": "#000000"
+      "C": "#FFFFFF"
     };
 
     const BASE_COLOR = "#001736";
@@ -857,644 +821,50 @@
       "Al Iskandarīyah","Al Ismā`īlīyah","Al Minūfīyah","Al Minyā","Al Qalyūbīyah","As Suways",
       "Ash Sharqīyah","Aswān","Asyūt","Banī Suwayf","Cairo","Dumyāt","Al Jīzah","Janūb Sīnā'",
       "Kafr ash Shaykh","Luxor","Matrouh","Qinā","Shamal Sīnā'","Sūhāj","—"
-    ].sort((a,b) => a.localeCompare(b));
+    ].sort();
+
+    const STRUCTURAL_LABELS = new Set([
+      "Y","Y-ADAM","A0-T","A1","A1B","A1B1","BT","CT","CF","F","GHIJK","HIJK","IJK","IJ",
+      "J","K","LT","NO","P","DE","R","L","T","Q","G","H","I","B","C","A","E"
+    ]);
+
+    const PRESERVE_HEADS = new Set([
+      "Y-Adam","A1","A1b","B","C","G","H","I","J1","J2","L","T","Q1","Q2","R1A","R1B","R2","E"
+    ]);
 
     let modernSamples = [];
     let ancientSamples = [];
     let charts = {};
+    let regionalData = {};
 
+    let treeHaploFilter = null;
     let treeScale = 1;
     let treeShowModern = true;
     let treeShowAncient = true;
-    let treeMode = 'direct';
-    let treeHaploFilter = null;
     let treeFocusNodeId = null;
-    let treeSearchResult = null;
-    let lastBuiltTree = null;
+    let treeMode = 'direct';
 
     const collapsedNodes = new Set();
 
-    function esc(s) {
-      return String(s ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    }
-
     function sclean(s) {
       if (!s || s === '—') return '';
-      return s.toString()
-        .trim()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g,'')
-        .replace(/[`´‘’']/g,'')
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g,'');
+      return s.toString().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
     }
 
-    function normalizeGovDisplay(g) {
-      return g || '—';
+    function esc(s) {
+      return String(s || '')
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;');
     }
 
-    function parsePath(s) {
-      if (!s) return [];
-      return String(s).split('>').map(x => x.trim()).filter(Boolean);
+    function enc(obj) {
+      return btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
     }
 
-    function isCoreLabel(seg) {
-      return [
-        'BT','CT','F','GHIJK','HIJK','IJK','IJ','J','K','K2','K2B','P',
-        'P-V1651','P-M1254','P-P337','P-P284','P-P226','Q','R','R-M173','LT','DE',
-        'A0-T','Y-Adam'
-      ].includes(seg.toUpperCase());
-    }
-
-    function getSnpSuffix(seg) {
-      const up = seg.toUpperCase();
-      if (up.includes('-')) return up.split('-').slice(1).join('-');
-      return up;
-    }
-
-    function normalizeSearchQuery(q) {
-      return String(q || '').trim().toUpperCase();
-    }
-
-    function isWhiteLike(hex) {
-      return (hex || '').toUpperCase() === '#FFFFFF';
-    }
-
-    function hColor(label) {
-      const h = haploFromNodeLabel(label);
-      return HC[h] || BASE_COLOR;
-    }
-
-    function haploFromNodeLabel(label) {
-      const up = String(label || '').toUpperCase();
-
-      if (up === 'A1' || up === 'A1B' || up.startsWith('A-')) return 'A';
-      if (up.startsWith('A1A')) return 'A1A';
-      if (up.startsWith('A1B1')) return 'A1B1';
-
-      if (up === 'J1' || up.startsWith('J1-')) return 'J1';
-      if (up === 'J2' || up.startsWith('J2-')) return 'J2';
-
-      if (up === 'R1A' || up.startsWith('R1A-')) return 'R1A';
-      if (up === 'R1B' || up.startsWith('R1B-')) return 'R1B';
-      if (up === 'R2' || up.startsWith('R2-')) return 'R2';
-
-      if (up === 'Q1' || up.startsWith('Q1-')) return 'Q1';
-      if (up === 'Q2' || up.startsWith('Q2-')) return 'Q2';
-      if (up === 'Q' || up.startsWith('Q-')) return 'Q';
-
-      if (up === 'L' || up.startsWith('L-')) return 'L';
-      if (up === 'L1' || up.startsWith('L1-')) return 'L1';
-      if (up === 'I' || up.startsWith('I-')) return 'I';
-      if (up === 'I2' || up.startsWith('I2-')) return 'I2';
-      if (up === 'H' || up.startsWith('H-')) return 'H';
-      if (up === 'H2' || up.startsWith('H2-')) return 'H2';
-      if (up === 'G' || up.startsWith('G-')) return 'G';
-      if (up === 'G2' || up.startsWith('G2-')) return 'G2';
-      if (up === 'B' || up.startsWith('B-')) return 'B';
-      if (up === 'C' || up.startsWith('C-')) return 'C';
-      if (up === 'T' || up.startsWith('T-')) return 'T';
-      if (up === 'E' || up.startsWith('E-')) return 'E';
-
-      return up.split('-')[0];
-    }
-
-    function summaryHaplo(y, snp) {
-      const raw = String(y || '').trim().toUpperCase();
-      const path = String(snp || '').trim().toUpperCase();
-
-      if (raw.startsWith('J1') || raw === 'J-M267' || raw.startsWith('J-P58')) return 'J1';
-      if (raw.startsWith('J2')) return 'J2';
-
-      if (raw.startsWith('R1A')) return 'R1A';
-      if (raw.startsWith('R1B') || raw.startsWith('R-M269')) return 'R1B';
-      if (raw.startsWith('R2')) return 'R2';
-
-      if (raw.startsWith('Q1') || raw.startsWith('Q2')) return 'Q';
-      if (raw === 'Q') return 'Q';
-
-      if (raw.startsWith('A1B') || raw.startsWith('A1-') || raw === 'A1' || raw === 'A1B') return 'A1B';
-      if (raw.startsWith('A-') || raw === 'A') return 'A1B';
-
-      if (raw.startsWith('E') || path.startsWith('E-')) return 'E';
-      if (raw.startsWith('T') || path.startsWith('T-')) return 'T';
-      if (raw.startsWith('L') || path.startsWith('L-')) return 'L';
-      if (raw.startsWith('B') || path.startsWith('B-')) return 'B';
-      if (raw.startsWith('G') || path.startsWith('G-')) return 'G';
-      if (raw.startsWith('I') || path.startsWith('I-')) return 'I';
-      if (raw.startsWith('H') || path.startsWith('H-')) return 'H';
-      if (raw.startsWith('C') || path.startsWith('C-')) return 'C';
-
-      return raw.charAt(0) || '?';
-    }
-
-    function chartColor(label) {
-      if (label === 'Q') return HC.Q;
-      if (label === 'A1B') return HC.A;
-      if (label === 'C') return '#ffffff';
-      return HC[label] || BASE_COLOR;
-    }
-
-    function chartBorderColor(label) {
-      if (label === 'C') return '#9ca3af';
-      if (label === 'SŪHĀJ_HIGHLIGHT') return '#9ca3af';
-      return '#ffffff';
-    }
-
-    function chartTextColor(label) {
-      if (label === 'C') return '#111827';
-      return '#0f172a';
-    }
-
-    function isTreeColored(label) {
-      const h = haploFromNodeLabel(label);
-      return ['J1','J2','T','E','R1B','L','L1','B','G','G2','I','I2','R1A','R2','H','H2','Q','Q1','Q2','C','A','A1A','A1B1'].includes(h);
-    }
-
-    function normalizeNodeLabel(seg, parentLabel = '', forcePrefix = false) {
-      const up = String(seg || '').trim().toUpperCase();
-      if (!up) return '';
-
-      if (up === 'Y-ADAM') return 'Y-Adam';
-      if (up === 'A0-T') return 'A0-T';
-
-      if (['BT','CT','F','GHIJK','HIJK','IJK','IJ','J','K','K2','K2B','P','LT','DE'].includes(up)) return up;
-      if (['P-V1651','P-M1254','P-P337','P-P284','P-P226','R-M173'].includes(up)) return up;
-
-      if (up === 'A1') return 'A1';
-      if (up === 'A1B') return 'A1b';
-      if (up === 'J1') return 'J1';
-      if (up === 'J2') return 'J2';
-      if (up === 'Q1') return 'Q1';
-      if (up === 'Q2') return 'Q2';
-      if (up === 'R1A') return 'R1A';
-      if (up === 'R1B') return 'R1B';
-      if (up === 'R2') return 'R2';
-      if (up === 'Q') return 'Q';
-
-      if (up.startsWith('A1-')) return 'A-' + getSnpSuffix(up);
-      if (up.startsWith('A1B-')) return 'A-' + getSnpSuffix(up);
-      if (up.startsWith('J1-')) return 'J1-' + getSnpSuffix(up);
-      if (up.startsWith('J2-')) return 'J2-' + getSnpSuffix(up);
-      if (up.startsWith('R1A-')) return 'R1A-' + getSnpSuffix(up);
-      if (up.startsWith('R1B-')) return 'R1B-' + getSnpSuffix(up);
-      if (up.startsWith('R2-')) return 'R2-' + getSnpSuffix(up);
-      if (up.startsWith('Q1-')) return 'Q1-' + getSnpSuffix(up);
-      if (up.startsWith('Q2-')) return 'Q2-' + getSnpSuffix(up);
-
-      if (up.startsWith('A-')) return 'A-' + getSnpSuffix(up);
-      if (up.startsWith('B-')) return 'B-' + getSnpSuffix(up);
-      if (up.startsWith('C-')) return 'C-' + getSnpSuffix(up);
-      if (up.startsWith('E-')) return 'E-' + getSnpSuffix(up);
-      if (up.startsWith('G-')) return 'G-' + getSnpSuffix(up);
-      if (up.startsWith('H-')) return 'H-' + getSnpSuffix(up);
-      if (up.startsWith('I-')) return 'I-' + getSnpSuffix(up);
-      if (up.startsWith('L-')) return 'L-' + getSnpSuffix(up);
-      if (up.startsWith('T-')) return 'T-' + getSnpSuffix(up);
-      if (up.startsWith('Q-')) return 'Q-' + getSnpSuffix(up);
-      if (up.startsWith('R-')) return up;
-
-      if (up === 'A') return 'A';
-      if (up === 'B') return 'B';
-      if (up === 'C') return 'C';
-      if (up === 'E') return 'E';
-      if (up === 'G') return 'G';
-      if (up === 'H') return 'H';
-      if (up === 'I') return 'I';
-      if (up === 'L') return 'L';
-      if (up === 'T') return 'T';
-      if (up === 'R') return 'R';
-
-      if (parentLabel) {
-        const p = String(parentLabel).toUpperCase();
-        if (p === 'J1' || p.startsWith('J1-')) return 'J1-' + up;
-        if (p === 'J2' || p.startsWith('J2-')) return 'J2-' + up;
-        if (p === 'R1A' || p.startsWith('R1A-')) return 'R1A-' + up;
-        if (p === 'R1B' || p.startsWith('R1B-')) return 'R1B-' + up;
-        if (p === 'R2' || p.startsWith('R2-')) return 'R2-' + up;
-        if (p === 'Q1' || p.startsWith('Q1-')) return 'Q1-' + up;
-        if (p === 'Q2' || p.startsWith('Q2-')) return 'Q2-' + up;
-
-        if (p === 'A1' || p.startsWith('A-')) return 'A-' + up;
-        if (p === 'A1B' || p === 'A1B'.replace('B','b').toUpperCase() || p.startsWith('A-')) return 'A-' + up;
-        if (p === 'B' || p.startsWith('B-')) return 'B-' + up;
-        if (p === 'C' || p.startsWith('C-')) return 'C-' + up;
-        if (p === 'E' || p.startsWith('E-')) return 'E-' + up;
-        if (p === 'G' || p.startsWith('G-')) return 'G-' + up;
-        if (p === 'H' || p.startsWith('H-')) return 'H-' + up;
-        if (p === 'I' || p.startsWith('I-')) return 'I-' + up;
-        if (p === 'L' || p.startsWith('L-')) return 'L-' + up;
-        if (p === 'T' || p.startsWith('T-')) return 'T-' + up;
-        if (p === 'Q' || p.startsWith('Q-')) return 'Q-' + up;
-        if (p === 'R' || p.startsWith('R-')) return 'R-' + up;
-      }
-
-      return up;
-    }
-
-    function samplePathForMode(sample, mode) {
-      const full = parsePath(sample.full_snp_path);
-      if (!full.length) return [];
-
-      const normFull = full.map((seg, idx) => normalizeNodeLabel(seg, idx > 0 ? normalizeNodeLabel(full[idx - 1], idx > 1 ? normalizeNodeLabel(full[idx - 2]) : '') : ''));
-
-      if (mode === 'full') return ['Y-Adam', ...normFull.filter(x => x !== 'Y-Adam')];
-
-      const kept = [];
-      let last = '';
-
-      for (let i = 0; i < normFull.length; i++) {
-        const cur = normFull[i];
-        if (!cur || cur === last) continue;
-
-        const pure = cur.toUpperCase();
-
-        const keep =
-          pure === 'Y-ADAM' ||
-          pure === 'A0-T' ||
-          pure === 'A1' ||
-          pure === 'A1B' ||
-          pure === 'A1B'.replace('B','b').toUpperCase() ||
-          pure === 'BT' || pure === 'CT' || pure === 'F' || pure === 'GHIJK' || pure === 'HIJK' ||
-          pure === 'IJK' || pure === 'IJ' || pure === 'J' || pure === 'K' || pure === 'K2' ||
-          pure === 'K2B' || pure === 'P' || pure === 'P-V1651' || pure === 'P-M1254' || pure === 'P-P337' ||
-          pure === 'P-P284' || pure === 'P-P226' || pure === 'Q' || pure === 'R' || pure === 'R-M173' ||
-          pure === 'LT' || pure === 'DE' ||
-          pure === 'J1' || pure === 'J2' || pure === 'R1A' || pure === 'R1B' || pure === 'R2' ||
-          pure === 'Q1' || pure === 'Q2' ||
-          pure === 'A' || pure === 'B' || pure === 'C' || pure === 'E' || pure === 'G' ||
-          pure === 'H' || pure === 'I' || pure === 'L' || pure === 'T' ||
-          pure.startsWith('A-') || pure.startsWith('B-') || pure.startsWith('C-') || pure.startsWith('E-') ||
-          pure.startsWith('G-') || pure.startsWith('H-') || pure.startsWith('I-') || pure.startsWith('L-') ||
-          pure.startsWith('T-') || pure.startsWith('J1-') || pure.startsWith('J2-') || pure.startsWith('Q1-') ||
-          pure.startsWith('Q2-') || pure.startsWith('R1A-') || pure.startsWith('R1B-') || pure.startsWith('R2-') ||
-          pure.startsWith('Q-') || pure.startsWith('R-') || pure.startsWith('P-');
-
-        if (keep) {
-          kept.push(cur);
-          last = cur;
-        }
-      }
-
-      const dedup = [];
-      kept.forEach(v => {
-        if (!dedup.length || dedup[dedup.length - 1] !== v) dedup.push(v);
-      });
-
-      if (dedup[0] !== 'Y-Adam') dedup.unshift('Y-Adam');
-      return dedup;
-    }
-
-    function buildTree(samples, mode) {
-      const root = {
-        id: 'root',
-        label: 'Y-Adam',
-        parent: null,
-        children: [],
-        childMap: {},
-        samples: [],
-        depth: 0
-      };
-
-      let nodeCounter = 0;
-
-      function ensureChild(parent, label) {
-        if (!parent.childMap[label]) {
-          const node = {
-            id: 'node_' + (++nodeCounter),
-            label,
-            parent,
-            children: [],
-            childMap: {},
-            samples: [],
-            depth: parent.depth + 1
-          };
-          parent.childMap[label] = node;
-          parent.children.push(node);
-        }
-        return parent.childMap[label];
-      }
-
-      samples.forEach(sample => {
-        const path = samplePathForMode(sample, mode);
-        let current = root;
-
-        for (let i = 1; i < path.length; i++) {
-          current = ensureChild(current, path[i]);
-        }
-
-        current.samples.push(sample);
-      });
-
-      function sortNode(node) {
-        node.children.sort((a,b) => a.label.localeCompare(b.label, undefined, { numeric: true }));
-        node.children.forEach(sortNode);
-      }
-      sortNode(root);
-
-      function countDesc(node) {
-        let count = node.samples.length;
-        node.children.forEach(child => count += countDesc(child));
-        node.totalCount = count;
-        return count;
-      }
-      countDesc(root);
-
-      return root;
-    }
-
-    function buildTreeSearchIndex(root) {
-      const index = [];
-      function walk(node, path) {
-        const nextPath = [...path, node];
-        index.push({ node, path: nextPath });
-        node.children.forEach(child => walk(child, nextPath));
-      }
-      walk(root, []);
-      return index;
-    }
-
-    function queryMatchesNode(query, label) {
-      const q = normalizeSearchQuery(query);
-      const l = String(label || '').toUpperCase();
-
-      if (!q) return false;
-      if (l === q) return true;
-      if (l.endsWith('-' + q)) return true;
-
-      const suffix = getSnpSuffix(l);
-      if (suffix === q) return true;
-
-      return false;
-    }
-
-    function findNodeByQuery(root, query) {
-      const idx = buildTreeSearchIndex(root);
-      for (const item of idx) {
-        if (queryMatchesNode(query, item.node.label)) {
-          return item;
-        }
-      }
-      return null;
-    }
-
-    function gatherSourceSamples() {
-      let arr = [];
-      if (treeShowModern) arr = arr.concat(modernSamples);
-      if (treeShowAncient) arr = arr.concat(ancientSamples);
-      return arr;
-    }
-
-    function filteredTreeSamples() {
-      let samples = gatherSourceSamples();
-
-      if (treeHaploFilter) {
-        samples = samples.filter(s => {
-          const raw = String(s.y_dna || '').toUpperCase();
-          const group = summaryHaplo(s.y_dna, s.snp_path);
-          return group === treeHaploFilter || raw.startsWith(treeHaploFilter);
-        });
-      }
-
-      return samples;
-    }
-
-    function renderTree() {
-      const samples = filteredTreeSamples();
-      buildPills(samples);
-
-      const tree = buildTree(samples, treeMode);
-      lastBuiltTree = tree;
-
-      const resultBox = document.getElementById('tree-search-result');
-      resultBox.classList.add('hidden');
-      resultBox.innerHTML = '';
-
-      let renderRoot = tree;
-
-      if (treeSearchResult && treeSearchResult.query) {
-        const found = findNodeByQuery(tree, treeSearchResult.query);
-        if (found) {
-          renderRoot = found.node;
-          document.getElementById('btn-tree-back').classList.remove('hidden');
-          resultBox.classList.remove('hidden');
-          resultBox.innerHTML = `SEARCH RESULT: ${found.path.map(x => esc(x.label)).join(' › ')}`;
-          treeFocusNodeId = found.node.id;
-        } else {
-          document.getElementById('btn-tree-back').classList.add('hidden');
-          resultBox.classList.remove('hidden');
-          resultBox.textContent = `SEARCH RESULT: NO EXACT SNP FOUND FOR ${treeSearchResult.query}`;
-          treeFocusNodeId = null;
-        }
-      } else if (treeFocusNodeId) {
-        const idx = buildTreeSearchIndex(tree);
-        const found = idx.find(x => x.node.id === treeFocusNodeId);
-        if (found) {
-          renderRoot = found.node;
-          document.getElementById('btn-tree-back').classList.remove('hidden');
-        } else {
-          treeFocusNodeId = null;
-          document.getElementById('btn-tree-back').classList.add('hidden');
-        }
-      } else {
-        document.getElementById('btn-tree-back').classList.add('hidden');
-      }
-
-      const html = [];
-      if (renderRoot.label === 'Y-Adam') {
-        html.push(renderRootRow(renderRoot));
-        html.push('<div class="tree-children">');
-        renderRoot.children.forEach((child, idx) => {
-          html.push(renderNode(child, idx === renderRoot.children.length - 1));
-        });
-        html.push('</div>');
-      } else {
-        html.push(renderRootRow(renderRoot));
-        html.push('<div class="tree-children">');
-        renderRoot.children.forEach((child, idx) => {
-          html.push(renderNode(child, idx === renderRoot.children.length - 1));
-        });
-        renderRoot.samples.forEach((sample, idx) => {
-          html.push(renderSampleRow(sample, idx === renderRoot.samples.length - 1 && !renderRoot.children.length));
-        });
-        html.push('</div>');
-      }
-
-      document.getElementById('tree-inner').innerHTML = html.join('');
-      document.getElementById('tree-inner').style.transform = `scale(${treeScale})`;
-    }
-
-    function renderRootRow(node) {
-      const col = BASE_COLOR;
-      return `
-        <div class="tree-root-row">
-          <div class="tree-node-main" style="background:${col}">
-            <span class="tree-node-body" onclick="focusNodeById('${node.id}')">
-              <span>${esc(node.label)}</span>
-              <span class="tree-node-count">${node.totalCount}</span>
-            </span>
-          </div>
-        </div>
-      `;
-    }
-
-    function nodeCardStyle(label) {
-      const colored = isTreeColored(label);
-      const col = colored ? hColor(label) : BASE_COLOR;
-      const darkText = isWhiteLike(col);
-      return {
-        bg: col,
-        color: darkText ? '#111827' : '#ffffff',
-        cls: darkText ? 'c-text-dark' : ''
-      };
-    }
-
-    function renderNode(node, isLast) {
-      const st = nodeCardStyle(node.label);
-      const collapsed = collapsedNodes.has(node.id);
-      const hasKids = node.children.length > 0 || node.samples.length > 0;
-
-      let html = `
-        <div class="tree-node-row ${isLast ? 'last' : ''}">
-          <div class="tree-node-branch"></div>
-          <div class="tree-row-inner">
-            <div class="tree-node-main ${st.cls}" style="background:${st.bg};color:${st.color}">
-              <span class="tree-node-toggle" onclick="toggleNode('${node.id}')">${collapsed ? '▶' : '▼'}</span>
-              <span class="tree-node-body" onclick="focusNodeById('${node.id}')">
-                <span>${esc(node.label)}</span>
-                <span class="tree-node-count">${node.totalCount}</span>
-              </span>
-            </div>
-          </div>
-      `;
-
-      if (!collapsed && hasKids) {
-        html += `<div class="tree-children">`;
-        node.children.forEach((child, idx) => {
-          const childLast = idx === node.children.length - 1 && node.samples.length === 0;
-          html += renderNode(child, childLast);
-        });
-        node.samples.forEach((sample, idx) => {
-          html += renderSampleRow(sample, idx === node.samples.length - 1);
-        });
-        html += `</div>`;
-      }
-
-      html += `</div>`;
-      return html;
-    }
-
-    function renderSampleRow(sample, isLast) {
-      return `
-        <div class="tree-sample-row ${isLast ? 'last' : ''}">
-          <div class="tree-node-branch"></div>
-          <div class="tree-row-inner">
-            <div class="tree-sample-main" onclick='openSampleModal(${JSON.stringify(safeSampleForInline(sample))})'>
-              <span class="tree-sample-dot"></span>
-              <div class="tree-sample-text">
-                <span class="tree-sample-name">${esc(sample.name || sample.sample_id || sample.kit_number || '—')}</span>
-                <span class="tree-sample-gov">${esc(sample.governorate || sample.site || '—')}</span>
-              </div>
-              ${sample.__sourceType === 'ancient' ? '<span class="tree-ancient-badge">ANCIENT</span>' : ''}
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function safeSampleForInline(s) {
-      return {
-        name: s.name || '',
-        sample_id: s.sample_id || '',
-        kit_number: s.kit_number || '',
-        governorate: s.governorate || '',
-        site: s.site || '',
-        y_dna: s.y_dna || '',
-        mt_dna: s.mt_dna || '',
-        full_snp_path: s.full_snp_path || '',
-        y_link_1: s.y_link_1 || '',
-        y_link_2: s.y_link_2 || '',
-        mt_link_1: s.mt_link_1 || '',
-        mt_link_2: s.mt_link_2 || '',
-        __sourceType: s.__sourceType || 'modern'
-      };
-    }
-
-    function toggleNode(id) {
-      if (collapsedNodes.has(id)) collapsedNodes.delete(id);
-      else collapsedNodes.add(id);
-      renderTree();
-    }
-
-    function focusNodeById(id) {
-      treeSearchResult = null;
-      treeFocusNodeId = id;
-      renderTree();
-    }
-
-    function clearTreeFocus() {
-      treeFocusNodeId = null;
-      treeSearchResult = null;
-      document.getElementById('tree-search-result').classList.add('hidden');
-      renderTree();
-    }
-
-    function setTreeMode(mode) {
-      treeMode = mode;
-      document.getElementById('btn-direct').classList.toggle('on', mode === 'direct');
-      document.getElementById('btn-full').classList.toggle('on', mode === 'full');
-      renderTree();
-    }
-
-    function treeToggleSource(src) {
-      if (src === 'modern') treeShowModern = !treeShowModern;
-      if (src === 'ancient') treeShowAncient = !treeShowAncient;
-      document.getElementById('btn-modern').classList.toggle('on', treeShowModern);
-      document.getElementById('btn-ancient').classList.toggle('on', treeShowAncient);
-      renderTree();
-    }
-
-    function treeZoom(mult) {
-      treeScale = Math.min(Math.max(treeScale * mult, 0.45), 2.2);
-      document.getElementById('tree-inner').style.transform = `scale(${treeScale})`;
-    }
-
-    function treeReset() {
-      treeScale = 1;
-      document.getElementById('tree-inner').style.transform = `scale(1)`;
-      document.getElementById('treeSearch').value = '';
-      document.getElementById('treeSearchWrap').classList.remove('has-text');
-      treeSearchResult = null;
-      treeFocusNodeId = null;
-      renderTree();
-    }
-
-    function buildPills(samples) {
-      const counts = {};
-      samples.forEach(s => {
-        const h = summaryHaplo(s.y_dna, s.snp_path);
-        counts[h] = (counts[h] || 0) + 1;
-      });
-
-      const list = Object.entries(counts).sort((a,b) => a[0].localeCompare(b[0], undefined, { numeric:true }));
-      const el = document.getElementById('tree-pills');
-
-      el.innerHTML =
-        `<span class="haplo-pill ${treeHaploFilter === null ? 'on' : ''}" style="color:#001736;border-color:${treeHaploFilter===null?'#001736':'transparent'}" onclick="setTreeHaploFilter(null)">All</span>` +
-        list.map(([h,c]) => {
-          const col = chartColor(h);
-          const textCol = h === 'C' ? '#111827' : col;
-          return `<span class="haplo-pill ${treeHaploFilter === h ? 'on' : ''}" style="color:${textCol};border-color:${treeHaploFilter===h?textCol:'transparent'}" onclick="setTreeHaploFilter('${h}')">${h} ${c}</span>`;
-        }).join('');
-    }
-
-    function setTreeHaploFilter(h) {
-      treeHaploFilter = h;
-      renderTree();
+    function dec(s) {
+      return JSON.parse(decodeURIComponent(escape(atob(s))));
     }
 
     function links(s, type) {
@@ -1502,30 +872,559 @@
       const l2 = type === 'y' ? s.y_link_2 : s.mt_link_2;
       const bg = type === 'y' ? 'bg-primary' : 'bg-secondary';
 
-      let html = '<div class="flex gap-1.5 justify-center">';
-      [[l1, 'database'], [l2, 'link']].forEach(([u, icon]) => {
-        if (u && u !== '—' && u.length > 5) {
-          html += `<a href="${esc(u)}" target="_blank" class="w-8 h-8 rounded-lg ${bg} text-white flex items-center justify-center hover:scale-110 transition-transform shadow-sm"><span class="material-symbols-outlined text-[14px]">${icon}</span></a>`;
+      let h = '<div class="flex gap-1.5 justify-center">';
+      [[l1, 'database'], [l2, 'link']].forEach(([u, ic]) => {
+        if (u && u.length > 5 && u !== '—') {
+          h += `<a href="${esc(u)}" target="_blank" class="w-7 h-7 rounded-lg ${bg} text-white flex items-center justify-center hover:scale-110 transition-transform shadow-sm"><span class="material-symbols-outlined text-[14px]">${ic}</span></a>`;
         }
       });
-      html += '</div>';
-      return html;
+      return h + '</div>';
     }
 
-    function matchSearch(s, q) {
-      if (!q) return true;
-      const qq = sclean(q);
-
-      const fields = [
-        s.name, s.kit_number, s.sample_id, s.governorate, s.site,
-        s.period, s.study_reference, s.cultural_group, s.y_dna,
-        s.snp_path, s.full_snp_path
+    function sampleLinksMarkup(s) {
+      const all = [
+        [s.y_link_1, 'database', '#001736'],
+        [s.y_link_2, 'link', '#001736'],
+        [s.mt_link_1, 'database', '#775a19'],
+        [s.mt_link_2, 'link', '#775a19']
       ];
 
-      return fields.some(f => sclean(f).includes(qq));
+      return all
+        .filter(([url]) => url && url !== '—')
+        .map(([url, icon, color]) => `
+          <a href="${esc(url)}" target="_blank" class="sample-link-btn" style="background:${color}">
+            <span class="material-symbols-outlined">${icon}</span>
+          </a>
+        `).join('');
     }
 
-    function makePie(id, data, ctx, totalBase = null, opts = {}) {
+    function haplo(y, snp) {
+      const Y = (y || '').trim().toUpperCase();
+      const S = (snp || '').trim().toUpperCase();
+
+      if (Y.includes('J2') || S.startsWith('J2') || Y.includes('J-PH') || Y.includes('J-FTE')) return 'J2';
+      if (Y.startsWith('J1') || Y.startsWith('J-')) return 'J1';
+      if (S.includes('R1A') || Y.startsWith('R1A')) return 'R1A';
+      if (S.includes('R1B') || Y.startsWith('R1B') || Y.startsWith('R-PF6') || Y.startsWith('R-FT2')) return 'R1B';
+      if (S.includes('R2') || Y.startsWith('R2')) return 'R2';
+      if (Y.startsWith('Q1') || S.startsWith('Q1')) return 'Q1';
+      if (Y.startsWith('Q2') || S.startsWith('Q2')) return 'Q2';
+      if (Y.startsWith('B') || S.startsWith('B')) return 'B';
+      if (Y.startsWith('C') || S.startsWith('C')) return 'C';
+      if (Y.startsWith('G') || S.startsWith('G')) return 'G';
+      if (Y.startsWith('H') || S.startsWith('H')) return 'H';
+      if (Y.startsWith('I') || S.startsWith('I')) return 'I';
+      if (Y.startsWith('L') || S.startsWith('L')) return 'L';
+      if (Y.startsWith('T') || S.startsWith('T')) return 'T';
+      if (Y.startsWith('E') || S.startsWith('E')) return 'E';
+      if (Y.startsWith('A1B') || S.startsWith('A1B')) return 'A1b';
+      if (Y.startsWith('A1') || S.startsWith('A1')) return 'A1';
+      if (Y.startsWith('A') || S.startsWith('A')) return 'A';
+      return Y.charAt(0) || '?';
+    }
+
+    function parsePath(s) {
+      if (!s) return [];
+      return s.split(">").map(x => x.trim()).filter(Boolean);
+    }
+
+    function normalizeTopLevelLabel(seg) {
+      const u = String(seg || '').toUpperCase();
+
+      if (u === 'Y' || u === 'Y-ADAM') return 'Y-Adam';
+      if (u === 'J-J1' || u === 'J1') return 'J1';
+      if (u === 'J-J2' || u === 'J2') return 'J2';
+      if (u === 'R-R1A' || u === 'R1A') return 'R1A';
+      if (u === 'R-R1B' || u === 'R1B') return 'R1B';
+      if (u === 'R-R2' || u === 'R2') return 'R2';
+      if (u === 'Q-Q1' || u === 'Q1') return 'Q1';
+      if (u === 'Q-Q2' || u === 'Q2') return 'Q2';
+      if (u === 'A1B') return 'A1b';
+
+      return seg;
+    }
+
+    function normalizeDisplayLabel(label) {
+      const u = String(label || '').toUpperCase();
+      if (u === 'Y') return 'Y-Adam';
+      if (u === 'Y-ADAM') return 'Y-Adam';
+      if (u === 'J-J1') return 'J1';
+      if (u === 'J-J2') return 'J2';
+      if (u === 'R-R1A') return 'R1A';
+      if (u === 'R-R1B') return 'R1B';
+      if (u === 'R-R2') return 'R2';
+      if (u === 'Q-Q1') return 'Q1';
+      if (u === 'Q-Q2') return 'Q2';
+      if (u === 'A1B') return 'A1b';
+      return label;
+    }
+
+    function headParentFor(head) {
+      switch (head) {
+        case 'A1': return 'A0-T';
+        case 'A1b': return 'A1';
+        case 'B': return 'BT';
+        case 'C': return 'CF';
+        case 'G': return 'GHIJK';
+        case 'H': return 'HIJK';
+        case 'I': return 'IJ';
+        case 'J1':
+        case 'J2': return 'J';
+        case 'L':
+        case 'T': return 'LT';
+        case 'Q1':
+        case 'Q2': return 'Q';
+        case 'R1A':
+        case 'R1B':
+        case 'R2': return 'R';
+        case 'E': return 'DE';
+        default: return null;
+      }
+    }
+
+    function mainHeadForSample(sample) {
+      const h = haplo(sample.y_dna, sample.snp_path);
+      if (['A1','A1b','B','C','G','H','I','J1','J2','L','T','Q1','Q2','R1A','R1B','R2','E'].includes(h)) return h;
+      return null;
+    }
+
+    function injectHeadNodes(path, sample) {
+      const head = mainHeadForSample(sample);
+      if (!head) return path;
+
+      const parent = headParentFor(head);
+      if (!parent) return path;
+
+      const upper = path.map(x => normalizeDisplayLabel(x).toUpperCase());
+      if (upper.includes(head.toUpperCase())) return path;
+
+      const out = [];
+      let inserted = false;
+
+      path.forEach(seg => {
+        out.push(seg);
+        if (!inserted && normalizeDisplayLabel(seg).toUpperCase() === parent.toUpperCase()) {
+          out.push(head);
+          inserted = true;
+        }
+      });
+
+      return out;
+    }
+
+    function getPrefixBase(parentLabel) {
+      const u = String(parentLabel || '').toUpperCase();
+
+      if (u === 'J1' || u === 'J2') return 'J';
+      if (u === 'R1A' || u === 'R1B' || u === 'R2') return 'R';
+      if (u === 'Q1' || u === 'Q2') return 'Q';
+      if (u === 'T' || u.startsWith('T-')) return 'T';
+      if (u === 'L' || u === 'L1' || u.startsWith('L-')) return 'L';
+      if (u === 'I' || u === 'I2' || u.startsWith('I-')) return 'I';
+      if (u === 'H' || u === 'H2' || u.startsWith('H-')) return 'H';
+      if (u === 'G' || u === 'G2' || u.startsWith('G-')) return 'G';
+      if (u === 'C' || u.startsWith('C-')) return 'C';
+      if (u === 'B' || u.startsWith('B-')) return 'B';
+      if (u === 'A1B' || u === 'A1B1' || u === 'A1B'.toUpperCase() || u === 'A1B'.toUpperCase()) return 'A1b';
+      if (u === 'A1B'.toUpperCase() || u === 'A1B') return 'A1b';
+      if (u === 'A1' || u.startsWith('A1-')) return 'A1';
+      if (u === 'A' || u.startsWith('A-')) return 'A';
+      if (u === 'E' || u.startsWith('E-')) return 'E';
+
+      return String(parentLabel || '').split('-')[0];
+    }
+
+    function getRawLabel(seg, parentLabel) {
+      const clean = normalizeTopLevelLabel(String(seg || '').trim());
+      if (!clean) return '';
+
+      if (clean.includes('-')) return normalizeDisplayLabel(clean);
+
+      const upper = clean.toUpperCase();
+      if (STRUCTURAL_LABELS.has(upper)) return normalizeDisplayLabel(clean);
+
+      if (!parentLabel) return normalizeDisplayLabel(clean);
+
+      const prefix = getPrefixBase(parentLabel);
+      return normalizeDisplayLabel(prefix + "-" + clean);
+    }
+
+    function getColorRootFromLabel(label) {
+      const u = String(label || '').toUpperCase();
+
+      const tests = ['J1','J2','R1A','R1B','R2','Q1','Q2','L','T','B','G','H','I','C','A1','A1B','A1b','A','E'];
+
+      for (const t of tests) {
+        if (u === t.toUpperCase() || u.startsWith(t.toUpperCase() + '-')) {
+          if (t === 'A1B') return 'A';
+          if (t === 'A1b') return 'A';
+          if (t === 'A1') return 'A';
+          return t;
+        }
+      }
+
+      return null;
+    }
+
+    function buildTree(samples) {
+      const root = {
+        id: 'root',
+        rawLabel: 'Y-Adam',
+        label: 'Y-Adam',
+        colorRoot: null,
+        children: {},
+        samples: [],
+        parent: null
+      };
+
+      samples.forEach(s => {
+        let path = parsePath(s.full_snp_path)
+          .map(x => normalizeTopLevelLabel(x))
+          .filter(x => x && x.toUpperCase() !== 'Y' && x.toUpperCase() !== 'Y-ADAM');
+
+        path = injectHeadNodes(path, s);
+
+        let node = root;
+
+        path.forEach(seg => {
+          const raw = getRawLabel(seg, node.rawLabel);
+          if (!raw) return;
+
+          const display = normalizeDisplayLabel(raw);
+          const inheritedColorRoot = node.colorRoot || null;
+          const ownColorRoot = getColorRootFromLabel(display);
+          const finalColorRoot = ownColorRoot || inheritedColorRoot;
+
+          const key = raw;
+
+          if (!node.children[key]) {
+            node.children[key] = {
+              id: node.id + '>' + raw,
+              rawLabel: raw,
+              label: display,
+              colorRoot: finalColorRoot,
+              children: {},
+              samples: [],
+              parent: node
+            };
+          }
+
+          node = node.children[key];
+        });
+
+        node.samples.push(s);
+      });
+
+      return root;
+    }
+
+    function sortTree(node) {
+      node.children = Object.keys(node.children)
+        .sort((a,b)=>a.localeCompare(b, undefined, { numeric:true, sensitivity:'base' }))
+        .reduce((acc,k)=>{ acc[k] = node.children[k]; return acc; }, {});
+
+      Object.values(node.children).forEach(sortTree);
+    }
+
+    function compressDirectAncestors(node, keepRoot = false) {
+      const compressedChildren = Object.values(node.children).map(child => compressDirectAncestors(child, false));
+      node.children = {};
+      compressedChildren.forEach(ch => {
+        node.children[ch.rawLabel] = ch;
+        ch.parent = node;
+      });
+
+      const childList = Object.values(node.children);
+      if (!keepRoot && node.samples.length === 0 && childList.length === 1 && !PRESERVE_HEADS.has(node.label)) {
+        return childList[0];
+      }
+
+      return node;
+    }
+
+    function findNodeById(node, id) {
+      if (node.id === id) return node;
+      for (const child of Object.values(node.children)) {
+        const found = findNodeById(child, id);
+        if (found) return found;
+      }
+      return null;
+    }
+
+    function collectNodeTotal(node) {
+      let count = node.samples.length;
+      Object.values(node.children).forEach(child => {
+        count += collectNodeTotal(child);
+      });
+      return count;
+    }
+
+    function getNodeColor(node) {
+      const root = node.colorRoot;
+      if (!root) return BASE_COLOR;
+      return HC[root] || BASE_COLOR;
+    }
+
+    function getNodeTextColor(node) {
+      const root = node.colorRoot;
+      if (!root) return '#fff';
+      const c = (HC[root] || BASE_COLOR).toUpperCase();
+      if (c === '#FFFFFF' || c === '#FFFF00' || c === '#DEB887') return '#001736';
+      return '#fff';
+    }
+
+    function openSampleModalFromEncoded(encoded) {
+      openSampleModal(dec(encoded));
+    }
+
+    function openSampleModal(sample) {
+      document.getElementById("sample-modal-name").textContent =
+        sample.name || sample.sample_id || sample.kit_number || "Sample";
+
+      document.getElementById("sample-modal-subtitle").textContent =
+        `${sample.governorate || sample.site || "Unknown location"} • ${(sample.__sourceType === "ancient") ? "Ancient sample" : "Modern sample"}`;
+
+      document.getElementById("sample-modal-kit").textContent =
+        sample.kit_number || sample.sample_id || "—";
+
+      document.getElementById("sample-modal-location").textContent =
+        sample.governorate || sample.site || "—";
+
+      document.getElementById("sample-modal-ydna").textContent =
+        sample.y_dna || "—";
+
+      document.getElementById("sample-modal-mtdna").textContent =
+        sample.mt_dna || "—";
+
+      document.getElementById("sample-modal-path").textContent =
+        sample.full_snp_path || "—";
+
+      const isAncient = sample.__sourceType === "ancient";
+      document.getElementById("sample-modal-ancient").classList.toggle("hidden", !isAncient);
+
+      document.getElementById("sample-modal-links").innerHTML =
+        sampleLinksMarkup(sample) || `<span class="text-sm font-bold text-gray-400">No links</span>`;
+
+      document.getElementById("sample-detail-modal").classList.add("active");
+    }
+
+    function closeSampleModal(e) {
+      if (!e || e.target.id === "sample-detail-modal") {
+        document.getElementById("sample-detail-modal").classList.remove("active");
+      }
+    }
+
+    function renderTreeNode(node, html, isRoot = false) {
+      const children = Object.values(node.children);
+      const hasChildren = children.length > 0;
+      const total = collectNodeTotal(node);
+      const isCollapsed = collapsedNodes.has(node.id);
+      const bgColor = isRoot ? BASE_COLOR : getNodeColor(node);
+      const txtColor = isRoot ? '#fff' : getNodeTextColor(node);
+      const borderStyle = (!isRoot && bgColor.toUpperCase() === '#FFFFFF') ? 'border:1px solid #cbd5e1;' : '';
+
+      html.push(`<li class="tree-item ${isRoot ? 'tree-item-root' : ''} ui-tree-row">`);
+
+      if (isRoot) {
+        html.push(`
+          <div class="tree-root-row">
+            <div class="tree-root-badge">
+              <span>${esc(node.label)}</span>
+              <span class="tree-root-count">${total}</span>
+            </div>
+          </div>
+        `);
+      } else {
+        html.push(`
+          <div class="tree-row">
+            <div class="tree-node-main" style="background:${bgColor};color:${txtColor};${borderStyle}">
+              ${hasChildren ? `
+                <span class="tree-arrow-btn" onclick="event.stopPropagation();toggleNodeCollapse('${encodeURIComponent(node.id)}')">
+                  <span class="tree-arrow">${isCollapsed ? '▶' : '▼'}</span>
+                </span>
+              ` : `<span style="width:22px;display:inline-block"></span>`}
+              <span class="tree-node-label-btn" onclick="focusTreeNode('${encodeURIComponent(node.id)}')">${esc(node.label)}</span>
+              <span class="tree-node-count">${total}</span>
+            </div>
+          </div>
+        `);
+      }
+
+      if (!isCollapsed || isRoot) {
+        html.push(`<ul class="tree-children ${(!isRoot && isCollapsed) ? 'collapsed' : ''} tree-list">`);
+
+        node.samples.forEach(s => {
+          const encoded = enc(s);
+          const isAncient = s.__sourceType === 'ancient';
+
+          html.push(`
+            <li class="tree-item ui-tree-row">
+              <div class="tree-row">
+                <div class="tree-sample-main" onclick="openSampleModalFromEncoded('${encoded}')">
+                  <div class="tree-sample-line1">
+                    <div class="tree-sample-dot"></div>
+                    <span class="tree-sample-name">${esc(s.name || s.sample_id || s.kit_number || 'Sample')}</span>
+                    ${isAncient ? `<span class="tree-ancient-badge">ANCIENT</span>` : ''}
+                  </div>
+                  <div class="tree-sample-line2">${esc(s.governorate || s.site || '—')}</div>
+                </div>
+              </div>
+            </li>
+          `);
+        });
+
+        children.forEach(child => renderTreeNode(child, html, false));
+        html.push(`</ul>`);
+      }
+
+      html.push(`</li>`);
+    }
+
+    function getTreeRootForRender() {
+      let samples = [];
+      if (treeShowModern) samples = samples.concat(modernSamples);
+      if (treeShowAncient) samples = samples.concat(ancientSamples);
+
+      if (treeHaploFilter) {
+        samples = samples.filter(s => haplo(s.y_dna, s.snp_path) === treeHaploFilter);
+      }
+
+      let tree = buildTree(samples);
+      sortTree(tree);
+
+      if (treeMode === 'direct') {
+        tree = compressDirectAncestors(tree, true);
+      }
+
+      if (treeFocusNodeId) {
+        const focused = findNodeById(tree, treeFocusNodeId);
+        if (focused) return focused;
+      }
+
+      return tree;
+    }
+
+    function updateFocusPath(rootNode) {
+      const box = document.getElementById('tree-focus-path');
+
+      if (!treeFocusNodeId || rootNode.id === 'root') {
+        box.classList.add('hidden');
+        box.textContent = '';
+        return;
+      }
+
+      const parts = [];
+      let n = rootNode;
+      while (n && n.id !== 'root') {
+        parts.unshift(n.label);
+        n = n.parent;
+      }
+
+      box.textContent = parts.join(' > ');
+      box.classList.remove('hidden');
+    }
+
+    function renderTree() {
+      const root = getTreeRootForRender();
+      const html = [`<ul class="tree-list">`];
+      renderTreeNode(root, html, true);
+      html.push(`</ul>`);
+
+      document.getElementById('tree-inner').innerHTML = html.join('');
+
+      if (treeScale !== 1) {
+        document.getElementById('tree-inner').style.transform = `scale(${treeScale})`;
+      } else {
+        document.getElementById('tree-inner').style.transform = '';
+      }
+
+      updateFocusPath(root);
+      updateBackButton();
+      buildTreePills();
+      buildTreeStats();
+      treeApplySearch();
+    }
+
+    function updateBackButton() {
+      document.getElementById("btn-tree-back").classList.toggle("hidden", !treeFocusNodeId);
+    }
+
+    function toggleNodeCollapse(encodedId) {
+      const id = decodeURIComponent(encodedId);
+      if (collapsedNodes.has(id)) collapsedNodes.delete(id);
+      else collapsedNodes.add(id);
+      renderTree();
+    }
+
+    function focusTreeNode(encodedId) {
+      treeFocusNodeId = decodeURIComponent(encodedId);
+      renderTree();
+    }
+
+    function clearTreeFocus() {
+      treeFocusNodeId = null;
+      renderTree();
+    }
+
+    function treeApplySearch() {
+      const term = (document.getElementById("treeSearch").value || '').toLowerCase().trim();
+
+      document.querySelectorAll(".ui-tree-row").forEach(el => {
+        el.classList.remove("dim", "hl");
+        if (!term) return;
+        const text = (el.textContent || '').toLowerCase();
+        const match = text.includes(term);
+        el.classList.toggle("hl", match);
+        el.classList.toggle("dim", !match);
+      });
+    }
+
+    function treeToggleSource(src) {
+      if (src === 'modern') treeShowModern = !treeShowModern;
+      if (src === 'ancient') treeShowAncient = !treeShowAncient;
+
+      document.getElementById('btn-modern').classList.toggle('on', treeShowModern);
+      document.getElementById('btn-ancient').classList.toggle('on', treeShowAncient);
+
+      treeFocusNodeId = null;
+      renderTree();
+    }
+
+    function setTreeMode(mode) {
+      treeMode = mode;
+      document.getElementById('btn-tree-direct').classList.toggle('on', mode === 'direct');
+      document.getElementById('btn-tree-full').classList.toggle('on', mode === 'full');
+      treeFocusNodeId = null;
+      renderTree();
+    }
+
+    function treeZoom(f) {
+      treeScale = Math.min(Math.max(treeScale * f, .4), 2);
+      const el = document.getElementById("tree-inner");
+      el.style.transform = `scale(${treeScale})`;
+      el.style.transformOrigin = "top left";
+    }
+
+    function treeReset() {
+      treeScale = 1;
+      document.getElementById("tree-inner").style.transform = "";
+    }
+
+    function getPieBorderConfig(labels, ctx) {
+      const borderColors = labels.map(() => '#ffffff');
+      const borderWidths = labels.map(() => 1);
+
+      if (typeof ctx === 'string' && sclean(ctx) === sclean('Sūhāj')) {
+        if (labels.length > 0) {
+          borderColors[0] = '#9ca3af';
+          borderWidths[0] = 3;
+        }
+      }
+
+      return { borderColors, borderWidths };
+    }
+
+    function makePie(id, data, ctx, totalBase = null) {
       const el = document.getElementById(id);
       if (!el) return;
 
@@ -1533,208 +1432,283 @@
 
       const labels = Object.keys(data).filter(k => data[k] > 0);
       const values = labels.map(k => data[k]);
-      const base = totalBase || values.reduce((a,b) => a+b, 0);
+      const base = totalBase || values.reduce((a,b)=>a+b,0);
+      const borderCfg = getPieBorderConfig(labels, ctx);
 
-      charts[id] = new Chart(el.getContext('2d'), {
-        type: 'pie',
+      charts[id] = new Chart(el.getContext("2d"), {
+        type: "pie",
         data: {
           labels,
           datasets: [{
             data: values,
-            backgroundColor: labels.map(l => chartColor(l)),
-            borderColor: labels.map(l => chartBorderColor(l)),
-            borderWidth: labels.map(l => l === 'C' ? 4 : 2),
-            hoverOffset: 6
+            backgroundColor: labels.map(l => HC[l] || HC[l.charAt(0)] || "#64748b"),
+            borderWidth: borderCfg.borderWidths,
+            borderColor: borderCfg.borderColors
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: opts.padding || 0 },
           plugins: {
             legend: { display: false },
             tooltip: {
-              enabled: true,
               callbacks: {
-                label: (context) => {
-                  const label = context.label || '';
+                label: function(context) {
+                  const label = context.label || "";
                   const value = context.parsed || 0;
-                  const pct = base ? ((value / base) * 100).toFixed(1) : '0.0';
+                  const pct = base ? ((value / base) * 100).toFixed(1) : "0.0";
                   return `${label}: ${value} kits (${pct}%)`;
                 }
               }
             }
           },
           onClick: (_, els) => {
-            if (els.length) {
-              const label = labels[els[0].index];
-              if (opts.onSliceClick) opts.onSliceClick(label);
-              else showHaploDetails(ctx, label);
-            }
+            if (els.length) showHaploDetails(ctx, labels[els[0].index]);
           }
         }
       });
     }
 
-    function buildModernSummaryCounts() {
-      const totals = {};
-      modernSamples.forEach(s => {
-        const h = summaryHaplo(s.y_dna, s.snp_path);
-        totals[h] = (totals[h] || 0) + 1;
+    function buildTreePills() {
+      let samples = [];
+      if (treeShowModern) samples = samples.concat(modernSamples);
+      if (treeShowAncient) samples = samples.concat(ancientSamples);
+
+      const counts = {};
+      samples.forEach(s => {
+        const h = haplo(s.y_dna, s.snp_path);
+        if (h) counts[h] = (counts[h] || 0) + 1;
       });
-      return totals;
+
+      const sorted = Object.entries(counts).sort((a,b)=>a[0].localeCompare(b[0], undefined, { numeric:true, sensitivity:'base' }));
+      const el = document.getElementById('tree-pills');
+
+      el.innerHTML =
+        `<span class="haplo-pill${!treeHaploFilter ? ' on' : ''}" style="color:#001736;background:${!treeHaploFilter ? '#e2e8f0' : '#f8f9fa'}" onclick="treeSetHaplo(null)">All</span>` +
+        sorted.map(([h,c]) => {
+          const rawCol = HC[h] || HC[h.charAt(0)] || '#64748b';
+          const textCol = rawCol.toUpperCase() === '#FFFFFF' ? '#000000' : rawCol;
+          const bgCol = treeHaploFilter === h ? rawCol + '22' : '#f8f9fa';
+          const extraStyle = rawCol.toUpperCase() === '#FFFFFF' ? 'border:1px solid #cbd5e1;' : '';
+          return `
+            <span class="haplo-pill${treeHaploFilter === h ? ' on' : ''}"
+                  style="color:${textCol};background:${bgCol};${extraStyle}"
+                  onclick="treeSetHaplo('${h}')">
+              ${h} <span style="opacity:.6">${c}</span>
+            </span>
+          `;
+        }).join('');
     }
 
-    function buildAncientSummaryCounts() {
-      const totals = {};
-      ancientSamples.forEach(s => {
-        const h = summaryHaplo(s.y_dna, s.snp_path);
-        totals[h] = (totals[h] || 0) + 1;
+    function buildTreeStats() {
+      let samples = [];
+      if (treeShowModern) samples = samples.concat(modernSamples);
+      if (treeShowAncient) samples = samples.concat(ancientSamples);
+
+      const counts = {};
+      samples.forEach(s => {
+        const h = haplo(s.y_dna, s.snp_path);
+        counts[h] = (counts[h] || 0) + 1;
       });
-      return totals;
+
+      const top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,4);
+
+      document.getElementById('tree-stats').innerHTML = top.map(([h,c]) => {
+        const rawCol = HC[h] || HC[h.charAt(0)] || '#64748b';
+        const textCol = rawCol.toUpperCase() === '#FFFFFF' ? '#000000' : rawCol;
+        const borderCol = rawCol.toUpperCase() === '#FFFFFF' ? '#cbd5e1' : rawCol;
+
+        return `
+          <div class="stat-card font-bold" onclick="treeSetHaplo('${h}')">
+            <div class="w-10 h-10 rounded-xl flex-shrink-0" style="background:${rawCol}22;border:2px solid ${borderCol}"></div>
+            <div>
+              <p class="text-[10px] font-bold text-gray-400 uppercase">${h}</p>
+              <p class="text-2xl font-black" style="color:${textCol}">${c}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function treeSetHaplo(h) {
+      treeHaploFilter = h;
+      treeFocusNodeId = null;
+      renderTree();
     }
 
     function updateModernSummary() {
-      const totals = buildModernSummaryCounts();
-      const total = Object.values(totals).reduce((a,b) => a+b, 0);
+      const totals = {};
+      let total = 0;
 
-      document.getElementById('total-national-samples').textContent = total;
-      makePie('nationalChartCanvas', totals, 'NATIONAL', total, { padding: 6 });
+      modernSamples.forEach(s => {
+        const h = haplo(s.y_dna, s.snp_path);
+        if (!totals[h]) totals[h] = 0;
+        totals[h]++;
+        total++;
+      });
 
-      const sorted = Object.entries(totals).sort((a,b) => b[1] - a[1]);
+      document.getElementById("total-national-samples").textContent = total;
 
-      document.getElementById('national-legend').innerHTML = sorted.map(([hap, count]) => {
-        const pct = total ? ((count / total) * 100).toFixed(1) : '0.0';
-        const col = chartColor(hap);
-        const txt = hap === 'C' ? '#111827' : col;
+      if (total > 0) {
+        makePie("nationalChartCanvas", totals, "NATIONAL", total);
+      }
+
+      const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,15);
+
+      document.getElementById("national-legend").innerHTML = sorted.map(([hap, count]) => {
+        const pct = total ? ((count / total) * 100).toFixed(1) : "0.0";
+        const col = HC[hap] || HC[hap.charAt(0)] || '#64748b';
+        const border = col.toUpperCase() === '#FFFFFF' ? 'border:1px solid #cbd5e1;' : '';
         return `
-          <div onclick="showHaploDetails('NATIONAL','${hap}')" class="flex items-center justify-between py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all cursor-pointer group">
+          <div onclick="showHaploDetails('NATIONAL','${hap}')"
+               class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all cursor-pointer group">
             <div class="flex items-center gap-2">
-              <div class="w-3 h-3 rounded-full border ${hap === 'C' ? 'border-gray-400' : 'border-transparent'}" style="background:${col}"></div>
-              <span style="color:${txt}" class="font-black">${hap}</span>
+              <div class="w-2 h-2 rounded-full group-hover:scale-125 transition-transform" style="background:${col};${border}"></div>
+              <span>${hap}</span>
             </div>
-            <span class="font-black">${count} kits • ${pct}%</span>
+            <span>${count} kits • ${pct}%</span>
           </div>
         `;
-      }).join('');
+      }).join("");
     }
 
     function updateAncientSummary() {
-      const totals = buildAncientSummaryCounts();
-      const total = Object.values(totals).reduce((a,b) => a+b, 0);
+      const totals = {};
+      let total = 0;
 
-      document.getElementById('total-ancient-samples').textContent = total;
-      makePie('ancientChartCanvas', totals, 'ANCIENT', total, { padding: 6 });
+      ancientSamples.forEach(s => {
+        const h = haplo(s.y_dna, s.snp_path);
+        if (!totals[h]) totals[h] = 0;
+        totals[h]++;
+        total++;
+      });
 
-      const sorted = Object.entries(totals).sort((a,b) => b[1] - a[1]);
+      document.getElementById("total-ancient-samples").textContent = total;
 
-      document.getElementById('ancient-legend').innerHTML = sorted.map(([hap, count]) => {
-        const pct = total ? ((count / total) * 100).toFixed(1) : '0.0';
-        const col = chartColor(hap);
-        const txt = hap === 'C' ? '#111827' : col;
+      if (total > 0) {
+        makePie("ancientChartCanvas", totals, "ANCIENT", total);
+      }
+
+      const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
+
+      document.getElementById("ancient-legend").innerHTML = sorted.map(([hap, count]) => {
+        const pct = total ? ((count / total) * 100).toFixed(1) : "0.0";
+        const col = HC[hap] || HC[hap.charAt(0)] || '#64748b';
+        const border = col.toUpperCase() === '#FFFFFF' ? 'border:1px solid #cbd5e1;' : '';
         return `
-          <div onclick="showHaploDetails('ANCIENT','${hap}')" class="flex items-center justify-between py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all cursor-pointer group">
+          <div onclick="showHaploDetails('ANCIENT','${hap}')"
+               class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all cursor-pointer group">
             <div class="flex items-center gap-2">
-              <div class="w-3 h-3 rounded-full border ${hap === 'C' ? 'border-gray-400' : 'border-transparent'}" style="background:${col}"></div>
-              <span style="color:${txt}" class="font-black">${hap}</span>
+              <div class="w-2 h-2 rounded-full group-hover:scale-125 transition-transform" style="background:${col};${border}"></div>
+              <span>${hap}</span>
             </div>
-            <span class="font-black">${count} kits • ${pct}%</span>
+            <span>${count} kits • ${pct}%</span>
           </div>
         `;
-      }).join('');
+      }).join("");
     }
 
     function renderDashboard() {
-      const grid = document.getElementById('stats-grid');
-      grid.innerHTML = '';
+      const grid = document.getElementById("stats-grid");
+      grid.innerHTML = "";
 
-      const groups = {};
-      modernSamples.forEach(s => {
-        const g = normalizeGovDisplay(s.governorate || '—');
-        if (!groups[g]) groups[g] = [];
-        groups[g].push(s);
-      });
-
-      Object.keys(groups).sort((a,b) => a.localeCompare(b)).forEach((gov, idx) => {
-        const pool = groups[gov];
-        if (!pool || !pool.length) return;
+      GOV_LIST.forEach((gov, idx) => {
+        const pool = modernSamples.filter(s => sclean(s.governorate) === sclean(gov));
+        if (!pool.length && gov !== "—") return;
 
         const totals = {};
         pool.forEach(s => {
-          const h = summaryHaplo(s.y_dna, s.snp_path);
-          totals[h] = (totals[h] || 0) + 1;
+          const h = haplo(s.y_dna, s.snp_path);
+          if (!totals[h]) totals[h] = 0;
+          totals[h]++;
         });
 
         const cid = `chart-${idx}`;
-        const card = document.createElement('div');
-        card.className = 'stat-card';
+        const card = document.createElement("div");
+        card.className = "stat-card font-bold";
         card.onclick = () => openModal(gov);
         card.innerHTML = `
-          <div class="mini-chart-wrap">
-            <canvas id="${cid}"></canvas>
-          </div>
+          <div class="w-16 h-16 flex-shrink-0"><canvas id="${cid}"></canvas></div>
           <div class="min-w-0 text-left">
-            <h4 class="font-black text-xl uppercase tracking-tighter">${esc(gov === '—' ? 'Unassigned' : gov)}</h4>
-            <p class="text-gray-400 font-black uppercase text-sm">Total: ${pool.length}</p>
+            <h4 class="font-black text-xs uppercase truncate tracking-tighter">${esc(gov === "—" ? "Unassigned" : gov)}</h4>
+            <p class="text-[10px] text-gray-400 font-bold uppercase">Total: ${pool.length}</p>
           </div>
         `;
         grid.appendChild(card);
 
-        setTimeout(() => {
-          makePie(cid, totals, gov, pool.length, {
-            padding: 6,
-            onSliceClick: (hap) => openModal(gov, hap)
-          });
-        }, 10);
+        if (pool.length > 0) {
+          setTimeout(() => makePie(cid, totals, gov, pool.length), 30);
+        }
       });
 
       updateModernSummary();
     }
 
-    function renderArchive() {
-      const tbody = document.getElementById('archive-body');
-      const search = document.getElementById('archiveSearch').value.trim();
-      const hF = document.getElementById('filterHaplo').value;
-      const gF = document.getElementById('filterGov').value;
+    function matchSearch(s, q) {
+      if (!q) return true;
+      const ql = q.toLowerCase();
 
-      const rows = modernSamples.filter(s => {
-        const ms = matchSearch(s, search);
-        const mh = !hF || summaryHaplo(s.y_dna, s.snp_path) === hF;
-        const mg = !gF || sclean(s.governorate) === sclean(gF);
-        return ms && mh && mg;
-      });
+      const fields = [
+        s.name, s.kit_number, s.sample_id, s.governorate, s.site,
+        s.period, s.study_reference, s.cultural_group
+      ];
+
+      if (fields.some(f => (f || '').toLowerCase().includes(ql))) return true;
+
+      const segs = ((s.y_dna || '') + '>' + (s.snp_path || '') + '>' + (s.full_snp_path || ''))
+        .toLowerCase()
+        .split(/[>\s\-,;]+/);
+
+      return segs.includes(ql);
+    }
+
+    function renderArchive() {
+      const tbody = document.getElementById("archive-body");
+      const search = document.getElementById("archiveSearch").value.trim();
+      const hF = document.getElementById("filterHaplo").value;
+      const gF = document.getElementById("filterGov").value;
+
+      const rows = modernSamples.filter(s =>
+        matchSearch(s, search) &&
+        (!hF || haplo(s.y_dna, s.snp_path) === hF) &&
+        (!gF || s.governorate === gF)
+      );
 
       tbody.innerHTML = rows.map(s => {
-        const h = summaryHaplo(s.y_dna, s.snp_path);
-        const col = chartColor(h);
+        const h = haplo(s.y_dna, s.snp_path);
+        const col = HC[h] || HC[h.charAt(0)] || '#64748b';
+        const border = col.toUpperCase() === '#FFFFFF' ? 'border:1px solid #cbd5e1;' : '';
+
         return `
           <tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
             <td class="px-4 py-6 font-black uppercase text-sm">${esc(s.name || '—')}</td>
-            <td class="px-2 py-6 font-mono text-[10px] text-gray-400">${esc(s.kit_number || s.sample_id || '—')}</td>
+            <td class="px-2 py-6 font-mono text-[10px] text-gray-400">${esc(s.kit_number || '—')}</td>
             <td class="px-2 py-6 text-[10px] font-black text-gray-400 uppercase">${esc(s.governorate || '—')}</td>
             <td class="px-4 py-6 text-left">
               <div class="flex items-start gap-2">
-                <span class="w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0 border ${h==='C' ? 'border-gray-400' : 'border-transparent'}" style="background:${col}"></span>
+                <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${col};${border}"></span>
                 <span class="text-[10px] font-mono font-bold text-gray-500 snp-text">${esc(s.snp_path || s.y_dna || '—')}</span>
               </div>
             </td>
-            <td class="px-2 py-6">${links(s,'y')}</td>
+            <td class="px-2 py-6">${links(s, 'y')}</td>
             <td class="px-2 py-6 text-center uppercase text-[11px] font-black text-secondary">${esc(s.mt_dna || '—')}</td>
-            <td class="px-4 py-6">${links(s,'mt')}</td>
+            <td class="px-4 py-6">${links(s, 'mt')}</td>
           </tr>
         `;
-      }).join('');
+      }).join("");
     }
 
     function renderAncientArchive() {
-      const tbody = document.getElementById('ancient-body');
-      const search = document.getElementById('ancientSearch').value.trim();
+      const tbody = document.getElementById("ancient-body");
+      const search = document.getElementById("ancientSearch").value.trim();
 
       const rows = ancientSamples.filter(s => matchSearch(s, search));
 
       tbody.innerHTML = rows.map(s => {
-        const h = summaryHaplo(s.y_dna, s.snp_path);
-        const col = chartColor(h);
+        const h = haplo(s.y_dna, s.snp_path);
+        const col = HC[h] || HC[h.charAt(0)] || '#64748b';
+        const border = col.toUpperCase() === '#FFFFFF' ? 'border:1px solid #cbd5e1;' : '';
+
         return `
           <tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
             <td class="px-4 py-6 text-left">
@@ -1749,219 +1723,164 @@
             </td>
             <td class="px-4 py-6 text-left">
               <div class="flex items-start gap-2">
-                <span class="w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0 border ${h==='C' ? 'border-gray-400' : 'border-transparent'}" style="background:${col}"></span>
+                <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${col};${border}"></span>
                 <div>
                   <div class="text-[11px] font-black">${esc(s.y_dna || '—')}</div>
                   <div class="text-[9px] font-mono text-gray-400 snp-text">${esc(s.snp_path || '—')}</div>
                 </div>
               </div>
             </td>
-            <td class="px-2 py-6">${links(s,'y')}</td>
+            <td class="px-2 py-6">${links(s, 'y')}</td>
             <td class="px-2 py-6"><div class="text-[11px] font-black text-secondary">${esc(s.mt_dna || '—')}</div></td>
-            <td class="px-4 py-6">${links(s,'mt')}</td>
+            <td class="px-4 py-6">${links(s, 'mt')}</td>
           </tr>
         `;
-      }).join('');
+      }).join("");
     }
 
     function populateFilters() {
       const hs = new Set();
-      modernSamples.forEach(s => hs.add(summaryHaplo(s.y_dna, s.snp_path)));
 
-      document.getElementById('filterHaplo').innerHTML =
-        '<option value="">All Haplogroups</option>' +
-        [...hs].sort((a,b)=>a.localeCompare(b, undefined, { numeric:true })).map(h => `<option value="${h}">${h}</option>`).join('');
-
-      const govs = [...new Set(modernSamples.map(s => s.governorate || '—'))].sort((a,b)=>a.localeCompare(b));
-      document.getElementById('filterGov').innerHTML =
-        '<option value="">All Governorates</option>' +
-        govs.map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join('');
-    }
-
-    function openModal(gov, preselectHaplo = null) {
-      const pool = modernSamples.filter(s => sclean(s.governorate) === sclean(gov));
-      const totals = {};
-      pool.forEach(s => {
-        const h = summaryHaplo(s.y_dna, s.snp_path);
-        totals[h] = (totals[h] || 0) + 1;
+      modernSamples.forEach(s => {
+        const h = haplo(s.y_dna, s.snp_path);
+        if (h) hs.add(h);
       });
 
-      const total = pool.length;
-      document.getElementById('detail-modal').classList.add('active');
-      document.getElementById('modal-kit-list').classList.add('hidden');
-      document.getElementById('modal-title').textContent = (gov || 'Unassigned').toUpperCase();
-      document.getElementById('modal-summary-line').textContent = '';
+      document.getElementById("filterHaplo").innerHTML =
+        '<option value="">All Haplogroups</option>' +
+        [...hs].sort().map(h => `<option value="${h}">${h}</option>`).join("");
 
-      setTimeout(() => {
-        makePie('modalChartCanvas', totals, gov, total, {
-          padding: 14,
-          onSliceClick: (hap) => showHaploDetails(gov, hap)
-        });
-      }, 10);
+      document.getElementById("filterGov").innerHTML =
+        '<option value="">All Governorates</option>' +
+        GOV_LIST.filter(g => g !== '—').map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join('') +
+        '<option value="—">Unassigned</option>';
+    }
 
-      const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
-      document.getElementById('modal-legend').innerHTML = sorted.map(([hap, count]) => {
-        const pct = total ? ((count / total) * 100).toFixed(1) : '0.0';
-        const col = chartColor(hap);
-        const txt = hap === 'C' ? '#111827' : col;
-        return `
-          <div onclick="showHaploDetails('${esc(gov)}','${hap}')" class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl cursor-pointer hover:bg-secondary/10 transition-all font-bold">
-            <div class="flex items-center gap-3">
-              <div class="w-4 h-4 rounded-full border ${hap==='C' ? 'border-gray-400' : 'border-transparent'}" style="background:${col}"></div>
-              <span style="color:${txt}" class="uppercase">${hap}</span>
+    function openModal(gov) {
+      const pool = modernSamples.filter(s => sclean(s.governorate) === sclean(gov));
+      const totals = {};
+
+      pool.forEach(s => {
+        const h = haplo(s.y_dna, s.snp_path);
+        if (!totals[h]) totals[h] = 0;
+        totals[h]++;
+      });
+
+      document.getElementById("modal-title").textContent = (gov === "—" ? "UNASSIGNED" : gov.toUpperCase());
+      document.getElementById("detail-modal").classList.add("active");
+      document.getElementById("modal-kit-list").classList.add("hidden");
+
+      setTimeout(() => makePie("modalChartCanvas", totals, gov, pool.length), 30);
+
+      document.getElementById("modal-legend").innerHTML = Object.entries(totals)
+        .sort((a,b)=>b[1]-a[1])
+        .map(([hap, count]) => {
+          const col = HC[hap] || HC[hap.charAt(0)] || '#64748b';
+          const border = col.toUpperCase() === '#FFFFFF' ? 'border:1px solid #cbd5e1;' : '';
+          return `
+            <div onclick="showHaploDetails('${esc(gov)}','${hap}')" class="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-secondary/10 transition-all font-bold">
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 rounded-full" style="background:${col};${border}"></div>
+                <span class="uppercase">${hap}</span>
+              </div>
+              <span>${count} kits • ${pool.length ? ((count / pool.length) * 100).toFixed(1) : '0.0'}%</span>
             </div>
-            <span>${count} kits • ${pct}%</span>
-          </div>
-        `;
-      }).join('');
-
-      if (preselectHaplo) {
-        showHaploDetails(gov, preselectHaplo);
-      }
+          `;
+        }).join("");
     }
 
     function showHaploDetails(type, hp) {
-      const container = document.getElementById('kits-container');
-      const la = document.getElementById('modal-kit-list');
-      container.innerHTML = '';
+      const container = document.getElementById("kits-container");
+      const la = document.getElementById("modal-kit-list");
+      container.innerHTML = "";
 
-      const pool = type === 'NATIONAL'
-        ? modernSamples
-        : type === 'ANCIENT'
+      const pool =
+        type === "ANCIENT"
           ? ancientSamples
-          : modernSamples.filter(s => sclean(s.governorate) === sclean(type));
+          : type === "NATIONAL"
+            ? modernSamples
+            : modernSamples.filter(s => sclean(s.governorate) === sclean(type));
 
-      const matches = pool.filter(s => summaryHaplo(s.y_dna, s.snp_path) === hp);
-      const total = pool.length;
-      const pct = total ? ((matches.length / total) * 100).toFixed(1) : '0.0';
+      const matches = pool.filter(s => haplo(s.y_dna, s.snp_path) === hp);
 
-      document.getElementById('selected-haplo-display').textContent = hp;
-      document.getElementById('modal-sample-count').textContent = `${matches.length} KITS FOUND`;
+      document.getElementById("modal-title").textContent =
+        type === "ANCIENT" ? "ANCIENT DNA SAMPLES" :
+        type === "NATIONAL" ? "NATIONAL ARCHIVE" :
+        type.toUpperCase();
 
-      const col = chartColor(hp);
+      document.getElementById("selected-haplo-display").textContent = hp;
+      document.getElementById("modal-sample-count").textContent = `${matches.length} KITS FOUND`;
+
+      const col = HC[hp] || HC[hp.charAt(0)] || "#64748b";
       la.style.borderColor = col;
-      la.style.backgroundColor = col + '0d';
-
-      if (type === 'NATIONAL') {
-        document.getElementById('modal-title').textContent = 'NATIONAL ARCHIVE';
-        document.getElementById('modal-haplo-extra').textContent = `${pct}% of the modern national samples belong to ${hp}`;
-      } else if (type === 'ANCIENT') {
-        document.getElementById('modal-title').textContent = 'ANCIENT DNA SAMPLES';
-        document.getElementById('modal-haplo-extra').textContent = `${pct}% of the ancient samples belong to ${hp}`;
-      } else {
-        document.getElementById('modal-title').textContent = String(type).toUpperCase();
-        document.getElementById('modal-haplo-extra').textContent = `${pct}% of the samples from ${type} belong to ${hp}`;
-      }
+      la.style.backgroundColor = col + "08";
 
       container.innerHTML = matches.map(s => `
-        <div class="p-6 border border-gray-100 rounded-[2rem] bg-white shadow-sm hover:border-secondary transition-all text-left font-bold">
+        <div class="p-6 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm hover:border-secondary transition-all text-left font-bold">
           <div class="flex justify-between mb-4 text-[10px]">
             <span class="px-3 py-1 bg-primary text-white rounded-full font-black tracking-tighter">${esc(s.y_dna || '—')}</span>
             <span class="text-gray-400 uppercase">${esc(s.governorate || s.site || '—')}</span>
           </div>
-          <p class="font-black uppercase text-2xl leading-tight mb-2 text-primary">${esc(s.name || '—')}</p>
-          <p class="text-[10px] text-gray-400 font-mono text-center mb-2">${esc(s.snp_path || '—')}</p>
-          <div class="flex justify-between items-center mt-5 pt-5 border-t border-gray-200">
-            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest text-center">Y-DNA</p>${links(s,'y')}</div>
-            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest text-center">mt-DNA</p>${links(s,'mt')}</div>
+          <p class="font-black uppercase text-sm mb-1 text-center">${esc(s.name || '—')}</p>
+          <p class="text-[10px] text-secondary font-mono text-center mb-2">${esc(s.sample_id || '')}</p>
+          <span class="text-[9px] text-gray-400 font-mono snp-text mb-4 text-center block">${esc(s.snp_path || '—')}</span>
+          <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
+            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest text-center">Y-DNA</p>${links(s, 'y')}</div>
+            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 text-center tracking-widest">mt-DNA</p>${links(s, 'mt')}</div>
           </div>
         </div>
-      `).join('');
+      `).join("");
 
-      la.classList.remove('hidden');
+      document.getElementById("detail-modal").classList.add("active");
+      la.classList.remove("hidden");
     }
 
     function closeModal(e) {
-      if (!e || e.target.id === 'detail-modal') {
-        document.getElementById('detail-modal').classList.remove('active');
-      }
-    }
-
-    function openSampleModal(sample) {
-      document.getElementById('sample-modal-name').textContent =
-        sample.name || sample.sample_id || sample.kit_number || 'Sample';
-      document.getElementById('sample-modal-subtitle').textContent =
-        `${sample.governorate || sample.site || 'Unknown location'} • ${sample.__sourceType === 'ancient' ? 'Ancient sample' : 'Modern sample'}`;
-      document.getElementById('sample-modal-kit').textContent =
-        sample.kit_number || sample.sample_id || '—';
-      document.getElementById('sample-modal-location').textContent =
-        sample.governorate || sample.site || '—';
-      document.getElementById('sample-modal-ydna').textContent =
-        sample.y_dna || '—';
-      document.getElementById('sample-modal-mtdna').textContent =
-        sample.mt_dna || '—';
-      document.getElementById('sample-modal-path').textContent =
-        sample.full_snp_path || '—';
-
-      const isAncient = sample.__sourceType === 'ancient';
-      document.getElementById('sample-modal-ancient').classList.toggle('hidden', !isAncient);
-
-      const linksArr = [sample.y_link_1, sample.y_link_2, sample.mt_link_1, sample.mt_link_2]
-        .filter(Boolean)
-        .filter(v => v !== '—');
-
-      document.getElementById('sample-modal-links').innerHTML =
-        linksArr.length
-          ? linksArr.map(link => `
-              <a href="${esc(link)}" target="_blank" class="sample-link-btn">
-                <span class="material-symbols-outlined">link</span>
-              </a>
-            `).join('')
-          : `<span class="text-sm font-bold text-gray-400">No links</span>`;
-
-      document.getElementById('sample-detail-modal').classList.add('active');
-    }
-
-    function closeSampleModal(e) {
-      if (!e || e.target.id === 'sample-detail-modal') {
-        document.getElementById('sample-detail-modal').classList.remove('active');
+      if (!e || e.target.id === "detail-modal") {
+        document.getElementById("detail-modal").classList.remove("active");
       }
     }
 
     function showSection(id) {
-      document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.nav-link').forEach(n => {
-        n.classList.remove('active');
-        n.classList.add('text-gray-400');
+      document.querySelectorAll(".page-section").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll(".nav-link").forEach(n => {
+        n.classList.remove("active");
+        n.classList.add("text-gray-400");
       });
-      document.getElementById('section-' + id).classList.add('active');
-      const nl = document.getElementById('nav-' + id);
-      nl.classList.add('active');
-      nl.classList.remove('text-gray-400');
 
-      if (id === 'tree') renderTree();
+      document.getElementById("section-" + id).classList.add("active");
+      const nl = document.getElementById("nav-" + id);
+      nl.classList.add("active");
+      nl.classList.remove("text-gray-400");
+
+      if (id === "tree") renderTree();
     }
 
     async function loadAll() {
-      const [modR, ancR] = await Promise.all([
-        _sb.from('Modern_published_samples').select('*'),
-        _sb.from('Ancient_published_samples').select('*')
-      ]);
+      try {
+        const [statsR, modR, ancR] = await Promise.all([
+          _sb.from("Modern_dna_stats").select("*"),
+          _sb.from("Modern_published_samples").select("*"),
+          _sb.from("Ancient_published_samples").select("*")
+        ]);
 
-      modernSamples = (modR.data || []).map(s => ({ ...s, __sourceType: 'modern' }));
-      ancientSamples = (ancR.data || []).map(s => ({ ...s, __sourceType: 'ancient' }));
-    }
+        modernSamples = (modR.data || []).map(s => ({ ...s, __sourceType: "modern" }));
+        ancientSamples = (ancR.data || []).map(s => ({ ...s, __sourceType: "ancient" }));
 
-    function setupTreeSearch() {
-      const input = document.getElementById('treeSearch');
-      const wrap = document.getElementById('treeSearchWrap');
+        regionalData = {};
+        GOV_LIST.forEach(g => regionalData[g] = {});
 
-      input.addEventListener('input', () => {
-        wrap.classList.toggle('has-text', !!input.value.trim());
-      });
+        (statsR.data || []).forEach(row => {
+          const key = GOV_LIST.find(g => sclean(g) === sclean(row.region)) || "—";
+          let hp = (row.haplogroup || "").toUpperCase().trim();
+          if (hp === "J") hp = "J1";
+          regionalData[key][hp] = (regionalData[key][hp] || 0) + parseInt(row.count || 0, 10);
+        });
 
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          const q = input.value.trim();
-          if (!q) {
-            treeSearchResult = null;
-            renderTree();
-            return;
-          }
-          treeSearchResult = { query: q };
-          renderTree();
-        }
-      });
+        updateAncientSummary();
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     (async function boot() {
@@ -1970,8 +1889,6 @@
       renderDashboard();
       renderArchive();
       renderAncientArchive();
-      renderTree();
-      setupTreeSearch();
     })();
   </script>
 </body>
