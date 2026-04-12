@@ -159,286 +159,288 @@
         .social-link:hover { color: #001736; }
 
         /* TREE */
-#tree-wrap {
-    background: #fff;
-    border-radius: 2rem;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 20px 60px rgba(0,23,54,.06);
-    overflow: auto;
-    position: relative;
-    min-height: 300px;
-}
+        #tree-wrap {
+            background: #fff;
+            border-radius: 2rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 20px 60px rgba(0,23,54,.06);
+            overflow: auto;
+            position: relative;
+            min-height: 300px;
+        }
 
-#tree-inner {
-    padding: 26px 24px 48px 24px;
-    min-width: 1100px;
-    font-family: 'Manrope', sans-serif;
-    font-size: 13px;
-    line-height: 1;
-}
+        #tree-inner {
+            padding: 28px 24px 48px 24px;
+            min-width: 1100px;
+            font-family: 'Manrope', sans-serif;
+            font-size: 13px;
+            line-height: 1;
+        }
 
-.tree-search {
-    padding: 8px 12px 8px 36px;
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    font-family: 'Manrope', sans-serif;
-    font-size: 10px;
-    font-weight: 700;
-    outline: none;
-    width: 220px;
-    transition: all .2s;
-}
+        .tree-search {
+            padding: 8px 12px 8px 36px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            font-family: 'Manrope', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            outline: none;
+            width: 220px;
+            transition: all .2s;
+        }
 
-.tree-search:focus {
-    border-color: #775a19;
-    box-shadow: 0 0 0 3px rgba(119,90,25,.12);
-}
+        .tree-search:focus {
+            border-color: #775a19;
+            box-shadow: 0 0 0 3px rgba(119,90,25,.12);
+        }
 
-.ctrl-btn {
-    padding: 7px 14px;
-    border-radius: 10px;
-    border: 1px solid #e5e7eb;
-    background: #fff;
-    font-family: 'Manrope', sans-serif;
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .07em;
-    cursor: pointer;
-    transition: all .2s;
-    color: #001736;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-}
+        .ctrl-btn {
+            padding: 7px 14px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            font-family: 'Manrope', sans-serif;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            cursor: pointer;
+            transition: all .2s;
+            color: #001736;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
 
-.ctrl-btn:hover {
-    background: #001736;
-    color: #fff;
-    border-color: #001736;
-}
+        .ctrl-btn:hover {
+            background: #001736;
+            color: #fff;
+            border-color: #001736;
+        }
 
-.ctrl-btn.on {
-    background: #775a19;
-    color: #fff;
-    border-color: #775a19;
-}
+        .ctrl-btn.on {
+            background: #775a19;
+            color: #fff;
+            border-color: #775a19;
+        }
 
-.haplo-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 12px;
-    border-radius: 99px;
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    cursor: pointer;
-    border: 2px solid transparent;
-    transition: all .2s;
-}
+        .haplo-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all .2s;
+        }
 
-.haplo-pill.on {
-    border-color: currentColor;
-}
+        .haplo-pill.on {
+            border-color: currentColor;
+        }
 
-.tree-root-row {
-    display: flex;
-    align-items: center;
-    min-height: 30px;
-    margin-bottom: 6px;
-}
+        .tree-root-row {
+            display: flex;
+            align-items: center;
+            min-height: 30px;
+            margin-bottom: 8px;
+        }
 
-.tree-root-badge {
-    background: #001736;
-    color: #fff;
-    padding: 5px 14px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 900;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    white-space: nowrap;
-}
+        .tree-root-badge {
+            background: #001736;
+            color: #fff;
+            padding: 5px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 900;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            white-space: nowrap;
+        }
 
-.tree-root-count,
-.tree-node-count {
-    background: rgba(255,255,255,.22);
-    border-radius: 999px;
-    padding: 1px 7px;
-    font-size: 9px;
-    font-weight: 900;
-}
+        .tree-root-count,
+        .tree-node-count {
+            background: rgba(255,255,255,.22);
+            border-radius: 999px;
+            padding: 1px 7px;
+            font-size: 9px;
+            font-weight: 900;
+        }
 
-.tree-block {
-    margin-left: 28px;
-    position: relative;
-}
+        .tree-block {
+            margin-left: 30px;
+            position: relative;
+        }
 
-.tree-block-children {
-    margin-left: 22px;
-    border-left: 2px solid #cbd5e1;
-    padding-left: 12px;
-}
+        .tree-block-children {
+            margin-left: 18px;
+            padding-left: 14px;
+            border-left: 2px solid #cbd5e1;
+        }
 
-.tree-node-row,
-.tree-sample-row {
-    position: relative;
-    display: flex;
-    align-items: center;
-    min-height: 28px;
-}
+        .tree-node-row,
+        .tree-sample-row {
+            position: relative;
+            display: flex;
+            align-items: center;
+            min-height: 28px;
+        }
 
-.tree-node-row::before,
-.tree-sample-row::before {
-    content: "";
-    position: absolute;
-    left: -14px;
-    top: 50%;
-    width: 14px;
-    height: 2px;
-    background: #cbd5e1;
-    transform: translateY(-50%);
-}
+        .tree-node-row::before {
+            content: "";
+            position: absolute;
+            left: -14px;
+            top: 50%;
+            width: 14px;
+            height: 2px;
+            background: #cbd5e1;
+            transform: translateY(-50%);
+        }
 
-.tree-node-main {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: #fff;
-    padding: 4px 10px;
-    font-size: 11px;
-    font-weight: 900;
-    border-radius: 7px;
-    cursor: pointer;
-    transition: filter .15s;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
+        .tree-sample-row::before {
+            content: "";
+            position: absolute;
+            left: -14px;
+            top: 50%;
+            width: 14px;
+            border-top: 1.5px dashed #cbd5e1;
+            transform: translateY(-50%);
+        }
 
-.tree-node-main:hover {
-    filter: brightness(1.12);
-}
+        .tree-node-body {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 24px;
+        }
 
-.tree-arrow {
-    font-size: 9px;
-    opacity: .85;
-}
+        .tree-node-main {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #fff;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 900;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: filter .15s;
+            white-space: nowrap;
+            flex-shrink: 0;
+            border: 1px solid rgba(0,0,0,.08);
+        }
 
-.tree-node-body {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 24px;
-}
+        .tree-node-main:hover {
+            filter: brightness(1.08);
+        }
 
-.tree-node-meta {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 10px;
-    font-weight: 800;
-    color: #94a3b8;
-    white-space: nowrap;
-}
+        .tree-arrow {
+            font-size: 9px;
+            opacity: .85;
+        }
 
-.tree-node-meta .tree-meta-pill {
-    background: #eff6ff;
-    color: #64748b;
-    border-radius: 6px;
-    padding: 2px 7px;
-    font-size: 10px;
-    font-weight: 800;
-}
+        .tree-node-meta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10px;
+            font-weight: 800;
+            color: #94a3b8;
+            white-space: nowrap;
+        }
 
-.tree-node-meta .tree-info-link {
-    color: #94a3b8;
-    font-weight: 800;
-    cursor: pointer;
-}
+        .tree-node-meta .tree-meta-pill {
+            background: #eff6ff;
+            color: #64748b;
+            border-radius: 6px;
+            padding: 2px 7px;
+            font-size: 10px;
+            font-weight: 800;
+        }
 
-.tree-node-meta .tree-info-link:hover {
-    color: #001736;
-}
+        .tree-node-meta .tree-info-link {
+            color: #94a3b8;
+            font-weight: 800;
+            cursor: pointer;
+        }
 
-.tree-sample-row {
-    font-size: 10px;
-    font-weight: 700;
-    color: #334155;
-    border-radius: 6px;
-    transition: background .15s;
-}
+        .tree-node-meta .tree-info-link:hover {
+            color: #001736;
+        }
 
-.tree-sample-row:hover {
-    background: #f1f5f9;
-}
+        .tree-sample-row {
+            font-size: 10px;
+            font-weight: 700;
+            color: #334155;
+            border-radius: 6px;
+            transition: background .15s;
+        }
 
-.tree-sample-row::before {
-    background: transparent;
-    border-top: 1.5px dashed #cbd5e1;
-    height: 0;
-    transform: none;
-    top: 50%;
-}
+        .tree-sample-row:hover {
+            background: #f1f5f9;
+        }
 
-.tree-sample-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    margin: 0 7px 0 2px;
-}
+        .tree-sample-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin: 0 7px 0 2px;
+        }
 
-.tree-sample-flag {
-    font-size: 12px;
-    margin-right: 4px;
-}
+        .tree-sample-flag {
+            font-size: 12px;
+            margin-right: 4px;
+        }
 
-.tree-sample-name {
-    font-weight: 800;
-    margin-right: 6px;
-}
+        .tree-sample-name {
+            font-weight: 800;
+            margin-right: 6px;
+        }
 
-.tree-sample-name.egy {
-    color: #775a19;
-}
+        .tree-sample-name.egy {
+            color: #775a19;
+        }
 
-.tree-sample-kit {
-    font-size: 9px;
-    color: #94a3b8;
-    font-family: 'JetBrains Mono', monospace;
-    margin-right: 6px;
-}
+        .tree-sample-kit {
+            font-size: 9px;
+            color: #94a3b8;
+            font-family: 'JetBrains Mono', monospace;
+            margin-right: 6px;
+        }
 
-.tree-sample-gov {
-    font-size: 9px;
-    color: #cbd5e1;
-}
+        .tree-sample-gov {
+            font-size: 9px;
+            color: #cbd5e1;
+        }
 
-.tree-children.collapsed {
-    display: none;
-}
+        .tree-children.collapsed {
+            display: none;
+        }
 
-.dim { opacity: .18; }
-.hl  { background: #fef9c3 !important; border-radius: 6px; }
+        .dim { opacity: .18; }
+        .hl  { background: #fef9c3 !important; border-radius: 6px; }
 
-#tree-tip {
-    position: absolute;
-    display: none;
-    z-index: 50;
-    background: #001736;
-    color: #fff;
-    border-radius: 14px;
-    padding: 12px 16px;
-    font-family: 'Manrope', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    pointer-events: none;
-    max-width: 360px;
-    line-height: 1.7;
-    box-shadow: 0 10px 30px rgba(0,23,54,.35);
-}
+        #tree-tip {
+            position: absolute;
+            display: none;
+            z-index: 50;
+            background: #001736;
+            color: #fff;
+            border-radius: 14px;
+            padding: 12px 16px;
+            font-family: 'Manrope', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            pointer-events: none;
+            max-width: 360px;
+            line-height: 1.7;
+            box-shadow: 0 10px 30px rgba(0,23,54,.35);
+        }
     </style>
 </head>
 <body class="bg-background text-primary font-body antialiased">
@@ -674,24 +676,33 @@ const SB_KEY = "sb_publishable_dnaPmhIN6Lp4irUSxYuAMQ_vzE_CCKT";
 const _sb = supabase.createClient(SB_URL, SB_KEY);
 
 const HC = {
-    J1:"#006400", J2:"#32CD32", T:"#FFA500", E:"#00008B",
-    R1B:"#FF0000", R1A:"#DEB887", R2:"#CCCC00",
-    L:"#00CCCC", L1:"#00CCCC",
-    G:"#808080", G2:"#808080",
-    I:"#EE82EE", I2:"#EE82EE",
-    H:"#8B4513", H2:"#8B4513",
-    Q:"#9400D3", Q1:"#9400D3", Q2:"#9400D3",
-    B:"#008B8B", C:"#999999",
-    A:"#333333", A1A:"#333333", A1B1:"#333333",
-    Y:"#001736"
+    "J1": "#006400",
+    "T": "#FFA500",
+    "E": "#00008B",
+    "R1B": "#FF0000",
+    "L": "#00FFFF",
+    "L1": "#00FFFF",
+    "B": "#008B8B",
+    "G": "#808080",
+    "G2": "#808080",
+    "I": "#EE82EE",
+    "I2": "#EE82EE",
+    "R1A": "#DEB887",
+    "R2": "#FFFF00",
+    "H": "#8B4513",
+    "H2": "#8B4513",
+    "J2": "#32CD32",
+    "Q": "#9400D3",
+    "Q1": "#9400D3",
+    "Q2": "#9400D3",
+    "C": "#FFFFFF",
+    "A": "#000000",
+    "A1A": "#000000",
+    "A1B1": "#000000"
 };
 
-function hColor(label) {
-    if (!label) return '#64748b';
-    const up = String(label).toUpperCase();
-    const pre = up.split('-')[0];
-    return HC[pre] || HC[pre.slice(0,2)] || HC[pre.slice(0,1)] || '#64748b';
-}
+const BASE_COLOR = "#001736";
+const TRUNK_COLOR = "#64748b";
 
 const GOV_LIST = [
     "Al Bahr al Ahmar","Al Buhayrah","Ad Daqahlīyah","Al Fayyūm","Al Gharbīyah",
@@ -702,22 +713,13 @@ const GOV_LIST = [
 
 let modernSamples = [];
 let ancientSamples = [];
-let regionalData = {};
 let charts = {};
+let regionalData = {};
 
-let treeShowModern = true;
-let treeShowAncient = true;
 let treeHaploFilter = null;
 let treeScale = 1;
-const collapsed = new Set();
-
-async function init() {
-    await loadAll();
-    populateFilters();
-    renderDashboard();
-    renderArchive();
-    renderAncientArchive();
-}
+let treeShowModern = true;
+let treeShowAncient = true;
 
 function sclean(s) {
     if (!s || s === '—') return '';
@@ -745,13 +747,77 @@ function dec(s) {
     return JSON.parse(decodeURIComponent(escape(atob(s))));
 }
 
+function links(s, type) {
+    const l1 = type === 'y' ? s.y_link_1 : s.mt_link_1;
+    const l2 = type === 'y' ? s.y_link_2 : s.mt_link_2;
+    const bg = type === 'y' ? 'bg-primary' : 'bg-secondary';
+
+    let h = '<div class="flex gap-1.5 justify-center">';
+    [[l1, 'database'], [l2, 'link']].forEach(([u, ic]) => {
+        if (u && u.length > 5 && u !== '—') {
+            h += `<a href="${esc(u)}" target="_blank" class="w-7 h-7 rounded-lg ${bg} text-white flex items-center justify-center hover:scale-110 transition-transform shadow-sm"><span class="material-symbols-outlined text-[14px]">${ic}</span></a>`;
+        }
+    });
+    return h + '</div>';
+}
+
+function haplo(y, snp) {
+    const Y = (y || '').trim().toUpperCase();
+    const S = (snp || '').trim().toUpperCase();
+
+    if (Y.includes('J2') || S.startsWith('J2') || Y.includes('J-PH') || Y.includes('J-FTE')) return 'J2';
+    if (Y.startsWith('J1') || Y.startsWith('J-')) return 'J1';
+    if (S.includes('R1A') || Y.startsWith('R1A')) return 'R1A';
+    if (S.includes('R1B') || Y.startsWith('R1B') || Y.startsWith('R-PF6') || Y.startsWith('R-FT2')) return 'R1B';
+    if (S.includes('R2') || Y.startsWith('R2')) return 'R2';
+    if (Y.startsWith('E') || S.startsWith('E')) return 'E';
+    return Y.charAt(0) || '?';
+}
+
+function hColor(label) {
+    if (!label) return BASE_COLOR;
+    const upper = String(label).toUpperCase();
+    if (HC[upper]) return HC[upper];
+    const pre = upper.split('-')[0];
+    return HC[pre] || TRUNK_COLOR;
+}
+
+function matchSearch(s, q) {
+    if (!q) return true;
+    const ql = q.toLowerCase();
+
+    const fields = [
+        s.name, s.kit_number, s.sample_id, s.governorate, s.site,
+        s.period, s.study_reference, s.cultural_group
+    ];
+
+    if (fields.some(f => (f || '').toLowerCase().includes(ql))) return true;
+
+    const segs = ((s.y_dna || '') + '>' + (s.snp_path || '') + '>' + (s.full_snp_path || ''))
+        .toLowerCase()
+        .split(/[>\s\-,;]+/);
+
+    return segs.includes(ql);
+}
+
+function parsePath(s) {
+    if (!s) return [];
+    return s.split(">").map(x => x.trim()).filter(Boolean);
+}
+
 function parseNumericYbp(v) {
     if (v === null || v === undefined || v === '') return null;
     const n = Number(String(v).replace(/[^\d.]/g, ''));
     return Number.isFinite(n) ? Math.round(n) : null;
 }
 
-function bestFormedValue(...values) {
+function firstDefinedYbp(sample) {
+    const values = [
+        sample.formed_ybp,
+        sample.formed,
+        sample.branch_formed_ybp,
+        sample.node_formed_ybp
+    ];
     for (const v of values) {
         const parsed = parseNumericYbp(v);
         if (parsed !== null) return parsed;
@@ -759,8 +825,266 @@ function bestFormedValue(...values) {
     return null;
 }
 
-function getFullPath(sample) {
-    return sample.full_snp_path || '';
+function firstDefinedTmrca(sample) {
+    const values = [
+        sample.tmrca_ybp,
+        sample.tmrca,
+        sample.branch_tmrca_ybp,
+        sample.node_tmrca_ybp
+    ];
+    for (const v of values) {
+        const parsed = parseNumericYbp(v);
+        if (parsed !== null) return parsed;
+    }
+    return null;
+}
+
+function normalizeSegment(seg, parentLabel) {
+    const clean = String(seg || '').trim();
+    if (!clean) return '';
+
+    if (clean.includes('-')) return clean;
+
+    const upper = clean.toUpperCase();
+
+    if (/^(Y-ADAM|A0-T|A1|A1B|A1B1|BT|CT|CF|F|GHIJK|HIJK|IJK|IJ|K|LT|NO|P|DE|J|E|R|T|L|Q|H|G|I|A|B|C|J1|J2|R1A|R1B|R2|L1|G2|I2|H2|Q1|Q2|A1A|A1B1)$/.test(upper)) {
+        return clean;
+    }
+
+    const parent = String(parentLabel || '');
+    const family = parent.includes('-') ? parent.split('-')[0] : parent;
+
+    if (family && /^[A-Z][A-Z0-9]*$/.test(clean.toUpperCase())) {
+        return `${family}-${clean}`;
+    }
+
+    return clean;
+}
+
+function shouldKeepNode(label, childCount, sampleCount, depth) {
+    const up = String(label || '').toUpperCase();
+    if (depth === 0) return true;
+    if (sampleCount > 0) return true;
+    if (childCount > 1) return true;
+    if (HC[up]) return true;
+    if (/^(DE|CT|BT|CF|IJ|IJK|HIJK|GHIJK|LT)$/.test(up)) return true;
+    return false;
+}
+
+function buildCompactTree(samples) {
+    const rawRoot = {
+        label: "Y-Adam",
+        children: {},
+        samples: [],
+        formed: null,
+        tmrca: null,
+        depth: 0
+    };
+
+    samples.forEach(s => {
+        const path = parsePath(s.full_snp_path);
+        let node = rawRoot;
+        let currentLabel = "Y-Adam";
+
+        path.forEach(seg => {
+            const label = normalizeSegment(seg, currentLabel);
+            if (!label) return;
+
+            if (!node.children[label]) {
+                node.children[label] = {
+                    label,
+                    children: {},
+                    samples: [],
+                    formed: null,
+                    tmrca: null,
+                    depth: node.depth + 1
+                };
+            }
+
+            node = node.children[label];
+            currentLabel = label;
+
+            if (node.formed === null) node.formed = firstDefinedYbp(s);
+            if (node.tmrca === null) node.tmrca = firstDefinedTmrca(s);
+        });
+
+        node.samples.push(s);
+    });
+
+    function compress(node) {
+        const childKeys = Object.keys(node.children).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+        let compressedChildren = [];
+
+        childKeys.forEach(key => {
+            const child = compress(node.children[key]);
+            if (Array.isArray(child)) compressedChildren.push(...child);
+            else compressedChildren.push(child);
+        });
+
+        const keep = shouldKeepNode(node.label, compressedChildren.length, node.samples.length, node.depth);
+
+        if (!keep && compressedChildren.length === 1 && node.samples.length === 0) {
+            return compressedChildren;
+        }
+
+        return {
+            label: node.label,
+            children: compressedChildren,
+            samples: node.samples,
+            formed: node.formed,
+            tmrca: node.tmrca,
+            depth: node.depth
+        };
+    }
+
+    const result = compress(rawRoot);
+    return Array.isArray(result) ? result[0] : result;
+}
+
+function renderNode(node, html) {
+    const color = node.depth === 0 ? BASE_COLOR : hColor(node.label);
+    const safeColor = color.toUpperCase() === '#FFFFFF' || color.toUpperCase() === '#FFFF00' || color.toUpperCase() === '#DEB887';
+    const nodeData = enc({
+        label: node.label,
+        total: node.samples.length + node.children.reduce((sum, c) => sum + countNode(c), 0),
+        formed: node.formed,
+        tmrca: node.tmrca
+    });
+
+    if (node.depth === 0) {
+        html.push(`
+            <div class="tree-root-row" data-node="${nodeData}">
+                <div class="tree-root-badge">
+                    <span>${esc(node.label)}</span>
+                    <span class="tree-root-count">${node.samples.length + node.children.reduce((sum, c) => sum + countNode(c), 0)}</span>
+                </div>
+            </div>
+        `);
+    } else {
+        const total = node.samples.length + node.children.reduce((sum, c) => sum + countNode(c), 0);
+        html.push(`
+            <div class="tree-block">
+                <div class="tree-node-row" data-node="${nodeData}">
+                    <div class="tree-node-body">
+                        <div class="tree-node-main" style="background:${color};color:${safeColor ? '#001736' : '#fff'}">
+                            <span>${esc(node.label)}</span>
+                            <span class="tree-node-count">${total}</span>
+                        </div>
+                        <div class="tree-node-meta">
+                            ${node.formed !== null ? `<span class="tree-meta-pill">formed ${node.formed} ybp</span>` : ''}
+                            ${node.tmrca !== null ? `<span class="tree-meta-pill">TMRCA ${node.tmrca} ybp</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+                <div class="tree-block-children">
+        `);
+    }
+
+    node.samples.forEach(s => {
+        const name = s.name || s.sample_id || s.kit_number || 'Sample';
+        const gov = s.governorate || s.site || '—';
+        const isEgyptian = GOV_LIST.some(g => g !== '—' && g === s.governorate);
+        const sampleData = enc({
+            name,
+            gov,
+            kit: s.kit_number || s.sample_id || '',
+            yDna: s.y_dna || '—',
+            mtDna: s.mt_dna || '—',
+            path: s.full_snp_path || '—'
+        });
+
+        html.push(`
+            <div class="tree-sample-row" data-sample="${sampleData}">
+                <div class="tree-sample-dot" style="background:${isEgyptian ? '#775a19' : '#64748b'}"></div>
+                <span class="tree-sample-name ${isEgyptian ? 'egy' : ''}">${esc(name)}</span>
+                <span class="tree-sample-kit">${esc(s.kit_number || s.sample_id || '')}</span>
+                <span class="tree-sample-gov">${esc(gov)}</span>
+            </div>
+        `);
+    });
+
+    node.children.forEach(child => renderNode(child, html));
+
+    if (node.depth !== 0) {
+        html.push(`</div></div>`);
+    }
+}
+
+function countNode(node) {
+    return node.samples.length + node.children.reduce((sum, c) => sum + countNode(c), 0);
+}
+
+function renderTree() {
+    let samples = [];
+    if (treeShowModern) samples = samples.concat(modernSamples);
+    if (treeShowAncient) samples = samples.concat(ancientSamples);
+
+    if (treeHaploFilter) {
+        samples = samples.filter(s => (s.y_dna || '').toUpperCase().startsWith(treeHaploFilter.toUpperCase()));
+    }
+
+    const tree = buildCompactTree(samples);
+    const html = [];
+    renderNode(tree, html);
+    document.getElementById("tree-inner").innerHTML = html.join("");
+
+    if (treeScale !== 1) {
+        document.getElementById('tree-inner').style.transform = `scale(${treeScale})`;
+        document.getElementById('tree-inner').style.transformOrigin = 'top left';
+    } else {
+        document.getElementById('tree-inner').style.transform = '';
+    }
+
+    buildTreePills(samples);
+    buildTreeStats(samples);
+    treeApplySearch();
+}
+
+function buildTreePills(samples) {
+    const counts = {};
+    samples.forEach(s => {
+        const h = haplo(s.y_dna, s.snp_path);
+        if (h) counts[h] = (counts[h] || 0) + 1;
+    });
+
+    const sorted = Object.entries(counts).sort((a, b) => a[0].localeCompare(b[0], undefined, { numeric: true, sensitivity: 'base' }));
+    const el = document.getElementById('tree-pills');
+
+    el.innerHTML =
+        `<span class="haplo-pill${!treeHaploFilter ? ' on' : ''}" style="color:#001736;background:${!treeHaploFilter ? '#e2e8f0' : '#f8f9fa'}" onclick="treeSetHaplo(null)">All</span>` +
+        sorted.map(([h, c]) => {
+            const col = HC[h] || HC[h.charAt(0)] || '#64748b';
+            const on = treeHaploFilter === h;
+            return `<span class="haplo-pill${on ? ' on' : ''}" style="color:${col};background:${on ? col + '22' : '#f8f9fa'}" onclick="treeSetHaplo('${h}')">${h} <span style="opacity:.6">${c}</span></span>`;
+        }).join('');
+}
+
+function buildTreeStats(samples) {
+    const counts = {};
+    samples.forEach(s => {
+        const h = haplo(s.y_dna, s.snp_path);
+        counts[h] = (counts[h] || 0) + 1;
+    });
+
+    const top = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 4);
+
+    document.getElementById('tree-stats').innerHTML = top.map(([h, c]) => {
+        const col = HC[h] || HC[h.charAt(0)] || '#64748b';
+        return `
+            <div class="stat-card font-bold" onclick="treeSetHaplo('${h}')">
+                <div class="w-10 h-10 rounded-xl flex-shrink-0" style="background:${col}22;border:2px solid ${col}"></div>
+                <div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase">${h}</p>
+                    <p class="text-2xl font-black" style="color:${col}">${c}</p>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function treeSetHaplo(h) {
+    treeHaploFilter = h;
+    renderTree();
 }
 
 async function loadAll() {
@@ -790,123 +1114,6 @@ async function loadAll() {
     }
 }
 
-function haplo(y, snp) {
-    const Y = (y || '').trim().toUpperCase();
-    const S = (snp || '').trim().toUpperCase();
-
-    if (Y.includes('J2') || S.startsWith('J2') || Y.includes('J-PH') || Y.includes('J-FTE')) return 'J2';
-    if (Y.startsWith('J1') || Y.startsWith('J-')) return 'J1';
-    if (S.includes('R1A') || Y.startsWith('R1A')) return 'R1A';
-    if (S.includes('R1B') || Y.startsWith('R1B') || Y.startsWith('R-PF6') || Y.startsWith('R-FT2')) return 'R1B';
-    if (S.includes('R2') || Y.startsWith('R2')) return 'R2';
-    if (Y.startsWith('E') || S.startsWith('E')) return 'E';
-
-    return Y.charAt(0) || '?';
-}
-
-function matchSearch(s, q) {
-    if (!q) return true;
-    const ql = q.toLowerCase();
-
-    const fields = [
-        s.name, s.kit_number, s.sample_id, s.governorate, s.site,
-        s.period, s.study_reference, s.cultural_group
-    ];
-
-    if (fields.some(f => (f || '').toLowerCase().includes(ql))) return true;
-
-    const segs = ((s.y_dna || '') + '>' + (s.snp_path || '') + '>' + (getFullPath(s) || ''))
-        .toLowerCase()
-        .split(/[>\s\-,;]+/);
-
-    return segs.includes(ql);
-}
-
-function links(s, type) {
-    const l1 = type === 'y' ? s.y_link_1 : s.mt_link_1;
-    const l2 = type === 'y' ? s.y_link_2 : s.mt_link_2;
-    const bg = type === 'y' ? 'bg-primary' : 'bg-secondary';
-
-    let h = '<div class="flex gap-1.5 justify-center">';
-    [[l1, 'database'], [l2, 'link']].forEach(([u, ic]) => {
-        if (u && u.length > 5 && u !== '—') {
-            h += `<a href="${esc(u)}" target="_blank" class="w-7 h-7 rounded-lg ${bg} text-white flex items-center justify-center hover:scale-110 transition-transform shadow-sm"><span class="material-symbols-outlined text-[14px]">${ic}</span></a>`;
-        }
-    });
-    return h + '</div>';
-}
-
-function renderArchive() {
-    const tbody = document.getElementById('archive-body');
-    const search = document.getElementById('archiveSearch').value.trim();
-    const hF = document.getElementById('filterHaplo').value;
-    const gF = document.getElementById('filterGov').value;
-
-    const rows = modernSamples.filter(s =>
-        matchSearch(s, search) &&
-        (!hF || haplo(s.y_dna, s.snp_path) === hF) &&
-        (!gF || s.governorate === gF)
-    );
-
-    tbody.innerHTML = rows.map(s => {
-        const h = haplo(s.y_dna, s.snp_path);
-        return `
-            <tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
-                <td class="px-4 py-6 font-black uppercase text-sm">${esc(s.name || '—')}</td>
-                <td class="px-2 py-6 font-mono text-[10px] text-gray-400">${esc(s.kit_number || '—')}</td>
-                <td class="px-2 py-6 text-[10px] font-black text-gray-400 uppercase">${esc(s.governorate || '—')}</td>
-                <td class="px-4 py-6 text-left">
-                    <div class="flex items-start gap-2">
-                        <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${HC[h] || '#ccc'}"></span>
-                        <span class="text-[10px] font-mono font-bold text-gray-500 snp-text">${esc(s.snp_path || s.y_dna || '—')}</span>
-                    </div>
-                </td>
-                <td class="px-2 py-6">${links(s,'y')}</td>
-                <td class="px-2 py-6 text-center uppercase text-[11px] font-black text-secondary">${esc(s.mt_dna || '—')}</td>
-                <td class="px-4 py-6">${links(s,'mt')}</td>
-            </tr>
-        `;
-    }).join('');
-}
-
-function renderAncientArchive() {
-    const tbody = document.getElementById('ancient-body');
-    const search = document.getElementById('ancientSearch').value.trim();
-    const rows = ancientSamples.filter(s => matchSearch(s, search));
-
-    tbody.innerHTML = rows.map(s => {
-        const h = haplo(s.y_dna, s.snp_path);
-        const hc = HC[h] || '#ccc';
-
-        return `
-            <tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
-                <td class="px-4 py-6 text-left">
-                    <div class="font-black uppercase text-sm">${esc(s.name || '—')}</div>
-                    <div class="text-[10px] text-secondary font-mono">${esc(s.sample_id || '—')}</div>
-                    <div class="text-[9px] text-gray-400 font-bold uppercase mt-1">${esc(s.cultural_group || '—')}</div>
-                </td>
-                <td class="px-2 py-6 text-[10px] font-black uppercase">${esc(s.period || '—')}</td>
-                <td class="px-2 py-6 text-left">
-                    <div class="text-[10px] font-black uppercase text-gray-500">${esc(s.governorate || '—')}</div>
-                    <div class="text-[9px] text-gray-400 italic">${esc(s.site || '—')}</div>
-                </td>
-                <td class="px-4 py-6 text-left">
-                    <div class="flex items-start gap-2">
-                        <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${hc}"></span>
-                        <div>
-                            <div class="text-[11px] font-black">${esc(s.y_dna || '—')}</div>
-                            <div class="text-[9px] font-mono text-gray-400 snp-text">${esc(s.snp_path || '—')}</div>
-                        </div>
-                    </div>
-                </td>
-                <td class="px-2 py-6">${links(s,'y')}</td>
-                <td class="px-2 py-6"><div class="text-[11px] font-black text-secondary">${esc(s.mt_dna || '—')}</div></td>
-                <td class="px-4 py-6">${links(s,'mt')}</td>
-            </tr>
-        `;
-    }).join('');
-}
-
 function makePie(id, data, ctx) {
     const el = document.getElementById(id);
     if (!el) return;
@@ -921,7 +1128,7 @@ function makePie(id, data, ctx) {
             labels,
             datasets: [{
                 data: labels.map(k => data[k]),
-                backgroundColor: labels.map(l => HC[l] || '#ccc'),
+                backgroundColor: labels.map(l => HC[l] || HC[l.charAt(0)] || '#ccc'),
                 borderWidth: 1,
                 borderColor: '#fff'
             }]
@@ -958,7 +1165,7 @@ function updateAncientSummary() {
     document.getElementById('ancient-legend').innerHTML = sorted.map(([n, c]) => `
         <div onclick="showHaploDetails('ANCIENT','${n}')" class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all cursor-pointer group">
             <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full group-hover:scale-125 transition-transform" style="background:${HC[n] || '#ccc'}"></div>
+                <div class="w-2 h-2 rounded-full group-hover:scale-125 transition-transform" style="background:${HC[n] || HC[n.charAt(0)] || '#ccc'}"></div>
                 <span>${n}</span>
             </div>
             <span>${((c / total) * 100).toFixed(1)}%</span>
@@ -1020,12 +1227,100 @@ function updateModernSummary() {
     document.getElementById('national-legend').innerHTML = sorted.map(([n, c]) => `
         <div onclick="showHaploDetails('NATIONAL','${n}')" class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all cursor-pointer group">
             <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full group-hover:scale-125 transition-transform" style="background:${HC[n] || '#ccc'}"></div>
+                <div class="w-2 h-2 rounded-full group-hover:scale-125 transition-transform" style="background:${HC[n] || HC[n.charAt(0)] || '#ccc'}"></div>
                 <span>${n}</span>
             </div>
             <span>${((c / total) * 100).toFixed(1)}%</span>
         </div>
     `).join('');
+}
+
+function renderArchive() {
+    const tbody = document.getElementById('archive-body');
+    const search = document.getElementById('archiveSearch').value.trim();
+    const hF = document.getElementById('filterHaplo').value;
+    const gF = document.getElementById('filterGov').value;
+
+    const rows = modernSamples.filter(s =>
+        matchSearch(s, search) &&
+        (!hF || haplo(s.y_dna, s.snp_path) === hF) &&
+        (!gF || s.governorate === gF)
+    );
+
+    tbody.innerHTML = rows.map(s => {
+        const h = haplo(s.y_dna, s.snp_path);
+        return `
+            <tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
+                <td class="px-4 py-6 font-black uppercase text-sm">${esc(s.name || '—')}</td>
+                <td class="px-2 py-6 font-mono text-[10px] text-gray-400">${esc(s.kit_number || '—')}</td>
+                <td class="px-2 py-6 text-[10px] font-black text-gray-400 uppercase">${esc(s.governorate || '—')}</td>
+                <td class="px-4 py-6 text-left">
+                    <div class="flex items-start gap-2">
+                        <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${HC[h] || HC[h.charAt(0)] || '#ccc'}"></span>
+                        <span class="text-[10px] font-mono font-bold text-gray-500 snp-text">${esc(s.snp_path || s.y_dna || '—')}</span>
+                    </div>
+                </td>
+                <td class="px-2 py-6">${links(s,'y')}</td>
+                <td class="px-2 py-6 text-center uppercase text-[11px] font-black text-secondary">${esc(s.mt_dna || '—')}</td>
+                <td class="px-4 py-6">${links(s,'mt')}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function renderAncientArchive() {
+    const tbody = document.getElementById('ancient-body');
+    const search = document.getElementById('ancientSearch').value.trim();
+    const rows = ancientSamples.filter(s => matchSearch(s, search));
+
+    tbody.innerHTML = rows.map(s => {
+        const h = haplo(s.y_dna, s.snp_path);
+        const hc = HC[h] || HC[h.charAt(0)] || '#ccc';
+
+        return `
+            <tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
+                <td class="px-4 py-6 text-left">
+                    <div class="font-black uppercase text-sm">${esc(s.name || '—')}</div>
+                    <div class="text-[10px] text-secondary font-mono">${esc(s.sample_id || '—')}</div>
+                    <div class="text-[9px] text-gray-400 font-bold uppercase mt-1">${esc(s.cultural_group || '—')}</div>
+                </td>
+                <td class="px-2 py-6 text-[10px] font-black uppercase">${esc(s.period || '—')}</td>
+                <td class="px-2 py-6 text-left">
+                    <div class="text-[10px] font-black uppercase text-gray-500">${esc(s.governorate || '—')}</div>
+                    <div class="text-[9px] text-gray-400 italic">${esc(s.site || '—')}</div>
+                </td>
+                <td class="px-4 py-6 text-left">
+                    <div class="flex items-start gap-2">
+                        <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${hc}"></span>
+                        <div>
+                            <div class="text-[11px] font-black">${esc(s.y_dna || '—')}</div>
+                            <div class="text-[9px] font-mono text-gray-400 snp-text">${esc(s.snp_path || '—')}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-2 py-6">${links(s,'y')}</td>
+                <td class="px-2 py-6"><div class="text-[11px] font-black text-secondary">${esc(s.mt_dna || '—')}</div></td>
+                <td class="px-4 py-6">${links(s,'mt')}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function populateFilters() {
+    const hs = new Set();
+    modernSamples.forEach(s => {
+        const h = haplo(s.y_dna, s.snp_path);
+        if (h) hs.add(h);
+    });
+
+    document.getElementById('filterHaplo').innerHTML =
+        '<option value="">All Haplogroups</option>' +
+        [...hs].sort().map(h => `<option value="${h}">${h}</option>`).join('');
+
+    document.getElementById('filterGov').innerHTML =
+        '<option value="">All Governorates</option>' +
+        GOV_LIST.filter(g => g !== '—').map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join('') +
+        '<option value="—">Unassigned</option>';
 }
 
 function openModal(gov) {
@@ -1048,7 +1343,7 @@ function openModal(gov) {
     document.getElementById('modal-legend').innerHTML = sorted.map(([n, c]) => `
         <div onclick="showHaploDetails('${esc(gov)}','${n}')" class="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-secondary/10 transition-all font-bold">
             <div class="flex items-center gap-3">
-                <div class="w-4 h-4 rounded-full" style="background:${HC[n] || '#ccc'}"></div>
+                <div class="w-4 h-4 rounded-full" style="background:${HC[n] || HC[n.charAt(0)] || '#ccc'}"></div>
                 <span class="uppercase">${n}</span>
             </div>
             <span>${((c / pool.length) * 100).toFixed(1)}%</span>
@@ -1122,169 +1417,9 @@ function showSection(id) {
     nl.classList.add('active');
     nl.classList.remove('text-gray-400');
 
-    if (id === 'tree') drawProfessionalTree();
-}
-
-function populateFilters() {
-    const hs = new Set();
-    modernSamples.forEach(s => {
-        const h = haplo(s.y_dna, s.snp_path);
-        if (h) hs.add(h);
-    });
-
-    document.getElementById('filterHaplo').innerHTML =
-        '<option value="">All Haplogroups</option>' +
-        [...hs].sort().map(h => `<option value="${h}">${h}</option>`).join('');
-
-    document.getElementById('filterGov').innerHTML =
-        '<option value="">All Governorates</option>' +
-        GOV_LIST.filter(g => g !== '—').map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join('') +
-        '<option value="—">Unassigned</option>';
-}
-
-function splitFullPath(fullPath) {
-    if (!fullPath || fullPath === '—') return [];
-    return fullPath.split('>').map(s => s.trim()).filter(Boolean);
-}
-
-function extractNodeInfoFromSample(sample, label) {
-    const formed = bestFormedValue(
-        sample.formed_ybp,
-        sample.formed,
-        sample.branch_formed_ybp,
-        sample.node_formed_ybp
-    );
-
-    const tmrca = bestFormedValue(
-        sample.tmrca_ybp,
-        sample.tmrca,
-        sample.branch_tmrca_ybp,
-        sample.node_tmrca_ybp
-    );
-
-    return {
-        formed,
-        tmrca,
-        infoUrl: sample.y_link_1 || sample.y_link_2 || null,
-        label
-    };
-}
-
-function buildProfessionalTree(samples) {
-    const nodeMap = new Map();
-
-    function ensureNode(key, label, parentKey = null, depth = 0) {
-        if (!nodeMap.has(key)) {
-            nodeMap.set(key, {
-                key,
-                label,
-                parentKey,
-                depth,
-                children: [],
-                childKeys: new Set(),
-                samples: [],
-                totalCount: 0,
-                color: hColor(label),
-                formed: null,
-                tmrca: null,
-                infoUrl: null
-            });
-        }
-        return nodeMap.get(key);
+    if (id === 'tree') {
+        renderTree();
     }
-
-    const root = ensureNode('__ROOT__', 'Y-Adam', null, 0);
-    root.color = '#001736';
-
-    for (const sample of samples) {
-        const fullPath = getFullPath(sample);
-        const path = splitFullPath(fullPath);
-
-        if (!path.length) {
-            root.samples.push(sample);
-            continue;
-        }
-
-        let parentKey = '__ROOT__';
-
-        for (let i = 0; i < path.length; i++) {
-            const label = path[i];
-            const key = path.slice(0, i + 1).join('>');
-
-            const node = ensureNode(key, label, parentKey, i + 1);
-            const parentNode = nodeMap.get(parentKey);
-
-            if (!parentNode.childKeys.has(key)) {
-                parentNode.childKeys.add(key);
-                parentNode.children.push(node);
-            }
-
-            const info = extractNodeInfoFromSample(sample, label);
-
-            if (node.formed === null && info.formed !== null) node.formed = info.formed;
-            if (node.tmrca === null && info.tmrca !== null) node.tmrca = info.tmrca;
-            if (!node.infoUrl && info.infoUrl) node.infoUrl = info.infoUrl;
-
-            parentKey = key;
-        }
-
-        nodeMap.get(parentKey).samples.push(sample);
-    }
-
-    function countDescendants(node) {
-        let total = node.samples.length;
-        for (const child of node.children) {
-            total += countDescendants(child);
-        }
-        node.totalCount = total;
-        return total;
-    }
-
-    function sortNodeChildren(node) {
-        node.children.sort((a, b) => {
-            if (b.totalCount !== a.totalCount) return b.totalCount - a.totalCount;
-            return a.label.localeCompare(b.label);
-        });
-        node.children.forEach(sortNodeChildren);
-    }
-
-    countDescendants(root);
-    sortNodeChildren(root);
-
-    return root;
-}
-
-function isEgy(sample) {
-    return GOV_LIST.some(g => g !== '—' && g === sample.governorate);
-}
-
-function flag(gov, siteId) {
-    const g = gov || '';
-    const si = siteId || '';
-
-    if (GOV_LIST.some(x => x !== '—' && x === g)) return '🇪🇬';
-
-    const u = (g + ' ' + si).toUpperCase();
-
-    if (u.includes('SDN') || u.includes('SUDAN')) return '🇸🇩';
-    if (u.includes('LBN') || u.includes('LEBAN')) return '🇱🇧';
-    if (u.includes('PSE') || u.includes('PALES')) return '🇵🇸';
-    if (u.includes('TUR')) return '🇹🇷';
-    if (u.includes('IRQ') || u.includes('IRAQ')) return '🇮🇶';
-    if (u.includes('SAU') || u.includes('KSA')) return '🇸🇦';
-    if (u.includes('SYR')) return '🇸🇾';
-    if (u.includes('JOR')) return '🇯🇴';
-    if (u.includes('IRN') || u.includes('IRAN')) return '🇮🇷';
-    if (u.includes('AUT')) return '🇦🇹';
-    if (u.includes('DNK')) return '🇩🇰';
-    if (u.includes('SWE')) return '🇸🇪';
-    if (u.includes('ITA')) return '🇮🇹';
-    if (u.includes('FRA')) return '🇫🇷';
-    if (u.includes('UZB')) return '🇺🇿';
-    if (u.includes('AZE')) return '🇦🇿';
-    if (u.includes('HUN')) return '🇭🇺';
-
-    return '🌍';
 }
 
 function treeToggleSource(src) {
@@ -1294,7 +1429,7 @@ function treeToggleSource(src) {
     document.getElementById('btn-modern').classList.toggle('on', treeShowModern);
     document.getElementById('btn-ancient').classList.toggle('on', treeShowAncient);
 
-    drawProfessionalTree();
+    renderTree();
 }
 
 function treeZoom(f) {
@@ -1308,272 +1443,6 @@ function treeReset() {
     document.getElementById('tree-inner').style.transform = '';
 }
 
-function treeSetHaplo(h) {
-    treeHaploFilter = h;
-    drawProfessionalTree();
-}
-
-function buildPills(samples) {
-    const counts = {};
-    samples.forEach(s => {
-        const h = haplo(s.y_dna, s.snp_path);
-        if (h) counts[h] = (counts[h] || 0) + 1;
-    });
-
-    const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
-    const el = document.getElementById('tree-pills');
-
-    el.innerHTML =
-        `<span class="haplo-pill${!treeHaploFilter ? ' on' : ''}" style="color:#001736;background:${!treeHaploFilter ? '#e2e8f0' : '#f8f9fa'}" onclick="treeSetHaplo(null)">All</span>` +
-        sorted.map(([h, c]) => {
-            const col = HC[h] || '#64748b';
-            const on = treeHaploFilter === h;
-            return `<span class="haplo-pill${on ? ' on' : ''}" style="color:${col};background:${on ? col + '22' : '#f8f9fa'}" onclick="treeSetHaplo('${h}')">${h} <span style="opacity:.6">${c}</span></span>`;
-        }).join('');
-}
-
-function buildStats(samples) {
-    const counts = {};
-    samples.forEach(s => {
-        const h = haplo(s.y_dna, s.snp_path);
-        counts[h] = (counts[h] || 0) + 1;
-    });
-
-    const top = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 4);
-
-    document.getElementById('tree-stats').innerHTML = top.map(([h, c]) => {
-        const col = HC[h] || '#64748b';
-        return `
-            <div class="stat-card font-bold" onclick="treeSetHaplo('${h}')">
-                <div class="w-10 h-10 rounded-xl flex-shrink-0" style="background:${col}22;border:2px solid ${col}"></div>
-                <div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase">${h}</p>
-                    <p class="text-2xl font-black" style="color:${col}">${c}</p>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-function drawProfessionalTree() {
-    let samples = [];
-
-    if (treeShowModern) samples = samples.concat(modernSamples);
-    if (treeShowAncient) samples = samples.concat(ancientSamples);
-    if (treeHaploFilter) samples = samples.filter(s => haplo(s.y_dna, s.snp_path) === treeHaploFilter);
-
-    console.log("TREE SAMPLE CHECK:", samples.slice(0, 5).map(s => ({
-        name: s.name || s.sample_id || s.kit_number,
-        full_snp_path: s.full_snp_path,
-        resolvedPath: getFullPath(s)
-    })));
-
-    buildPills(samples);
-    buildStats(samples);
-
-    const root = buildProfessionalTree(samples);
-    const html = renderTreeNode(root, []);
-
-    document.getElementById('tree-inner').innerHTML = html || `<div style="padding:40px;text-align:center;color:#94a3b8;font-weight:700;">No tree data found.</div>`;
-
-    if (treeScale !== 1) {
-        document.getElementById('tree-inner').style.transform = `scale(${treeScale})`;
-        document.getElementById('tree-inner').style.transformOrigin = 'top left';
-    }
-
-    treeApplySearch();
-}
-
-function renderNodeMeta(node) {
-    const parts = [];
-
-    if (node.formed !== null) {
-        parts.push(`<span class="tree-meta-pill">formed ${node.formed} ybp</span>`);
-    }
-
-    if (node.tmrca !== null) {
-        parts.push(`<span class="tree-meta-pill">TMRCA ${node.tmrca} ybp</span>`);
-    }
-
-    if (node.infoUrl) {
-        parts.push(`<a class="tree-info-link" href="${esc(node.infoUrl)}" target="_blank">info</a>`);
-    }
-
-    return parts.length ? `<div class="tree-node-meta">${parts.join('')}</div>` : '';
-}
-
-function renderTreeNode(node, ancestorContinuations = []) {
-    const isRoot = node.key === '__ROOT__';
-    let html = '';
-
-    if (isRoot) {
-        html += `
-            <div class="tree-root-row" data-node="${enc({
-                key: node.key,
-                label: node.label,
-                totalCount: node.totalCount,
-                formed: node.formed,
-                tmrca: node.tmrca
-            })}">
-                <div class="tree-root-badge">
-                    <span>${esc(node.label)}</span>
-                    <span class="tree-root-count">${node.totalCount}</span>
-                </div>
-            </div>
-        `;
-
-        node.children.forEach((child, index) => {
-            const isLast = index === node.children.length - 1;
-            html += renderTreeNode(child, [!isLast]);
-        });
-
-        return html;
-    }
-
-    const hasChildren = node.children.length > 0;
-    const isCollapsed = collapsed.has(node.key);
-
-    const guidesHtml = ancestorContinuations.map(active =>
-        `<span class="tree-guide-col ${active ? 'active' : ''}"></span>`
-    ).join('');
-
-    html += `
-        <div class="tree-node-row" data-node="${enc({
-            key: node.key,
-            label: node.label,
-            totalCount: node.totalCount,
-            formed: node.formed,
-            tmrca: node.tmrca
-        })}">
-            <div class="tree-guides">${guidesHtml}</div>
-            <div class="tree-branch-line"></div>
-            <div class="tree-node-body">
-                <div class="tree-node-main"
-                     style="background:${node.color};"
-                     onclick="toggleTreeNode('${encodeURIComponent(node.key)}')"
-                     onmouseenter="tipNode(event,this)"
-                     onmouseleave="tipHide()">
-                    ${hasChildren ? `<span class="tree-arrow">${isCollapsed ? '▶' : '▼'}</span>` : ''}
-                    <span>${esc(node.label)}</span>
-                    <span class="tree-node-count">${node.totalCount}</span>
-                </div>
-                ${renderNodeMeta(node)}
-            </div>
-        </div>
-    `;
-
-    if (!isCollapsed) {
-        node.samples.forEach(sample => {
-            const egy = isEgy(sample);
-            const fl = flag(sample.governorate, sample.site);
-            const name = sample.name || sample.sample_id || sample.kit_number || '—';
-            const kit = sample.kit_number || sample.sample_id || '';
-            const gov = sample.governorate || sample.site || '—';
-            const dotCol = egy ? '#775a19' : '#64748b';
-
-            html += `
-                <div class="tree-sample-row"
-                     data-sample="${enc({
-                         name,
-                         kit,
-                         gov,
-                         yDna: sample.y_dna || '—',
-                         mtDna: sample.mt_dna || '—',
-                         path: getFullPath(sample) || '—',
-                         fl,
-                         egy
-                     })}"
-                     onmouseenter="tipSample(event,this)"
-                     onmouseleave="tipHide()">
-                    <div class="sample-guides">${ancestorContinuations.map(active =>
-                        `<span class="tree-guide-col ${active ? 'active' : ''}"></span>`
-                    ).join('')}</div>
-                    <div class="tree-sample-branch"></div>
-                    <div class="tree-sample-dot" style="background:${dotCol};"></div>
-                    <span class="tree-sample-flag">${fl}</span>
-                    <span class="tree-sample-name ${egy ? 'egy' : ''}">${esc(name)}</span>
-                    <span class="tree-sample-kit">${esc(kit)}</span>
-                    <span class="tree-sample-gov">${esc(gov)}</span>
-                </div>
-            `;
-        });
-
-        if (hasChildren) {
-            html += `<div class="tree-children">`;
-            node.children.forEach((child, index) => {
-                const isLast = index === node.children.length - 1;
-                html += renderTreeNode(child, [...ancestorContinuations, !isLast]);
-            });
-            html += `</div>`;
-        }
-    }
-
-    return html;
-}
-
-function toggleTreeNode(encodedKey) {
-    const key = decodeURIComponent(encodedKey);
-    if (collapsed.has(key)) collapsed.delete(key);
-    else collapsed.add(key);
-    drawProfessionalTree();
-}
-
-function tipNode(e, el) {
-    try {
-        const row = el.closest('[data-node]');
-        const d = dec(row.getAttribute('data-node'));
-        const tip = document.getElementById('tree-tip');
-
-        tip.innerHTML = `
-            <b style="font-size:13px">${esc(d.label)}</b><br>
-            ${d.formed !== null ? `<span style="color:#94a3b8">Formed: </span><b style="color:#fff">${esc(d.formed)} ybp</b><br>` : ''}
-            ${d.tmrca !== null ? `<span style="color:#94a3b8">TMRCA: </span><b style="color:#fff">${esc(d.tmrca)} ybp</b><br>` : ''}
-            <span style="color:#94a3b8">Total samples: </span><b style="color:#fff">${esc(d.totalCount)}</b><br>
-            <span style="color:#94a3b8;font-size:9px">Click to collapse or expand</span>
-        `;
-
-        showTip(e, tip);
-    } catch (_) {}
-}
-
-function tipSample(e, el) {
-    try {
-        const d = dec(el.getAttribute('data-sample'));
-        const tip = document.getElementById('tree-tip');
-
-        tip.innerHTML = `
-            <b style="font-size:12px">${d.fl} ${esc(d.name)}</b><br>
-            <span style="color:#94a3b8">Kit: </span><b>${esc(d.kit || '—')}</b><br>
-            <span style="color:#94a3b8">Location: </span><b>${esc(d.gov || '—')}</b><br>
-            <span style="color:#94a3b8">Y-DNA: </span><b style="color:#32CD32">${esc(d.yDna)}</b><br>
-            <span style="color:#94a3b8">mt-DNA: </span><b style="color:#FFA500">${esc(d.mtDna)}</b><br>
-            <span style="color:#94a3b8;font-size:9px;word-break:break-all">${esc((d.path || '').slice(0, 180))}${(d.path || '').length > 180 ? '…' : ''}</span>
-        `;
-
-        showTip(e, tip);
-    } catch (_) {}
-}
-
-function showTip(e, tip) {
-    const wrap = document.getElementById('tree-wrap');
-    const r = wrap.getBoundingClientRect();
-
-    tip.style.display = 'block';
-
-    let x = e.clientX - r.left + 14;
-    let y = e.clientY - r.top + 14;
-
-    if (x + 360 > wrap.offsetWidth) x = e.clientX - r.left - 370;
-    if (y + 220 > wrap.offsetHeight) y = e.clientY - r.top - 230;
-
-    tip.style.left = Math.max(0, x) + 'px';
-    tip.style.top = Math.max(0, y) + 'px';
-}
-
-function tipHide() {
-    document.getElementById('tree-tip').style.display = 'none';
-}
-
 function treeApplySearch() {
     const term = (document.getElementById('treeSearch').value || '').toLowerCase().trim();
     const wrap = document.getElementById('tree-inner');
@@ -1583,25 +1452,21 @@ function treeApplySearch() {
 
         if (!term) return;
 
-        let text = '';
-
-        try {
-            if (el.classList.contains('tree-sample-row')) {
-                const d = dec(el.getAttribute('data-sample'));
-                text = [d.name, d.kit, d.gov, d.yDna, d.path].join(' ').toLowerCase();
-            } else {
-                const d = dec(el.getAttribute('data-node'));
-                text = [d.label, d.totalCount, d.formed, d.tmrca].join(' ').toLowerCase();
-            }
-        } catch (_) {}
-
+        const text = (el.textContent || '').toLowerCase();
         const match = text.includes(term);
+
         el.classList.toggle('hl', match);
         el.classList.toggle('dim', !match);
     });
 }
 
-init();
+(async function boot() {
+    await loadAll();
+    populateFilters();
+    renderDashboard();
+    renderArchive();
+    renderAncientArchive();
+})();
 </script>
 
 </body>
