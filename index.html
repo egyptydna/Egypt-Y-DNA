@@ -99,7 +99,10 @@
       background: white;
     }
 
-    table { width: 100%; border-collapse: collapse; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
 
     .thead-row th {
       padding: 14px 10px;
@@ -194,7 +197,7 @@
       font-size: 10px;
       font-weight: 700;
       outline: none;
-      width: 220px;
+      width: 230px;
       transition: all .2s;
     }
 
@@ -265,47 +268,36 @@
       line-height: 1.5;
     }
 
-    .tree-list {
-      position: relative;
-      padding-left: 0;
-      margin: 0;
+    .tree-list,
+    .tree-children {
       list-style: none;
+      margin: 0;
+      padding-left: 0;
     }
 
     .tree-item {
       position: relative;
-      list-style: none;
       margin: 0;
-      padding: 0 0 0 28px;
+      padding: 0 0 0 34px;
     }
 
     .tree-item-root {
       padding-left: 0;
     }
 
-    .tree-item > .tree-children {
+    .tree-row {
       position: relative;
-      margin-left: 18px;
-      padding-left: 20px;
-      list-style: none;
-    }
-
-    .tree-item > .tree-children::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 22px;
-      width: 2px;
-      background: #cbd5e1;
+      min-height: 46px;
+      display: flex;
+      align-items: center;
     }
 
     .tree-item:not(.tree-item-root) > .tree-row::before {
       content: "";
       position: absolute;
-      left: -20px;
+      left: -22px;
       top: 50%;
-      width: 20px;
+      width: 22px;
       height: 2px;
       background: #cbd5e1;
       transform: translateY(-50%);
@@ -314,17 +306,41 @@
     .tree-item:not(.tree-item-root)::before {
       content: "";
       position: absolute;
-      left: 8px;
-      top: -1px;
+      left: 12px;
+      top: 0;
       bottom: 50%;
       width: 2px;
       background: #cbd5e1;
     }
 
+    .tree-item > .tree-children {
+      position: relative;
+      margin-left: 0;
+      padding-left: 28px;
+    }
+
+    .tree-item > .tree-children::before {
+      content: "";
+      position: absolute;
+      left: 12px;
+      top: 0;
+      bottom: 23px;
+      width: 2px;
+      background: #cbd5e1;
+    }
+
+    .tree-item:last-child::before {
+      bottom: 50%;
+    }
+
+    .tree-item:last-child > .tree-children::before {
+      bottom: 23px;
+    }
+
     .tree-root-row {
       display: flex;
       align-items: center;
-      min-height: 36px;
+      min-height: 38px;
       margin-bottom: 8px;
     }
 
@@ -350,13 +366,6 @@
       font-weight: 900;
     }
 
-    .tree-row {
-      position: relative;
-      min-height: 44px;
-      display: flex;
-      align-items: center;
-    }
-
     .tree-node-main {
       display: inline-flex;
       align-items: center;
@@ -364,7 +373,7 @@
       padding: 5px 11px;
       font-size: 11px;
       font-weight: 900;
-      border-radius: 9px;
+      border-radius: 10px;
       white-space: nowrap;
       flex-shrink: 0;
       border: 1px solid rgba(0,0,0,.08);
@@ -412,7 +421,7 @@
       transition: all .15s;
       background: transparent;
       min-width: 280px;
-      max-width: 520px;
+      max-width: 540px;
     }
 
     .tree-sample-main:hover {
@@ -440,19 +449,16 @@
       border-radius: 50%;
       flex-shrink: 0;
       margin-top: 4px;
+      background: #775a19;
     }
 
     .tree-sample-name {
       font-size: 12px;
       font-weight: 800;
-      color: #334155;
+      color: #775a19;
       line-height: 1.25;
       word-break: break-word;
       white-space: normal;
-    }
-
-    .tree-sample-name.egy {
-      color: #775a19;
     }
 
     .tree-sample-gov {
@@ -651,7 +657,6 @@
     <div class="flex flex-wrap gap-5 items-center text-[10px] font-headline font-black uppercase tracking-widest text-gray-400">
       <span class="flex items-center gap-1.5"><span class="inline-block w-5 h-3 rounded" style="background:#001736"></span>Node</span>
       <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:#775a19"></span>Egyptian sample</span>
-      <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:#64748b"></span>Other sample</span>
       <span class="flex items-center gap-1.5"><span class="inline-block px-2 py-[2px] rounded-full text-[9px] font-black text-white" style="background:#dc2626;">ANCIENT</span></span>
     </div>
 
@@ -805,9 +810,12 @@
 
     const HC = {
       "J1": "#006400",
+      "J2": "#32CD32",
       "T": "#FFA500",
       "E": "#00008B",
       "R1B": "#FF0000",
+      "R1A": "#DEB887",
+      "R2": "#FFFF00",
       "L": "#00FFFF",
       "L1": "#00FFFF",
       "B": "#008B8B",
@@ -815,18 +823,16 @@
       "G2": "#808080",
       "I": "#EE82EE",
       "I2": "#EE82EE",
-      "R1A": "#DEB887",
-      "R2": "#FFFF00",
       "H": "#8B4513",
       "H2": "#8B4513",
-      "J2": "#32CD32",
       "Q": "#9400D3",
       "Q1": "#9400D3",
       "Q2": "#9400D3",
       "C": "#FFFFFF",
       "A": "#000000",
       "A1A": "#000000",
-      "A1B1": "#000000"
+      "A1B1": "#000000",
+      "A1B": "#000000"
     };
 
     const BASE_COLOR = "#001736";
@@ -927,33 +933,56 @@
       return s.split(">").map(x => x.trim()).filter(Boolean);
     }
 
-    function getRawLabel(seg, parentLabel) {
-      const clean = String(seg || '').trim();
-      if (!clean) return '';
-      if (clean.includes('-')) return clean;
+    function normalizeTopLevelLabel(seg) {
+      const u = String(seg || '').toUpperCase();
 
-      const upper = clean.toUpperCase();
-      if (STRUCTURAL_LABELS.has(upper)) return clean;
+      if (u === 'Y' || u === 'Y-ADAM') return 'Y-Adam';
+      if (u === 'J-J1' || u === 'J1') return 'J1';
+      if (u === 'J-J2' || u === 'J2') return 'J2';
+      if (u === 'R-R1A' || u === 'R1A') return 'R1A';
+      if (u === 'R-R1B' || u === 'R1B') return 'R1B';
+      if (u === 'R-R2' || u === 'R2') return 'R2';
+      if (u === 'Q-Q1' || u === 'Q1') return 'Q1';
+      if (u === 'Q-Q2' || u === 'Q2') return 'Q2';
+      if (u === 'A1B') return 'A1b';
 
-      if (!parentLabel) return clean;
-      const base = parentLabel.split("-")[0];
-      return base + "-" + clean;
+      return seg;
+    }
+
+    function getPrefixBase(parentLabel) {
+      const u = String(parentLabel || '').toUpperCase();
+
+      if (u === 'J1' || u === 'J2') return 'J';
+      if (u === 'R1A' || u === 'R1B' || u === 'R2') return 'R';
+      if (u === 'Q1' || u === 'Q2') return 'Q';
+      if (u === 'T' || u.startsWith('T-')) return 'T';
+      if (u === 'L' || u === 'L1' || u.startsWith('L-')) return 'L';
+      if (u === 'I' || u === 'I2' || u.startsWith('I-')) return 'I';
+      if (u === 'H' || u === 'H2' || u.startsWith('H-')) return 'H';
+      if (u === 'G' || u === 'G2' || u.startsWith('G-')) return 'G';
+      if (u === 'C' || u.startsWith('C-')) return 'C';
+      if (u === 'B' || u.startsWith('B-')) return 'B';
+      if (u === 'A1B' || u === 'A1B1' || u === 'A1B1' || u === 'A1b'.toUpperCase() || u.startsWith('A1B-')) return 'A1b';
+      if (u === 'A' || u.startsWith('A-')) return 'A';
+      if (u === 'E' || u.startsWith('E-')) return 'E';
+
+      return String(parentLabel || '').split('-')[0];
     }
 
     function normalizeDisplayLabel(label) {
-      const upper = String(label || '').toUpperCase();
+      const u = String(label || '').toUpperCase();
 
-      if (upper === 'J-J1') return 'J1';
-      if (upper === 'J-J2') return 'J2';
-      if (upper === 'R-R1A') return 'R1A';
-      if (upper === 'R-R1B') return 'R1B';
-      if (upper === 'R-R2') return 'R2';
-      if (upper === 'Q-Q1') return 'Q1';
-      if (upper === 'Q-Q2') return 'Q2';
+      if (u === 'Y') return 'Y-Adam';
+      if (u === 'Y-ADAM') return 'Y-Adam';
 
-      if (/^A[0-9A-Z]*-(.+)$/.test(upper)) {
-        return 'A-' + upper.replace(/^A[0-9A-Z]*-/, '');
-      }
+      if (u === 'J-J1') return 'J1';
+      if (u === 'J-J2') return 'J2';
+      if (u === 'R-R1A') return 'R1A';
+      if (u === 'R-R1B') return 'R1B';
+      if (u === 'R-R2') return 'R2';
+      if (u === 'Q-Q1') return 'Q1';
+      if (u === 'Q-Q2') return 'Q2';
+      if (u === 'A1B') return 'A1b';
 
       return label;
     }
@@ -962,8 +991,8 @@
       const u = String(label || '').toUpperCase();
 
       const tests = [
-        'J1','J2','R1A','R1B','R2','Q1','Q2','L1','G2','H2',
-        'E','T','L','B','G','I','H','Q','A','C'
+        'J1','J2','R1A','R1B','R2','Q1','Q2','L1',
+        'E','T','L','B','G','G2','I','I2','H','H2','Q','A','A1A','A1B1','A1B','C'
       ];
 
       for (const t of tests) {
@@ -973,11 +1002,26 @@
       return null;
     }
 
+    function getRawLabel(seg, parentLabel) {
+      const clean = normalizeTopLevelLabel(String(seg || '').trim());
+      if (!clean) return '';
+
+      if (clean.includes('-')) return normalizeDisplayLabel(clean);
+
+      const upper = clean.toUpperCase();
+      if (STRUCTURAL_LABELS.has(upper)) return normalizeDisplayLabel(clean);
+
+      if (!parentLabel) return normalizeDisplayLabel(clean);
+
+      const prefix = getPrefixBase(parentLabel);
+      return normalizeDisplayLabel(prefix + "-" + clean);
+    }
+
     function buildTree(samples) {
       const root = {
         id: 'root',
-        rawLabel: 'Y',
-        label: 'Y',
+        rawLabel: 'Y-Adam',
+        label: 'Y-Adam',
         colorRoot: null,
         children: {},
         samples: [],
@@ -985,7 +1029,10 @@
       };
 
       samples.forEach(s => {
-        const path = parsePath(s.full_snp_path);
+        const path = parsePath(s.full_snp_path)
+          .map(x => normalizeTopLevelLabel(x))
+          .filter(x => x && x.toUpperCase() !== 'Y' && x.toUpperCase() !== 'Y-ADAM');
+
         let node = root;
 
         path.forEach(seg => {
@@ -1158,15 +1205,14 @@
         node.samples.forEach(s => {
           const encoded = enc(s);
           const isAncient = s.__sourceType === 'ancient';
-          const isEgyptian = GOV_LIST.some(g => g !== '—' && g === s.governorate);
 
           html.push(`
             <li class="tree-item ui-tree-row">
               <div class="tree-row">
                 <div class="tree-sample-main" onclick="openSampleModalFromEncoded('${encoded}')">
                   <div class="tree-sample-line1">
-                    <div class="tree-sample-dot" style="background:${isEgyptian ? '#775a19' : '#64748b'}"></div>
-                    <span class="tree-sample-name ${isEgyptian ? 'egy' : ''}">${esc(s.name || s.sample_id || s.kit_number || 'Sample')}</span>
+                    <div class="tree-sample-dot"></div>
+                    <span class="tree-sample-name">${esc(s.name || s.sample_id || s.kit_number || 'Sample')}</span>
                     ${isAncient ? `<span class="tree-ancient-badge">ANCIENT</span>` : ''}
                   </div>
                   <div class="tree-sample-line2">${esc(s.governorate || s.site || '—')}</div>
@@ -1313,6 +1359,20 @@
       document.getElementById("tree-inner").style.transform = "";
     }
 
+    function getPieBorderConfig(labels, ctx) {
+      const borderColors = labels.map(() => '#ffffff');
+      const borderWidths = labels.map(() => 1);
+
+      if (typeof ctx === 'string' && sclean(ctx) === sclean('Sūhāj')) {
+        if (labels.length > 0) {
+          borderColors[0] = '#9ca3af';
+          borderWidths[0] = 3;
+        }
+      }
+
+      return { borderColors, borderWidths };
+    }
+
     function makePie(id, data, ctx, totalBase = null) {
       const el = document.getElementById(id);
       if (!el) return;
@@ -1323,6 +1383,8 @@
       const values = labels.map(k => data[k]);
       const base = totalBase || values.reduce((a,b)=>a+b,0);
 
+      const borderCfg = getPieBorderConfig(labels, ctx);
+
       charts[id] = new Chart(el.getContext("2d"), {
         type: "pie",
         data: {
@@ -1330,8 +1392,8 @@
           datasets: [{
             data: values,
             backgroundColor: labels.map(l => HC[l] || HC[l.charAt(0)] || "#64748b"),
-            borderWidth: 1,
-            borderColor: "#fff"
+            borderWidth: borderCfg.borderWidths,
+            borderColor: borderCfg.borderColors
           }]
         },
         options: {
