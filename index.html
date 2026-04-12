@@ -70,28 +70,37 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
+    .social-link {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: #9ca3af;
+      transition: all .3s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .social-link:hover { color: #001736; }
+
     .stat-card {
       transition: all .25s;
       border: 1px solid #e7eaee;
       cursor: pointer;
       background: white;
-      padding: 1.5rem;
+      padding: 1.35rem;
       border-radius: 2rem;
       display: flex;
       align-items: center;
-      gap: 1.25rem;
-      min-height: 132px;
-      overflow: hidden;
+      gap: 1.1rem;
+      min-height: 126px;
+      overflow: visible;
       position: relative;
     }
     .stat-card:hover {
       border-color: #001736;
       transform: translateY(-3px);
       box-shadow: 0 15px 30px rgba(0,23,54,.08);
-    }
-    .stat-card.active-ring {
-      border-color: #001736;
-      box-shadow: inset 0 0 0 1px #001736;
     }
 
     .archive-scroll {
@@ -131,19 +140,6 @@
       line-height: 1.6;
     }
 
-    .social-link {
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: .1em;
-      color: #9ca3af;
-      transition: all .3s;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .social-link:hover { color: #001736; }
-
     #detail-modal,
     #sample-detail-modal,
     #region-modal {
@@ -170,6 +166,7 @@
       max-width: 1180px;
       border-radius: 2rem;
       background: #fff;
+      position: relative;
     }
 
     .sample-modal-content {
@@ -179,6 +176,7 @@
       max-width: 780px;
       border-radius: 2rem;
       background: #fff;
+      position: relative;
     }
 
     .region-modal-content {
@@ -188,6 +186,7 @@
       max-width: 1280px;
       border-radius: 2rem;
       background: #fff;
+      position: relative;
     }
 
     /* TREE */
@@ -208,6 +207,11 @@
       transform-origin: top left;
     }
 
+    .tree-search-wrap {
+      position: relative;
+      width: 340px;
+      max-width: 100%;
+    }
     .tree-search {
       padding: 10px 14px 10px 40px;
       border-radius: 12px;
@@ -216,7 +220,7 @@
       font-size: 14px;
       font-weight: 700;
       outline: none;
-      width: 340px;
+      width: 100%;
       transition: all .2s;
       background: #fff;
     }
@@ -224,6 +228,7 @@
       border-color: #775a19;
       box-shadow: 0 0 0 3px rgba(119,90,25,.12);
     }
+    .tree-search-wrap.has-text .tree-search-icon { display: none; }
 
     .search-note {
       font-size: 10px;
@@ -276,6 +281,7 @@
       border: 2px solid transparent;
       transition: all .2s;
       white-space: nowrap;
+      background: #fff;
     }
     .haplo-pill.on { border-color: currentColor; }
 
@@ -290,6 +296,7 @@
       text-transform: uppercase;
       letter-spacing: .04em;
       display: none;
+      line-height: 1.7;
     }
     .tree-result-path.active { display: block; }
 
@@ -304,15 +311,15 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      min-height: 44px;
-      padding: 0 16px;
+      min-height: 40px;
+      padding: 0 14px;
       border-radius: 14px;
       color: #fff;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 900;
       letter-spacing: -.01em;
       white-space: nowrap;
-      box-shadow: 0 10px 25px rgba(0,23,54,.08);
+      box-shadow: 0 8px 20px rgba(0,23,54,.08);
     }
 
     .tree-root-badge {
@@ -330,18 +337,18 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 28px;
-      height: 22px;
+      min-width: 26px;
+      height: 21px;
       padding: 0 8px;
       border-radius: 999px;
       background: rgba(255,255,255,.18);
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 900;
     }
 
     .tree-toggle {
-      width: 30px;
-      height: 30px;
+      width: 28px;
+      height: 28px;
       border-radius: 999px;
       background: rgba(255,255,255,.18);
       display: inline-flex;
@@ -351,9 +358,8 @@
       flex-shrink: 0;
       user-select: none;
     }
-
     .tree-toggle span {
-      font-size: 14px;
+      font-size: 13px;
       line-height: 1;
     }
 
@@ -362,7 +368,7 @@
     .tree-ul ul {
       list-style: none;
       margin: 0;
-      padding-left: 34px;
+      padding-left: 30px;
       position: relative;
     }
 
@@ -370,8 +376,8 @@
       content: "";
       position: absolute;
       top: 0;
-      bottom: 20px;
-      left: 12px;
+      bottom: 18px;
+      left: 11px;
       width: 2px;
       background: #cfd7e3;
     }
@@ -380,15 +386,15 @@
     .tree-ul ul > li {
       position: relative;
       margin: 0;
-      padding: 10px 0 0 0;
+      padding: 8px 0 0 0;
     }
 
     .tree-ul li::before {
       content: "";
       position: absolute;
-      top: 30px;
-      left: -22px;
-      width: 22px;
+      top: 28px;
+      left: -19px;
+      width: 19px;
       height: 2px;
       background: #cfd7e3;
     }
@@ -396,8 +402,8 @@
     .tree-ul li:last-child::after {
       content: "";
       position: absolute;
-      left: -22px;
-      top: 30px;
+      left: -19px;
+      top: 28px;
       bottom: 0;
       width: 2px;
       background: #fff;
@@ -406,23 +412,23 @@
     .tree-row {
       display: flex;
       align-items: flex-start;
-      gap: 14px;
+      gap: 12px;
       position: relative;
-      min-height: 50px;
+      min-height: 44px;
     }
 
     .tree-sample-card {
       position: relative;
       z-index: 2;
-      min-width: 320px;
-      max-width: 880px;
-      padding: 16px 18px;
-      border-radius: 1.25rem;
+      min-width: 280px;
+      max-width: 720px;
+      padding: 12px 14px;
+      border-radius: 1.1rem;
       border: 1px solid #e5e7eb;
       background: #fff;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
       box-shadow: 0 8px 20px rgba(0,23,54,.04);
       cursor: pointer;
     }
@@ -433,7 +439,7 @@
     }
 
     .tree-sample-name {
-      font-size: 18px;
+      font-size: 12px;
       font-weight: 900;
       color: #775a19;
       line-height: 1.25;
@@ -441,25 +447,25 @@
     }
 
     .tree-sample-gov {
-      font-size: 13px;
+      font-size: 10px;
       color: #94a3b8;
       font-weight: 800;
       line-height: 1.25;
     }
 
     .tree-sample-dot {
-      width: 12px;
-      height: 12px;
+      width: 9px;
+      height: 9px;
       border-radius: 999px;
       background: #8b6a1c;
       flex-shrink: 0;
-      margin-top: 6px;
+      margin-top: 5px;
     }
 
     .tree-sample-line {
       display: flex;
       align-items: flex-start;
-      gap: 12px;
+      gap: 10px;
     }
 
     .tree-ancient-badge {
@@ -478,7 +484,11 @@
 
     .tree-node-dark { background: #001736; }
     .tree-node-black { background: #000000; color: #fff; }
-    .tree-node-white { background: #ffffff; color: #001736; border: 1px solid #cbd5e1; }
+    .tree-node-white {
+      background: #ffffff;
+      color: #001736;
+      border: 1px solid #d1d5db;
+    }
 
     .sample-detail-label {
       font-size: 10px;
@@ -663,9 +673,9 @@
       <div class="flex flex-col gap-3 w-full md:w-auto">
         <div class="flex flex-wrap gap-2 items-start">
           <div>
-            <div class="relative">
-              <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" style="font-size:18px">search</span>
-              <input id="treeSearch" type="text" placeholder="Search SNP / node…" onkeydown="if(event.key==='Enter') runTreeSearch()" class="tree-search"/>
+            <div id="tree-search-wrap" class="tree-search-wrap">
+              <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 tree-search-icon" style="font-size:18px">search</span>
+              <input id="treeSearch" type="text" placeholder="Search SNP / node…" onkeydown="if(event.key==='Enter') runTreeSearch()" oninput="handleTreeSearchInput()" class="tree-search"/>
             </div>
             <div class="search-note">Press Enter to search</div>
           </div>
@@ -756,7 +766,7 @@
     </div>
   </footer>
 
-  <!-- Haplo detail modal -->
+  <!-- National / ancient haplo modal -->
   <div id="detail-modal" onclick="closeModal(event)">
     <div class="modal-content p-6 md:p-10 border border-gray-100 shadow-2xl font-headline" onclick="event.stopPropagation()">
       <button onclick="closeModal(null)" class="absolute top-6 right-6 text-gray-400 hover:text-red-500 transition-colors z-10">
@@ -801,7 +811,7 @@
           <div>
             <div class="flex items-center gap-3 flex-wrap">
               <h2 id="sample-modal-name" class="text-2xl md:text-4xl font-black tracking-tighter text-primary"></h2>
-              <span id="sample-modal-ancient" class="tree-ancient-badge hidden">ANCIENT</span>
+              <span id="sample-modal-ancient" class="tree-ancient-badge hidden">Ancient</span>
             </div>
             <p id="sample-modal-subtitle" class="text-sm md:text-base font-bold text-gray-400 mt-2"></p>
           </div>
@@ -914,8 +924,14 @@
     };
 
     const BASE_COLOR = "#001736";
-    const MAJOR_HEADS = ["A1","A1b","B","C","E","G","H","I","J1","J2","L","Q1","Q2","R1a","R1b","R2","T"];
-    const KEEP_ALWAYS = ["Y-Adam","A1","A1b","BT","CT","CF","F","GHIJK","HIJK","IJK","IJ","J","J1","J2","B","C","E","G","H","I","L","Q1","Q2","R1a","R1b","R2","T"];
+
+    const FIXED_HEAD_LABELS = [
+      "Y-Adam","A1","A1b","BT","CT","CF","F","GHIJK","HIJK","IJK","IJ","J",
+      "J1","J2","Q","Q1","Q2","R","R-M173","R1a","R1b","R2","B","C","E","G","H","I","L","T",
+      "A0-T","DE","LT","K","K2","K2b","P","P-V1651","P-M1254","P-P337","P-P284","P-P226"
+    ];
+
+    const KEEP_ALWAYS = new Set(FIXED_HEAD_LABELS);
 
     const GOV_LIST = [
       "Al Bahr al Ahmar","Al Buhayrah","Ad Daqahlīyah","Al Fayyūm","Al Gharbīyah",
@@ -938,7 +954,6 @@
     let treeSearchTargetPath = null;
     let treeSearchResultPath = "";
     let collapsedNodes = new Set();
-    let lastTreeRawRoot = null;
 
     function esc(s) {
       return String(s ?? "")
@@ -954,37 +969,13 @@
         .trim()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[`‘’´]/g, "")
+        .replace(/[`‘’´']/g, "")
         .toLowerCase()
         .replace(/[^a-z0-9]/g, "");
     }
 
     function governorateMatch(a, b) {
       return sclean(a) === sclean(b);
-    }
-
-    function titleGov(s) {
-      return s || "—";
-    }
-
-    function treeBadgeStyle(label) {
-      const fam = nodeFamily(label);
-      if (fam === "C") return "tree-node-badge tree-node-white";
-      if (fam === "A1" || fam === "A1b") return "tree-node-badge tree-node-black";
-      if (!HC[fam]) return "tree-node-badge tree-node-dark";
-      return "tree-node-badge";
-    }
-
-    function nodeBadgeColor(label) {
-      const fam = nodeFamily(label);
-      if (fam === "C") return "#ffffff";
-      if (fam === "A1" || fam === "A1b") return "#000000";
-      return HC[fam] || BASE_COLOR;
-    }
-
-    function nodeBadgeTextColor(label) {
-      const fam = nodeFamily(label);
-      return fam === "C" ? "#001736" : "#ffffff";
     }
 
     function links(s, type) {
@@ -1038,25 +1029,29 @@
     }
 
     function aggregateNationalHaplo(h) {
-      const x = (h || "").toUpperCase();
+      const x = String(h || "").trim();
       if (x === "Q1" || x === "Q2") return "Q";
-      if (x === "A1" || x === "A1B" || x === "A1B" || x === "A1B1" || x === "A1B" || x === "A1B") return "A1/A1b";
-      if (x === "A1B" || x === "A1B1") return "A1/A1b";
-      if (x === "A1B" || x === "A1B1") return "A1/A1b";
-      if (x === "A1B" || x === "A1B1" || x === "A1B") return "A1/A1b";
-      if (h === "A1b") return "A1/A1b";
-      return h;
+      if (x === "A1" || x === "A1b") return "A1/A1b";
+      return x;
     }
 
     function colorForAggregate(label) {
       if (label === "Q") return HC["Q"];
       if (label === "A1/A1b") return "#000000";
-      if (label === "C") return "#ffffff";
+      if (label === "C") return "#FFFFFF";
       return HC[label] || BASE_COLOR;
     }
 
     function textColorForAggregate(label) {
       return label === "C" ? "#001736" : "#0f172a";
+    }
+
+    function chartBorderWidth(label) {
+      return label === "C" ? 1 : 2;
+    }
+
+    function chartBorderColor(label) {
+      return label === "C" ? "#d1d5db" : "#ffffff";
     }
 
     function matchSearchRow(s, q) {
@@ -1068,8 +1063,7 @@
         s.period, s.study_reference, s.cultural_group, s.y_dna, s.snp_path, s.full_snp_path
       ];
 
-      if (fields.some(f => sclean(f).includes(ql))) return true;
-      return false;
+      return fields.some(f => sclean(f).includes(ql));
     }
 
     async function loadAll() {
@@ -1086,79 +1080,128 @@
       const raw = (fullPath || "").trim();
       if (!raw) {
         const y = (yDna || "").trim();
-        if (y) return ["Y-Adam", y];
-        return ["Y-Adam"];
+        return y ? ["Y-Adam", y] : ["Y-Adam"];
       }
 
       const segs = raw.split(">").map(x => x.trim()).filter(Boolean);
-
       if (!segs.length) return ["Y-Adam"];
 
       if (segs[0].toUpperCase() !== "Y-ADAM") {
         return ["Y-Adam", ...segs];
       }
+
       segs[0] = "Y-Adam";
       return segs;
     }
 
     function canonicalHeadName(head) {
-      const x = (head || "").toUpperCase();
+      const x = String(head || "").trim().toUpperCase();
+
+      if (x === "Y-ADAM") return "Y-Adam";
+      if (x === "A0-T") return "A0-T";
       if (x === "A1B") return "A1b";
       if (x === "R1A") return "R1a";
       if (x === "R1B") return "R1b";
-      return head;
+      if (x === "K2B") return "K2b";
+
+      return String(head || "").trim();
     }
 
     function isMajorHead(seg) {
-      const s = (seg || "").toUpperCase();
-      return ["A1","A1B","B","C","E","G","H","I","J1","J2","L","Q1","Q2","R1A","R1B","R2","T"].includes(s);
+      const s = canonicalHeadName(seg);
+      return FIXED_HEAD_LABELS.includes(s);
     }
 
     function findCurrentHead(ancestors) {
       for (let i = ancestors.length - 1; i >= 0; i--) {
-        const s = ancestors[i].display;
-        if (isMajorHead(s)) return s;
+        const s = canonicalHeadName(ancestors[i].display);
+        if (FIXED_HEAD_LABELS.includes(s)) return s;
       }
       return "";
     }
 
     function prefixForHead(head) {
       const h = canonicalHeadName(head || "");
-      if (h === "J1" || h === "J2") return "J";
-      if (h === "Q1" || h === "Q2") return "Q";
-      if (h === "R1a" || h === "R1b" || h === "R2") return "R";
-      if (h === "A1") return "A1";
-      if (h === "A1b") return "A1b";
+
+      if (h === "J" || h === "J1" || h === "J2") return "J";
+      if (h === "Q" || h === "Q1" || h === "Q2") return "Q";
+      if (h === "R" || h === "R-M173" || h === "R1a" || h === "R1b" || h === "R2") return "R";
+      if (h === "A1" || h === "A1b") return "A";
       if (["B","C","E","G","H","I","L","T"].includes(h)) return h;
+
       return h;
     }
 
     function normalizeDisplay(seg, ancestors) {
-      const raw = (seg || "").trim();
+      const raw = String(seg || "").trim();
       if (!raw) return raw;
-      if (raw.toUpperCase() === "Y-ADAM") return "Y-Adam";
 
-      if (isMajorHead(raw)) return canonicalHeadName(raw);
+      const up = raw.toUpperCase();
+
+      if (up === "Y-ADAM") return "Y-Adam";
+      if (up === "A0-T") return "A0-T";
+
+      if (up === "A1") return "A1";
+      if (up === "A1B") return "A1b";
+
+      if (up === "BT") return "BT";
+      if (up === "CT") return "CT";
+      if (up === "CF") return "CF";
+      if (up === "F") return "F";
+      if (up === "GHIJK") return "GHIJK";
+      if (up === "HIJK") return "HIJK";
+      if (up === "IJK") return "IJK";
+      if (up === "IJ") return "IJ";
+      if (up === "J") return "J";
+      if (up === "K") return "K";
+      if (up === "K2") return "K2";
+      if (up === "K2B") return "K2b";
+      if (up === "LT") return "LT";
+      if (up === "DE") return "DE";
+      if (up === "P") return "P";
+      if (up === "P-V1651") return "P-V1651";
+      if (up === "P-M1254") return "P-M1254";
+      if (up === "P-P337") return "P-P337";
+      if (up === "P-P284") return "P-P284";
+      if (up === "P-P226") return "P-P226";
+
+      if (up === "B") return "B";
+      if (up === "C") return "C";
+      if (up === "E") return "E";
+      if (up === "G") return "G";
+      if (up === "H") return "H";
+      if (up === "I") return "I";
+      if (up === "L") return "L";
+      if (up === "T") return "T";
+
+      if (up === "J1") return "J1";
+      if (up === "J2") return "J2";
+
+      if (up === "Q") return "Q";
+      if (up === "Q1") return "Q1";
+      if (up === "Q2") return "Q2";
+
+      if (up === "R") return "R";
+      if (up === "R-M173") return "R-M173";
+      if (up === "R1A") return "R1a";
+      if (up === "R1B") return "R1b";
+      if (up === "R2") return "R2";
 
       const head = findCurrentHead(ancestors);
       const pref = prefixForHead(head);
 
       if (raw.includes("-")) {
-        const [left, ...rest] = raw.split("-");
-        const suffix = rest.join("-");
+        const parts = raw.split("-");
+        const left = parts[0].toUpperCase();
+        const suffix = parts.slice(1).join("-");
 
-        if (left.toUpperCase() === "J1" || left.toUpperCase() === "J2") return `J-${suffix}`;
-        if (left.toUpperCase() === "Q1" || left.toUpperCase() === "Q2") return `Q-${suffix}`;
-        if (left.toUpperCase() === "R1A" || left.toUpperCase() === "R1B" || left.toUpperCase() === "R2") return `R-${suffix}`;
-        if (left.toUpperCase() === "A1") return `A1-${suffix}`;
-        if (left.toUpperCase() === "A1B") return `A1b-${suffix}`;
+        if (left === "A1" || left === "A1B" || left === "A") return `A-${suffix}`;
+        if (left === "J1" || left === "J2" || left === "J") return `J-${suffix}`;
+        if (left === "Q1" || left === "Q2" || left === "Q") return `Q-${suffix}`;
+        if (left === "R1A" || left === "R1B" || left === "R2" || left === "R") return `R-${suffix}`;
+        if (["B","C","E","G","H","I","L","T"].includes(left)) return `${left}-${suffix}`;
 
-        if (["B","C","E","G","H","I","L","T","J","Q","R"].includes(left.toUpperCase())) {
-          if (left.toUpperCase() === "J") return `J-${suffix}`;
-          if (left.toUpperCase() === "Q") return `Q-${suffix}`;
-          if (left.toUpperCase() === "R") return `R-${suffix}`;
-          return `${left.toUpperCase()}-${suffix}`;
-        }
+        return raw;
       }
 
       if (pref) return `${pref}-${raw}`;
@@ -1166,21 +1209,12 @@
     }
 
     function nodeFamily(label) {
-      const x = (label || "").trim();
-      if (x === "A1" || x.startsWith("A1-")) return "A1";
-      if (x === "A1b" || x.startsWith("A1b-")) return "A1b";
-      if (x === "J1") return "J1";
-      if (x === "J2") return "J2";
-      if (x.startsWith("J-")) {
-        return "J";
-      }
-      if (x === "Q1") return "Q1";
-      if (x === "Q2") return "Q2";
-      if (x.startsWith("Q-")) return "Q";
-      if (x === "R1a") return "R1A";
-      if (x === "R1b") return "R1B";
-      if (x === "R2") return "R2";
-      if (x.startsWith("R-")) return "R2";
+      const x = String(label || "").trim();
+
+      if (x === "A1") return "A1";
+      if (x === "A1b") return "A1b";
+      if (x.startsWith("A-")) return "A1b";
+
       if (x === "B" || x.startsWith("B-")) return "B";
       if (x === "C" || x.startsWith("C-")) return "C";
       if (x === "E" || x.startsWith("E-")) return "E";
@@ -1189,7 +1223,41 @@
       if (x === "I" || x.startsWith("I-")) return "I";
       if (x === "L" || x.startsWith("L-")) return "L";
       if (x === "T" || x.startsWith("T-")) return "T";
+
+      if (x === "J1") return "J1";
+      if (x === "J2") return "J2";
+      if (x === "J" || x.startsWith("J-")) return "J1";
+
+      if (x === "Q1") return "Q1";
+      if (x === "Q2") return "Q2";
+      if (x === "Q" || x.startsWith("Q-")) return "Q";
+
+      if (x === "R1a") return "R1A";
+      if (x === "R1b") return "R1B";
+      if (x === "R2") return "R2";
+      if (x === "R" || x === "R-M173" || x.startsWith("R-")) return "R2";
+
       return x;
+    }
+
+    function treeBadgeStyle(label) {
+      const fam = nodeFamily(label);
+      if (fam === "C") return "tree-node-badge tree-node-white";
+      if (fam === "A1" || fam === "A1b") return "tree-node-badge tree-node-black";
+      if (!HC[fam]) return "tree-node-badge tree-node-dark";
+      return "tree-node-badge";
+    }
+
+    function nodeBadgeColor(label) {
+      const fam = nodeFamily(label);
+      if (fam === "C") return "#ffffff";
+      if (fam === "A1" || fam === "A1b") return "#000000";
+      return HC[fam] || BASE_COLOR;
+    }
+
+    function nodeBadgeTextColor(label) {
+      const fam = nodeFamily(label);
+      return fam === "C" ? "#001736" : "#ffffff";
     }
 
     function buildRawTree(samples) {
@@ -1250,24 +1318,6 @@
       return root;
     }
 
-    function searchTreeExact(root, query) {
-      const q = sclean(query);
-      let found = null;
-
-      function walk(node, lineage) {
-        if (found) return;
-        const nextLineage = [...lineage, node.display];
-        if (sclean(node.display) === q) {
-          found = { node, lineage: nextLineage };
-          return;
-        }
-        node.children.forEach(ch => walk(ch, nextLineage));
-      }
-
-      walk(root, []);
-      return found;
-    }
-
     function cloneTree(node) {
       return {
         raw: node.raw,
@@ -1299,7 +1349,7 @@
       const keepPath = pathSetToTarget(targetPath);
 
       function shouldKeep(node) {
-        if (KEEP_ALWAYS.includes(node.display)) return true;
+        if (KEEP_ALWAYS.has(node.display)) return true;
         if (keepPath.has(node.pathKey)) return true;
         if (node.samples.length > 0) return true;
         if (node.children.length !== 1) return true;
@@ -1350,6 +1400,53 @@
       return null;
     }
 
+    function searchTreeExact(root, query) {
+      const candidates = buildSearchCandidates(query);
+      let found = null;
+
+      function walk(node, lineage) {
+        if (found) return;
+        const nextLineage = [...lineage, node.display];
+        const cleanNode = sclean(node.display);
+
+        for (const candidate of candidates) {
+          if (sclean(candidate) === cleanNode) {
+            found = { node, lineage: nextLineage };
+            return;
+          }
+        }
+
+        node.children.forEach(ch => walk(ch, nextLineage));
+      }
+
+      walk(root, []);
+      return found;
+    }
+
+    function buildSearchCandidates(q) {
+      const raw = String(q || "").trim();
+      const up = raw.toUpperCase();
+
+      const out = new Set([
+        raw,
+        up,
+        `J-${up}`,
+        `Q-${up}`,
+        `R-${up}`,
+        `A-${up}`,
+        `B-${up}`,
+        `C-${up}`,
+        `E-${up}`,
+        `G-${up}`,
+        `H-${up}`,
+        `I-${up}`,
+        `L-${up}`,
+        `T-${up}`
+      ]);
+
+      return [...out];
+    }
+
     function makePie(id, data, ctx, totalBase = null, options = {}) {
       const el = document.getElementById(id);
       if (!el) return;
@@ -1366,8 +1463,9 @@
           datasets: [{
             data: values,
             backgroundColor: labels.map(l => colorForAggregate(l)),
-            borderWidth: labels.map(l => l === "C" ? 3 : 2),
-            borderColor: labels.map(l => l === "C" ? "#9ca3af" : "#ffffff")
+            borderWidth: labels.map(l => chartBorderWidth(l)),
+            borderColor: labels.map(l => chartBorderColor(l)),
+            hoverOffset: 8
           }]
         },
         options: {
@@ -1377,7 +1475,7 @@
           plugins: {
             legend: { display: false },
             tooltip: {
-              enabled: options.disableTooltip ? false : true,
+              enabled: true,
               callbacks: {
                 label: function(context) {
                   const label = context.label || "";
@@ -1410,7 +1508,9 @@
       document.getElementById("total-national-samples").textContent = total;
 
       if (total > 0) {
-        makePie("nationalChartCanvas", totals, "NATIONAL", total);
+        makePie("nationalChartCanvas", totals, "NATIONAL", total, {
+          onSliceClick: (slice) => openModal("NATIONAL", slice)
+        });
       }
 
       const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
@@ -1418,9 +1518,9 @@
       document.getElementById("national-legend").innerHTML = sorted.map(([hap, count]) => {
         const pct = total ? ((count / total) * 100).toFixed(1) : "0.0";
         return `
-          <div class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all">
+          <div onclick="openModal('NATIONAL','${esc(hap)}')" class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all cursor-pointer">
             <div class="flex items-center gap-2">
-              <div class="w-2 h-2 rounded-full ${hap === 'C' ? 'border border-gray-400' : ''}" style="background:${colorForAggregate(hap)}"></div>
+              <div class="w-2 h-2 rounded-full ${hap === 'C' ? 'border border-gray-300' : ''}" style="background:${colorForAggregate(hap)}"></div>
               <span style="color:${textColorForAggregate(hap)}">${esc(hap)}</span>
             </div>
             <span>${count} kits • ${pct}%</span>
@@ -1442,7 +1542,9 @@
       document.getElementById("total-ancient-samples").textContent = total;
 
       if (total > 0) {
-        makePie("ancientChartCanvas", totals, "ANCIENT", total);
+        makePie("ancientChartCanvas", totals, "ANCIENT", total, {
+          onSliceClick: (slice) => openModal("ANCIENT", slice)
+        });
       }
 
       const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
@@ -1450,9 +1552,9 @@
       document.getElementById("ancient-legend").innerHTML = sorted.map(([hap, count]) => {
         const pct = total ? ((count / total) * 100).toFixed(1) : "0.0";
         return `
-          <div class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all">
+          <div onclick="openModal('ANCIENT','${esc(hap)}')" class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all cursor-pointer">
             <div class="flex items-center gap-2">
-              <div class="w-2 h-2 rounded-full ${hap === 'C' ? 'border border-gray-400' : ''}" style="background:${colorForAggregate(hap)}"></div>
+              <div class="w-2 h-2 rounded-full ${hap === 'C' ? 'border border-gray-300' : ''}" style="background:${colorForAggregate(hap)}"></div>
               <span>${esc(hap)}</span>
             </div>
             <span>${count} kits • ${pct}%</span>
@@ -1495,8 +1597,7 @@
         if (pool.length > 0) {
           setTimeout(() => {
             makePie(cid, totals, gov, pool.length, {
-              disableTooltip: true,
-              onSliceClick: null
+              onSliceClick: (slice) => openRegionModal(gov, slice)
             });
           }, 20);
         }
@@ -1505,7 +1606,7 @@
       updateModernSummary();
     }
 
-    function openRegionModal(gov) {
+    function openRegionModal(gov, preselectHaplo = null) {
       const { pool, totals } = getRegionTotals(gov);
       const total = pool.length;
 
@@ -1519,13 +1620,13 @@
 
       const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
 
-      document.getElementById("region-modal-legend").innerHTML = sorted.map(([hap, count], idx) => {
+      document.getElementById("region-modal-legend").innerHTML = sorted.map(([hap, count]) => {
         const pct = total ? ((count / total) * 100).toFixed(1) : "0.0";
         return `
           <div onclick="showRegionHaplo('${esc(gov)}','${esc(hap)}')" class="region-summary-card cursor-pointer hover:bg-primary/5 transition-all">
             <div class="flex items-center justify-between gap-4">
               <div class="flex items-center gap-3">
-                <div class="w-5 h-5 rounded-full ${hap === 'C' ? 'border border-gray-400' : ''}" style="background:${colorForAggregate(hap)}"></div>
+                <div class="w-5 h-5 rounded-full ${hap === 'C' ? 'border border-gray-300' : ''}" style="background:${colorForAggregate(hap)}"></div>
                 <div class="text-xl font-black uppercase">${esc(hap)}</div>
               </div>
               <div class="text-xl font-black">${count} kits • ${pct}%</div>
@@ -1534,7 +1635,11 @@
         `;
       }).join("");
 
-      if (sorted.length) showRegionHaplo(gov, sorted[0][0]);
+      if (preselectHaplo) {
+        showRegionHaplo(gov, preselectHaplo);
+      } else if (sorted.length) {
+        showRegionHaplo(gov, sorted[0][0]);
+      }
     }
 
     function showRegionHaplo(gov, hp) {
@@ -1592,7 +1697,7 @@
 
       tbody.innerHTML = rows.map(s => {
         const h = haplo(s.y_dna, s.snp_path);
-        const dotClass = h === "C" ? 'border border-gray-400' : '';
+        const dotClass = h === "C" ? 'border border-gray-300' : '';
         return `
           <tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
             <td class="px-4 py-6 font-black uppercase text-sm">${esc(s.name || '—')}</td>
@@ -1620,7 +1725,7 @@
 
       tbody.innerHTML = rows.map(s => {
         const h = haplo(s.y_dna, s.snp_path);
-        const dotClass = h === "C" ? 'border border-gray-400' : '';
+        const dotClass = h === "C" ? 'border border-gray-300' : '';
 
         return `
           <tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
@@ -1708,7 +1813,7 @@
           return `
             <div onclick="showNationalHaplo('${type}','${esc(hap)}')" class="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-secondary/10 transition-all font-bold">
               <div class="flex items-center gap-3">
-                <div class="w-4 h-4 rounded-full ${hap === 'C' ? 'border border-gray-400' : ''}" style="background:${colorForAggregate(hap)}"></div>
+                <div class="w-4 h-4 rounded-full ${hap === 'C' ? 'border border-gray-300' : ''}" style="background:${colorForAggregate(hap)}"></div>
                 <span class="uppercase">${esc(hap)}</span>
               </div>
               <span>${count} kits • ${pct}%</span>
@@ -1791,6 +1896,12 @@
       el.style.transformOrigin = "top left";
     }
 
+    function handleTreeSearchInput() {
+      const wrap = document.getElementById("tree-search-wrap");
+      const input = document.getElementById("treeSearch");
+      wrap.classList.toggle("has-text", !!input.value.trim());
+    }
+
     function treeReset() {
       treeScale = 1;
       document.getElementById("tree-inner").style.transform = "";
@@ -1799,6 +1910,7 @@
       treeSearchResultPath = "";
       treeFocusPath = null;
       document.getElementById("treeSearch").value = "";
+      document.getElementById("tree-search-wrap").classList.remove("has-text");
       document.getElementById("tree-result-path").classList.remove("active");
       document.getElementById("tree-result-path").textContent = "";
       document.getElementById("btn-tree-back").classList.add("hidden");
@@ -1807,6 +1919,10 @@
 
     function clearTreeFocus() {
       treeFocusPath = null;
+      treeSearchTargetPath = null;
+      treeSearchResultPath = "";
+      document.getElementById("tree-result-path").classList.remove("active");
+      document.getElementById("tree-result-path").textContent = "";
       document.getElementById("btn-tree-back").classList.add("hidden");
       renderTree();
     }
@@ -1844,8 +1960,6 @@
 
       const samples = treeFilteredSamples();
       const rawRoot = buildRawTree(samples);
-      lastTreeRawRoot = rawRoot;
-
       const exact = searchTreeExact(rawRoot, q);
 
       if (exact) {
@@ -1868,7 +1982,16 @@
         counts[h] = (counts[h] || 0) + 1;
       });
 
-      const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+      const orderIndex = {
+        A1: 1, A1b: 2, B: 3, C: 4, E: 5, G: 6, H: 7, I: 8, J1: 9, J2: 10, L: 11, Q1: 12, Q2: 13, R1A: 14, R1B: 15, R2: 16, T: 17
+      };
+
+      const sorted = Object.entries(counts).sort((a, b) => {
+        const ia = orderIndex[a[0]] || 999;
+        const ib = orderIndex[b[0]] || 999;
+        if (ia !== ib) return ia - ib;
+        return a[0].localeCompare(b[0]);
+      });
 
       document.getElementById("tree-pills").innerHTML =
         `<span class="haplo-pill ${!treeHaploFilter ? 'on' : ''}" style="color:#001736;background:${!treeHaploFilter ? '#e2e8f0' : '#fff'}" onclick="treeSetHaplo(null)">All</span>` +
@@ -1876,7 +1999,7 @@
           const col = colorForAggregate(h);
           const txt = h === "C" ? "#001736" : col;
           return `<span class="haplo-pill ${treeHaploFilter === h ? 'on' : ''}"
-                    style="color:${txt};background:${treeHaploFilter === h ? col + '22' : '#fff'};${h === 'C' ? 'border-color:#cbd5e1;' : ''}"
+                    style="color:${txt};background:${treeHaploFilter === h ? col + '22' : '#fff'};${h === 'C' ? 'border:1px solid #d1d5db;' : ''}"
                     onclick="treeSetHaplo('${esc(h)}')">${esc(h)} ${c}</span>`;
         }).join("");
     }
@@ -1894,7 +2017,7 @@
         const col = colorForAggregate(h);
         return `
           <div class="stat-card font-bold" onclick="treeSetHaplo('${esc(h)}')">
-            <div class="w-10 h-10 rounded-xl flex-shrink-0 ${h === 'C' ? 'border border-gray-400' : ''}" style="background:${col}22;border:2px solid ${h === 'C' ? '#cbd5e1' : col}"></div>
+            <div class="w-10 h-10 rounded-xl flex-shrink-0 ${h === 'C' ? 'border border-gray-300' : ''}" style="background:${col}22;border:2px solid ${h === 'C' ? '#d1d5db' : col}"></div>
             <div><p class="text-[10px] font-bold text-gray-400 uppercase">${esc(h)}</p><p class="text-2xl font-black" style="color:${h === 'C' ? '#001736' : col}">${c}</p></div>
           </div>
         `;
@@ -1907,8 +2030,6 @@
       buildTreeStats(samples);
 
       const rawRoot = buildRawTree(samples);
-      lastTreeRawRoot = rawRoot;
-
       let root = treeMode === "full" ? cloneTree(rawRoot) : compressForDirect(rawRoot, treeSearchTargetPath);
       relinkParents(root);
 
@@ -1945,6 +2066,7 @@
       }
 
       document.getElementById("tree-inner").innerHTML = html.join("");
+      document.getElementById("tree-inner").style.transform = `scale(${treeScale})`;
     }
 
     function renderTreeNode(node) {
@@ -1955,7 +2077,7 @@
 
       const nodeHeader = `
         <div class="tree-row">
-          <div class="${styleClass}" style="background:${color};color:${textColor};${node.display === 'C' ? 'border:1px solid #9ca3af;' : ''}">
+          <div class="${styleClass}" style="background:${color};color:${textColor};${node.display === 'C' ? 'border:1px solid #d1d5db;' : ''}">
             <span class="tree-toggle" onclick="toggleTreeNode('${esc(node.pathKey)}');event.stopPropagation();"><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
             <span onclick="focusTreeNode('${esc(node.pathKey)}')" style="cursor:pointer;">${esc(node.display)}</span>
             <span class="tree-count">${node.count}</span>
@@ -2024,11 +2146,6 @@
       renderAncientArchive();
       updateModernSummary();
       updateAncientSummary();
-
-      document.getElementById("nav-home").addEventListener("click", () => {});
-      document.getElementById("nav-archive").addEventListener("click", () => {});
-      document.getElementById("nav-tree").addEventListener("click", () => {});
-      document.getElementById("nav-ancient").addEventListener("click", () => {});
     })();
   </script>
 </body>
