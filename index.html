@@ -77,21 +77,19 @@
       border: 1px solid #e7eaee;
       cursor: pointer;
       background: white;
-      padding: 1rem 1.15rem;
+      padding: 1rem 1.1rem;
       border-radius: 1.7rem;
       display: flex;
       align-items: center;
-      gap: 1.15rem;
+      gap: 1rem;
       min-height: 108px;
       overflow: visible;
       position: relative;
-      z-index: 1;
     }
     .stat-card:hover {
       border-color: #001736;
       transform: translateY(-2px);
       box-shadow: 0 12px 24px rgba(0,23,54,.07);
-      z-index: 2;
     }
     .stat-card.active-ring {
       border-color: #001736;
@@ -197,7 +195,6 @@
       position: relative;
     }
 
-    /* TREE */
     #tree-wrap {
       background: #fff;
       border-radius: 2rem;
@@ -384,7 +381,7 @@
       content: "";
       position: absolute;
       top: 0;
-      bottom: 18px;
+      bottom: 20px;
       left: 20px;
       width: 2px;
       background: #cfd7e3;
@@ -521,6 +518,7 @@
       color: #fff;
     }
 
+    .tree-node-dark { background: #001736; }
     .tree-node-black { background: #000000; color: #fff; }
     .tree-node-white {
       background: #ffffff;
@@ -581,17 +579,17 @@
     }
 
     .mini-canvas-wrap {
-      width: 78px;
-      height: 78px;
+      width: 76px;
+      height: 76px;
       flex-shrink: 0;
       position: relative;
       overflow: visible;
-      z-index: 5;
+      z-index: 1;
     }
 
     .mini-canvas-wrap canvas {
-      width: 78px !important;
-      height: 78px !important;
+      width: 76px !important;
+      height: 76px !important;
       display: block;
     }
 
@@ -605,7 +603,7 @@
     .chartjs-ext-tooltip {
       position: fixed;
       pointer-events: none;
-      background: rgba(15, 23, 42, .94);
+      background: rgba(15, 23, 42, .92);
       color: #fff;
       border-radius: 12px;
       padding: 8px 10px;
@@ -900,11 +898,6 @@
           <div id="sample-modal-path" class="sample-detail-code"></div>
         </div>
 
-        <div id="sample-modal-description-wrap" class="hidden">
-          <div class="sample-detail-label">Description</div>
-          <div id="sample-modal-description" class="sample-detail-code"></div>
-        </div>
-
         <div>
           <div class="sample-detail-label">Links</div>
           <div id="sample-modal-links" class="flex gap-3 flex-wrap"></div>
@@ -967,15 +960,23 @@
       "R1": "#F4A261",
       "R2": "#FFFF00",
       "L": "#00FFFF",
+      "L1": "#00FFFF",
       "B": "#008B8B",
       "G": "#808080",
+      "G2": "#808080",
       "I": "#EE82EE",
+      "I2": "#EE82EE",
       "H": "#8B4513",
+      "H2": "#8B4513",
       "Q": "#9400D3",
       "Q1": "#9400D3",
       "Q2": "#9400D3",
       "C": "#FFFFFF",
+      "A": "#000000",
+      "A1A": "#000000",
+      "A1B1": "#000000",
       "A1": "#000000",
+      "A1B": "#000000",
       "A1b": "#000000"
     };
 
@@ -1031,6 +1032,7 @@
     let treeSearchTargetPath = null;
     let treeSearchResultPath = "";
     let collapsedNodes = new Set();
+    let lastTreeRawRoot = null;
 
     function esc(s) {
       return String(s ?? "")
@@ -1055,32 +1057,33 @@
       return sclean(a) === sclean(b);
     }
 
-    function aggregateNationalHaplo(h) {
-      const x = (h || "").toUpperCase();
-      if (x === "Q1" || x === "Q2") return "Q";
-      if (x === "A1" || x === "A1B" || h === "A1b") return "A1/A1b";
-      return h;
+    function titleGov(s) {
+      return s || "—";
     }
 
-    function colorForAggregate(label) {
-      if (label === "Q") return HC["Q"];
-      if (label === "A1/A1b") return "#000000";
-      if (label === "C") return "#FFFFFF";
-      return HC[label] || BASE_COLOR;
+    function normalizeGovForSearch(v) {
+      return sclean(v);
     }
 
-    function textColorForAggregate(label) {
-      if (label === "C") return "#001736";
-      if (label === "R2") return "#001736";
-      return "#0f172a";
+    function links(s, type) {
+      const l1 = type === "y" ? s.y_link_1 : s.mt_link_1;
+      const l2 = type === "y" ? s.y_link_2 : s.mt_link_2;
+      const bg = type === "y" ? "bg-primary" : "bg-secondary";
+
+      let h = '<div class="flex gap-1.5 justify-center">';
+      [[l1, 'database'], [l2, 'link']].forEach(([u, ic]) => {
+        if (u && u.length > 5 && u !== "—") {
+          h += `<a href="${esc(u)}" target="_blank" class="w-7 h-7 rounded-lg ${bg} text-white flex items-center justify-center hover:scale-110 transition-transform shadow-sm"><span class="material-symbols-outlined text-[14px]">${ic}</span></a>`;
+        }
+      });
+      return h + "</div>";
     }
 
-    function chartBorderColor(label) {
-      return label === "C" ? MIN_C_BORDER : "#ffffff";
-    }
-
-    function chartBorderWidth(label) {
-      return label === "C" ? 2 : 2;
+    function sampleLinksForModal(s) {
+      const links = [s.y_link_1, s.y_link_2, s.mt_link_1, s.mt_link_2].filter(Boolean).filter(x => x !== "—");
+      return links.length
+        ? links.map(link => `<a href="${esc(link)}" target="_blank" class="sample-link-btn"><span class="material-symbols-outlined">link</span></a>`).join("")
+        : `<span class="text-sm font-bold text-gray-400">No links</span>`;
     }
 
     function haplo(y, snp) {
@@ -1114,36 +1117,45 @@
       return Y.charAt(0) || "?";
     }
 
-    function links(s, type) {
-      const l1 = type === "y" ? s.y_link_1 : s.mt_link_1;
-      const l2 = type === "y" ? s.y_link_2 : s.mt_link_2;
-      const bg = type === "y" ? "bg-primary" : "bg-secondary";
-
-      let h = '<div class="flex gap-1.5 justify-center">';
-      [[l1, 'database'], [l2, 'link']].forEach(([u, ic]) => {
-        if (u && u.length > 5 && u !== "—") {
-          h += `<a href="${esc(u)}" target="_blank" class="w-7 h-7 rounded-lg ${bg} text-white flex items-center justify-center hover:scale-110 transition-transform shadow-sm"><span class="material-symbols-outlined text-[14px]">${ic}</span></a>`;
-        }
-      });
-      return h + "</div>";
+    function aggregateNationalHaplo(h) {
+      const x = (h || "").toUpperCase();
+      if (x === "Q1" || x === "Q2") return "Q";
+      if (x === "A1" || x === "A1B" || h === "A1b") return "A1/A1b";
+      return h;
     }
 
-    function sampleLinksForModal(s) {
-      const links = [s.y_link_1, s.y_link_2, s.mt_link_1, s.mt_link_2].filter(Boolean).filter(x => x !== "—");
-      return links.length
-        ? links.map(link => `<a href="${esc(link)}" target="_blank" class="sample-link-btn"><span class="material-symbols-outlined">link</span></a>`).join("")
-        : `<span class="text-sm font-bold text-gray-400">No links</span>`;
+    function colorForAggregate(label) {
+      if (label === "Q") return HC["Q"];
+      if (label === "A1/A1b") return "#000000";
+      if (label === "C") return "#FFFFFF";
+      return HC[label] || BASE_COLOR;
+    }
+
+    function textColorForAggregate(label) {
+      if (label === "C") return "#001736";
+      if (label === "R2") return "#001736";
+      return "#0f172a";
+    }
+
+    function chartBorderColor(label) {
+      return label === "C" ? MIN_C_BORDER : "#ffffff";
+    }
+
+    function chartBorderWidth(label) {
+      return label === "C" ? 2 : 2;
     }
 
     function matchSearchRow(s, q) {
       if (!q) return true;
       const ql = sclean(q);
+
       const fields = [
         s.name, s.kit_number, s.sample_id, s.governorate, s.site,
-        s.period, s.study_reference, s.cultural_group, s.y_dna, s.snp_path, s.full_snp_path,
-        s.description, s.Description
+        s.period, s.study_reference, s.cultural_group, s.y_dna, s.snp_path, s.full_snp_path
       ];
-      return fields.some(f => sclean(f).includes(ql));
+
+      if (fields.some(f => sclean(f).includes(ql))) return true;
+      return false;
     }
 
     async function loadAll() {
@@ -1182,6 +1194,11 @@
       return SPECIAL_NODE_LABELS.has(raw);
     }
 
+    function isMajorHead(seg) {
+      const s = (seg || "").toUpperCase();
+      return ["A1","A1B","B","C","E","G","H","I","J1","J2","L","Q1","Q2","R1A","R1B","R2","T","R","R1"].includes(s);
+    }
+
     function findCurrentHead(ancestors) {
       for (let i = ancestors.length - 1; i >= 0; i--) {
         const s = ancestors[i].display;
@@ -1195,7 +1212,8 @@
       if (h === "J1" || h === "J2") return "J";
       if (h === "Q1" || h === "Q2" || h === "Q") return "Q";
       if (h === "R1a" || h === "R1b" || h === "R2" || h === "R" || h === "R1") return "R";
-      if (h === "A1" || h === "A1b") return "A";
+      if (h === "A1") return "A";
+      if (h === "A1b") return "A";
       if (["B","C","E","G","H","I","L","T"].includes(h)) return h;
       return h;
     }
@@ -1216,10 +1234,10 @@
         const [left, ...rest] = raw.split("-");
         const suffix = rest.join("-");
 
-        if (["J1","J2","J"].includes(left.toUpperCase())) return `J-${suffix}`;
-        if (["Q1","Q2","Q"].includes(left.toUpperCase())) return `Q-${suffix}`;
+        if (left.toUpperCase() === "J1" || left.toUpperCase() === "J2" || left.toUpperCase() === "J") return `J-${suffix}`;
+        if (left.toUpperCase() === "Q1" || left.toUpperCase() === "Q2" || left.toUpperCase() === "Q") return `Q-${suffix}`;
         if (["R","R1","R1A","R1B","R2"].includes(left.toUpperCase())) return `R-${suffix}`;
-        if (["A1","A1B","A"].includes(left.toUpperCase())) return `A-${suffix}`;
+        if (left.toUpperCase() === "A1" || left.toUpperCase() === "A1B" || left.toUpperCase() === "A") return `A-${suffix}`;
         if (["B","C","E","G","H","I","L","T"].includes(left.toUpperCase())) return `${left.toUpperCase()}-${suffix}`;
       }
 
@@ -1231,8 +1249,7 @@
       const d = display || "";
       const u = d.toUpperCase();
 
-      if (d === "Y-Adam" || d === "A0-T") return "A1";
-      if (["BT","CT","CF","F","GHIJK","HIJK","IJK","IJ","J","K","K2","K2b","LT","DE","P","P-V1651","P-M1254","P-P337","P-P284","P-P226","R-M173"].includes(d)) {
+      if (d === "Y-Adam" || d === "A0-T" || d === "BT" || d === "CT" || d === "CF" || d === "F" || d === "GHIJK" || d === "HIJK" || d === "IJK" || d === "IJ" || d === "J" || d === "K" || d === "K2" || d === "K2b" || d === "LT" || d === "DE" || d === "P" || d === "P-V1651" || d === "P-M1254" || d === "P-P337" || d === "P-P284" || d === "P-P226" || d === "R-M173") {
         return parentFamily || null;
       }
 
@@ -1267,34 +1284,15 @@
         if (parentFamily === "R1A") return "R1A";
         if (parentFamily === "R1B") return "R1B";
         if (parentFamily === "R2") return "R2";
-        if (parentFamily === "R1") return "R1";
         return "R";
       }
 
       return parentFamily || null;
     }
 
-    function descendantSortFamily(node) {
-      if (node._sortFamily) return node._sortFamily;
-      if (node.family) {
-        node._sortFamily = node.family;
-        return node._sortFamily;
-      }
-      if (!node.children || !node.children.length) {
-        node._sortFamily = null;
-        return null;
-      }
-      const fams = node.children
-        .map(descendantSortFamily)
-        .filter(Boolean)
-        .sort((a,b) => (FAMILY_ORDER[a] || 999) - (FAMILY_ORDER[b] || 999));
-      node._sortFamily = fams[0] || null;
-      return node._sortFamily;
-    }
-
     function nodeBadgeColor(node) {
       const fam = node.family;
-      if (["Y-Adam","A0-T","BT","CT","CF","F","GHIJK","HIJK","IJK","IJ","J","K","K2","K2b","LT","DE","P","P-V1651","P-M1254","P-P337","P-P284","P-P226","R-M173"].includes(node.display)) {
+      if (node.display === "Y-Adam" || node.display === "A0-T" || node.display === "BT" || node.display === "CT" || node.display === "CF" || node.display === "F" || node.display === "GHIJK" || node.display === "HIJK" || node.display === "IJK" || node.display === "IJ" || node.display === "J" || node.display === "K" || node.display === "K2" || node.display === "K2b" || node.display === "LT" || node.display === "DE" || node.display === "P" || node.display === "P-V1651" || node.display === "P-M1254" || node.display === "P-P337" || node.display === "P-P284" || node.display === "P-P226" || node.display === "R-M173") {
         return BASE_COLOR;
       }
       if (fam === "C") return "#ffffff";
@@ -1327,12 +1325,9 @@
 
     function sortNodeChildren(children) {
       return children.sort((a, b) => {
-        const fa = descendantSortFamily(a) || a.family;
-        const fb = descendantSortFamily(b) || b.family;
-
-        const oa = groupOrderFromFamily(fa);
-        const ob = groupOrderFromFamily(fb);
-        if (oa !== ob) return oa - ob;
+        const fa = groupOrderFromFamily(a.family);
+        const fb = groupOrderFromFamily(b.family);
+        if (fa !== fb) return fa - fb;
 
         if (a.display === "R1" && b.display === "R2") return -1;
         if (a.display === "R2" && b.display === "R1") return 1;
@@ -1340,7 +1335,6 @@
         if (a.display === "R1b" && b.display === "R1a") return 1;
         if (a.display === "Q1" && b.display === "Q2") return -1;
         if (a.display === "Q2" && b.display === "Q1") return 1;
-
         return a.display.localeCompare(b.display, undefined, { numeric: true, sensitivity: "base" });
       });
     }
@@ -1355,7 +1349,7 @@
         samples: [],
         parent: null,
         count: 0,
-        family: "A1"
+        family: null
       };
 
       samples.forEach(sample => {
@@ -1378,8 +1372,7 @@
               samples: [],
               parent: node,
               count: 0,
-              family: inferFamilyFromDisplay(disp, node.family),
-              _sortFamily: null
+              family: inferFamilyFromDisplay(disp, node.family)
             };
             node.childMap.set(disp, child);
             node.children.push(child);
@@ -1393,11 +1386,10 @@
       });
 
       function finalize(node) {
-        node.children.forEach(ch => finalize(ch));
         sortNodeChildren(node.children);
-
         let c = node.samples.length;
         node.children.forEach(ch => {
+          finalize(ch);
           c += ch.count;
         });
         node.count = c;
@@ -1415,6 +1407,7 @@
         const suffix = sclean(node.display.split("-").slice(1).join("-"));
         if (suffix === queryClean) return true;
       }
+
       return false;
     }
 
@@ -1445,8 +1438,7 @@
         samples: [...node.samples],
         parent: null,
         count: node.count,
-        family: node.family,
-        _sortFamily: node._sortFamily
+        family: node.family
       };
     }
 
@@ -1495,8 +1487,7 @@
           children,
           samples: [...node.samples],
           count: node.count,
-          family: node.family,
-          _sortFamily: node._sortFamily
+          family: node.family
         };
       }
 
@@ -1507,8 +1498,7 @@
         children: rawRoot.children.map(compress),
         samples: [...rawRoot.samples],
         count: rawRoot.count,
-        family: rawRoot.family,
-        _sortFamily: rawRoot._sortFamily
+        family: rawRoot.family
       };
 
       relinkParents(out);
@@ -1574,7 +1564,6 @@
           maintainAspectRatio: false,
           animation: false,
           layout: { padding: 0 },
-          interaction: { mode: 'nearest', intersect: true },
           plugins: {
             legend: { display: false },
             tooltip: {
@@ -1690,7 +1679,7 @@
         card.onclick = () => openRegionModal(gov);
         card.innerHTML = `
           <div class="mini-canvas-wrap"><canvas id="${cid}"></canvas></div>
-          <div class="min-w-0 text-left flex-1 pl-2">
+          <div class="min-w-0 text-left flex-1 pl-1">
             <h4 class="font-black text-[1.1rem] uppercase tracking-tighter leading-tight">${esc(gov === "—" ? "Unassigned" : gov)}</h4>
             <p class="text-lg text-gray-400 font-bold uppercase">Total: ${pool.length}</p>
           </div>
@@ -1871,8 +1860,6 @@
     }
 
     function openSampleModal(sample) {
-      const desc = sample.description || sample.Description || "";
-
       document.getElementById("sample-modal-name").textContent = sample.name || sample.sample_id || sample.kit_number || "Sample";
       document.getElementById("sample-modal-subtitle").textContent = `${sample.governorate || sample.site || "Unknown location"} • ${sample.__sourceType === "ancient" ? "Ancient sample" : "Modern sample"}`;
       document.getElementById("sample-modal-kit").textContent = sample.kit_number || sample.sample_id || "—";
@@ -1882,17 +1869,6 @@
       document.getElementById("sample-modal-path").textContent = sample.full_snp_path || "—";
       document.getElementById("sample-modal-links").innerHTML = sampleLinksForModal(sample);
       document.getElementById("sample-modal-ancient").classList.toggle("hidden", sample.__sourceType !== "ancient");
-
-      const descWrap = document.getElementById("sample-modal-description-wrap");
-      const descEl = document.getElementById("sample-modal-description");
-      if (desc) {
-        descWrap.classList.remove("hidden");
-        descEl.textContent = desc;
-      } else {
-        descWrap.classList.add("hidden");
-        descEl.textContent = "";
-      }
-
       document.getElementById("sample-detail-modal").classList.add("active");
     }
 
@@ -2063,6 +2039,7 @@
 
       const samples = treeFilteredSamples();
       const rawRoot = buildRawTree(samples);
+      lastTreeRawRoot = rawRoot;
 
       const exact = searchTreeExact(rawRoot, q);
 
@@ -2093,12 +2070,11 @@
         `<span class="haplo-pill ${!treeHaploFilter ? 'on' : ''}" style="color:#001736;background:${!treeHaploFilter ? '#e2e8f0' : '#fff'}" onclick="treeSetHaplo(null)">All</span>` +
         ordered.map(h => {
           const c = counts[h];
-          const col = colorForAggregate(h);
+          const col = colorForAggregate(h === "R1A" ? "R1A" : h === "R1B" ? "R1B" : h);
           const txt = h === "C" || h === "R2" ? "#001736" : col;
-          const label = h === "R1A" ? "R1a" : h === "R1B" ? "R1b" : h;
           return `<span class="haplo-pill ${treeHaploFilter === h ? 'on' : ''}"
                     style="color:${txt};background:${treeHaploFilter === h ? col + '22' : '#fff'};${h === 'C' ? 'border-color:#cbd5e1;' : ''}"
-                    onclick="treeSetHaplo('${esc(h)}')">${label} (${c})</span>`;
+                    onclick="treeSetHaplo('${esc(h)}')">${h === 'R1A' ? 'R1a' : h === 'R1B' ? 'R1b' : h} (${c})</span>`;
         }).join("");
     }
 
@@ -2129,6 +2105,8 @@
       buildTreeStats(samples);
 
       const rawRoot = buildRawTree(samples);
+      lastTreeRawRoot = rawRoot;
+
       let root = treeMode === "full" ? cloneTree(rawRoot) : compressForDirect(rawRoot, treeSearchTargetPath);
       relinkParents(root);
 
