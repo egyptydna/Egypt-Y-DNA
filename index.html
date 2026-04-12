@@ -213,7 +213,7 @@
       max-width: 100%;
     }
     .tree-search {
-      padding: 10px 14px 10px 40px;
+      padding: 10px 14px 10px 14px;
       border-radius: 12px;
       border: 1px solid #e5e7eb;
       font-family: 'Manrope', sans-serif;
@@ -228,7 +228,6 @@
       border-color: #775a19;
       box-shadow: 0 0 0 3px rgba(119,90,25,.12);
     }
-    .tree-search-wrap.has-text .tree-search-icon { display: none; }
 
     .search-note {
       font-size: 10px;
@@ -372,6 +371,16 @@
       position: relative;
     }
 
+    .tree-ul > li.root-connector::before {
+      content: "";
+      position: absolute;
+      top: -8px;
+      left: 11px;
+      width: 2px;
+      height: 36px;
+      background: #cfd7e3;
+    }
+
     .tree-ul ul::before {
       content: "";
       position: absolute;
@@ -420,15 +429,15 @@
     .tree-sample-card {
       position: relative;
       z-index: 2;
-      min-width: 280px;
-      max-width: 720px;
-      padding: 12px 14px;
+      min-width: 260px;
+      max-width: 680px;
+      padding: 10px 13px;
       border-radius: 1.1rem;
       border: 1px solid #e5e7eb;
       background: #fff;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 3px;
       box-shadow: 0 8px 20px rgba(0,23,54,.04);
       cursor: pointer;
     }
@@ -439,10 +448,10 @@
     }
 
     .tree-sample-name {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 900;
       color: #775a19;
-      line-height: 1.25;
+      line-height: 1.2;
       word-break: break-word;
     }
 
@@ -450,7 +459,7 @@
       font-size: 10px;
       color: #94a3b8;
       font-weight: 800;
-      line-height: 1.25;
+      line-height: 1.2;
     }
 
     .tree-sample-dot {
@@ -459,7 +468,7 @@
       border-radius: 999px;
       background: #8b6a1c;
       flex-shrink: 0;
-      margin-top: 5px;
+      margin-top: 4px;
     }
 
     .tree-sample-line {
@@ -674,8 +683,7 @@
         <div class="flex flex-wrap gap-2 items-start">
           <div>
             <div id="tree-search-wrap" class="tree-search-wrap">
-              <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 tree-search-icon" style="font-size:18px">search</span>
-              <input id="treeSearch" type="text" placeholder="Search SNP / node…" onkeydown="if(event.key==='Enter') runTreeSearch()" oninput="handleTreeSearchInput()" class="tree-search"/>
+              <input id="treeSearch" type="text" placeholder="Search SNP / node…" onkeydown="if(event.key==='Enter') runTreeSearch()" class="tree-search"/>
             </div>
             <div class="search-note">Press Enter to search</div>
           </div>
@@ -896,6 +904,7 @@
 
     const HC = {
       "J1": "#006400",
+      "J2": "#32CD32",
       "T": "#FFA500",
       "E": "#00008B",
       "R1B": "#FF0000",
@@ -910,7 +919,6 @@
       "R2": "#FFFF00",
       "H": "#8B4513",
       "H2": "#8B4513",
-      "J2": "#32CD32",
       "Q": "#9400D3",
       "Q1": "#9400D3",
       "Q2": "#9400D3",
@@ -932,6 +940,26 @@
     ];
 
     const KEEP_ALWAYS = new Set(FIXED_HEAD_LABELS);
+
+    const TREE_ORDER = {
+      "A1": 1,
+      "A1b": 2,
+      "B": 3,
+      "C": 4,
+      "E": 5,
+      "G": 6,
+      "H": 7,
+      "I": 8,
+      "J1": 9,
+      "J2": 10,
+      "L": 11,
+      "Q1": 12,
+      "Q2": 13,
+      "R1a": 14,
+      "R1b": 15,
+      "R2": 16,
+      "T": 17
+    };
 
     const GOV_LIST = [
       "Al Bahr al Ahmar","Al Buhayrah","Ad Daqahlīyah","Al Fayyūm","Al Gharbīyah",
@@ -1043,7 +1071,9 @@
     }
 
     function textColorForAggregate(label) {
-      return label === "C" ? "#001736" : "#0f172a";
+      if (label === "C") return "#001736";
+      if (label === "R2") return "#001736";
+      return "#0f172a";
     }
 
     function chartBorderWidth(label) {
@@ -1226,38 +1256,86 @@
 
       if (x === "J1") return "J1";
       if (x === "J2") return "J2";
-      if (x === "J" || x.startsWith("J-")) return "J1";
+      if (x === "J" || x.startsWith("J-")) {
+        const root = getBranchRootLabelFromDisplay(x);
+        return root === "J2" ? "J2" : "J1";
+      }
 
       if (x === "Q1") return "Q1";
       if (x === "Q2") return "Q2";
-      if (x === "Q" || x.startsWith("Q-")) return "Q";
+      if (x === "Q" || x.startsWith("Q-")) {
+        const root = getBranchRootLabelFromDisplay(x);
+        return root === "Q2" ? "Q2" : "Q1";
+      }
 
       if (x === "R1a") return "R1A";
       if (x === "R1b") return "R1B";
       if (x === "R2") return "R2";
-      if (x === "R" || x === "R-M173" || x.startsWith("R-")) return "R2";
+      if (x === "R" || x === "R-M173" || x.startsWith("R-")) {
+        const root = getBranchRootLabelFromDisplay(x);
+        if (root === "R1a") return "R1A";
+        if (root === "R1b") return "R1B";
+        return "R2";
+      }
 
       return x;
     }
 
-    function treeBadgeStyle(label) {
-      const fam = nodeFamily(label);
+    function getBranchRootLabel(node) {
+      let cur = node;
+      while (cur) {
+        if (TREE_ORDER[cur.display]) return cur.display;
+        cur = cur.parent;
+      }
+      return "";
+    }
+
+    function getBranchRootLabelFromDisplay(label) {
+      return label;
+    }
+
+    function treeBadgeStyle(label, node) {
+      const fam = node ? nodeFamilyByNode(node) : nodeFamily(label);
       if (fam === "C") return "tree-node-badge tree-node-white";
       if (fam === "A1" || fam === "A1b") return "tree-node-badge tree-node-black";
       if (!HC[fam]) return "tree-node-badge tree-node-dark";
       return "tree-node-badge";
     }
 
-    function nodeBadgeColor(label) {
-      const fam = nodeFamily(label);
+    function nodeFamilyByNode(node) {
+      const own = nodeFamily(node.display);
+      if (own === "J1" || own === "J2" || own === "R1A" || own === "R1B" || own === "R2" || own === "Q1" || own === "Q2") return own;
+
+      if (String(node.display).startsWith("J-")) {
+        const root = getBranchRootLabel(node);
+        return root === "J2" ? "J2" : "J1";
+      }
+      if (String(node.display).startsWith("Q-")) {
+        const root = getBranchRootLabel(node);
+        return root === "Q2" ? "Q2" : "Q1";
+      }
+      if (String(node.display).startsWith("R-")) {
+        const root = getBranchRootLabel(node);
+        if (root === "R1a") return "R1A";
+        if (root === "R1b") return "R1B";
+        return "R2";
+      }
+
+      return own;
+    }
+
+    function nodeBadgeColor(label, node) {
+      const fam = node ? nodeFamilyByNode(node) : nodeFamily(label);
       if (fam === "C") return "#ffffff";
       if (fam === "A1" || fam === "A1b") return "#000000";
       return HC[fam] || BASE_COLOR;
     }
 
-    function nodeBadgeTextColor(label) {
-      const fam = nodeFamily(label);
-      return fam === "C" ? "#001736" : "#ffffff";
+    function nodeBadgeTextColor(label, node) {
+      const fam = node ? nodeFamilyByNode(node) : nodeFamily(label);
+      if (fam === "C") return "#001736";
+      if (fam === "R2") return "#001736";
+      return "#ffffff";
     }
 
     function buildRawTree(samples) {
@@ -1305,7 +1383,15 @@
       });
 
       function finalize(node) {
-        node.children.sort((a, b) => a.display.localeCompare(b.display, undefined, { numeric: true, sensitivity: "base" }));
+        node.children.sort((a, b) => {
+          const aRoot = getSortRoot(a);
+          const bRoot = getSortRoot(b);
+          const oa = TREE_ORDER[aRoot] || 999;
+          const ob = TREE_ORDER[bRoot] || 999;
+          if (oa !== ob) return oa - ob;
+          return a.display.localeCompare(b.display, undefined, { numeric: true, sensitivity: "base" });
+        });
+
         let c = node.samples.length;
         node.children.forEach(ch => {
           finalize(ch);
@@ -1316,6 +1402,15 @@
 
       finalize(root);
       return root;
+    }
+
+    function getSortRoot(node) {
+      let cur = node;
+      while (cur) {
+        if (TREE_ORDER[cur.display]) return cur.display;
+        cur = cur.parent;
+      }
+      return node.display;
     }
 
     function cloneTree(node) {
@@ -1481,7 +1576,7 @@
                   const label = context.label || "";
                   const value = context.parsed || 0;
                   const pct = base ? ((value / base) * 100).toFixed(1) : "0.0";
-                  return `${label}: ${value} kits (${pct}%)`;
+                  return `${label}: ${value} (${pct}%)`;
                 }
               }
             }
@@ -1523,7 +1618,7 @@
               <div class="w-2 h-2 rounded-full ${hap === 'C' ? 'border border-gray-300' : ''}" style="background:${colorForAggregate(hap)}"></div>
               <span style="color:${textColorForAggregate(hap)}">${esc(hap)}</span>
             </div>
-            <span>${count} kits • ${pct}%</span>
+            <span>${count} • ${pct}%</span>
           </div>
         `;
       }).join("");
@@ -1557,7 +1652,7 @@
               <div class="w-2 h-2 rounded-full ${hap === 'C' ? 'border border-gray-300' : ''}" style="background:${colorForAggregate(hap)}"></div>
               <span>${esc(hap)}</span>
             </div>
-            <span>${count} kits • ${pct}%</span>
+            <span>${count} • ${pct}%</span>
           </div>
         `;
       }).join("");
@@ -1629,7 +1724,7 @@
                 <div class="w-5 h-5 rounded-full ${hap === 'C' ? 'border border-gray-300' : ''}" style="background:${colorForAggregate(hap)}"></div>
                 <div class="text-xl font-black uppercase">${esc(hap)}</div>
               </div>
-              <div class="text-xl font-black">${count} kits • ${pct}%</div>
+              <div class="text-xl font-black">${count} • ${pct}%</div>
             </div>
           </div>
         `;
@@ -1650,7 +1745,7 @@
 
       document.getElementById("region-modal-haplo").textContent = hp;
       document.getElementById("region-modal-haplo-summary").textContent = `${pct}% of the samples from ${gov} belong to ${hp}`;
-      document.getElementById("region-modal-kits-count").textContent = `${matches.length} KITS FOUND`;
+      document.getElementById("region-modal-kits-count").textContent = `${matches.length} FOUND`;
 
       const box = document.getElementById("region-modal-kit-box");
       box.style.color = col;
@@ -1816,7 +1911,7 @@
                 <div class="w-4 h-4 rounded-full ${hap === 'C' ? 'border border-gray-300' : ''}" style="background:${colorForAggregate(hap)}"></div>
                 <span class="uppercase">${esc(hap)}</span>
               </div>
-              <span>${count} kits • ${pct}%</span>
+              <span>${count} • ${pct}%</span>
             </div>
           `;
         }).join("");
@@ -1837,7 +1932,7 @@
       const pct = total ? ((matches.length / total) * 100).toFixed(1) : "0.0";
 
       document.getElementById("selected-haplo-display").textContent = hp;
-      document.getElementById("modal-sample-count").textContent = `${matches.length} KITS FOUND`;
+      document.getElementById("modal-sample-count").textContent = `${matches.length} FOUND`;
       document.getElementById("modal-explainer").textContent =
         type === "ANCIENT"
           ? `${pct}% of the ancient samples belong to ${hp}`
@@ -1896,12 +1991,6 @@
       el.style.transformOrigin = "top left";
     }
 
-    function handleTreeSearchInput() {
-      const wrap = document.getElementById("tree-search-wrap");
-      const input = document.getElementById("treeSearch");
-      wrap.classList.toggle("has-text", !!input.value.trim());
-    }
-
     function treeReset() {
       treeScale = 1;
       document.getElementById("tree-inner").style.transform = "";
@@ -1910,7 +1999,6 @@
       treeSearchResultPath = "";
       treeFocusPath = null;
       document.getElementById("treeSearch").value = "";
-      document.getElementById("tree-search-wrap").classList.remove("has-text");
       document.getElementById("tree-result-path").classList.remove("active");
       document.getElementById("tree-result-path").textContent = "";
       document.getElementById("btn-tree-back").classList.add("hidden");
@@ -1997,7 +2085,8 @@
         `<span class="haplo-pill ${!treeHaploFilter ? 'on' : ''}" style="color:#001736;background:${!treeHaploFilter ? '#e2e8f0' : '#fff'}" onclick="treeSetHaplo(null)">All</span>` +
         sorted.map(([h,c]) => {
           const col = colorForAggregate(h);
-          const txt = h === "C" ? "#001736" : col;
+          let txt = h === "C" ? "#001736" : col;
+          if (h === "R2") txt = "#001736";
           return `<span class="haplo-pill ${treeHaploFilter === h ? 'on' : ''}"
                     style="color:${txt};background:${treeHaploFilter === h ? col + '22' : '#fff'};${h === 'C' ? 'border:1px solid #d1d5db;' : ''}"
                     onclick="treeSetHaplo('${esc(h)}')">${esc(h)} ${c}</span>`;
@@ -2015,13 +2104,81 @@
 
       document.getElementById("tree-stats").innerHTML = top.map(([h,c]) => {
         const col = colorForAggregate(h);
+        const txt = h === "C" || h === "R2" ? "#001736" : col;
         return `
           <div class="stat-card font-bold" onclick="treeSetHaplo('${esc(h)}')">
             <div class="w-10 h-10 rounded-xl flex-shrink-0 ${h === 'C' ? 'border border-gray-300' : ''}" style="background:${col}22;border:2px solid ${h === 'C' ? '#d1d5db' : col}"></div>
-            <div><p class="text-[10px] font-bold text-gray-400 uppercase">${esc(h)}</p><p class="text-2xl font-black" style="color:${h === 'C' ? '#001736' : col}">${c}</p></div>
+            <div><p class="text-[10px] font-bold text-gray-400 uppercase">${esc(h)}</p><p class="text-2xl font-black" style="color:${txt}">${c}</p></div>
           </div>
         `;
       }).join("");
+    }
+
+    function buildRawTree(samples) {
+      const root = {
+        raw: "Y-Adam",
+        display: "Y-Adam",
+        pathKey: "Y-Adam",
+        children: [],
+        childMap: new Map(),
+        samples: [],
+        parent: null,
+        count: 0
+      };
+
+      samples.forEach(sample => {
+        const path = parsePath(sample.full_snp_path, sample.y_dna);
+        let node = root;
+        const ancestorChain = [{ display: "Y-Adam" }];
+
+        for (let i = 1; i < path.length; i++) {
+          const rawSeg = path[i];
+          const disp = normalizeDisplay(rawSeg, ancestorChain);
+          const key = node.pathKey + ">" + disp;
+
+          if (!node.childMap.has(disp)) {
+            const child = {
+              raw: rawSeg,
+              display: disp,
+              pathKey: key,
+              children: [],
+              childMap: new Map(),
+              samples: [],
+              parent: node,
+              count: 0
+            };
+            node.childMap.set(disp, child);
+            node.children.push(child);
+          }
+
+          node = node.childMap.get(disp);
+          ancestorChain.push({ display: disp });
+        }
+
+        node.samples.push(sample);
+      });
+
+      function finalize(node) {
+        node.children.forEach(ch => ch.parent = node);
+        node.children.sort((a, b) => {
+          const aRoot = getSortRoot(a);
+          const bRoot = getSortRoot(b);
+          const oa = TREE_ORDER[aRoot] || 999;
+          const ob = TREE_ORDER[bRoot] || 999;
+          if (oa !== ob) return oa - ob;
+          return a.display.localeCompare(b.display, undefined, { numeric: true, sensitivity: "base" });
+        });
+
+        let c = node.samples.length;
+        node.children.forEach(ch => {
+          finalize(ch);
+          c += ch.count;
+        });
+        node.count = c;
+      }
+
+      finalize(root);
+      return root;
     }
 
     function renderTree() {
@@ -2060,19 +2217,19 @@
       `);
 
       if (root.display === "Y-Adam") {
-        html.push(`<ul class="tree-ul">${root.children.map(renderTreeNode).join("")}</ul>`);
+        html.push(`<ul class="tree-ul">${root.children.map((ch, i) => renderTreeNode(ch, i === 0)).join("")}</ul>`);
       } else {
-        html.push(`<ul class="tree-ul">${renderTreeNode(root)}</ul>`);
+        html.push(`<ul class="tree-ul">${renderTreeNode(root, false)}</ul>`);
       }
 
       document.getElementById("tree-inner").innerHTML = html.join("");
       document.getElementById("tree-inner").style.transform = `scale(${treeScale})`;
     }
 
-    function renderTreeNode(node) {
-      const color = nodeBadgeColor(node.display);
-      const textColor = nodeBadgeTextColor(node.display);
-      const styleClass = treeBadgeStyle(node.display);
+    function renderTreeNode(node, isFirstRootChild = false) {
+      const color = nodeBadgeColor(node.display, node);
+      const textColor = nodeBadgeTextColor(node.display, node);
+      const styleClass = treeBadgeStyle(node.display, node);
       const nodeOpen = !collapsedNodes.has(node.pathKey);
 
       const nodeHeader = `
@@ -2086,7 +2243,6 @@
       `;
 
       let inner = "";
-
       if (nodeOpen) {
         const childItems = node.children.map(renderTreeNode).join("");
         const sampleItems = node.samples.map(renderTreeSample).join("");
@@ -2095,7 +2251,7 @@
         }
       }
 
-      return `<li>${nodeHeader}${inner}</li>`;
+      return `<li class="${isFirstRootChild ? 'root-connector' : ''}">${nodeHeader}${inner}</li>`;
     }
 
     function renderTreeSample(sample) {
