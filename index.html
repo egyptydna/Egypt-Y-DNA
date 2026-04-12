@@ -99,10 +99,7 @@
       background: white;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+    table { width: 100%; border-collapse: collapse; }
 
     .thead-row th {
       padding: 14px 10px;
@@ -170,7 +167,6 @@
       border-radius: 2rem;
     }
 
-    /* TREE */
     #tree-wrap {
       background: #fff;
       border-radius: 2rem;
@@ -332,7 +328,7 @@
       position: absolute;
       left: 11px;
       top: 20px;
-      width: 13px;
+      width: 10px;
       height: 2px;
       background: #cbd5e1;
     }
@@ -341,26 +337,42 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      color: #fff;
       padding: 5px 11px;
       font-size: 11px;
       font-weight: 900;
       border-radius: 9px;
-      cursor: pointer;
-      transition: filter .15s;
       white-space: nowrap;
       flex-shrink: 0;
       border: 1px solid rgba(0,0,0,.08);
       box-shadow: 0 6px 14px rgba(0,23,54,.08);
     }
 
-    .tree-node-main:hover {
-      filter: brightness(1.08);
+    .tree-node-label-btn {
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tree-node-label-btn:hover { filter: brightness(1.08); }
+
+    .tree-arrow-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.22);
+      cursor: pointer;
+      flex-shrink: 0;
+      user-select: none;
     }
 
     .tree-arrow {
       font-size: 9px;
-      opacity: .85;
+      opacity: .9;
+      line-height: 1;
     }
 
     .tree-node-meta {
@@ -590,6 +602,7 @@
           <button class="ctrl-btn" onclick="treeZoom(1.18)"><span class="material-symbols-outlined" style="font-size:16px">zoom_in</span></button>
           <button class="ctrl-btn" onclick="treeZoom(.85)"><span class="material-symbols-outlined" style="font-size:16px">zoom_out</span></button>
           <button class="ctrl-btn" onclick="treeReset()">Reset</button>
+          <button id="btn-tree-back" class="ctrl-btn hidden" onclick="clearTreeFocus()">Back to Full Tree</button>
         </div>
         <div id="tree-pills" class="flex flex-wrap gap-2"></div>
       </div>
@@ -777,6 +790,8 @@
     let treeScale = 1;
     let treeShowModern = true;
     let treeShowAncient = true;
+    let treeFocusNodeId = null;
+
     const collapsedNodes = new Set();
 
     function sclean(s) {
@@ -844,10 +859,518 @@
 
     function hColor(label) {
       if (!label) return BASE_COLOR;
-      const upper = String(label).toUpperCase();
-      if (HC[upper]) return HC[upper];
+      const upper = label.toUpperCase();
       const pre = upper.split('-')[0];
-      return HC[pre] || BASE_COLOR;
+      return HC[upper] || HC[pre] || BASE_COLOR;
+    }
+
+    function parsePath(s) {
+      if (!s) return [];
+      return s.split(">").map(x => x.trim()).filter(Boolean);
+    }
+
+    function getCleanLabel(seg, parentLabel) {
+      const clean = String(seg || '').trim();
+      if (!clean) return '';
+      if (clean.includes("-")) return clean;
+
+      const upper = clean.toUpperCase();
+      const structural = ['Y','Y-ADAM','A0-T','A1','A1B','A1B1','BT','CT','CF','F','GHIJK','HIJK','IJK','IJ','K','LT','NO','P','DE','J','E','R','T','L','Q','H','G','I','A','B','C'];
+      if (structural.includes(upper)) return clean;
+
+      if (!parentLabel) return clean;
+      const base = parentLabel.split("-")[0];
+      return base + "-" + clean;
+    }
+
+    function buildTree(samples) {
+      const root = {
+        id: "root",
+        label: "Y",
+        children: {},
+        samples: [],
+        parent: null
+      };
+
+      samples.forEach(s => {
+        const path = parsePath(s.full_snp_path);
+        let node = root;
+
+        path.forEach(seg => {
+          const clean = getCleanLabel(seg, node.label);
+          if (!clean) return;
+
+          if (!node.children[clean]) {
+            node.children[clean] = {
+              id: node.id + ">" + clean,
+              label: clean,
+              children: {},
+              samples: [],
+              parent: node
+            };
+          }
+
+          node = node.children[clean];
+        });
+
+        node.samples.push(s);
+      });
+
+      return root;
+    }
+
+    function sortTree(node) {
+      node.children = Object.keys(node.children)
+        .sort((a,b)=>a.localeCompare(b, undefined, { numeric:true, sensitivity:'base' }))
+        .reduce((acc,k)=>{ acc[k]=node.children[k]; return acc; }, {});
+
+      Object.values(node.children).forEach(sortTree);
+    }
+
+    function collectNodeTotal(node) {
+      let count = node.samples.length;
+      Object.values(node.children).forEach(child => {
+        count += collectNodeTotal(child);
+      });
+      return count;
+    }
+
+    function findNodeById(node, id) {
+      if (node.id === id) return node;
+      for (const child of Object.values(node.children)) {
+        const found = findNodeById(child, id);
+        if (found) return found;
+      }
+      return null;
+    }
+
+    function buildGuideHtml(ancestorHasNext, isCurrentLast) {
+      const all = ancestorHasNext.concat([!isCurrentLast]);
+      return `
+        <div class="tree-guides" style="width:${all.length * 24}px;">
+          ${all.map((hasNext, i) => `
+            <div class="tree-guide-seg ${i === all.length - 1 ? 'current' : ''} ${hasNext ? 'has-next' : ''}" style="left:${i * 24}px;">
+              ${(hasNext || i === all.length - 1) ? '<div class="vline"></div>' : ''}
+              ${i === all.length - 1 ? '<div class="hline"></div>' : ''}
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function openSampleModalFromEncoded(encoded) {
+      openSampleModal(dec(encoded));
+    }
+
+    function openSampleModal(sample) {
+      document.getElementById("sample-modal-name").textContent =
+        sample.name || sample.sample_id || sample.kit_number || "Sample";
+
+      document.getElementById("sample-modal-subtitle").textContent =
+        `${sample.governorate || sample.site || "Unknown location"} • ${(sample.__sourceType === "ancient") ? "Ancient sample" : "Modern sample"}`;
+
+      document.getElementById("sample-modal-kit").textContent =
+        sample.kit_number || sample.sample_id || "—";
+
+      document.getElementById("sample-modal-location").textContent =
+        sample.governorate || sample.site || "—";
+
+      document.getElementById("sample-modal-ydna").textContent =
+        sample.y_dna || "—";
+
+      document.getElementById("sample-modal-mtdna").textContent =
+        sample.mt_dna || "—";
+
+      document.getElementById("sample-modal-path").textContent =
+        sample.full_snp_path || "—";
+
+      const isAncient = sample.__sourceType === "ancient";
+      document.getElementById("sample-modal-ancient").classList.toggle("hidden", !isAncient);
+
+      document.getElementById("sample-modal-links").innerHTML =
+        sampleLinksMarkup(sample) || `<span class="text-sm font-bold text-gray-400">No links</span>`;
+
+      document.getElementById("sample-detail-modal").classList.add("active");
+    }
+
+    function closeSampleModal(e) {
+      if (!e || e.target.id === "sample-detail-modal") {
+        document.getElementById("sample-detail-modal").classList.remove("active");
+      }
+    }
+
+    function renderTreeNode(node, html, ancestorHasNext = [], isLast = true) {
+      const total = collectNodeTotal(node);
+      const isRoot = node.id === 'root';
+      const color = isRoot ? BASE_COLOR : hColor(node.label);
+      const darkText = ['#FFFFFF', '#FFFF00', '#DEB887'].includes(color.toUpperCase());
+      const children = Object.values(node.children);
+      const hasChildren = children.length > 0;
+      const isCollapsed = collapsedNodes.has(node.id);
+
+      if (isRoot) {
+        html.push(`
+          <div class="tree-root-row tree-row ui-tree-row">
+            <div class="tree-root-badge">
+              <span>${esc(node.label)}</span>
+              <span class="tree-root-count">${total}</span>
+            </div>
+          </div>
+        `);
+      } else {
+        html.push(`
+          <div class="tree-row ui-tree-row">
+            <div class="tree-row-inner">
+              ${buildGuideHtml(ancestorHasNext, isLast)}
+              <div class="tree-node-main" style="background:${color}; color:${darkText ? '#001736' : '#fff'}">
+                ${hasChildren ? `<span class="tree-arrow-btn" onclick="event.stopPropagation(); toggleNodeCollapse('${encodeURIComponent(node.id)}')"><span class="tree-arrow">${isCollapsed ? '▶' : '▼'}</span></span>` : `<span style="width:22px;display:inline-block"></span>`}
+                <span class="tree-node-label-btn" onclick="focusTreeNode('${encodeURIComponent(node.id)}')">${esc(node.label)}</span>
+                <span class="tree-node-count">${total}</span>
+              </div>
+            </div>
+          </div>
+        `);
+      }
+
+      if (!isRoot && isCollapsed) return;
+
+      node.samples.forEach((s, idx) => {
+        const isAncient = s.__sourceType === 'ancient';
+        const isEgyptian = GOV_LIST.some(g => g !== '—' && g === s.governorate);
+        const encoded = enc(s);
+        const sampleIsLast = idx === node.samples.length - 1 && children.length === 0;
+
+        html.push(`
+          <div class="tree-row ui-tree-row">
+            <div class="tree-row-inner">
+              ${buildGuideHtml(isRoot ? [] : ancestorHasNext.concat([!isLast]), sampleIsLast)}
+              <div class="tree-sample-main" onclick="openSampleModalFromEncoded('${encoded}')">
+                <div class="tree-sample-dot" style="background:${isEgyptian ? '#775a19' : '#64748b'}"></div>
+                <span class="tree-sample-name ${isEgyptian ? 'egy' : ''}">${esc(s.name || s.sample_id || s.kit_number || 'Sample')}</span>
+                <span class="tree-sample-gov">${esc(s.governorate || s.site || '—')}</span>
+                ${isAncient ? `<span class="tree-ancient-badge">ANCIENT</span>` : ''}
+              </div>
+            </div>
+          </div>
+        `);
+      });
+
+      children.forEach((child, i) => {
+        renderTreeNode(
+          child,
+          html,
+          isRoot ? [] : ancestorHasNext.concat([!isLast]),
+          i === children.length - 1
+        );
+      });
+    }
+
+    function getVisibleTreeRoot() {
+      let samples = [];
+      if (treeShowModern) samples = samples.concat(modernSamples);
+      if (treeShowAncient) samples = samples.concat(ancientSamples);
+
+      if (treeHaploFilter) {
+        samples = samples.filter(s => haplo(s.y_dna, s.snp_path) === treeHaploFilter);
+      }
+
+      const tree = buildTree(samples);
+      sortTree(tree);
+
+      if (!treeFocusNodeId) return tree;
+
+      const focused = findNodeById(tree, treeFocusNodeId);
+      return focused || tree;
+    }
+
+    function renderTree() {
+      const root = getVisibleTreeRoot();
+      const html = [];
+      renderTreeNode(root, html, [], true);
+      document.getElementById("tree-inner").innerHTML = html.join("");
+
+      if (treeScale !== 1) {
+        document.getElementById('tree-inner').style.transform = `scale(${treeScale})`;
+      } else {
+        document.getElementById('tree-inner').style.transform = '';
+      }
+
+      updateBackButton();
+      buildTreePills();
+      buildTreeStats();
+      treeApplySearch();
+    }
+
+    function updateBackButton() {
+      document.getElementById("btn-tree-back").classList.toggle("hidden", !treeFocusNodeId);
+    }
+
+    function toggleNodeCollapse(encodedId) {
+      const id = decodeURIComponent(encodedId);
+      if (collapsedNodes.has(id)) collapsedNodes.delete(id);
+      else collapsedNodes.add(id);
+      renderTree();
+    }
+
+    function focusTreeNode(encodedId) {
+      treeFocusNodeId = decodeURIComponent(encodedId);
+      renderTree();
+    }
+
+    function clearTreeFocus() {
+      treeFocusNodeId = null;
+      renderTree();
+    }
+
+    function treeApplySearch() {
+      const term = (document.getElementById("treeSearch").value || '').toLowerCase().trim();
+
+      document.querySelectorAll(".ui-tree-row").forEach(el => {
+        el.classList.remove("dim", "hl");
+        if (!term) return;
+        const text = (el.textContent || '').toLowerCase();
+        const match = text.includes(term);
+        el.classList.toggle("hl", match);
+        el.classList.toggle("dim", !match);
+      });
+    }
+
+    function treeToggleSource(src) {
+      if (src === 'modern') treeShowModern = !treeShowModern;
+      if (src === 'ancient') treeShowAncient = !treeShowAncient;
+
+      document.getElementById('btn-modern').classList.toggle('on', treeShowModern);
+      document.getElementById('btn-ancient').classList.toggle('on', treeShowAncient);
+
+      treeFocusNodeId = null;
+      renderTree();
+    }
+
+    function treeZoom(f) {
+      treeScale = Math.min(Math.max(treeScale * f, .4), 2);
+      const el = document.getElementById("tree-inner");
+      el.style.transform = `scale(${treeScale})`;
+      el.style.transformOrigin = "top left";
+    }
+
+    function treeReset() {
+      treeScale = 1;
+      document.getElementById("tree-inner").style.transform = "";
+    }
+
+    function makePie(id, data, ctx, totalBase = null) {
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      if (charts[id]) charts[id].destroy();
+
+      const labels = Object.keys(data).filter(k => data[k] > 0);
+      const values = labels.map(k => data[k]);
+      const base = totalBase || values.reduce((a,b)=>a+b,0);
+
+      charts[id] = new Chart(el.getContext("2d"), {
+        type: "pie",
+        data: {
+          labels,
+          datasets: [{
+            data: values,
+            backgroundColor: labels.map(l => HC[l] || HC[l.charAt(0)] || "#64748b"),
+            borderWidth: 1,
+            borderColor: "#fff"
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || "";
+                  const value = context.parsed || 0;
+                  const pct = base ? ((value / base) * 100).toFixed(1) : "0.0";
+                  return `${label}: ${value} kits (${pct}%)`;
+                }
+              }
+            }
+          },
+          onClick: (_, els) => {
+            if (els.length) showHaploDetails(ctx, labels[els[0].index]);
+          }
+        }
+      });
+    }
+
+    function buildTreePills() {
+      let samples = [];
+      if (treeShowModern) samples = samples.concat(modernSamples);
+      if (treeShowAncient) samples = samples.concat(ancientSamples);
+
+      const counts = {};
+      samples.forEach(s => {
+        const h = haplo(s.y_dna, s.snp_path);
+        if (h) counts[h] = (counts[h] || 0) + 1;
+      });
+
+      const sorted = Object.entries(counts).sort((a,b)=>a[0].localeCompare(b[0], undefined, { numeric:true, sensitivity:'base' }));
+      const el = document.getElementById('tree-pills');
+
+      el.innerHTML =
+        `<span class="haplo-pill${!treeHaploFilter ? ' on' : ''}" style="color:#001736;background:${!treeHaploFilter ? '#e2e8f0' : '#f8f9fa'}" onclick="treeSetHaplo(null)">All</span>` +
+        sorted.map(([h,c]) => {
+          const rawCol = HC[h] || HC[h.charAt(0)] || '#64748b';
+          const textCol = rawCol.toUpperCase() === '#FFFFFF' ? '#000000' : rawCol;
+          const bgCol = treeHaploFilter === h ? rawCol + '22' : '#f8f9fa';
+          const extraStyle = rawCol.toUpperCase() === '#FFFFFF' ? 'border:1px solid #cbd5e1;' : '';
+          return `
+            <span class="haplo-pill${treeHaploFilter === h ? ' on' : ''}"
+                  style="color:${textCol};background:${bgCol};${extraStyle}"
+                  onclick="treeSetHaplo('${h}')">
+              ${h} <span style="opacity:.6">${c}</span>
+            </span>
+          `;
+        }).join('');
+    }
+
+    function buildTreeStats() {
+      let samples = [];
+      if (treeShowModern) samples = samples.concat(modernSamples);
+      if (treeShowAncient) samples = samples.concat(ancientSamples);
+
+      const counts = {};
+      samples.forEach(s => {
+        const h = haplo(s.y_dna, s.snp_path);
+        counts[h] = (counts[h] || 0) + 1;
+      });
+
+      const top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,4);
+
+      document.getElementById('tree-stats').innerHTML = top.map(([h,c]) => {
+        const rawCol = HC[h] || HC[h.charAt(0)] || '#64748b';
+        const textCol = rawCol.toUpperCase() === '#FFFFFF' ? '#000000' : rawCol;
+        const borderCol = rawCol.toUpperCase() === '#FFFFFF' ? '#cbd5e1' : rawCol;
+
+        return `
+          <div class="stat-card font-bold" onclick="treeSetHaplo('${h}')">
+            <div class="w-10 h-10 rounded-xl flex-shrink-0" style="background:${rawCol}22;border:2px solid ${borderCol}"></div>
+            <div>
+              <p class="text-[10px] font-bold text-gray-400 uppercase">${h}</p>
+              <p class="text-2xl font-black" style="color:${textCol}">${c}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function treeSetHaplo(h) {
+      treeHaploFilter = h;
+      treeFocusNodeId = null;
+      renderTree();
+    }
+
+    function updateModernSummary() {
+      const totals = {};
+      let total = 0;
+
+      modernSamples.forEach(s => {
+        const h = haplo(s.y_dna, s.snp_path);
+        if (!totals[h]) totals[h] = 0;
+        totals[h]++;
+        total++;
+      });
+
+      document.getElementById("total-national-samples").textContent = total;
+
+      if (total > 0) {
+        makePie("nationalChartCanvas", totals, "NATIONAL", total);
+      }
+
+      const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,15);
+
+      document.getElementById("national-legend").innerHTML = sorted.map(([hap, count]) => {
+        const pct = total ? ((count / total) * 100).toFixed(1) : "0.0";
+        return `
+          <div onclick="showHaploDetails('NATIONAL','${hap}')"
+               class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all cursor-pointer group">
+            <div class="flex items-center gap-2">
+              <div class="w-2 h-2 rounded-full group-hover:scale-125 transition-transform" style="background:${HC[hap] || HC[hap.charAt(0)] || '#64748b'}"></div>
+              <span>${hap}</span>
+            </div>
+            <span>${count} kits • ${pct}%</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function updateAncientSummary() {
+      const totals = {};
+      let total = 0;
+
+      ancientSamples.forEach(s => {
+        const h = haplo(s.y_dna, s.snp_path);
+        if (!totals[h]) totals[h] = 0;
+        totals[h]++;
+        total++;
+      });
+
+      document.getElementById("total-ancient-samples").textContent = total;
+
+      if (total > 0) {
+        makePie("ancientChartCanvas", totals, "ANCIENT", total);
+      }
+
+      const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
+
+      document.getElementById("ancient-legend").innerHTML = sorted.map(([hap, count]) => {
+        const pct = total ? ((count / total) * 100).toFixed(1) : "0.0";
+        return `
+          <div onclick="showHaploDetails('ANCIENT','${hap}')"
+               class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all cursor-pointer group">
+            <div class="flex items-center gap-2">
+              <div class="w-2 h-2 rounded-full group-hover:scale-125 transition-transform" style="background:${HC[hap] || HC[hap.charAt(0)] || '#64748b'}"></div>
+              <span>${hap}</span>
+            </div>
+            <span>${count} kits • ${pct}%</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderDashboard() {
+      const grid = document.getElementById("stats-grid");
+      grid.innerHTML = "";
+
+      GOV_LIST.forEach((gov, idx) => {
+        const pool = modernSamples.filter(s => sclean(s.governorate) === sclean(gov));
+        if (!pool.length && gov !== "—") return;
+
+        const totals = {};
+        pool.forEach(s => {
+          const h = haplo(s.y_dna, s.snp_path);
+          if (!totals[h]) totals[h] = 0;
+          totals[h]++;
+        });
+
+        const cid = `chart-${idx}`;
+        const card = document.createElement("div");
+        card.className = "stat-card font-bold";
+        card.onclick = () => openModal(gov);
+        card.innerHTML = `
+          <div class="w-16 h-16 flex-shrink-0"><canvas id="${cid}"></canvas></div>
+          <div class="min-w-0 text-left">
+            <h4 class="font-black text-xs uppercase truncate tracking-tighter">${esc(gov === "—" ? "Unassigned" : gov)}</h4>
+            <p class="text-[10px] text-gray-400 font-bold uppercase">Total: ${pool.length}</p>
+          </div>
+        `;
+        grid.appendChild(card);
+
+        if (pool.length > 0) {
+          setTimeout(() => makePie(cid, totals, gov, pool.length), 30);
+        }
+      });
+
+      updateModernSummary();
     }
 
     function matchSearch(s, q) {
@@ -868,489 +1391,11 @@
       return segs.includes(ql);
     }
 
-    function parsePath(s) {
-      if (!s) return [];
-      return s.split(">").map(x => x.trim()).filter(Boolean);
-    }
-
-    function parseNumericYbp(v) {
-      if (v === null || v === undefined || v === '') return null;
-      const n = Number(String(v).replace(/[^\d.]/g, ''));
-      return Number.isFinite(n) ? Math.round(n) : null;
-    }
-
-    function firstDefinedYbp(sample) {
-      const values = [sample.formed_ybp, sample.formed, sample.branch_formed_ybp, sample.node_formed_ybp];
-      for (const v of values) {
-        const parsed = parseNumericYbp(v);
-        if (parsed !== null) return parsed;
-      }
-      return null;
-    }
-
-    function firstDefinedTmrca(sample) {
-      const values = [sample.tmrca_ybp, sample.tmrca, sample.branch_tmrca_ybp, sample.node_tmrca_ybp];
-      for (const v of values) {
-        const parsed = parseNumericYbp(v);
-        if (parsed !== null) return parsed;
-      }
-      return null;
-    }
-
-    function isMacroStructuralLabel(up) {
-      return [
-        'Y-ADAM','A0-T','A1','A1B','A1B1','BT','CT','CF','F','GHIJK','HIJK',
-        'IJK','IJ','K','LT','NO','P','DE','J','E','R','T','L','Q','H','G','I','A','B','C'
-      ].includes(up);
-    }
-
-    function normalizeSegment(seg, parentLabel) {
-      const clean = String(seg || '').trim();
-      if (!clean) return '';
-
-      if (clean.includes('-')) return clean;
-
-      const upper = clean.toUpperCase();
-      if (isMacroStructuralLabel(upper)) return clean;
-
-      const parent = String(parentLabel || '');
-      const family = parent.includes('-') ? parent.split('-')[0] : parent;
-
-      if (family && /^[A-Z0-9]+$/i.test(clean)) {
-        return `${family}-${clean}`;
-      }
-
-      return clean;
-    }
-
-    function shouldKeepNode(label, childCount, sampleCount, depth) {
-      const up = String(label || '').toUpperCase();
-      if (depth === 0) return true;
-      if (sampleCount > 0) return true;
-      if (childCount > 1) return true;
-      if (HC[up]) return true;
-      if (['DE','CT','BT','CF','IJ','IJK','HIJK','GHIJK','LT'].includes(up)) return true;
-      return false;
-    }
-
-    function buildCompactTree(samples) {
-      const rawRoot = {
-        id: '__root__',
-        label: 'Y-Adam',
-        childrenMap: {},
-        children: [],
-        samples: [],
-        formed: null,
-        tmrca: null,
-        depth: 0
-      };
-
-      samples.forEach(s => {
-        const path = parsePath(s.full_snp_path);
-        let node = rawRoot;
-        let currentLabel = 'Y-Adam';
-
-        path.forEach(seg => {
-          const label = normalizeSegment(seg, currentLabel);
-          if (!label) return;
-
-          if (!node.childrenMap[label]) {
-            node.childrenMap[label] = {
-              id: '',
-              label,
-              childrenMap: {},
-              children: [],
-              samples: [],
-              formed: null,
-              tmrca: null,
-              depth: node.depth + 1
-            };
-          }
-
-          node = node.childrenMap[label];
-          currentLabel = label;
-
-          if (!node.id) {
-            node.id = `${label}|${Math.random().toString(36).slice(2, 9)}`;
-          }
-
-          if (node.formed === null) node.formed = firstDefinedYbp(s);
-          if (node.tmrca === null) node.tmrca = firstDefinedTmrca(s);
-        });
-
-        node.samples.push(s);
-      });
-
-      function finalize(node) {
-        const keys = Object.keys(node.childrenMap).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
-        node.children = keys.map(k => finalize(node.childrenMap[k]));
-        return node;
-      }
-
-      finalize(rawRoot);
-
-      function compress(node) {
-        const compressedChildren = node.children.flatMap(child => compress(child));
-        const keep = shouldKeepNode(node.label, compressedChildren.length, node.samples.length, node.depth);
-
-        if (!keep && compressedChildren.length === 1 && node.samples.length === 0) {
-          return compressedChildren;
-        }
-
-        return [{
-          ...node,
-          children: compressedChildren
-        }];
-      }
-
-      return compress(rawRoot)[0];
-    }
-
-    function countNode(node) {
-      return node.samples.length + node.children.reduce((sum, c) => sum + countNode(c), 0);
-    }
-
-    function buildGuideHtml(ancestorHasNext, isCurrentLast) {
-      const all = ancestorHasNext.concat([!isCurrentLast]);
-      return `
-        <div class="tree-guides" style="width:${all.length * 24}px;">
-          ${all.map((hasNext, i) => `
-            <div class="tree-guide-seg ${i === all.length - 1 ? 'current' : ''} ${hasNext ? 'has-next' : ''}" style="left:${i * 24}px;">
-              ${hasNext || i === all.length - 1 ? '<div class="vline"></div>' : ''}
-              ${i === all.length - 1 ? '<div class="hline"></div>' : ''}
-            </div>
-          `).join('')}
-        </div>
-      `;
-    }
-
-    function renderTreeNode(node, html, ancestorHasNext = [], isLast = true) {
-      const total = countNode(node);
-      const color = node.depth === 0 ? BASE_COLOR : hColor(node.label);
-      const darkText = ['#FFFFFF', '#FFFF00', '#DEB887'].includes(color.toUpperCase());
-      const nodeData = enc({
-        label: node.label,
-        total,
-        formed: node.formed,
-        tmrca: node.tmrca
-      });
-
-      if (node.depth === 0) {
-        html.push(`
-          <div class="tree-root-row tree-row ui-tree-row" data-node="${nodeData}">
-            <div class="tree-root-badge">
-              <span>${esc(node.label)}</span>
-              <span class="tree-root-count">${total}</span>
-            </div>
-          </div>
-        `);
-      } else {
-        const collapsed = collapsedNodes.has(node.id);
-        html.push(`
-          <div class="tree-row tree-node-row ui-tree-row" data-node="${nodeData}">
-            <div class="tree-row-inner">
-              ${buildGuideHtml(ancestorHasNext, isLast)}
-              <div class="tree-node-main"
-                   style="background:${color};color:${darkText ? '#001736' : '#fff'}"
-                   onclick="toggleTreeNode('${encodeURIComponent(node.id)}')">
-                ${node.children.length ? `<span class="tree-arrow">${collapsed ? '▶' : '▼'}</span>` : `<span class="tree-arrow" style="opacity:0">▼</span>`}
-                <span>${esc(node.label)}</span>
-                <span class="tree-node-count">${total}</span>
-              </div>
-              <div class="tree-node-meta">
-                ${node.formed !== null ? `<span class="tree-meta-pill">formed ${node.formed} ybp</span>` : ''}
-                ${node.tmrca !== null ? `<span class="tree-meta-pill">TMRCA ${node.tmrca} ybp</span>` : ''}
-              </div>
-            </div>
-          </div>
-        `);
-      }
-
-      if (node.depth !== 0 && collapsedNodes.has(node.id)) return;
-
-      node.samples.forEach((s, idx) => {
-        const isEgyptian = GOV_LIST.some(g => g !== '—' && g === s.governorate);
-        const isAncient = s.__sourceType === 'ancient';
-        const sampleData = enc(s);
-        const lastSample = idx === node.samples.length - 1;
-        const noChildrenAfter = node.children.length === 0;
-        const sampleIsLast = lastSample && noChildrenAfter;
-
-        html.push(`
-          <div class="tree-row tree-sample-row ui-tree-row" data-sample="${sampleData}">
-            <div class="tree-row-inner">
-              ${buildGuideHtml(node.depth === 0 ? [] : ancestorHasNext.concat([!isLast]), sampleIsLast)}
-              <div class="tree-sample-main" onclick="openSampleModalFromEncoded('${sampleData}')">
-                <div class="tree-sample-dot" style="background:${isEgyptian ? '#775a19' : '#64748b'}"></div>
-                <span class="tree-sample-name ${isEgyptian ? 'egy' : ''}">${esc(s.name || s.sample_id || s.kit_number || 'Sample')}</span>
-                <span class="tree-sample-gov">${esc(s.governorate || s.site || '—')}</span>
-                ${isAncient ? `<span class="tree-ancient-badge">ANCIENT</span>` : ''}
-              </div>
-            </div>
-          </div>
-        `);
-      });
-
-      node.children.forEach((child, i) => {
-        renderTreeNode(
-          child,
-          html,
-          node.depth === 0 ? [] : ancestorHasNext.concat([!isLast]),
-          i === node.children.length - 1
-        );
-      });
-    }
-
-    function renderTree() {
-      let samples = [];
-      if (treeShowModern) samples = samples.concat(modernSamples);
-      if (treeShowAncient) samples = samples.concat(ancientSamples);
-
-      if (treeHaploFilter) {
-        samples = samples.filter(s => (s.y_dna || '').toUpperCase().startsWith(treeHaploFilter.toUpperCase()));
-      }
-
-      const tree = buildCompactTree(samples);
-      const html = [];
-      renderTreeNode(tree, html, [], true);
-      document.getElementById("tree-inner").innerHTML = html.join("");
-
-      if (treeScale !== 1) {
-        document.getElementById('tree-inner').style.transform = `scale(${treeScale})`;
-      } else {
-        document.getElementById('tree-inner').style.transform = '';
-      }
-
-      buildTreePills(samples);
-      buildTreeStats(samples);
-      treeApplySearch();
-    }
-
-    function buildTreePills(samples) {
-      const counts = {};
-      samples.forEach(s => {
-        const h = haplo(s.y_dna, s.snp_path);
-        if (h) counts[h] = (counts[h] || 0) + 1;
-      });
-
-      const sorted = Object.entries(counts).sort((a, b) => a[0].localeCompare(b[0], undefined, { numeric: true, sensitivity: 'base' }));
-      const el = document.getElementById('tree-pills');
-
-      el.innerHTML =
-        `<span class="haplo-pill${!treeHaploFilter ? ' on' : ''}" style="color:#001736;background:${!treeHaploFilter ? '#e2e8f0' : '#f8f9fa'}" onclick="treeSetHaplo(null)">All</span>` +
-        sorted.map(([h, c]) => {
-          const col = HC[h] || HC[h.charAt(0)] || '#64748b';
-          const on = treeHaploFilter === h;
-          return `<span class="haplo-pill${on ? ' on' : ''}" style="color:${col};background:${on ? col + '22' : '#f8f9fa'}" onclick="treeSetHaplo('${h}')">${h} <span style="opacity:.6">${c}</span></span>`;
-        }).join('');
-    }
-
-    function buildTreeStats(samples) {
-      const counts = {};
-      samples.forEach(s => {
-        const h = haplo(s.y_dna, s.snp_path);
-        counts[h] = (counts[h] || 0) + 1;
-      });
-
-      const top = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 4);
-
-      document.getElementById('tree-stats').innerHTML = top.map(([h, c]) => {
-        const col = HC[h] || HC[h.charAt(0)] || '#64748b';
-        return `
-          <div class="stat-card font-bold" onclick="treeSetHaplo('${h}')">
-            <div class="w-10 h-10 rounded-xl flex-shrink-0" style="background:${col}22;border:2px solid ${col}"></div>
-            <div>
-              <p class="text-[10px] font-bold text-gray-400 uppercase">${h}</p>
-              <p class="text-2xl font-black" style="color:${col}">${c}</p>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function treeSetHaplo(h) {
-      treeHaploFilter = h;
-      renderTree();
-    }
-
-    function toggleTreeNode(encodedId) {
-      const id = decodeURIComponent(encodedId);
-      if (collapsedNodes.has(id)) collapsedNodes.delete(id);
-      else collapsedNodes.add(id);
-      renderTree();
-    }
-
-    function openSampleModalFromEncoded(encoded) {
-      const s = dec(encoded);
-      document.getElementById('sample-modal-name').textContent = s.name || s.sample_id || s.kit_number || 'Sample';
-      document.getElementById('sample-modal-subtitle').textContent = `${s.governorate || s.site || '—'} • ${s.__sourceType === 'ancient' ? 'Ancient sample' : 'Modern sample'}`;
-      document.getElementById('sample-modal-kit').textContent = s.kit_number || s.sample_id || '—';
-      document.getElementById('sample-modal-location').textContent = s.governorate || s.site || '—';
-      document.getElementById('sample-modal-ydna').textContent = s.y_dna || '—';
-      document.getElementById('sample-modal-mtdna').textContent = s.mt_dna || '—';
-      document.getElementById('sample-modal-path').textContent = s.full_snp_path || '—';
-      document.getElementById('sample-modal-links').innerHTML = sampleLinksMarkup(s) || '<span class="text-sm font-bold text-gray-400">No links</span>';
-      document.getElementById('sample-modal-ancient').classList.toggle('hidden', s.__sourceType !== 'ancient');
-      document.getElementById('sample-detail-modal').classList.add('active');
-    }
-
-    function closeSampleModal(e) {
-      if (!e || e.target.id === 'sample-detail-modal') {
-        document.getElementById('sample-detail-modal').classList.remove('active');
-      }
-    }
-
-    async function loadAll() {
-      try {
-        const [statsR, modR, ancR] = await Promise.all([
-          _sb.from('Modern_dna_stats').select('*'),
-          _sb.from('Modern_published_samples').select('*'),
-          _sb.from('Ancient_published_samples').select('*')
-        ]);
-
-        modernSamples = (modR.data || []).map(s => ({ ...s, __sourceType: 'modern' }));
-        ancientSamples = (ancR.data || []).map(s => ({ ...s, __sourceType: 'ancient' }));
-
-        regionalData = {};
-        GOV_LIST.forEach(g => regionalData[g] = {});
-
-        (statsR.data || []).forEach(row => {
-          const key = GOV_LIST.find(g => sclean(g) === sclean(row.region)) || '—';
-          let hp = (row.haplogroup || '').toUpperCase().trim();
-          if (hp === 'J') hp = 'J1';
-          regionalData[key][hp] = (regionalData[key][hp] || 0) + parseInt(row.count || 0, 10);
-        });
-
-        updateAncientSummary();
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    function makePie(id, data, ctx) {
-      const el = document.getElementById(id);
-      if (!el) return;
-
-      if (charts[id]) charts[id].destroy();
-
-      const labels = Object.keys(data).filter(k => data[k] > 0);
-
-      charts[id] = new Chart(el.getContext('2d'), {
-        type: 'pie',
-        data: {
-          labels,
-          datasets: [{
-            data: labels.map(k => data[k]),
-            backgroundColor: labels.map(l => HC[l] || HC[l.charAt(0)] || '#ccc'),
-            borderWidth: 1,
-            borderColor: '#fff'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          onClick: (_, els) => {
-            if (els.length) showHaploDetails(ctx, labels[els[0].index]);
-          }
-        }
-      });
-    }
-
-    function updateAncientSummary() {
-      const tot = {};
-      let total = 0;
-
-      ancientSamples.forEach(s => {
-        const h = haplo(s.y_dna, s.snp_path);
-        if (h) {
-          tot[h] = (tot[h] || 0) + 1;
-          total++;
-        }
-      });
-
-      document.getElementById('total-ancient-samples').textContent = total;
-
-      if (total > 0) makePie('ancientChartCanvas', tot, 'ANCIENT');
-
-      const sorted = Object.entries(tot).sort((a,b) => b[1] - a[1]);
-
-      document.getElementById('ancient-legend').innerHTML = sorted.map(([n, c]) => `
-        <div onclick="showHaploDetails('ANCIENT','${n}')" class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all cursor-pointer group">
-          <div class="flex items-center gap-2">
-            <div class="w-2 h-2 rounded-full group-hover:scale-125 transition-transform" style="background:${HC[n] || HC[n.charAt(0)] || '#ccc'}"></div>
-            <span>${n}</span>
-          </div>
-          <span>${((c / total) * 100).toFixed(1)}%</span>
-        </div>
-      `).join('');
-    }
-
-    function renderDashboard() {
-      const grid = document.getElementById('stats-grid');
-      grid.innerHTML = '';
-
-      GOV_LIST.forEach((gov, idx) => {
-        const pool = modernSamples.filter(s => sclean(s.governorate) === sclean(gov));
-        if (!pool.length && gov !== '—') return;
-
-        const tot = {};
-        pool.forEach(s => {
-          const h = haplo(s.y_dna, s.snp_path);
-          tot[h] = (tot[h] || 0) + 1;
-        });
-
-        const cid = `chart-${idx}`;
-        const card = document.createElement('div');
-        card.className = 'stat-card font-bold';
-        card.onclick = () => openModal(gov);
-        card.innerHTML = `
-          <div class="w-16 h-16 flex-shrink-0"><canvas id="${cid}"></canvas></div>
-          <div class="min-w-0 text-left">
-            <h4 class="font-black text-xs uppercase truncate tracking-tighter">${esc(gov === '—' ? 'Unassigned' : gov)}</h4>
-            <p class="text-[10px] text-gray-400 font-bold uppercase">Total: ${pool.length}</p>
-          </div>
-        `;
-        grid.appendChild(card);
-
-        if (pool.length > 0) setTimeout(() => makePie(cid, tot, gov), 50);
-      });
-
-      updateModernSummary();
-    }
-
-    function updateModernSummary() {
-      const tot = {};
-      let total = 0;
-
-      modernSamples.forEach(s => {
-        const h = haplo(s.y_dna, s.snp_path);
-        tot[h] = (tot[h] || 0) + 1;
-        total++;
-      });
-
-      document.getElementById('total-national-samples').textContent = total;
-
-      if (total > 0) makePie('nationalChartCanvas', tot, 'NATIONAL');
-
-      const sorted = Object.entries(tot).sort((a,b) => b[1] - a[1]).slice(0, 15);
-
-      document.getElementById('national-legend').innerHTML = sorted.map(([n, c]) => `
-        <div onclick="showHaploDetails('NATIONAL','${n}')" class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all cursor-pointer group">
-          <div class="flex items-center gap-2">
-            <div class="w-2 h-2 rounded-full group-hover:scale-125 transition-transform" style="background:${HC[n] || HC[n.charAt(0)] || '#ccc'}"></div>
-            <span>${n}</span>
-          </div>
-          <span>${((c / total) * 100).toFixed(1)}%</span>
-        </div>
-      `).join('');
-    }
-
     function renderArchive() {
-      const tbody = document.getElementById('archive-body');
-      const search = document.getElementById('archiveSearch').value.trim();
-      const hF = document.getElementById('filterHaplo').value;
-      const gF = document.getElementById('filterGov').value;
+      const tbody = document.getElementById("archive-body");
+      const search = document.getElementById("archiveSearch").value.trim();
+      const hF = document.getElementById("filterHaplo").value;
+      const gF = document.getElementById("filterGov").value;
 
       const rows = modernSamples.filter(s =>
         matchSearch(s, search) &&
@@ -1367,27 +1412,26 @@
             <td class="px-2 py-6 text-[10px] font-black text-gray-400 uppercase">${esc(s.governorate || '—')}</td>
             <td class="px-4 py-6 text-left">
               <div class="flex items-start gap-2">
-                <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${HC[h] || HC[h.charAt(0)] || '#ccc'}"></span>
+                <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${HC[h] || HC[h.charAt(0)] || '#64748b'}"></span>
                 <span class="text-[10px] font-mono font-bold text-gray-500 snp-text">${esc(s.snp_path || s.y_dna || '—')}</span>
               </div>
             </td>
-            <td class="px-2 py-6">${links(s,'y')}</td>
+            <td class="px-2 py-6">${links(s, 'y')}</td>
             <td class="px-2 py-6 text-center uppercase text-[11px] font-black text-secondary">${esc(s.mt_dna || '—')}</td>
-            <td class="px-4 py-6">${links(s,'mt')}</td>
+            <td class="px-4 py-6">${links(s, 'mt')}</td>
           </tr>
         `;
-      }).join('');
+      }).join("");
     }
 
     function renderAncientArchive() {
-      const tbody = document.getElementById('ancient-body');
-      const search = document.getElementById('ancientSearch').value.trim();
+      const tbody = document.getElementById("ancient-body");
+      const search = document.getElementById("ancientSearch").value.trim();
+
       const rows = ancientSamples.filter(s => matchSearch(s, search));
 
       tbody.innerHTML = rows.map(s => {
         const h = haplo(s.y_dna, s.snp_path);
-        const hc = HC[h] || HC[h.charAt(0)] || '#ccc';
-
         return `
           <tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
             <td class="px-4 py-6 text-left">
@@ -1402,33 +1446,34 @@
             </td>
             <td class="px-4 py-6 text-left">
               <div class="flex items-start gap-2">
-                <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${hc}"></span>
+                <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style="background:${HC[h] || HC[h.charAt(0)] || '#64748b'}"></span>
                 <div>
                   <div class="text-[11px] font-black">${esc(s.y_dna || '—')}</div>
                   <div class="text-[9px] font-mono text-gray-400 snp-text">${esc(s.snp_path || '—')}</div>
                 </div>
               </div>
             </td>
-            <td class="px-2 py-6">${links(s,'y')}</td>
+            <td class="px-2 py-6">${links(s, 'y')}</td>
             <td class="px-2 py-6"><div class="text-[11px] font-black text-secondary">${esc(s.mt_dna || '—')}</div></td>
-            <td class="px-4 py-6">${links(s,'mt')}</td>
+            <td class="px-4 py-6">${links(s, 'mt')}</td>
           </tr>
         `;
-      }).join('');
+      }).join("");
     }
 
     function populateFilters() {
       const hs = new Set();
+
       modernSamples.forEach(s => {
         const h = haplo(s.y_dna, s.snp_path);
         if (h) hs.add(h);
       });
 
-      document.getElementById('filterHaplo').innerHTML =
+      document.getElementById("filterHaplo").innerHTML =
         '<option value="">All Haplogroups</option>' +
-        [...hs].sort().map(h => `<option value="${h}">${h}</option>`).join('');
+        [...hs].sort().map(h => `<option value="${h}">${h}</option>`).join("");
 
-      document.getElementById('filterGov').innerHTML =
+      document.getElementById("filterGov").innerHTML =
         '<option value="">All Governorates</option>' +
         GOV_LIST.filter(g => g !== '—').map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join('') +
         '<option value="—">Unassigned</option>';
@@ -1436,59 +1481,58 @@
 
     function openModal(gov) {
       const pool = modernSamples.filter(s => sclean(s.governorate) === sclean(gov));
-      const tot = {};
+      const totals = {};
 
       pool.forEach(s => {
         const h = haplo(s.y_dna, s.snp_path);
-        tot[h] = (tot[h] || 0) + 1;
+        if (!totals[h]) totals[h] = 0;
+        totals[h]++;
       });
 
-      document.getElementById('modal-title').textContent = (gov === '—' ? 'Unassigned' : gov).toUpperCase();
-      document.getElementById('detail-modal').classList.add('active');
-      document.getElementById('modal-kit-list').classList.add('hidden');
+      document.getElementById("modal-title").textContent = (gov === "—" ? "UNASSIGNED" : gov.toUpperCase());
+      document.getElementById("detail-modal").classList.add("active");
+      document.getElementById("modal-kit-list").classList.add("hidden");
 
-      setTimeout(() => makePie('modalChartCanvas', tot, gov), 50);
+      setTimeout(() => makePie("modalChartCanvas", totals, gov, pool.length), 30);
 
-      const sorted = Object.entries(tot).sort((a,b) => b[1] - a[1]);
-
-      document.getElementById('modal-legend').innerHTML = sorted.map(([n, c]) => `
-        <div onclick="showHaploDetails('${esc(gov)}','${n}')" class="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-secondary/10 transition-all font-bold">
-          <div class="flex items-center gap-3">
-            <div class="w-4 h-4 rounded-full" style="background:${HC[n] || HC[n.charAt(0)] || '#ccc'}"></div>
-            <span class="uppercase">${n}</span>
+      document.getElementById("modal-legend").innerHTML = Object.entries(totals)
+        .sort((a,b)=>b[1]-a[1])
+        .map(([hap, count]) => `
+          <div onclick="showHaploDetails('${esc(gov)}','${hap}')" class="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-secondary/10 transition-all font-bold">
+            <div class="flex items-center gap-3">
+              <div class="w-4 h-4 rounded-full" style="background:${HC[hap] || HC[hap.charAt(0)] || '#64748b'}"></div>
+              <span class="uppercase">${hap}</span>
+            </div>
+            <span>${count} kits • ${pool.length ? ((count / pool.length) * 100).toFixed(1) : '0.0'}%</span>
           </div>
-          <span>${((c / pool.length) * 100).toFixed(1)}%</span>
-        </div>
-      `).join('');
+        `).join("");
     }
 
     function showHaploDetails(type, hp) {
-      const container = document.getElementById('kits-container');
-      container.innerHTML = '';
-
-      const la = document.getElementById('modal-kit-list');
-      const tH = hp.toUpperCase().trim();
-      const col = HC[tH] || HC[tH.charAt(0)] || '#ccc';
-
-      document.getElementById('modal-title').textContent =
-        type === 'ANCIENT' ? 'ANCIENT DNA SAMPLES' :
-        type === 'NATIONAL' ? 'NATIONAL ARCHIVE' :
-        type.toUpperCase();
-
-      document.getElementById('selected-haplo-display').textContent = hp;
-      la.style.borderColor = col;
-      la.style.backgroundColor = col + '08';
+      const container = document.getElementById("kits-container");
+      const la = document.getElementById("modal-kit-list");
+      container.innerHTML = "";
 
       const pool =
-        type === 'ANCIENT'
+        type === "ANCIENT"
           ? ancientSamples
-          : type === 'NATIONAL'
+          : type === "NATIONAL"
             ? modernSamples
             : modernSamples.filter(s => sclean(s.governorate) === sclean(type));
 
-      const matches = pool.filter(s => haplo(s.y_dna, s.snp_path) === tH);
+      const matches = pool.filter(s => haplo(s.y_dna, s.snp_path) === hp);
 
-      document.getElementById('modal-sample-count').textContent = `${matches.length} KITS FOUND`;
+      document.getElementById("modal-title").textContent =
+        type === "ANCIENT" ? "ANCIENT DNA SAMPLES" :
+        type === "NATIONAL" ? "NATIONAL ARCHIVE" :
+        type.toUpperCase();
+
+      document.getElementById("selected-haplo-display").textContent = hp;
+      document.getElementById("modal-sample-count").textContent = `${matches.length} KITS FOUND`;
+
+      const col = HC[hp] || HC[hp.charAt(0)] || "#64748b";
+      la.style.borderColor = col;
+      la.style.backgroundColor = col + "08";
 
       container.innerHTML = matches.map(s => `
         <div class="p-6 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm hover:border-secondary transition-all text-left font-bold">
@@ -1500,69 +1544,62 @@
           <p class="text-[10px] text-secondary font-mono text-center mb-2">${esc(s.sample_id || '')}</p>
           <span class="text-[9px] text-gray-400 font-mono snp-text mb-4 text-center block">${esc(s.snp_path || '—')}</span>
           <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
-            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest text-center">Y-DNA</p>${links(s,'y')}</div>
-            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 text-center tracking-widest">mt-DNA</p>${links(s,'mt')}</div>
+            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest text-center">Y-DNA</p>${links(s, 'y')}</div>
+            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 text-center tracking-widest">mt-DNA</p>${links(s, 'mt')}</div>
           </div>
         </div>
-      `).join('');
+      `).join("");
 
-      document.getElementById('detail-modal').classList.add('active');
-      la.classList.remove('hidden');
+      document.getElementById("detail-modal").classList.add("active");
+      la.classList.remove("hidden");
     }
 
     function closeModal(e) {
-      if (!e || e.target.id === 'detail-modal') {
-        document.getElementById('detail-modal').classList.remove('active');
+      if (!e || e.target.id === "detail-modal") {
+        document.getElementById("detail-modal").classList.remove("active");
       }
     }
 
     function showSection(id) {
-      document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.nav-link').forEach(n => {
-        n.classList.remove('active');
-        n.classList.add('text-gray-400');
+      document.querySelectorAll(".page-section").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll(".nav-link").forEach(n => {
+        n.classList.remove("active");
+        n.classList.add("text-gray-400");
       });
 
-      document.getElementById('section-' + id).classList.add('active');
-      const nl = document.getElementById('nav-' + id);
-      nl.classList.add('active');
-      nl.classList.remove('text-gray-400');
+      document.getElementById("section-" + id).classList.add("active");
+      const nl = document.getElementById("nav-" + id);
+      nl.classList.add("active");
+      nl.classList.remove("text-gray-400");
 
-      if (id === 'tree') renderTree();
+      if (id === "tree") renderTree();
     }
 
-    function treeToggleSource(src) {
-      if (src === 'modern') treeShowModern = !treeShowModern;
-      if (src === 'ancient') treeShowAncient = !treeShowAncient;
+    async function loadAll() {
+      try {
+        const [statsR, modR, ancR] = await Promise.all([
+          _sb.from("Modern_dna_stats").select("*"),
+          _sb.from("Modern_published_samples").select("*"),
+          _sb.from("Ancient_published_samples").select("*")
+        ]);
 
-      document.getElementById('btn-modern').classList.toggle('on', treeShowModern);
-      document.getElementById('btn-ancient').classList.toggle('on', treeShowAncient);
+        modernSamples = (modR.data || []).map(s => ({ ...s, __sourceType: "modern" }));
+        ancientSamples = (ancR.data || []).map(s => ({ ...s, __sourceType: "ancient" }));
 
-      renderTree();
-    }
+        regionalData = {};
+        GOV_LIST.forEach(g => regionalData[g] = {});
 
-    function treeZoom(f) {
-      treeScale = Math.min(Math.max(treeScale * f, .35), 2.5);
-      document.getElementById('tree-inner').style.transform = `scale(${treeScale})`;
-    }
+        (statsR.data || []).forEach(row => {
+          const key = GOV_LIST.find(g => sclean(g) === sclean(row.region)) || "—";
+          let hp = (row.haplogroup || "").toUpperCase().trim();
+          if (hp === "J") hp = "J1";
+          regionalData[key][hp] = (regionalData[key][hp] || 0) + parseInt(row.count || 0, 10);
+        });
 
-    function treeReset() {
-      treeScale = 1;
-      document.getElementById('tree-inner').style.transform = '';
-    }
-
-    function treeApplySearch() {
-      const term = (document.getElementById('treeSearch').value || '').toLowerCase().trim();
-      const wrap = document.getElementById('tree-inner');
-
-      wrap.querySelectorAll('.ui-tree-row').forEach(el => {
-        el.classList.remove('dim', 'hl');
-        if (!term) return;
-        const text = (el.textContent || '').toLowerCase();
-        const match = text.includes(term);
-        el.classList.toggle('hl', match);
-        el.classList.toggle('dim', !match);
-      });
+        updateAncientSummary();
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     (async function boot() {
