@@ -179,7 +179,7 @@
       max-height: 94vh;
       overflow-y: auto;
       width: 100%;
-      max-width: 860px;
+      max-width: 880px;
       border-radius: 2rem;
       background: #fff;
       position: relative;
@@ -206,7 +206,7 @@
     }
 
     #tree-inner {
-      padding: 24px 24px 56px 12px;
+      padding: 28px 24px 56px 24px;
       min-width: 1180px;
       font-family: 'Manrope', sans-serif;
       transform-origin: top left;
@@ -304,6 +304,22 @@
       gap: 8px;
     }
 
+    .tree-root-shell {
+      position: relative;
+      padding-left: 0;
+      margin-top: 4px;
+    }
+
+    .tree-root-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      position: relative;
+      min-height: 46px;
+      margin-left: 0;
+      padding-left: 0;
+    }
+
     .tree-root-badge,
     .tree-node-badge {
       display: inline-flex;
@@ -322,10 +338,53 @@
 
     .tree-root-badge {
       background: #001736;
-      margin-bottom: 8px;
       position: relative;
       z-index: 2;
       margin-left: 0;
+    }
+
+    .tree-root-children {
+      list-style: none;
+      margin: 0;
+      padding-left: 38px;
+      position: relative;
+      margin-top: 10px;
+    }
+
+    .tree-root-children::before {
+      content: "";
+      position: absolute;
+      top: -8px;
+      bottom: 18px;
+      left: 14px;
+      width: 2px;
+      background: #cfd7e3;
+    }
+
+    .tree-root-children > li {
+      position: relative;
+      margin: 0;
+      padding: 8px 0 0 0;
+    }
+
+    .tree-root-children > li::before {
+      content: "";
+      position: absolute;
+      top: 28px;
+      left: -24px;
+      width: 24px;
+      height: 2px;
+      background: #cfd7e3;
+    }
+
+    .tree-root-children > li:last-child::after {
+      content: "";
+      position: absolute;
+      top: 28px;
+      bottom: 0;
+      left: -24px;
+      width: 2px;
+      background: #fff;
     }
 
     .tree-node-badge {
@@ -373,22 +432,6 @@
       position: relative;
     }
 
-    .tree-ul.root-list {
-      padding-left: 0;
-      margin-top: 4px;
-      margin-left: 0;
-    }
-
-    .tree-ul.root-list::before {
-      content: "";
-      position: absolute;
-      top: -6px;
-      bottom: 20px;
-      left: 24px;
-      width: 2px;
-      background: #cfd7e3;
-    }
-
     .tree-ul ul::before {
       content: "";
       position: absolute;
@@ -406,16 +449,6 @@
       padding: 8px 0 0 0;
     }
 
-    .tree-ul.root-list > li::before {
-      content: "";
-      position: absolute;
-      top: 28px;
-      left: 24px;
-      width: 14px;
-      height: 2px;
-      background: #cfd7e3;
-    }
-
     .tree-ul ul > li::before {
       content: "";
       position: absolute;
@@ -424,16 +457,6 @@
       width: 24px;
       height: 2px;
       background: #cfd7e3;
-    }
-
-    .tree-ul.root-list > li:last-child::after {
-      content: "";
-      position: absolute;
-      top: 28px;
-      bottom: 0;
-      left: 24px;
-      width: 2px;
-      background: #fff;
     }
 
     .tree-ul ul > li:last-child::after {
@@ -520,6 +543,7 @@
       color: #fff;
     }
 
+    .tree-node-dark { background: #001736; }
     .tree-node-black { background: #000000; color: #fff; }
     .tree-node-white {
       background: #ffffff;
@@ -548,13 +572,6 @@
       line-height: 1.6;
       color: #475569;
       word-break: break-word;
-    }
-    .sample-detail-description {
-      font-size: 13px;
-      line-height: 1.7;
-      color: #334155;
-      font-weight: 700;
-      white-space: pre-wrap;
     }
 
     .sample-link-btn {
@@ -609,9 +626,9 @@
     }
 
     .chartjs-ext-tooltip {
-      position: absolute;
+      position: fixed;
       pointer-events: none;
-      background: rgba(15, 23, 42, .94);
+      background: rgba(15, 23, 42, .92);
       color: #fff;
       border-radius: 12px;
       padding: 8px 10px;
@@ -623,7 +640,9 @@
       white-space: nowrap;
       z-index: 99999;
       opacity: 0;
-      will-change: transform, opacity, top, left;
+      transition: opacity .14s ease, transform .14s ease;
+      transform: translate3d(-50%, calc(-100% - 10px), 0);
+      will-change: transform, left, top, opacity;
     }
 
     @media (max-width: 1100px) {
@@ -674,7 +693,7 @@
         </div>
       </div>
       <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-8 md:gap-12 justify-end font-headline font-bold">
-        <div class="w-full max-w-[300px] md:w-[420px] md:h-[420px] h-[300px] cursor-pointer" onclick="openModal('MODERN')">
+        <div class="w-full max-w-[300px] md:w-[420px] md:h-[420px] h-[300px]">
           <canvas id="nationalChartCanvas"></canvas>
         </div>
         <div id="national-legend" class="space-y-1 w-full max-w-[280px] text-[11px]"></div>
@@ -789,7 +808,7 @@
         </div>
       </div>
       <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-8 md:gap-12 justify-end font-headline font-bold">
-        <div class="w-full max-w-[300px] md:w-[420px] md:h-[420px] h-[300px] cursor-pointer" onclick="openModal('ANCIENT')">
+        <div class="w-full max-w-[300px] md:w-[420px] md:h-[420px] h-[300px]">
           <canvas id="ancientChartCanvas"></canvas>
         </div>
         <div id="ancient-legend" class="space-y-1 w-full max-w-[280px] text-[11px]"></div>
@@ -907,7 +926,7 @@
 
         <div id="sample-modal-description-wrap" class="hidden">
           <div class="sample-detail-label">Description</div>
-          <div id="sample-modal-description" class="sample-detail-description"></div>
+          <div id="sample-modal-description" class="sample-detail-code"></div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -971,29 +990,35 @@
     const HC = {
       "J1": "#006400",
       "J2": "#66CC4A",
-      "T": "#F0AD3D",
+      "T": "#FFA500",
       "E": "#00008B",
-      "R1B": "#FF3B30",
-      "R1A": "#D9BC8C",
+      "R1B": "#FF0000",
+      "R1A": "#DEB887",
       "R1": "#F4A261",
-      "R2": "#F6F04A",
-      "L": "#63E3E8",
-      "B": "#4C9E9C",
-      "G": "#8F8F8F",
-      "I": "#D586E0",
-      "H": "#8B4C1F",
-      "Q": "#8C24C8",
-      "Q1": "#8C24C8",
-      "Q2": "#8C24C8",
+      "R2": "#FFFF00",
+      "L": "#00FFFF",
+      "L1": "#00FFFF",
+      "B": "#008B8B",
+      "G": "#808080",
+      "G2": "#808080",
+      "I": "#EE82EE",
+      "I2": "#EE82EE",
+      "H": "#8B4513",
+      "H2": "#8B4513",
+      "Q": "#9400D3",
+      "Q1": "#9400D3",
+      "Q2": "#9400D3",
       "C": "#FFFFFF",
       "A": "#000000",
+      "A1A": "#000000",
+      "A1B1": "#000000",
       "A1": "#000000",
       "A1B": "#000000",
       "A1b": "#000000"
     };
 
     const BASE_COLOR = "#001736";
-    const MIN_C_BORDER = "#9ca3af";
+    const MIN_C_BORDER = "#aab2bf";
 
     const SPECIAL_NODE_LABELS = new Set([
       "Y-Adam","A0-T","A1","A1b","BT","CT","CF","F","GHIJK","HIJK","IJK","IJ","J","J1","J2",
@@ -1045,7 +1070,6 @@
     let treeSearchResultPath = "";
     let collapsedNodes = new Set();
     let lastTreeRawRoot = null;
-    let tooltipRAF = null;
 
     function esc(s) {
       return String(s ?? "")
@@ -1070,35 +1094,12 @@
       return sclean(a) === sclean(b);
     }
 
-    function colorForAggregate(label) {
-      if (label === "Q") return HC["Q"];
-      if (label === "A1/A1b") return "#000000";
-      if (label === "C") return "#FFFFFF";
-      return HC[label] || BASE_COLOR;
+    function normalizeGovForSearch(v) {
+      return sclean(v);
     }
 
-    function textColorForAggregate(label) {
-      if (label === "C") return "#001736";
-      if (label === "R2") return "#001736";
-      return "#0f172a";
-    }
-
-    function chartBorderColor(label) {
-      return label === "C" ? MIN_C_BORDER : "#ffffff";
-    }
-
-    function chartBorderWidth(label) {
-      return label === "C" ? 2 : 2;
-    }
-
-    function buildModalLinkButtons(urls) {
-      const valid = (urls || []).filter(Boolean).filter(x => x !== "—");
-      if (!valid.length) return `<span class="text-sm font-bold text-gray-400">No links</span>`;
-      return valid.map(link => `
-        <a href="${esc(link)}" target="_blank" class="sample-link-btn">
-          <span class="material-symbols-outlined">link</span>
-        </a>
-      `).join("");
+    function titleGov(s) {
+      return s || "—";
     }
 
     function links(s, type) {
@@ -1113,6 +1114,22 @@
         }
       });
       return h + "</div>";
+    }
+
+    function modalLinksOfType(sample, type) {
+      const links = type === "y"
+        ? [sample.y_link_1, sample.y_link_2].filter(Boolean).filter(x => x !== "—")
+        : [sample.mt_link_1, sample.mt_link_2].filter(Boolean).filter(x => x !== "—");
+
+      if (!links.length) {
+        return `<span class="text-sm font-bold text-gray-400">No links</span>`;
+      }
+
+      return links.map(link => `
+        <a href="${esc(link)}" target="_blank" class="sample-link-btn">
+          <span class="material-symbols-outlined">link</span>
+        </a>
+      `).join("");
     }
 
     function haplo(y, snp) {
@@ -1153,14 +1170,42 @@
       return h;
     }
 
+    function colorForAggregate(label) {
+      if (label === "Q") return HC["Q"];
+      if (label === "A1/A1b") return "#000000";
+      if (label === "C") return "#FFFFFF";
+      return HC[label] || BASE_COLOR;
+    }
+
+    function textColorForAggregate(label) {
+      if (label === "C") return "#001736";
+      if (label === "R2") return "#001736";
+      return "#0f172a";
+    }
+
+    function chartBorderColor(label) {
+      return label === "C" ? MIN_C_BORDER : "#ffffff";
+    }
+
+    function chartBorderWidth(label) {
+      return label === "C" ? 1.15 : 2;
+    }
+
+    function chartBorderAlign(label) {
+      return label === "C" ? "inner" : "center";
+    }
+
     function matchSearchRow(s, q) {
       if (!q) return true;
       const ql = sclean(q);
+
       const fields = [
         s.name, s.kit_number, s.sample_id, s.governorate, s.site,
         s.period, s.study_reference, s.cultural_group, s.y_dna, s.snp_path, s.full_snp_path, s.description
       ];
-      return fields.some(f => sclean(f).includes(ql));
+
+      if (fields.some(f => sclean(f).includes(ql))) return true;
+      return false;
     }
 
     async function loadAll() {
@@ -1199,6 +1244,11 @@
       return SPECIAL_NODE_LABELS.has(raw);
     }
 
+    function isMajorHead(seg) {
+      const s = (seg || "").toUpperCase();
+      return ["A1","A1B","B","C","E","G","H","I","J1","J2","L","Q1","Q2","R1A","R1B","R2","T","R","R1"].includes(s);
+    }
+
     function findCurrentHead(ancestors) {
       for (let i = ancestors.length - 1; i >= 0; i--) {
         const s = ancestors[i].display;
@@ -1235,10 +1285,7 @@
 
         if (left.toUpperCase() === "J1" || left.toUpperCase() === "J2" || left.toUpperCase() === "J") return `J-${suffix}`;
         if (left.toUpperCase() === "Q1" || left.toUpperCase() === "Q2" || left.toUpperCase() === "Q") return `Q-${suffix}`;
-        if (["R","R1","R1A","R1B","R2"].includes(left.toUpperCase())) {
-          if (suffix.toUpperCase() === "R1") return "R1";
-          return `R-${suffix}`;
-        }
+        if (["R","R1","R1A","R1B","R2"].includes(left.toUpperCase())) return `R-${suffix}`;
         if (left.toUpperCase() === "A1" || left.toUpperCase() === "A1B" || left.toUpperCase() === "A") return `A-${suffix}`;
         if (["B","C","E","G","H","I","L","T"].includes(left.toUpperCase())) return `${left.toUpperCase()}-${suffix}`;
       }
@@ -1309,13 +1356,16 @@
     }
 
     function nodeBadgeTextColor(node) {
-      if (node.family === "C" || node.family === "R2") return "#001736";
+      const fam = node.family;
+      if (fam === "C") return "#001736";
+      if (fam === "R2") return "#001736";
       return "#ffffff";
     }
 
     function treeBadgeStyle(node) {
-      if (node.family === "C") return "tree-node-badge tree-node-white";
-      if (node.family === "A1" || node.family === "A1b") return "tree-node-badge tree-node-black";
+      const fam = node.family;
+      if (fam === "C") return "tree-node-badge tree-node-white";
+      if (fam === "A1" || fam === "A1b") return "tree-node-badge tree-node-black";
       return "tree-node-badge";
     }
 
@@ -1328,12 +1378,14 @@
         const fa = groupOrderFromFamily(a.family);
         const fb = groupOrderFromFamily(b.family);
         if (fa !== fb) return fa - fb;
+
         if (a.display === "R1" && b.display === "R2") return -1;
         if (a.display === "R2" && b.display === "R1") return 1;
         if (a.display === "R1a" && b.display === "R1b") return -1;
         if (a.display === "R1b" && b.display === "R1a") return 1;
         if (a.display === "Q1" && b.display === "Q2") return -1;
         if (a.display === "Q2" && b.display === "Q1") return 1;
+
         return a.display.localeCompare(b.display, undefined, { numeric: true, sensitivity: "base" });
       });
     }
@@ -1517,9 +1569,7 @@
       const tooltipEl = document.getElementById('chartjs-ext-tooltip');
       const { chart, tooltip } = context;
 
-      if (!tooltipEl) return;
-
-      if (tooltip.opacity === 0) {
+      if (!tooltip || tooltip.opacity === 0) {
         tooltipEl.style.opacity = 0;
         return;
       }
@@ -1530,19 +1580,13 @@
         tooltipEl.innerHTML = [...title, ...body].map(line => `<div>${line}</div>`).join("");
       }
 
-      const canvasRect = chart.canvas.getBoundingClientRect();
-      const hostLeft = window.scrollX + canvasRect.left;
-      const hostTop = window.scrollY + canvasRect.top;
-      const x = hostLeft + tooltip.caretX;
-      const y = hostTop + tooltip.caretY;
+      const position = chart.canvas.getBoundingClientRect();
+      const left = position.left + window.scrollX + tooltip.caretX;
+      const top = position.top + window.scrollY + tooltip.caretY;
 
-      if (tooltipRAF) cancelAnimationFrame(tooltipRAF);
-      tooltipRAF = requestAnimationFrame(() => {
-        tooltipEl.style.left = `${x}px`;
-        tooltipEl.style.top = `${y - 14}px`;
-        tooltipEl.style.transform = 'translate(-50%, -100%)';
-        tooltipEl.style.opacity = 1;
-      });
+      tooltipEl.style.left = `${left}px`;
+      tooltipEl.style.top = `${top}px`;
+      tooltipEl.style.opacity = 1;
     }
 
     function makePie(id, data, ctx, totalBase = null, options = {}) {
@@ -1563,13 +1607,14 @@
             backgroundColor: labels.map(l => colorForAggregate(l)),
             borderWidth: labels.map(l => chartBorderWidth(l)),
             borderColor: labels.map(l => chartBorderColor(l)),
+            borderAlign: labels.map(l => chartBorderAlign(l)),
             hoverOffset: 6
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          animation: { duration: 180 },
+          animation: false,
           layout: { padding: 0 },
           plugins: {
             legend: { display: false },
@@ -1587,9 +1632,7 @@
             }
           },
           onHover: (event, activeEls) => {
-            if (event?.native?.target) {
-              event.native.target.style.cursor = activeEls.length ? 'pointer' : 'default';
-            }
+            event.native.target.style.cursor = activeEls.length ? 'pointer' : 'default';
           },
           onClick: (_, els) => {
             if (els.length && options.onSliceClick) {
@@ -1704,7 +1747,8 @@
             makePie(cid, totals, gov, pool.length, {
               disableTooltip: false,
               onSliceClick: (hap) => {
-                openRegionModal(gov, hap);
+                openRegionModal(gov);
+                setTimeout(() => showRegionHaplo(gov, hap), 30);
               }
             });
           }, 20);
@@ -1714,7 +1758,7 @@
       updateModernSummary();
     }
 
-    function openRegionModal(gov, selectedHap = null) {
+    function openRegionModal(gov) {
       const { pool, totals } = getRegionTotals(gov);
       const total = pool.length;
 
@@ -1743,11 +1787,7 @@
         `;
       }).join("");
 
-      if (selectedHap && totals[selectedHap]) {
-        showRegionHaplo(gov, selectedHap);
-      } else if (sorted.length) {
-        showRegionHaplo(gov, sorted[0][0]);
-      }
+      if (sorted.length) showRegionHaplo(gov, sorted[0][0]);
     }
 
     function showRegionHaplo(gov, hp) {
@@ -1886,23 +1926,20 @@
       document.getElementById("sample-modal-ydna").textContent = sample.y_dna || "—";
       document.getElementById("sample-modal-mtdna").textContent = sample.mt_dna || "—";
       document.getElementById("sample-modal-path").textContent = sample.full_snp_path || "—";
+      document.getElementById("sample-modal-y-links").innerHTML = modalLinksOfType(sample, "y");
+      document.getElementById("sample-modal-mt-links").innerHTML = modalLinksOfType(sample, "mt");
+      document.getElementById("sample-modal-ancient").classList.toggle("hidden", sample.__sourceType !== "ancient");
 
       const descWrap = document.getElementById("sample-modal-description-wrap");
-      const descEl = document.getElementById("sample-modal-description");
-      if (sample.description && String(sample.description).trim()) {
-        descEl.textContent = sample.description;
+      const descValue = document.getElementById("sample-modal-description");
+      if (sample.__sourceType === "ancient" && sample.description && sample.description.trim()) {
         descWrap.classList.remove("hidden");
+        descValue.textContent = sample.description;
       } else {
-        descEl.textContent = "";
         descWrap.classList.add("hidden");
+        descValue.textContent = "";
       }
 
-      document.getElementById("sample-modal-y-links").innerHTML =
-        buildModalLinkButtons([sample.y_link_1, sample.y_link_2]);
-      document.getElementById("sample-modal-mt-links").innerHTML =
-        buildModalLinkButtons([sample.mt_link_1, sample.mt_link_2]);
-
-      document.getElementById("sample-modal-ancient").classList.toggle("hidden", sample.__sourceType !== "ancient");
       document.getElementById("sample-detail-modal").classList.add("active");
     }
 
@@ -2107,10 +2144,9 @@
           const c = counts[h];
           const col = colorForAggregate(h);
           const txt = h === "C" || h === "R2" ? "#001736" : col;
-          const label = h === "R1A" ? "R1a" : h === "R1B" ? "R1b" : h;
           return `<span class="haplo-pill ${treeHaploFilter === h ? 'on' : ''}"
                     style="color:${txt};background:${treeHaploFilter === h ? col + '22' : '#fff'};${h === 'C' ? 'border-color:#cbd5e1;' : ''}"
-                    onclick="treeSetHaplo('${esc(h)}')">${label} (${c})</span>`;
+                    onclick="treeSetHaplo('${esc(h)}')">${h === 'R1A' ? 'R1a' : h === 'R1B' ? 'R1b' : h} (${c})</span>`;
         }).join("");
     }
 
@@ -2165,15 +2201,21 @@
       }
 
       const html = [];
-      html.push(`
-        <div class="tree-root-badge">
-          <span>Y-Adam</span>
-          <span class="tree-count">${root.display === 'Y-Adam' ? root.count : samples.length}</span>
-        </div>
-      `);
 
       if (root.display === "Y-Adam") {
-        html.push(`<ul class="tree-ul root-list">${root.children.map(renderTreeNode).join("")}</ul>`);
+        html.push(`
+          <div class="tree-root-shell">
+            <div class="tree-root-row">
+              <div class="tree-root-badge">
+                <span>Y-Adam</span>
+                <span class="tree-count">${root.count}</span>
+              </div>
+            </div>
+            <ul class="tree-root-children">
+              ${root.children.map(renderTreeNode).join("")}
+            </ul>
+          </div>
+        `);
       } else {
         html.push(`<ul class="tree-ul">${renderTreeNode(root)}</ul>`);
       }
