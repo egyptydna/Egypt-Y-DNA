@@ -288,44 +288,15 @@
       background: #f8fafc;
       border: 1px solid #e5e7eb;
       border-radius: 1rem;
-      padding: 12px 14px;
+      padding: 14px 16px;
       font-size: 11px;
       font-weight: 800;
       color: #64748b;
       text-transform: uppercase;
       letter-spacing: .04em;
       display: none;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 6px;
-      line-height: 1.6;
     }
-    .tree-result-path.active { display: flex; }
-
-    .tree-path-link {
-      cursor: pointer;
-      color: #001736;
-      background: #ffffff;
-      border: 1px solid #dbe4ee;
-      border-radius: 10px;
-      padding: 4px 8px;
-      transition: all .15s ease;
-      white-space: nowrap;
-    }
-    .tree-path-link:hover {
-      color: #775a19;
-      border-color: #775a19;
-      background: #fffdf8;
-    }
-    .tree-path-link.current {
-      background: #001736;
-      border-color: #001736;
-      color: #ffffff;
-    }
-    .tree-path-sep {
-      color: #94a3b8;
-      font-weight: 900;
-    }
+    .tree-result-path.active { display: block; }
 
     .tree-legend-chip {
       display: inline-flex;
@@ -355,7 +326,6 @@
       position: relative;
       z-index: 2;
       margin-left: 0;
-      cursor: pointer;
     }
 
     .tree-node-badge {
@@ -1543,46 +1513,6 @@
       return null;
     }
 
-    function renderClickableTreePath(pathKey) {
-      const bar = document.getElementById("tree-result-path");
-      if (!pathKey) {
-        bar.classList.remove("active");
-        bar.innerHTML = "";
-        return;
-      }
-
-      const parts = pathKey.split(">");
-      const html = [];
-
-      for (let i = 0; i < parts.length; i++) {
-        const subPath = parts.slice(0, i + 1).join(">");
-        const isCurrent = subPath === pathKey;
-        html.push(`
-          <span
-            class="tree-path-link ${isCurrent ? 'current' : ''}"
-            onclick="focusTreePath('${esc(subPath)}')"
-          >${esc(parts[i])}</span>
-        `);
-        if (i < parts.length - 1) {
-          html.push(`<span class="tree-path-sep">></span>`);
-        }
-      }
-
-      bar.innerHTML = html.join("");
-      bar.classList.add("active");
-    }
-
-    function scrollTreeIntoView() {
-      const wrap = document.getElementById("tree-wrap");
-      if (!wrap) return;
-
-      const y = wrap.getBoundingClientRect().top + window.scrollY - 24;
-      window.scrollTo({
-        top: Math.max(0, y),
-        behavior: "smooth"
-      });
-    }
-
     function externalTooltipHandler(context) {
       const tooltipEl = document.getElementById('chartjs-ext-tooltip');
       const { chart, tooltip } = context;
@@ -2063,10 +1993,7 @@
       nl.classList.add("active");
       nl.classList.remove("text-gray-400");
 
-      if (id === "tree") {
-        renderTree();
-        requestAnimationFrame(() => scrollTreeIntoView());
-      }
+      if (id === "tree") renderTree();
     }
 
     function setTreeMode(mode) {
@@ -2074,7 +2001,6 @@
       document.getElementById("btn-direct").classList.toggle("on", mode === "direct");
       document.getElementById("btn-full").classList.toggle("on", mode === "full");
       renderTree();
-      requestAnimationFrame(() => scrollTreeIntoView());
     }
 
     function treeToggleSource(src) {
@@ -2085,7 +2011,6 @@
       document.getElementById("btn-ancient").classList.toggle("on", treeShowAncient);
 
       renderTree();
-      requestAnimationFrame(() => scrollTreeIntoView());
     }
 
     function treeZoom(f) {
@@ -2104,33 +2029,21 @@
       treeFocusPath = null;
       document.getElementById("treeSearch").value = "";
       document.getElementById("tree-result-path").classList.remove("active");
-      document.getElementById("tree-result-path").innerHTML = "";
+      document.getElementById("tree-result-path").textContent = "";
       document.getElementById("btn-tree-back").classList.add("hidden");
       toggleTreeSearchIcon();
       renderTree();
-      requestAnimationFrame(() => scrollTreeIntoView());
     }
 
     function clearTreeFocus() {
       treeFocusPath = null;
-      treeSearchTargetPath = null;
-      treeSearchResultPath = "";
       document.getElementById("btn-tree-back").classList.add("hidden");
-      document.getElementById("tree-result-path").classList.remove("active");
-      document.getElementById("tree-result-path").innerHTML = "";
       renderTree();
-      requestAnimationFrame(() => scrollTreeIntoView());
     }
 
     function treeSetHaplo(h) {
       treeHaploFilter = h;
-      treeFocusPath = null;
-      treeSearchTargetPath = null;
-      treeSearchResultPath = "";
-      document.getElementById("tree-result-path").classList.remove("active");
-      document.getElementById("tree-result-path").innerHTML = "";
       renderTree();
-      requestAnimationFrame(() => scrollTreeIntoView());
     }
 
     function treeFilteredSamples() {
@@ -2145,20 +2058,6 @@
       return samples;
     }
 
-    function focusTreePath(pathKey) {
-      treeFocusPath = pathKey;
-      treeSearchTargetPath = null;
-      treeSearchResultPath = "";
-      renderClickableTreePath(pathKey);
-      document.getElementById("btn-tree-back").classList.toggle("hidden", pathKey === "Y-Adam");
-      renderTree();
-      requestAnimationFrame(() => scrollTreeIntoView());
-    }
-
-    function handleTreeNodeClick(pathKey) {
-      focusTreePath(pathKey);
-    }
-
     function runTreeSearch() {
       const q = document.getElementById("treeSearch").value.trim();
       treeSearchQuery = q;
@@ -2168,9 +2067,8 @@
 
       if (!q) {
         document.getElementById("tree-result-path").classList.remove("active");
-        document.getElementById("tree-result-path").innerHTML = "";
+        document.getElementById("tree-result-path").textContent = "";
         renderTree();
-        requestAnimationFrame(() => scrollTreeIntoView());
         return;
       }
 
@@ -2181,21 +2079,16 @@
       const exact = searchTreeExact(rawRoot, q);
 
       if (exact) {
-        treeFocusPath = exact.node.pathKey;
         treeSearchTargetPath = exact.node.pathKey;
-        treeSearchResultPath = "";
-        renderClickableTreePath(exact.node.pathKey);
-        document.getElementById("btn-tree-back").classList.toggle("hidden", exact.node.pathKey === "Y-Adam");
+        treeSearchResultPath = "SEARCH RESULT: " + exact.lineage.join(" › ");
+        document.getElementById("tree-result-path").textContent = treeSearchResultPath;
+        document.getElementById("tree-result-path").classList.add("active");
       } else {
-        treeSearchResultPath = `SEARCH RESULT: No exact SNP found for ${q}`;
-        const bar = document.getElementById("tree-result-path");
-        bar.textContent = treeSearchResultPath;
-        bar.classList.add("active");
-        document.getElementById("btn-tree-back").classList.add("hidden");
+        document.getElementById("tree-result-path").textContent = `SEARCH RESULT: No exact SNP found for ${q}`;
+        document.getElementById("tree-result-path").classList.add("active");
       }
 
       renderTree();
-      requestAnimationFrame(() => scrollTreeIntoView());
     }
 
     function buildPills(samples) {
@@ -2242,90 +2135,47 @@
       }).join("");
     }
 
-    function renderFocusedRoot(root) {
-      const color = nodeBadgeColor(root);
-      const textColor = nodeBadgeTextColor(root);
-      const styleClass = treeBadgeStyle(root);
-      const nodeOpen = !collapsedNodes.has(root.pathKey);
-
-      const header = `
-        <div class="tree-row">
-          <div class="${styleClass}" style="background:${color};color:${textColor};${root.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
-            <span class="tree-toggle" onclick="toggleTreeNode('${esc(root.pathKey)}');event.stopPropagation();"><span>${root.children.length || root.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
-            <span onclick="handleTreeNodeClick('${esc(root.pathKey)}')" style="cursor:pointer;">${esc(root.display)}</span>
-            <span class="tree-count">${root.count}</span>
-          </div>
-        </div>
-      `;
-
-      let childrenHtml = "";
-      if (nodeOpen) {
-        const sampleItems = root.samples.map(renderTreeSample).join("");
-        const childItems = root.children.map(renderTreeNode).join("");
-        if (sampleItems || childItems) {
-          childrenHtml = `<ul class="tree-ul root-list">${sampleItems}${childItems}</ul>`;
-        }
-      }
-
-      return header + childrenHtml;
-    }
-
     function renderTree() {
       const samples = treeFilteredSamples();
       buildPills(samples);
       buildTreeStats(samples);
 
-      const activePath = treeFocusPath || treeSearchTargetPath || null;
-
       const rawRoot = buildRawTree(samples);
       lastTreeRawRoot = rawRoot;
 
-      let displayRoot;
+      let root = treeMode === "full" ? cloneTree(rawRoot) : compressForDirect(rawRoot, treeSearchTargetPath);
+      relinkParents(root);
 
-      if (activePath) {
-        const fullTree = cloneTree(rawRoot);
-        relinkParents(fullTree);
-
-        const focusedNode = findSubtreeByPath(fullTree, activePath);
-
-        if (focusedNode) {
-          displayRoot = focusedNode;
-          document.getElementById("btn-tree-back").classList.toggle("hidden", activePath === "Y-Adam");
-          if (!treeSearchResultPath) renderClickableTreePath(activePath);
-        } else {
-          displayRoot = treeMode === "full"
-            ? cloneTree(rawRoot)
-            : compressForDirect(rawRoot, null);
-
-          relinkParents(displayRoot);
-          document.getElementById("btn-tree-back").classList.add("hidden");
+      if (treeSearchTargetPath) {
+        const subtree = findSubtreeByPath(root, treeSearchTargetPath);
+        if (subtree) {
+          root = subtree;
+          treeFocusPath = subtree.pathKey;
+          document.getElementById("btn-tree-back").classList.remove("hidden");
         }
-      } else {
-        displayRoot = treeMode === "full"
-          ? cloneTree(rawRoot)
-          : compressForDirect(rawRoot, null);
-
-        relinkParents(displayRoot);
-        document.getElementById("btn-tree-back").classList.add("hidden");
-
-        if (!treeSearchResultPath) {
-          document.getElementById("tree-result-path").classList.remove("active");
-          document.getElementById("tree-result-path").innerHTML = "";
+      } else if (treeFocusPath) {
+        const focus = findSubtreeByPath(root, treeFocusPath);
+        if (focus) {
+          root = focus;
+          document.getElementById("btn-tree-back").classList.remove("hidden");
+        } else {
+          treeFocusPath = null;
+          document.getElementById("btn-tree-back").classList.add("hidden");
         }
       }
 
       const html = [];
+      html.push(`
+        <div class="tree-root-badge">
+          <span>Y-Adam</span>
+          <span class="tree-count">${root.display === 'Y-Adam' ? root.count : samples.length}</span>
+        </div>
+      `);
 
-      if (displayRoot.display === "Y-Adam") {
-        html.push(`
-          <div class="tree-root-badge" onclick="focusTreePath('Y-Adam')">
-            <span>Y-Adam</span>
-            <span class="tree-count">${displayRoot.count}</span>
-          </div>
-        `);
-        html.push(`<ul class="tree-ul root-list">${displayRoot.children.map(renderTreeNode).join("")}</ul>`);
+      if (root.display === "Y-Adam") {
+        html.push(`<ul class="tree-ul root-list">${root.children.map(renderTreeNode).join("")}</ul>`);
       } else {
-        html.push(renderFocusedRoot(displayRoot));
+        html.push(`<ul class="tree-ul">${renderTreeNode(root)}</ul>`);
       }
 
       document.getElementById("tree-inner").innerHTML = html.join("");
@@ -2341,7 +2191,7 @@
         <div class="tree-row">
           <div class="${styleClass}" style="background:${color};color:${textColor};${node.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
             <span class="tree-toggle" onclick="toggleTreeNode('${esc(node.pathKey)}');event.stopPropagation();"><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
-            <span onclick="handleTreeNodeClick('${esc(node.pathKey)}')" style="cursor:pointer;">${esc(node.display)}</span>
+            <span onclick="focusTreeNode('${esc(node.pathKey)}')" style="cursor:pointer;">${esc(node.display)}</span>
             <span class="tree-count">${node.count}</span>
           </div>
         </div>
@@ -2392,7 +2242,12 @@
     }
 
     function focusTreeNode(pathKey) {
-      handleTreeNodeClick(pathKey);
+      treeFocusPath = pathKey;
+      treeSearchTargetPath = null;
+      document.getElementById("tree-result-path").classList.remove("active");
+      document.getElementById("tree-result-path").textContent = "";
+      document.getElementById("btn-tree-back").classList.remove("hidden");
+      renderTree();
     }
 
     function toggleTreeSearchIcon() {
