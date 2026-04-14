@@ -285,279 +285,277 @@
     .haplo-pill.on { border-color: currentColor; }
 
     .tree-result-path {
-      background: #f8fafc;
-      border: 1px solid #e5e7eb;
-      border-radius: 1rem;
-      padding: 12px 14px;
-      font-size: 11px;
-      font-weight: 800;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: .04em;
-      display: none;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 6px;
-      line-height: 1.6;
-    }
-    .tree-result-path.active { display: flex; }
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  padding: 12px 14px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  display: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.6;
+}
 
-    .tree-path-link {
-      cursor: pointer;
-      color: #001736;
-      background: #ffffff;
-      border: 1px solid #dbe4ee;
-      border-radius: 10px;
-      padding: 4px 8px;
-      transition: all .15s ease;
-      white-space: nowrap;
-    }
-    .tree-path-link:hover {
-      color: #775a19;
-      border-color: #775a19;
-      background: #fffdf8;
-    }
-    .tree-path-link.current {
-      background: #001736;
-      border-color: #001736;
-      color: #ffffff;
-    }
-    .tree-path-sep {
-      color: #94a3b8;
-      font-weight: 900;
-    }
+.tree-result-path.active {
+  display: flex;
+}
 
-    .tree-legend-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
+.tree-path-link {
+  cursor: pointer;
+  color: #001736;
+  background: #ffffff;
+  border: 1px solid #dbe4ee;
+  border-radius: 10px;
+  padding: 4px 8px;
+  transition: all .15s ease;
+  white-space: nowrap;
+}
 
-    .tree-root-badge,
-    .tree-node-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      min-height: 42px;
-      padding: 0 14px;
-      border-radius: 14px;
-      color: #fff;
-      font-size: 13px;
-      font-weight: 900;
-      letter-spacing: -.01em;
-      white-space: nowrap;
-      box-shadow: 0 10px 25px rgba(0,23,54,.08);
-    }
+.tree-path-link:hover {
+  color: #775a19;
+  border-color: #775a19;
+  background: #fffdf8;
+}
 
-    .tree-root-badge {
-      background: #001736;
-      margin-bottom: 8px;
-      position: relative;
-      z-index: 2;
-      margin-left: 0;
-      cursor: pointer;
-    }
+.tree-path-link.current {
+  background: #001736;
+  border-color: #001736;
+  color: #ffffff;
+}
 
-    .tree-node-badge {
-      position: relative;
-      z-index: 2;
-      border: 1px solid rgba(0,0,0,.08);
-    }
+.tree-path-sep {
+  color: #94a3b8;
+  font-weight: 900;
+}
 
-    .tree-count {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 28px;
-      height: 22px;
-      padding: 0 8px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.18);
-      font-size: 11px;
-      font-weight: 900;
-    }
+.tree-legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
 
-    .tree-toggle {
-      width: 28px;
-      height: 28px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.18);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      flex-shrink: 0;
-      user-select: none;
-    }
+.tree-root-badge,
+.tree-node-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 14px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: -.01em;
+  white-space: nowrap;
+  box-shadow: 0 10px 25px rgba(0,23,54,.08);
+}
 
-    .tree-toggle span {
-      font-size: 14px;
-      line-height: 1;
-    }
+.tree-root-badge {
+  background: #001736;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 2;
+  margin-left: 0;
+  cursor: pointer;
+}
 
-    .tree-ul,
-    .tree-ul ul {
-      list-style: none;
-      margin: 0;
-      padding-left: 38px;
-      position: relative;
-    }
+.tree-node-badge {
+  position: relative;
+  z-index: 2;
+  border: 1px solid rgba(0,0,0,.08);
+}
 
-    .tree-ul.root-list {
-      padding-left: 0;
-      margin-top: 4px;
-      margin-left: 0;
-    }
+.tree-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.18);
+  font-size: 11px;
+  font-weight: 900;
+}
 
-    .tree-ul.root-list::before {
-      content: "";
-      position: absolute;
-      top: -6px;
-      bottom: 20px;
-      left: 24px;
-      width: 2px;
-      background: #cfd7e3;
-    }
+.tree-toggle {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.18);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  user-select: none;
+}
 
-    .tree-ul ul::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      bottom: 18px;
-      left: 14px;
-      width: 2px;
-      background: #cfd7e3;
-    }
+.tree-toggle span {
+  font-size: 14px;
+  line-height: 1;
+}
 
-    .tree-ul > li,
-    .tree-ul ul > li {
-      position: relative;
-      margin: 0;
-      padding: 8px 0 0 0;
-    }
+/* ===== CLEAN TREE LINES FIX ===== */
 
-    .tree-ul.root-list > li::before {
-      content: "";
-      position: absolute;
-      top: 28px;
-      left: 24px;
-      width: 14px;
-      height: 2px;
-      background: #cfd7e3;
-    }
+.tree-ul,
+.tree-ul ul {
+  list-style: none;
+  margin: 0;
+  padding-left: 40px;
+  position: relative;
+}
 
-    .tree-ul ul > li::before {
-      content: "";
-      position: absolute;
-      top: 28px;
-      left: -24px;
-      width: 24px;
-      height: 2px;
-      background: #cfd7e3;
-    }
+.tree-ul.root-list {
+  padding-left: 0;
+  margin-top: 4px;
+  margin-left: 0;
+}
 
-    .tree-ul.root-list > li:last-child::after {
-      content: "";
-      position: absolute;
-      top: 28px;
-      bottom: 0;
-      left: 24px;
-      width: 2px;
-      background: #fff;
-    }
+.tree-ul > li,
+.tree-ul ul > li {
+  position: relative;
+  margin: 0;
+  padding: 8px 0 0 0;
+}
 
-    .tree-ul ul > li:last-child::after {
-      content: "";
-      position: absolute;
-      top: 28px;
-      bottom: 0;
-      left: -24px;
-      width: 2px;
-      background: #fff;
-    }
+/* Root vertical line */
+.tree-ul.root-list::before {
+  content: "";
+  position: absolute;
+  top: 22px;
+  bottom: 18px;
+  left: 20px;
+  width: 2px;
+  background: #cfd7e3;
+}
 
-    .tree-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-      position: relative;
-      min-height: 46px;
-    }
+/* Nested branches use border-left for perfectly aligned vertical lines */
+.tree-ul ul {
+  margin-left: 10px;
+  padding-left: 20px;
+  border-left: 2px solid #cfd7e3;
+}
 
-    .tree-sample-card {
-      position: relative;
-      z-index: 2;
-      min-width: 260px;
-      max-width: 720px;
-      padding: 10px 14px;
-      border-radius: 1.1rem;
-      border: 1px solid #e5e7eb;
-      background: #fff;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      box-shadow: 0 6px 16px rgba(0,23,54,.03);
-      cursor: pointer;
-    }
+/* Remove old shifted nested pseudo vertical line */
+.tree-ul ul::before {
+  display: none;
+}
 
-    .tree-sample-card:hover {
-      border-color: #cbd5e1;
-      box-shadow: 0 10px 18px rgba(0,23,54,.06);
-    }
+/* Horizontal connectors */
+.tree-ul.root-list > li::before,
+.tree-ul ul > li::before {
+  content: "";
+  position: absolute;
+  top: 28px;
+  left: 20px;
+  width: 18px;
+  height: 2px;
+  background: #cfd7e3;
+}
 
-    .tree-sample-name {
-      font-size: 13px;
-      font-weight: 800;
-      color: #775a19;
-      line-height: 1.25;
-      word-break: break-word;
-    }
+/* Hide vertical line after last child so tree ends cleanly */
+.tree-ul.root-list > li:last-child::after,
+.tree-ul ul > li:last-child::after {
+  content: "";
+  position: absolute;
+  top: 30px;
+  bottom: 0;
+  left: 20px;
+  width: 2px;
+  background: #fff;
+}
 
-    .tree-sample-gov {
-      font-size: 11px;
-      color: #94a3b8;
-      font-weight: 800;
-      line-height: 1.25;
-      word-break: break-word;
-    }
+.tree-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  position: relative;
+  min-height: 46px;
+}
 
-    .tree-sample-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 999px;
-      background: #8b6a1c;
-      flex-shrink: 0;
-      margin-top: 3px;
-    }
+.tree-sample-card {
+  position: relative;
+  z-index: 2;
+  min-width: 260px;
+  max-width: 720px;
+  padding: 10px 14px;
+  border-radius: 1.1rem;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: 0 6px 16px rgba(0,23,54,.03);
+  cursor: pointer;
+}
 
-    .tree-sample-line {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-    }
+.tree-sample-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 10px 18px rgba(0,23,54,.06);
+}
 
-    .tree-ancient-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 9px;
-      font-weight: 900;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      background: #dc2626;
-      color: #fff;
-    }
+.tree-sample-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: #775a19;
+  line-height: 1.25;
+  word-break: break-word;
+}
 
-    .tree-node-black { background: #000000; color: #fff; }
-    .tree-node-white {
-      background: #ffffff;
-      color: #001736;
-      border: 1px solid #cbd5e1 !important;
-      box-shadow: 0 8px 18px rgba(0,23,54,.04);
-    }
+.tree-sample-gov {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 800;
+  line-height: 1.25;
+  word-break: break-word;
+}
 
+.tree-sample-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: #8b6a1c;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.tree-sample-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.tree-ancient-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  background: #dc2626;
+  color: #fff;
+}
+
+.tree-node-black {
+  background: #000000;
+  color: #fff;
+}
+
+.tree-node-white {
+  background: #ffffff;
+  color: #001736;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 8px 18px rgba(0,23,54,.04);
+}
     .sample-detail-label {
       font-size: 10px;
       font-weight: 800;
