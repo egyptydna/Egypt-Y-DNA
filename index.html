@@ -396,62 +396,85 @@
     }
 
     .tree-ul,
-.tree-ul ul {
-  list-style: none;
-  margin: 0;
-  padding-left: 40px;
-  position: relative;
-}
+    .tree-ul ul {
+      list-style: none;
+      margin: 0;
+      padding-left: 38px;
+      position: relative;
+    }
 
-.tree-ul.root-list {
-  padding-left: 0;
-  margin-top: 4px;
-  margin-left: 0;
-}
+    .tree-ul.root-list {
+      padding-left: 0;
+      margin-top: 4px;
+      margin-left: 0;
+    }
 
-/* VERTIKALE LINIE (ALLE EBENEN GLEICH) */
-.tree-ul.root-list::before,
-.tree-ul ul::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 18px;
-  left: 20px;
-  width: 2px;
-  background: #cfd7e3;
-}
+    .tree-ul.root-list::before {
+      content: "";
+      position: absolute;
+      top: -6px;
+      bottom: 20px;
+      left: 24px;
+      width: 2px;
+      background: #cfd7e3;
+    }
 
-/* LIST ITEMS */
-.tree-ul > li,
-.tree-ul ul > li {
-  position: relative;
-  margin: 0;
-  padding: 8px 0 0 0;
-}
+    .tree-ul ul::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 18px;
+      left: 14px;
+      width: 2px;
+      background: #cfd7e3;
+    }
 
-/* HORIZONTALE VERBINDUNG */
-.tree-ul.root-list > li::before,
-.tree-ul ul > li::before {
-  content: "";
-  position: absolute;
-  top: 28px;
-  left: 20px;
-  width: 18px;
-  height: 2px;
-  background: #cfd7e3;
-}
+    .tree-ul > li,
+    .tree-ul ul > li {
+      position: relative;
+      margin: 0;
+      padding: 8px 0 0 0;
+    }
 
-/* LETZTES ELEMENT → LINIE STOPPEN */
-.tree-ul.root-list > li:last-child::after,
-.tree-ul ul > li:last-child::after {
-  content: "";
-  position: absolute;
-  top: 28px;
-  bottom: 0;
-  left: 20px;
-  width: 2px;
-  background: #ffffff;
-}
+    .tree-ul.root-list > li::before {
+      content: "";
+      position: absolute;
+      top: 28px;
+      left: 24px;
+      width: 14px;
+      height: 2px;
+      background: #cfd7e3;
+    }
+
+    .tree-ul ul > li::before {
+      content: "";
+      position: absolute;
+      top: 28px;
+      left: -24px;
+      width: 24px;
+      height: 2px;
+      background: #cfd7e3;
+    }
+
+    .tree-ul.root-list > li:last-child::after {
+      content: "";
+      position: absolute;
+      top: 28px;
+      bottom: 0;
+      left: 24px;
+      width: 2px;
+      background: #fff;
+    }
+
+    .tree-ul ul > li:last-child::after {
+      content: "";
+      position: absolute;
+      top: 28px;
+      bottom: 0;
+      left: -24px;
+      width: 2px;
+      background: #fff;
+    }
 
     .tree-row {
       display: flex;
