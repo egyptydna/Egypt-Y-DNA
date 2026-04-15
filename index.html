@@ -1220,7 +1220,7 @@
       return {
         ...s,
         __sourceType: "study",
-        name: valueOrDash(s.name !== "—" ? s.name : (s.sample_id || s.id)),
+        name: valueOrDash((s.name && s.name !== "—") ? s.name : (s.sample_id || s.id)),
         kit_number: valueOrDash(s.kit_number || s.sample_id || s.id),
         sample_id: valueOrDash(s.sample_id || s.id),
         governorate: "—",
