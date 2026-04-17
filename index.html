@@ -1133,6 +1133,32 @@
       "T": 19
     };
 
+    const HAPLO_ROOT_ORDER = ["A","B","C","E","G","H","I","J","L","Q","R","T"];
+
+    function extractSortRoot(label) {
+      const x = String(label || "").toUpperCase().trim();
+      if (!x) return "";
+      if (x.startsWith("A")) return "A";
+      if (x.startsWith("B")) return "B";
+      if (x.startsWith("C")) return "C";
+      if (x.startsWith("E")) return "E";
+      if (x.startsWith("G")) return "G";
+      if (x.startsWith("H")) return "H";
+      if (x.startsWith("I")) return "I";
+      if (x.startsWith("J")) return "J";
+      if (x.startsWith("L")) return "L";
+      if (x.startsWith("Q")) return "Q";
+      if (x.startsWith("R")) return "R";
+      if (x.startsWith("T")) return "T";
+      return x.charAt(0);
+    }
+
+    function haploRootOrderValue(label) {
+      const root = extractSortRoot(label);
+      const idx = HAPLO_ROOT_ORDER.indexOf(root);
+      return idx === -1 ? 999 : idx;
+    }
+
     let modernSamples = [];
     let studySamples = [];
     let ancientSamples = [];
@@ -1621,21 +1647,27 @@
       return "tree-node-badge";
     }
 
-    function groupOrderFromFamily(fam) {
-      return FAMILY_ORDER[fam] || 999;
+    function groupOrderFromFamily(fam, display = "") {
+      return FAMILY_ORDER[fam] || haploRootOrderValue(display);
     }
 
     function sortNodeChildren(children) {
       return children.sort((a, b) => {
-        const fa = groupOrderFromFamily(a.family);
-        const fb = groupOrderFromFamily(b.family);
+        const fa = groupOrderFromFamily(a.family, a.display);
+        const fb = groupOrderFromFamily(b.family, b.display);
         if (fa !== fb) return fa - fb;
+
+        const ra = haploRootOrderValue(a.display);
+        const rb = haploRootOrderValue(b.display);
+        if (ra !== rb) return ra - rb;
+
         if (a.display === "R1" && b.display === "R2") return -1;
         if (a.display === "R2" && b.display === "R1") return 1;
         if (a.display === "R1a" && b.display === "R1b") return -1;
         if (a.display === "R1b" && b.display === "R1a") return 1;
         if (a.display === "Q1" && b.display === "Q2") return -1;
         if (a.display === "Q2" && b.display === "Q1") return 1;
+
         return a.display.localeCompare(b.display, undefined, { numeric: true, sensitivity: "base" });
       });
     }
