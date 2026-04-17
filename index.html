@@ -1159,6 +1159,16 @@
       return idx === -1 ? 999 : idx;
     }
 
+    function nodeVisibleSortValue(node) {
+      const own = haploRootOrderValue(node.display);
+      if (own !== 999) return own;
+      if (node.children && node.children.length) {
+        const childValues = node.children.map(nodeVisibleSortValue);
+        return Math.min(...childValues);
+      }
+      return 999;
+    }
+
     let modernSamples = [];
     let studySamples = [];
     let ancientSamples = [];
@@ -1653,13 +1663,13 @@
 
     function sortNodeChildren(children) {
       return children.sort((a, b) => {
+        const va = nodeVisibleSortValue(a);
+        const vb = nodeVisibleSortValue(b);
+        if (va !== vb) return va - vb;
+
         const fa = groupOrderFromFamily(a.family, a.display);
         const fb = groupOrderFromFamily(b.family, b.display);
         if (fa !== fb) return fa - fb;
-
-        const ra = haploRootOrderValue(a.display);
-        const rb = haploRootOrderValue(b.display);
-        if (ra !== rb) return ra - rb;
 
         if (a.display === "R1" && b.display === "R2") return -1;
         if (a.display === "R2" && b.display === "R1") return 1;
@@ -1670,6 +1680,7 @@
 
         return a.display.localeCompare(b.display, undefined, { numeric: true, sensitivity: "base" });
       });
+    });
     }
 
     function buildRawTree(samples) {
@@ -1823,6 +1834,12 @@
         };
       }
 
+      function sortCompressedTree(node) {
+        if (!node.children || !node.children.length) return;
+        node.children.forEach(sortCompressedTree);
+        sortNodeChildren(node.children);
+      }
+
       const out = {
         raw: rawRoot.raw,
         display: rawRoot.display,
@@ -1833,6 +1850,7 @@
         family: rawRoot.family
       };
 
+      sortCompressedTree(out);
       relinkParents(out);
       return out;
     }
@@ -2592,7 +2610,7 @@
       let childrenHtml = "";
       if (nodeOpen) {
         const sampleItems = root.samples.map(renderTreeSample).join("");
-        const childItems = root.children.map(renderTreeNode).join("");
+        const childItems = sortNodeChildren(root.children).map(renderTreeNode).join("");
         if (sampleItems || childItems) childrenHtml = `<ul class="tree-ul focused-root-list">${sampleItems}${childItems}</ul>`;
       }
 
@@ -2646,7 +2664,7 @@
             <span class="tree-count">${displayRoot.count}</span>
           </div>
         `);
-        html.push(`<ul class="tree-ul root-list">${displayRoot.children.map(renderTreeNode).join("")}</ul>`);
+        html.push(`<ul class="tree-ul root-list">${sortNodeChildren(displayRoot.children).map(renderTreeNode).join("")}</ul>`);
       } else {
         html.push(renderFocusedRoot(displayRoot));
       }
@@ -2674,7 +2692,7 @@
 
       if (nodeOpen) {
         const sampleItems = node.samples.map(renderTreeSample).join("");
-        const childItems = node.children.map(renderTreeNode).join("");
+        const childItems = sortNodeChildren(node.children).map(renderTreeNode).join("");
         if (sampleItems || childItems) inner = `<ul>${sampleItems}${childItems}</ul>`;
       }
 
@@ -2745,24 +2763,3 @@
   </script>
 </body>
 </html>
-
-
-
-// === FORCE GLOBAL SORTING (FIX) ===
-
-// sort root nodes BEFORE building tree
-if (Array.isArray(treeData)) {
-  treeData = sortNodeChildren(treeData);
-}
-
-// ensure every time children are assigned → sorted
-function attachChildrenSorted(node) {
-  if (!node.children) return;
-  node.children = sortNodeChildren(node.children);
-  node.children.forEach(child => attachChildrenSorted(child));
-}
-
-// apply after building full tree
-if (typeof treeData !== "undefined") {
-  treeData.forEach(n => attachChildrenSorted(n));
-}
