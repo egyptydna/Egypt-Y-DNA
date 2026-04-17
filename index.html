@@ -206,14 +206,13 @@
     }
 
     .tree-floating-toggle {
-      position: sticky;
-      top: 16px;
-      right: 16px;
-      z-index: 30;
+      position: fixed;
+      top: 120px;
+      right: 24px;
+      z-index: 60;
       display: flex;
       justify-content: flex-end;
       pointer-events: none;
-      padding: 16px 16px 0 16px;
     }
 
     .tree-floating-toggle .ctrl-btn {
@@ -221,6 +220,13 @@
       box-shadow: 0 10px 24px rgba(0,23,54,.12);
       background: rgba(255,255,255,.96);
       backdrop-filter: blur(8px);
+    }
+
+    @media (max-width: 900px) {
+      .tree-floating-toggle {
+        top: 96px;
+        right: 14px;
+      }
     }
 
     #tree-inner {
@@ -2482,6 +2488,8 @@
       const nl = document.getElementById("nav-" + id);
       nl.classList.add("active");
       nl.classList.remove("text-gray-400");
+
+      updateTreeInlineModeToggle();
 
       if (id === "tree") {
         renderTree();
