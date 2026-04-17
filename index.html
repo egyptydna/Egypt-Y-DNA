@@ -409,12 +409,28 @@
       margin-left: 0;
     }
 
+    .tree-ul.focused-root-list {
+      padding-left: 28px;
+      margin-top: 6px;
+      margin-left: 0;
+    }
+
     .tree-ul.root-list::before {
       content: "";
       position: absolute;
       top: -6px;
       bottom: 20px;
       left: 24px;
+      width: 2px;
+      background: #cfd7e3;
+    }
+
+    .tree-ul.focused-root-list::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 18px;
+      left: 14px;
       width: 2px;
       background: #cfd7e3;
     }
@@ -446,6 +462,16 @@
       background: #cfd7e3;
     }
 
+    .tree-ul.focused-root-list > li::before {
+      content: "";
+      position: absolute;
+      top: 28px;
+      left: -14px;
+      width: 14px;
+      height: 2px;
+      background: #cfd7e3;
+    }
+
     .tree-ul ul > li::before {
       content: "";
       position: absolute;
@@ -462,6 +488,16 @@
       top: 28px;
       bottom: 0;
       left: 24px;
+      width: 2px;
+      background: #fff;
+    }
+
+    .tree-ul.focused-root-list > li:last-child::after {
+      content: "";
+      position: absolute;
+      top: 28px;
+      bottom: 0;
+      left: -14px;
       width: 2px;
       background: #fff;
     }
@@ -664,6 +700,25 @@
       will-change: transform, opacity, top, left;
     }
 
+    .tree-floating-toggle {
+      position: sticky;
+      top: 14px;
+      margin-left: auto;
+      width: fit-content;
+      z-index: 25;
+      display: flex;
+      justify-content: flex-end;
+      padding: 12px 12px 0 12px;
+      pointer-events: none;
+    }
+
+    .tree-floating-toggle .ctrl-btn {
+      pointer-events: auto;
+      box-shadow: 0 10px 24px rgba(0,23,54,.12);
+      background: rgba(255,255,255,.96);
+      backdrop-filter: blur(8px);
+    }
+
     @media (max-width: 1100px) {
       .region-modal-top {
         grid-template-columns: 1fr;
@@ -808,6 +863,9 @@
     </div>
 
     <div id="tree-wrap">
+      <div class="tree-floating-toggle">
+        <button id="btn-tree-floating-toggle" class="ctrl-btn" onclick="toggleTreeModeShortcut()">Show Full SNP Path</button>
+      </div>
       <div id="tree-inner">
         <div style="padding:40px;text-align:center;color:#94a3b8;font-weight:700;">Loading tree…</div>
       </div>
@@ -1126,6 +1184,16 @@
       requestAnimationFrame(() => {
         el.scrollIntoView({ behavior: "smooth", block: "start" });
       });
+    }
+
+    function updateTreeFloatingToggle() {
+      const btn = document.getElementById("btn-tree-floating-toggle");
+      if (!btn) return;
+      btn.textContent = treeMode === "direct" ? "Show Full SNP Path" : "Show Direct Ancestors";
+    }
+
+    function toggleTreeModeShortcut() {
+      setTreeMode(treeMode === "direct" ? "full" : "direct");
     }
 
     function getPreferredDirectPath(sample) {
@@ -2300,6 +2368,7 @@
       treeMode = mode;
       document.getElementById("btn-direct").classList.toggle("on", mode === "direct");
       document.getElementById("btn-full").classList.toggle("on", mode === "full");
+      updateTreeFloatingToggle();
       renderTree();
       requestAnimationFrame(() => scrollTreeIntoView());
     }
@@ -2492,7 +2561,7 @@
       if (nodeOpen) {
         const sampleItems = root.samples.map(renderTreeSample).join("");
         const childItems = root.children.map(renderTreeNode).join("");
-        if (sampleItems || childItems) childrenHtml = `<ul class="tree-ul root-list">${sampleItems}${childItems}</ul>`;
+        if (sampleItems || childItems) childrenHtml = `<ul class="tree-ul focused-root-list">${sampleItems}${childItems}</ul>`;
       }
 
       return header + childrenHtml;
@@ -2516,7 +2585,8 @@
         const focusedNode = findSubtreeByPath(fullTree, activePath);
 
         if (focusedNode) {
-          displayRoot = focusedNode;
+          displayRoot = treeMode === "full" ? focusedNode : compressForDirect(focusedNode, null);
+          relinkParents(displayRoot);
           document.getElementById("btn-tree-back").classList.toggle("hidden", activePath === "Y-Adam");
           if (!treeSearchResultPath) renderClickableTreePath(activePath);
         } else {
@@ -2628,6 +2698,7 @@
         if (event.key === "Enter") runTreeSearch();
       });
       toggleTreeSearchIcon();
+      updateTreeFloatingToggle();
     });
 
     (async function boot() {
