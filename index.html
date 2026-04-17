@@ -207,10 +207,10 @@
 
     .tree-floating-toggle {
       position: fixed;
-      top: 120px;
+      top: 96px;
       right: 24px;
-      z-index: 60;
-      display: flex;
+      z-index: 99999;
+      display: none;
       justify-content: flex-end;
       pointer-events: none;
     }
@@ -218,14 +218,15 @@
     .tree-floating-toggle .ctrl-btn {
       pointer-events: auto;
       box-shadow: 0 10px 24px rgba(0,23,54,.12);
-      background: rgba(255,255,255,.96);
+      background: rgba(255,255,255,.98);
       backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
 
     @media (max-width: 900px) {
       .tree-floating-toggle {
-        top: 96px;
-        right: 14px;
+        top: 88px;
+        right: 12px;
       }
     }
 
@@ -2501,16 +2502,6 @@
         renderTree();
         requestAnimationFrame(() => scrollTreeIntoView());
       }
-    }
-
-    function updateTreeFloatingToggle() {
-      const btn = document.getElementById("tree-inline-mode-toggle");
-      const wrap = document.getElementById("global-tree-floating-toggle");
-      const treeSection = document.getElementById("section-tree");
-      if (!btn || !wrap || !treeSection) return;
-
-      btn.textContent = treeMode === "direct" ? "Show Full SNP Path" : "Show Direct Ancestors";
-      wrap.style.display = treeSection.classList.contains("active") ? "flex" : "none";
     }
 
     function toggleTreeModeInline() {
