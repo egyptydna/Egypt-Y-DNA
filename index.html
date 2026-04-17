@@ -1103,6 +1103,14 @@
       return s ? s : "—";
     }
 
+    function isRealValue(v) {
+      return v !== null && v !== undefined && String(v).trim() !== "" && String(v).trim() !== "—";
+    }
+
+    function isUrl(v) {
+      return /^https?:\/\//i.test(String(v || "").trim());
+    }
+
     function sclean(s) {
       if (!s || s === "—") return "";
       return s.toString()
@@ -1136,17 +1144,54 @@
     }
 
     function chartBorderWidth(label) {
-      return label === "C" ? 2 : 2;
+      return 2;
     }
 
     function buildModalLinkButtons(urls) {
-      const valid = (urls || []).filter(Boolean).filter(x => x !== "—");
+      const valid = (urls || []).filter(x => isRealValue(x) && isUrl(x));
       if (!valid.length) return `<span class="text-sm font-bold text-gray-400">No links</span>`;
       return valid.map(link => `
         <a href="${esc(link)}" target="_blank" class="sample-link-btn">
           <span class="material-symbols-outlined">link</span>
         </a>
       `).join("");
+    }
+
+    function buildStudyLinkButton(sample) {
+      const studyLink = isUrl(sample.study_link) ? sample.study_link : (isUrl(sample.description) ? sample.description : "");
+      if (!studyLink) return "";
+      return `
+        <div class="mt-6">
+          <div class="sample-detail-label">Study Link</div>
+          <a href="${esc(studyLink)}" target="_blank" class="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-secondary text-white font-black text-sm hover:opacity-90 transition-all">
+            <span class="material-symbols-outlined" style="font-size:18px">open_in_new</span>
+            Open Study
+          </a>
+        </div>
+      `;
+    }
+
+    function formatDescriptionHTML(sample) {
+      const raw = String(sample.description || "").trim();
+      if (!raw || raw === "—") return "";
+
+      if (sample.__sourceType === "study" && isUrl(raw)) {
+        return `
+          <a href="${esc(raw)}" target="_blank" class="text-secondary underline break-all font-bold">
+            ${esc(raw)}
+          </a>
+        `;
+      }
+
+      if (isUrl(raw)) {
+        return `
+          <a href="${esc(raw)}" target="_blank" class="text-secondary underline break-all font-bold">
+            ${esc(raw)}
+          </a>
+        `;
+      }
+
+      return esc(raw).replace(/\n/g, "<br>");
     }
 
     function links(s, type) {
@@ -1156,7 +1201,7 @@
 
       let h = '<div class="flex gap-1.5 justify-center">';
       [[l1, 'database'], [l2, 'link']].forEach(([u, ic]) => {
-        if (u && u.length > 5 && u !== "—") {
+        if (isRealValue(u) && isUrl(u)) {
           h += `<a href="${esc(u)}" target="_blank" class="w-7 h-7 rounded-lg ${bg} text-white flex items-center justify-center hover:scale-110 transition-transform shadow-sm"><span class="material-symbols-outlined text-[14px]">${ic}</span></a>`;
         }
       });
@@ -1216,8 +1261,12 @@
       return fields.some(f => sclean(f).includes(ql));
     }
 
-    function normalizeStudySample(s) {
-      return {
+    function addUid(sample, sourceType, index) {
+      return { ...sample, __uid: `${sourceType}-${index}-${sample.sample_id || sample.kit_number || sample.name || 'sample'}` };
+    }
+
+    function normalizeStudySample(s, index) {
+      return addUid({
         ...s,
         __sourceType: "study",
         name: valueOrDash((s.name && s.name !== "—") ? s.name : (s.sample_id || s.id)),
@@ -1238,7 +1287,7 @@
         mt_link_2: valueOrDash(s.mt_link_2),
         study_link: valueOrDash(s.study_link),
         study_reference: valueOrDash(s.study_reference)
-      };
+      }, "study", index);
     }
 
     async function loadAll() {
@@ -1248,7 +1297,7 @@
         _sb.from("Ancient_published_samples").select("*")
       ]);
 
-      modernSamples = (modR.data || []).map(s => ({
+      modernSamples = (modR.data || []).map((s, index) => addUid({
         ...s,
         __sourceType: "modern",
         name: valueOrDash(s.name),
@@ -1265,11 +1314,11 @@
         mt_link_1: valueOrDash(s.mt_link_1),
         mt_link_2: valueOrDash(s.mt_link_2),
         description: valueOrDash(s.description)
-      }));
+      }, "modern", index));
 
-      studySamples = (studyR.data || []).map(normalizeStudySample);
+      studySamples = (studyR.data || []).map((s, index) => normalizeStudySample(s, index));
 
-      ancientSamples = (ancR.data || []).map(s => ({
+      ancientSamples = (ancR.data || []).map((s, index) => addUid({
         ...s,
         __sourceType: "ancient",
         name: valueOrDash(s.name),
@@ -1288,7 +1337,7 @@
         description: valueOrDash(s.description),
         period: valueOrDash(s.period),
         cultural_group: valueOrDash(s.cultural_group)
-      }));
+      }, "ancient", index));
     }
 
     function parsePath(fullPath, yDna = "") {
@@ -1532,17 +1581,16 @@
       const q = sclean(query);
       let found = null;
 
-      function walk(node, lineage) {
+      function walk(node) {
         if (found) return;
-        const nextLineage = [...lineage, node.display];
         if (searchMatchesNode(node, q)) {
-          found = { node, lineage: nextLineage };
+          found = { node };
           return;
         }
-        node.children.forEach(ch => walk(ch, nextLineage));
+        node.children.forEach(ch => walk(ch));
       }
 
-      walk(root, []);
+      walk(root);
       return found;
     }
 
@@ -1646,14 +1694,9 @@
         const subPath = parts.slice(0, i + 1).join(">");
         const isCurrent = subPath === pathKey;
         html.push(`
-          <span
-            class="tree-path-link ${isCurrent ? 'current' : ''}"
-            onclick="focusTreePath('${esc(subPath)}')"
-          >${esc(parts[i])}</span>
+          <span class="tree-path-link ${isCurrent ? 'current' : ''}" onclick="focusTreePath('${esc(subPath)}')">${esc(parts[i])}</span>
         `);
-        if (i < parts.length - 1) {
-          html.push(`<span class="tree-path-sep">></span>`);
-        }
+        if (i < parts.length - 1) html.push(`<span class="tree-path-sep">></span>`);
       }
 
       bar.innerHTML = html.join("");
@@ -1665,10 +1708,7 @@
       if (!wrap) return;
 
       const y = wrap.getBoundingClientRect().top + window.scrollY - 24;
-      window.scrollTo({
-        top: Math.max(0, y),
-        behavior: "smooth"
-      });
+      window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
     }
 
     function externalTooltipHandler(context) {
@@ -1745,14 +1785,10 @@
             }
           },
           onHover: (event, activeEls) => {
-            if (event?.native?.target) {
-              event.native.target.style.cursor = activeEls.length ? 'pointer' : 'default';
-            }
+            if (event?.native?.target) event.native.target.style.cursor = activeEls.length ? 'pointer' : 'default';
           },
           onClick: (_, els) => {
-            if (els.length && options.onSliceClick) {
-              options.onSliceClick(labels[els[0].index]);
-            }
+            if (els.length && options.onSliceClick) options.onSliceClick(labels[els[0].index]);
           }
         }
       });
@@ -1861,9 +1897,7 @@
           setTimeout(() => {
             makePie(cid, totals, gov, pool.length, {
               disableTooltip: false,
-              onSliceClick: (hap) => {
-                openRegionModal(gov, hap);
-              }
+              onSliceClick: (hap) => openRegionModal(gov, hap)
             });
           }, 20);
         }
@@ -1901,11 +1935,8 @@
         `;
       }).join("");
 
-      if (selectedHap && totals[selectedHap]) {
-        showRegionHaplo(gov, selectedHap);
-      } else if (sorted.length) {
-        showRegionHaplo(gov, sorted[0][0]);
-      }
+      if (selectedHap && totals[selectedHap]) showRegionHaplo(gov, selectedHap);
+      else if (sorted.length) showRegionHaplo(gov, sorted[0][0]);
     }
 
     function showRegionHaplo(gov, hp) {
@@ -2059,18 +2090,22 @@
 
       const descWrap = document.getElementById("sample-modal-description-wrap");
       const descEl = document.getElementById("sample-modal-description");
-      if (sample.description && String(sample.description).trim() && sample.description !== "—") {
-        descEl.textContent = sample.description;
+      const formattedDescription = formatDescriptionHTML(sample);
+
+      if (formattedDescription) {
+        descEl.innerHTML = formattedDescription;
         descWrap.classList.remove("hidden");
       } else {
-        descEl.textContent = "";
+        descEl.innerHTML = "";
         descWrap.classList.add("hidden");
       }
 
       document.getElementById("sample-modal-y-links").innerHTML =
         buildModalLinkButtons([sample.y_link_1, sample.y_link_2]);
-      document.getElementById("sample-modal-mt-links").innerHTML =
-        buildModalLinkButtons([sample.mt_link_1, sample.mt_link_2]);
+
+      const mtLinksHtml = buildModalLinkButtons([sample.mt_link_1, sample.mt_link_2]);
+      const studyLinkHtml = sample.__sourceType === "study" ? buildStudyLinkButton(sample) : "";
+      document.getElementById("sample-modal-mt-links").innerHTML = mtLinksHtml + studyLinkHtml;
 
       document.getElementById("sample-modal-study").classList.toggle("hidden", sample.__sourceType !== "study");
       document.getElementById("sample-modal-ancient").classList.toggle("hidden", sample.__sourceType !== "ancient");
@@ -2366,9 +2401,7 @@
       if (nodeOpen) {
         const sampleItems = root.samples.map(renderTreeSample).join("");
         const childItems = root.children.map(renderTreeNode).join("");
-        if (sampleItems || childItems) {
-          childrenHtml = `<ul class="tree-ul root-list">${sampleItems}${childItems}</ul>`;
-        }
+        if (sampleItems || childItems) childrenHtml = `<ul class="tree-ul root-list">${sampleItems}${childItems}</ul>`;
       }
 
       return header + childrenHtml;
@@ -2380,7 +2413,6 @@
       buildTreeStats(samples);
 
       const activePath = treeFocusPath || treeSearchTargetPath || null;
-
       const rawRoot = buildRawTree(samples);
       lastTreeRawRoot = rawRoot;
 
@@ -2397,18 +2429,12 @@
           document.getElementById("btn-tree-back").classList.toggle("hidden", activePath === "Y-Adam");
           if (!treeSearchResultPath) renderClickableTreePath(activePath);
         } else {
-          displayRoot = treeMode === "full"
-            ? cloneTree(rawRoot)
-            : compressForDirect(rawRoot, null);
-
+          displayRoot = treeMode === "full" ? cloneTree(rawRoot) : compressForDirect(rawRoot, null);
           relinkParents(displayRoot);
           document.getElementById("btn-tree-back").classList.add("hidden");
         }
       } else {
-        displayRoot = treeMode === "full"
-          ? cloneTree(rawRoot)
-          : compressForDirect(rawRoot, null);
-
+        displayRoot = treeMode === "full" ? cloneTree(rawRoot) : compressForDirect(rawRoot, null);
         relinkParents(displayRoot);
         document.getElementById("btn-tree-back").classList.add("hidden");
 
@@ -2456,20 +2482,17 @@
       if (nodeOpen) {
         const sampleItems = node.samples.map(renderTreeSample).join("");
         const childItems = node.children.map(renderTreeNode).join("");
-        if (sampleItems || childItems) {
-          inner = `<ul>${sampleItems}${childItems}</ul>`;
-        }
+        if (sampleItems || childItems) inner = `<ul>${sampleItems}${childItems}</ul>`;
       }
 
       return `<li>${nodeHeader}${inner}</li>`;
     }
 
     function renderTreeSample(sample) {
-      const modalId = esc(sample.sample_id || sample.kit_number || sample.name || "");
       return `
         <li>
           <div class="tree-row">
-            <div class="tree-sample-card" onclick='openSampleModalById("${modalId}", "${sample.__sourceType}")'>
+            <div class="tree-sample-card" onclick='openSampleModalByUid("${esc(sample.__uid)}")'>
               <div class="tree-sample-line">
                 <span class="tree-sample-dot"></span>
                 <div class="flex-1 min-w-0">
@@ -2485,12 +2508,9 @@
       `;
     }
 
-    function openSampleModalById(id, sourceType) {
-      let pool = modernSamples;
-      if (sourceType === "study") pool = studySamples;
-      if (sourceType === "ancient") pool = ancientSamples;
-
-      const sample = pool.find(s => (s.sample_id || s.kit_number || s.name || "") === id);
+    function openSampleModalByUid(uid) {
+      const pool = modernSamples.concat(studySamples).concat(ancientSamples);
+      const sample = pool.find(s => s.__uid === uid);
       if (sample) openSampleModal(sample);
     }
 
