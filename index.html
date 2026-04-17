@@ -205,6 +205,24 @@
       min-height: 420px;
     }
 
+    .tree-floating-toggle {
+      position: sticky;
+      top: 16px;
+      right: 16px;
+      z-index: 30;
+      display: flex;
+      justify-content: flex-end;
+      pointer-events: none;
+      padding: 16px 16px 0 16px;
+    }
+
+    .tree-floating-toggle .ctrl-btn {
+      pointer-events: auto;
+      box-shadow: 0 10px 24px rgba(0,23,54,.12);
+      background: rgba(255,255,255,.96);
+      backdrop-filter: blur(8px);
+    }
+
     #tree-inner {
       padding: 24px 24px 56px 12px;
       min-width: 1180px;
@@ -2511,6 +2529,7 @@
       document.getElementById("tree-result-path").classList.remove("active");
       document.getElementById("tree-result-path").innerHTML = "";
       document.getElementById("btn-tree-back").classList.add("hidden");
+      updateTreeInlineModeToggle();
       toggleTreeSearchIcon();
       renderTree();
       requestAnimationFrame(() => scrollTreeIntoView());
@@ -2718,13 +2737,7 @@
       const html = [];
 
       if (displayRoot.display === "Y-Adam") {
-        html.push(`
-          <div class="tree-root-badge" onclick="focusTreePath('Y-Adam')">
-            <span>Y-Adam</span>
-            <span class="tree-count">${displayRoot.count}</span>
-          </div>
-        `);
-        html.push(`<ul class="tree-ul root-list">${sortNodeChildren(displayRoot.children).map(renderTreeNode).join("")}</ul>`);
+        html.push(renderFocusedRoot(displayRoot));
       } else {
         html.push(renderFocusedRoot(displayRoot));
       }
@@ -2819,6 +2832,7 @@
       renderAncientArchive();
       updateModernSummary();
       updateAncientSummary();
+      updateTreeInlineModeToggle();
     })();
   </script>
 </body>
