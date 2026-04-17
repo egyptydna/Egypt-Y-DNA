@@ -44,21 +44,29 @@
     .nav-link {
       cursor: pointer;
       position: relative;
-      transition: all .3s;
+      transition: all .2s ease;
       font-size: .75rem;
+      padding: 8px 10px;
+      border-radius: 12px;
+    }
+    .nav-link:hover {
+      color: #001736;
+      background: rgba(0,23,54,.05);
     }
     .nav-link.active {
       color: #001736;
       font-weight: 800;
+      background: rgba(119,90,25,.10);
     }
     .nav-link.active::after {
       content: '';
       position: absolute;
-      bottom: -5px;
-      left: 0;
-      width: 100%;
+      bottom: 2px;
+      left: 10px;
+      right: 10px;
       height: 2px;
       background: #775a19;
+      border-radius: 999px;
     }
 
     .page-section { display: none; }
@@ -207,7 +215,7 @@
 
     .tree-floating-toggle {
       position: fixed;
-      top: 96px;
+      top: 110px;
       right: 24px;
       z-index: 99999;
       display: none;
@@ -225,7 +233,7 @@
 
     @media (max-width: 900px) {
       .tree-floating-toggle {
-        top: 88px;
+        top: 96px;
         right: 12px;
       }
     }
@@ -2762,6 +2770,7 @@
       }
 
       document.getElementById("tree-inner").innerHTML = html.join("");
+      updateTreeFloatingToggle();
     }
 
     function renderTreeNode(node) {
@@ -2852,6 +2861,10 @@
       updateModernSummary();
       updateAncientSummary();
       updateTreeFloatingToggle();
+
+      if (document.getElementById("section-tree")?.classList.contains("active")) {
+        renderTree();
+      }
     })();
   </script>
 </body>
