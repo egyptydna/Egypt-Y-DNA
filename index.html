@@ -1662,7 +1662,65 @@
     }
 
     function sortNodeChildren(children) {
+      const parentDisplay = children?.[0]?.parent?.display || "";
+
+      function explicitSiblingOrder(node) {
+        const d = node.display;
+
+        if (parentDisplay === "CT") {
+          if (d === "DE") return 10;
+          if (d === "CF") return 20;
+        }
+
+        if (parentDisplay === "DE") {
+          if (d === "E") return 10;
+        }
+
+        if (parentDisplay === "CF") {
+          if (d === "C") return 10;
+          if (d === "F") return 20;
+        }
+
+        if (parentDisplay === "HIJK") {
+          if (d === "H") return 10;
+          if (d === "IJK") return 20;
+        }
+
+        if (parentDisplay === "IJK") {
+          if (d === "IJ") return 10;
+          if (d === "K") return 20;
+        }
+
+        if (parentDisplay === "IJ") {
+          if (d === "I") return 10;
+          if (d === "J") return 20;
+        }
+
+        if (parentDisplay === "Q") {
+          if (d === "Q1") return 10;
+          if (d === "Q2") return 20;
+        }
+
+        if (parentDisplay === "R") {
+          if (d === "R1") return 10;
+          if (d === "R2") return 20;
+        }
+
+        if (parentDisplay === "R1") {
+          if (d === "R1a") return 10;
+          if (d === "R1b") return 20;
+        }
+
+        return null;
+      }
+
       return children.sort((a, b) => {
+        const ea = explicitSiblingOrder(a);
+        const eb = explicitSiblingOrder(b);
+        if (ea !== null && eb !== null && ea !== eb) return ea - eb;
+        if (ea !== null && eb === null) return -1;
+        if (ea === null && eb !== null) return 1;
+
         const va = nodeVisibleSortValue(a);
         const vb = nodeVisibleSortValue(b);
         if (va !== vb) return va - vb;
