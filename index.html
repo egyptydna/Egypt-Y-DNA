@@ -1169,6 +1169,45 @@
       return 999;
     }
 
+    function isMainLineDisplayNode(display) {
+      const d = String(display || "");
+      return ![
+        "Y-Adam","A0-T","BT","CT","CF","F","GHIJK","HIJK","IJK","IJ","J",
+        "K","K2","K2b","LT","DE","P","P-V1651","P-M1254","P-P337","P-P284","P-P226","R-M173"
+      ].includes(d) && haploRootOrderValue(d) !== 999;
+    }
+
+    function findFirstMainLineNode(node, rootLabel) {
+      if (!node) return null;
+      if (isMainLineDisplayNode(node.display) && extractSortRoot(node.display) === rootLabel) {
+        return node;
+      }
+      for (const ch of (node.children || [])) {
+        const found = findFirstMainLineNode(ch, rootLabel);
+        if (found) return found;
+      }
+      return null;
+    }
+
+    function buildMainLineDisplayRoots(samples) {
+      const roots = [];
+
+      HAPLO_ROOT_ORDER.forEach(rootLabel => {
+        const groupSamples = samples.filter(s => extractSortRoot(haplo(s.y_dna, s.snp_path)) === rootLabel);
+        if (!groupSamples.length) return;
+
+        const groupRawRoot = buildRawTree(groupSamples);
+        const groupCompressedRoot = compressForDirect(groupRawRoot, null);
+        const firstNode = findFirstMainLineNode(groupCompressedRoot, rootLabel);
+
+        if (firstNode) {
+          roots.push(firstNode);
+        }
+      });
+
+      return roots;
+    }
+
     let modernSamples = [];
     let studySamples = [];
     let ancientSamples = [];
@@ -2663,7 +2702,13 @@
             <span class="tree-count">${displayRoot.count}</span>
           </div>
         `);
-        html.push(`<ul class="tree-ul root-list">${sortNodeChildren(displayRoot.children).map(renderTreeNode).join("")}</ul>`);
+
+        if (treeMode === "direct" && !activePath) {
+          const mainLineRoots = buildMainLineDisplayRoots(samples);
+          html.push(`<ul class="tree-ul root-list">${mainLineRoots.map(renderTreeNode).join("")}</ul>`);
+        } else {
+          html.push(`<ul class="tree-ul root-list">${sortNodeChildren(displayRoot.children).map(renderTreeNode).join("")}</ul>`);
+        }
       } else {
         html.push(renderFocusedRoot(displayRoot));
       }
