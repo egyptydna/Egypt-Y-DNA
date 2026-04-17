@@ -2745,3 +2745,24 @@
   </script>
 </body>
 </html>
+
+
+
+// === FORCE GLOBAL SORTING (FIX) ===
+
+// sort root nodes BEFORE building tree
+if (Array.isArray(treeData)) {
+  treeData = sortNodeChildren(treeData);
+}
+
+// ensure every time children are assigned → sorted
+function attachChildrenSorted(node) {
+  if (!node.children) return;
+  node.children = sortNodeChildren(node.children);
+  node.children.forEach(child => attachChildrenSorted(child));
+}
+
+// apply after building full tree
+if (typeof treeData !== "undefined") {
+  treeData.forEach(n => attachChildrenSorted(n));
+}
