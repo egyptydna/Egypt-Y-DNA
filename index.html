@@ -2489,12 +2489,25 @@
       nl.classList.add("active");
       nl.classList.remove("text-gray-400");
 
-      updateTreeInlineModeToggle();
+      updateTreeFloatingToggle();
 
       if (id === "tree") {
         renderTree();
         requestAnimationFrame(() => scrollTreeIntoView());
       }
+    }
+
+    function updateTreeFloatingToggle() {
+      const btn = document.getElementById("tree-inline-mode-toggle");
+      const wrap = document.querySelector(".tree-floating-toggle");
+      if (!btn || !wrap) return;
+
+      btn.textContent = treeMode === "direct" ? "Show Full SNP Path" : "Show Direct Ancestors";
+      wrap.style.display = document.getElementById("section-tree")?.classList.contains("active") ? "flex" : "none";
+    }
+
+    function toggleTreeModeInline() {
+      setTreeMode(treeMode === "direct" ? "full" : "direct");
     }
 
     function setTreeMode(mode) {
@@ -2537,7 +2550,7 @@
       document.getElementById("tree-result-path").classList.remove("active");
       document.getElementById("tree-result-path").innerHTML = "";
       document.getElementById("btn-tree-back").classList.add("hidden");
-      updateTreeInlineModeToggle();
+      updateTreeFloatingToggle();
       toggleTreeSearchIcon();
       renderTree();
       requestAnimationFrame(() => scrollTreeIntoView());
@@ -2840,7 +2853,7 @@
       renderAncientArchive();
       updateModernSummary();
       updateAncientSummary();
-      updateTreeInlineModeToggle();
+      updateTreeFloatingToggle();
     })();
   </script>
 </body>
