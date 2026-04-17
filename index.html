@@ -2074,43 +2074,136 @@
         '<option value="—">Unassigned</option>';
     }
 
-    function openSampleModal(sample) {
-      const typeLabel =
-        sample.__sourceType === "ancient" ? "Ancient sample" :
-        sample.__sourceType === "study" ? "Modern study sample" :
-        "Modern sample";
+    <script>
+function openSampleModal(sample) {
+  const typeLabel =
+    sample.__sourceType === "ancient" ? "Ancient sample" :
+    sample.__sourceType === "study" ? "Modern study sample" :
+    "Modern sample";
 
-      document.getElementById("sample-modal-name").textContent = sample.name || sample.sample_id || sample.kit_number || "Sample";
-      document.getElementById("sample-modal-subtitle").textContent = `${sample.governorate || sample.site || "Unknown location"} • ${typeLabel}`;
-      document.getElementById("sample-modal-kit").textContent = sample.kit_number || sample.sample_id || "—";
-      document.getElementById("sample-modal-location").textContent = sample.governorate || sample.site || "—";
-      document.getElementById("sample-modal-ydna").textContent = sample.y_dna || "—";
-      document.getElementById("sample-modal-mtdna").textContent = sample.mt_dna || "—";
-      document.getElementById("sample-modal-path").textContent = sample.full_snp_path || "—";
+  document.getElementById("sample-modal-name").textContent =
+    sample.name || sample.sample_id || sample.kit_number || "Sample";
 
-      const descWrap = document.getElementById("sample-modal-description-wrap");
-      const descEl = document.getElementById("sample-modal-description");
-      const formattedDescription = formatDescriptionHTML(sample);
+  document.getElementById("sample-modal-subtitle").textContent =
+    `${sample.governorate || sample.site || "Unknown location"} • ${typeLabel}`;
 
-      if (formattedDescription) {
-        descEl.innerHTML = formattedDescription;
-        descWrap.classList.remove("hidden");
-      } else {
-        descEl.innerHTML = "";
-        descWrap.classList.add("hidden");
-      }
+  document.getElementById("sample-modal-kit").textContent =
+    sample.kit_number || sample.sample_id || "—";
 
-      document.getElementById("sample-modal-y-links").innerHTML =
-        buildModalLinkButtons([sample.y_link_1, sample.y_link_2]);
+  document.getElementById("sample-modal-location").textContent =
+    sample.governorate || sample.site || "—";
 
-      const mtLinksHtml = buildModalLinkButtons([sample.mt_link_1, sample.mt_link_2]);
-      const studyLinkHtml = sample.__sourceType === "study" ? buildStudyLinkButton(sample) : "";
-      document.getElementById("sample-modal-mt-links").innerHTML = mtLinksHtml + studyLinkHtml;
+  document.getElementById("sample-modal-ydna").textContent =
+    sample.y_dna || "—";
 
-      document.getElementById("sample-modal-study").classList.toggle("hidden", sample.__sourceType !== "study");
-      document.getElementById("sample-modal-ancient").classList.toggle("hidden", sample.__sourceType !== "ancient");
-      document.getElementById("sample-detail-modal").classList.add("active");
-    }
+  document.getElementById("sample-modal-mtdna").textContent =
+    sample.mt_dna || "—";
+
+  document.getElementById("sample-modal-path").textContent =
+    sample.full_snp_path || "—";
+
+  const descWrap = document.getElementById("sample-modal-description-wrap");
+  const descEl = document.getElementById("sample-modal-description");
+
+  if (
+    sample.__sourceType === "ancient" &&
+    sample.description &&
+    String(sample.description).trim() &&
+    sample.description !== "—"
+  ) {
+    descEl.innerHTML = esc(sample.description).replace(/\n/g, "<br>");
+    descWrap.classList.remove("hidden");
+  } else {
+    descEl.innerHTML = "";
+    descWrap.classList.add("hidden");
+  }
+
+  document.getElementById("sample-modal-y-links").innerHTML =
+    buildModalLinkButtons([sample.y_link_1, sample.y_link_2]);
+
+  const mtLinksHtml = buildModalLinkButtons([sample.mt_link_1, sample.mt_link_2]);
+  const studyLinkHtml = sample.__sourceType === "study" ? buildStudyLinkButton(sample) : "";
+
+  document.getElementById("sample-modal-mt-links").innerHTML =
+    mtLinksHtml + studyLinkHtml;
+
+  document.getElementById("sample-modal-study").classList.toggle(
+    "hidden",
+    sample.__sourceType !== "study"
+  );
+
+  document.getElementById("sample-modal-ancient").classList.toggle(
+    "hidden",
+    sample.__sourceType !== "ancient"
+  );
+
+  document.getElementById("sample-detail-modal").classList.add("active");
+}
+
+function openSampleModal(sample) {
+  const typeLabel =
+    sample.__sourceType === "ancient" ? "Ancient sample" :
+    sample.__sourceType === "study" ? "Modern study sample" :
+    "Modern sample";
+
+  document.getElementById("sample-modal-name").textContent =
+    sample.name || sample.sample_id || sample.kit_number || "Sample";
+
+  document.getElementById("sample-modal-subtitle").textContent =
+    `${sample.governorate || sample.site || "Unknown location"} • ${typeLabel}`;
+
+  document.getElementById("sample-modal-kit").textContent =
+    sample.kit_number || sample.sample_id || "—";
+
+  document.getElementById("sample-modal-location").textContent =
+    sample.governorate || sample.site || "—";
+
+  document.getElementById("sample-modal-ydna").textContent =
+    sample.y_dna || "—";
+
+  document.getElementById("sample-modal-mtdna").textContent =
+    sample.mt_dna || "—";
+
+  document.getElementById("sample-modal-path").textContent =
+    sample.full_snp_path || "—";
+
+  const descWrap = document.getElementById("sample-modal-description-wrap");
+  const descEl = document.getElementById("sample-modal-description");
+
+  if (
+    sample.__sourceType === "ancient" &&
+    sample.description &&
+    String(sample.description).trim() &&
+    sample.description !== "—"
+  ) {
+    descEl.innerHTML = esc(sample.description).replace(/\n/g, "<br>");
+    descWrap.classList.remove("hidden");
+  } else {
+    descEl.innerHTML = "";
+    descWrap.classList.add("hidden");
+  }
+
+  document.getElementById("sample-modal-y-links").innerHTML =
+    buildModalLinkButtons([sample.y_link_1, sample.y_link_2]);
+
+  const mtLinksHtml = buildModalLinkButtons([sample.mt_link_1, sample.mt_link_2]);
+  const studyLinkHtml = sample.__sourceType === "study" ? buildStudyLinkButton(sample) : "";
+
+  document.getElementById("sample-modal-mt-links").innerHTML =
+    mtLinksHtml + studyLinkHtml;
+
+  document.getElementById("sample-modal-study").classList.toggle(
+    "hidden",
+    sample.__sourceType !== "study"
+  );
+
+  document.getElementById("sample-modal-ancient").classList.toggle(
+    "hidden",
+    sample.__sourceType !== "ancient"
+  );
+
+  document.getElementById("sample-detail-modal").classList.add("active");
+}
 
     function closeSampleModal(e) {
       if (!e || e.target.id === "sample-detail-modal") {
