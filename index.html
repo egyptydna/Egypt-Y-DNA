@@ -206,27 +206,30 @@
     }
 
     .tree-floating-toggle {
-      position: fixed;
-      top: 96px;
-      right: 24px;
-      z-index: 9999;
+      position: sticky;
+      top: 14px;
+      margin-left: auto;
+      width: fit-content;
+      z-index: 25;
       display: none;
       justify-content: flex-end;
+      padding: 12px 12px 0 12px;
       pointer-events: none;
     }
 
     .tree-floating-toggle .ctrl-btn {
       pointer-events: auto;
       box-shadow: 0 10px 24px rgba(0,23,54,.12);
-      background: rgba(255,255,255,.98);
+      background: rgba(255,255,255,.96);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
     }
 
     @media (max-width: 900px) {
       .tree-floating-toggle {
-        top: 88px;
-        right: 12px;
+        top: 10px;
+        right: 0;
+        padding: 10px 10px 0 10px;
       }
     }
 
@@ -653,7 +656,8 @@
       line-height: 1.7;
       color: #334155;
       font-weight: 700;
-      white-space: pre-wrap;
+      white-space: normal;
+      word-break: break-word;
     }
 
     .sample-link-btn {
@@ -723,25 +727,6 @@
       z-index: 99999;
       opacity: 0;
       will-change: transform, opacity, top, left;
-    }
-
-    .tree-floating-toggle {
-      position: sticky;
-      top: 14px;
-      margin-left: auto;
-      width: fit-content;
-      z-index: 25;
-      display: flex;
-      justify-content: flex-end;
-      padding: 12px 12px 0 12px;
-      pointer-events: none;
-    }
-
-    .tree-floating-toggle .ctrl-btn {
-      pointer-events: auto;
-      box-shadow: 0 10px 24px rgba(0,23,54,.12);
-      background: rgba(255,255,255,.96);
-      backdrop-filter: blur(8px);
     }
 
     @media (max-width: 1100px) {
@@ -1220,7 +1205,11 @@
         .replace(/&/g,"&amp;")
         .replace(/</g,"&lt;")
         .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;");
+        .replace(/\"/g,"&quot;");
+    }
+
+    function jstr(v) {
+      return JSON.stringify(String(v ?? "")).replace(/</g, "\\u003c");
     }
 
     function valueOrDash(v) {
@@ -1247,10 +1236,20 @@
       });
     }
 
+    function scrollTreeIntoView() {
+      const wrap = document.getElementById("tree-wrap");
+      if (!wrap) return;
+      const y = wrap.getBoundingClientRect().top + window.scrollY - 24;
+      window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+    }
+
     function updateTreeFloatingToggle() {
       const btn = document.getElementById("btn-tree-floating-toggle");
-      if (!btn) return;
+      const wrap = document.querySelector(".tree-floating-toggle");
+      if (!btn || !wrap) return;
+
       btn.textContent = treeMode === "direct" ? "Show Full SNP Path" : "Show Direct Ancestors";
+      wrap.style.display = document.getElementById("section-tree")?.classList.contains("active") ? "flex" : "none";
     }
 
     function toggleTreeModeShortcut() {
@@ -1342,7 +1341,7 @@
       return label === "C" ? MIN_C_BORDER : "#ffffff";
     }
 
-    function chartBorderWidth(label) {
+    function chartBorderWidth() {
       return 2;
     }
 
@@ -1370,14 +1369,6 @@
     function formatDescriptionHTML(sample) {
       const raw = String(sample.description || "").trim();
       if (!raw || raw === "—") return "";
-
-      if (sample.__sourceType === "study" && isUrl(raw)) {
-        return `
-          <a href="${esc(raw)}" target="_blank" class="text-secondary underline break-all font-bold">
-            ${esc(raw)}
-          </a>
-        `;
-      }
 
       if (isUrl(raw)) {
         return `
@@ -1961,21 +1952,13 @@
         const subPath = parts.slice(0, i + 1).join(">");
         const isCurrent = subPath === pathKey;
         html.push(`
-          <span class="tree-path-link ${isCurrent ? 'current' : ''}" onclick="focusTreePath('${esc(subPath)}')">${esc(parts[i])}</span>
+          <span class="tree-path-link ${isCurrent ? 'current' : ''}" onclick="focusTreePath(${jstr(subPath)})">${esc(parts[i])}</span>
         `);
         if (i < parts.length - 1) html.push(`<span class="tree-path-sep">></span>`);
       }
 
       bar.innerHTML = html.join("");
       bar.classList.add("active");
-    }
-
-    function scrollTreeIntoView() {
-      const wrap = document.getElementById("tree-wrap");
-      if (!wrap) return;
-
-      const y = wrap.getBoundingClientRect().top + window.scrollY - 24;
-      window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
     }
 
     function externalTooltipHandler(context) {
@@ -2026,7 +2009,7 @@
           datasets: [{
             data: values,
             backgroundColor: labels.map(l => colorForAggregate(l)),
-            borderWidth: labels.map(l => chartBorderWidth(l)),
+            borderWidth: labels.map(() => chartBorderWidth()),
             borderColor: labels.map(l => chartBorderColor(l)),
             hoverOffset: 6
           }]
@@ -2085,7 +2068,7 @@
       document.getElementById("national-legend").innerHTML = sorted.map(([hap, count]) => {
         const pct = total ? ((count / total) * 100).toFixed(1) : "0.0";
         return `
-          <div onclick="openModal('MODERN','${esc(hap)}')" class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all cursor-pointer">
+          <div onclick="openModal('MODERN', ${jstr(hap)})" class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all cursor-pointer">
             <div class="flex items-center gap-2">
               <div class="w-2 h-2 rounded-full ${hap === 'C' ? 'border border-gray-400' : ''}" style="background:${colorForAggregate(hap)}"></div>
               <span style="color:${textColorForAggregate(hap)}">${esc(hap)}</span>
@@ -2119,7 +2102,7 @@
       document.getElementById("ancient-legend").innerHTML = sorted.map(([hap, count]) => {
         const pct = total ? ((count / total) * 100).toFixed(1) : "0.0";
         return `
-          <div onclick="openModal('ANCIENT','${esc(hap)}')" class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all cursor-pointer">
+          <div onclick="openModal('ANCIENT', ${jstr(hap)})" class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all cursor-pointer">
             <div class="flex items-center gap-2">
               <div class="w-2 h-2 rounded-full ${hap === 'C' ? 'border border-gray-400' : ''}" style="background:${colorForAggregate(hap)}"></div>
               <span>${esc(hap)}</span>
@@ -2191,7 +2174,7 @@
       document.getElementById("region-modal-legend").innerHTML = sorted.map(([hap, count]) => {
         const pct = total ? ((count / total) * 100).toFixed(1) : "0.0";
         return `
-          <div onclick="showRegionHaplo('${esc(gov)}','${esc(hap)}')" class="region-summary-card cursor-pointer hover:bg-primary/5 transition-all">
+          <div onclick="showRegionHaplo(${jstr(gov)}, ${jstr(hap)})" class="region-summary-card cursor-pointer hover:bg-primary/5 transition-all">
             <div class="flex items-center justify-between gap-4">
               <div class="flex items-center gap-3">
                 <div class="w-5 h-5 rounded-full ${hap === 'C' ? 'border border-gray-400' : ''}" style="background:${colorForAggregate(hap)}"></div>
@@ -2204,7 +2187,7 @@
       }).join("");
 
       if (selectedHap && totals[selectedHap]) showRegionHaplo(gov, selectedHap);
-      else if (sorted.length) showRegionHaplo(gov, sorted[0][0]);
+      else if (sorted.length) showRegionHaplo(gov, sorted[0][0], false);
     }
 
     function showRegionHaplo(gov, hp, shouldScroll = true) {
@@ -2223,9 +2206,7 @@
 
       document.getElementById("region-modal-kits-grid").innerHTML = matches.map(s => sampleCardHTML(s)).join("");
 
-      if (shouldScroll) {
-        scrollIntoViewById("region-modal-kit-box");
-      }
+      if (shouldScroll) scrollIntoViewById("region-modal-kit-box");
     }
 
     function closeRegionModal(e) {
@@ -2237,7 +2218,7 @@
 
     function sampleCardHTML(s) {
       return `
-        <div class="p-6 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm hover:border-secondary transition-all text-left font-bold">
+        <div class="p-6 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm hover:border-secondary transition-all text-left font-bold cursor-pointer" onclick="openSampleModalByUid(${jstr(s.__uid)})">
           <div class="flex justify-between mb-4 text-[10px] items-center gap-3">
             <span class="px-3 py-1 bg-primary text-white rounded-full font-black tracking-tighter">${esc(s.y_dna || '—')}</span>
             <div class="flex items-center gap-2 flex-wrap justify-end">
@@ -2273,7 +2254,7 @@
         const h = haplo(s.y_dna, s.snp_path);
         const dotClass = h === "C" ? 'border border-gray-400' : '';
         return `
-          <tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
+          <tr class="hover:bg-gray-50/80 transition-colors text-center font-bold cursor-pointer" onclick="openSampleModalByUid(${jstr(s.__uid)})">
             <td class="px-4 py-6">
               <div class="font-black uppercase text-sm">${esc(s.name || '—')}</div>
               ${s.__sourceType === "study" ? `<div class="mt-2"><span class="tree-study-badge">STUDY</span></div>` : ``}
@@ -2286,9 +2267,9 @@
                 <span class="text-[10px] font-mono font-bold text-gray-500 snp-text">${esc(s.snp_path || s.y_dna || '—')}</span>
               </div>
             </td>
-            <td class="px-2 py-6">${links(s,'y')}</td>
+            <td class="px-2 py-6" onclick="event.stopPropagation()">${links(s,'y')}</td>
             <td class="px-2 py-6 text-center uppercase text-[11px] font-black text-secondary">${esc(s.mt_dna || '—')}</td>
-            <td class="px-4 py-6">${links(s,'mt')}</td>
+            <td class="px-4 py-6" onclick="event.stopPropagation()">${links(s,'mt')}</td>
           </tr>
         `;
       }).join("");
@@ -2305,7 +2286,7 @@
         const dotClass = h === "C" ? 'border border-gray-400' : '';
 
         return `
-          <tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
+          <tr class="hover:bg-gray-50/80 transition-colors text-center font-bold cursor-pointer" onclick="openSampleModalByUid(${jstr(s.__uid)})">
             <td class="px-4 py-6 text-left">
               <div class="font-black uppercase text-sm">${esc(s.name || '—')}</div>
               <div class="text-[10px] text-secondary font-mono">${esc(s.sample_id || '—')}</div>
@@ -2325,9 +2306,9 @@
                 </div>
               </div>
             </td>
-            <td class="px-2 py-6">${links(s, 'y')}</td>
+            <td class="px-2 py-6" onclick="event.stopPropagation()">${links(s, 'y')}</td>
             <td class="px-2 py-6"><div class="text-[11px] font-black text-secondary">${esc(s.mt_dna || '—')}</div></td>
-            <td class="px-4 py-6">${links(s, 'mt')}</td>
+            <td class="px-4 py-6" onclick="event.stopPropagation()">${links(s, 'mt')}</td>
           </tr>
         `;
       }).join("");
@@ -2367,13 +2348,10 @@
 
       const descWrap = document.getElementById("sample-modal-description-wrap");
       const descEl = document.getElementById("sample-modal-description");
-      const ancientDescription = sample.description ?? sample.Description;
+      const formattedDescription = formatDescriptionHTML(sample);
 
-      if (
-        sample.__sourceType === "ancient" &&
-        isRealValue(ancientDescription)
-      ) {
-        descEl.innerHTML = esc(ancientDescription).replace(/\n/g, "<br>");
+      if (formattedDescription) {
+        descEl.innerHTML = formattedDescription;
         descWrap.classList.remove("hidden");
       } else {
         descEl.innerHTML = "";
@@ -2426,7 +2404,7 @@
         .map(([hap, count]) => {
           const pct = total ? ((count / total) * 100).toFixed(1) : "0.0";
           return `
-            <div onclick="showNationalHaplo('${type}','${esc(hap)}')" class="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-secondary/10 transition-all font-bold">
+            <div onclick="showNationalHaplo(${jstr(type)}, ${jstr(hap)})" class="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-secondary/10 transition-all font-bold">
               <div class="flex items-center gap-3">
                 <div class="w-4 h-4 rounded-full ${hap === 'C' ? 'border border-gray-400' : ''}" style="background:${colorForAggregate(hap)}"></div>
                 <span class="uppercase">${esc(hap)}</span>
@@ -2465,9 +2443,7 @@
 
       document.getElementById("kits-container").innerHTML = matches.map(s => sampleCardHTML(s)).join("");
 
-      if (shouldScroll) {
-        scrollIntoViewById("modal-kit-list");
-      }
+      if (shouldScroll) scrollIntoViewById("modal-kit-list");
     }
 
     function closeModal(e) {
@@ -2496,19 +2472,6 @@
         renderTree();
         requestAnimationFrame(() => scrollTreeIntoView());
       }
-    }
-
-    function updateTreeFloatingToggle() {
-      const btn = document.getElementById("tree-inline-mode-toggle");
-      const wrap = document.querySelector(".tree-floating-toggle");
-      if (!btn || !wrap) return;
-
-      btn.textContent = treeMode === "direct" ? "Show Full SNP Path" : "Show Direct Ancestors";
-      wrap.style.display = document.getElementById("section-tree")?.classList.contains("active") ? "flex" : "none";
-    }
-
-    function toggleTreeModeInline() {
-      setTreeMode(treeMode === "direct" ? "full" : "direct");
     }
 
     function setTreeMode(mode) {
@@ -2664,7 +2627,7 @@
           const label = h === "R1A" ? "R1a" : h === "R1B" ? "R1b" : h;
           return `<span class="haplo-pill ${treeHaploFilter === h ? 'on' : ''}"
                     style="color:${txt};background:${treeHaploFilter === h ? col + '22' : '#fff'};${h === 'C' ? 'border-color:#cbd5e1;' : ''}"
-                    onclick="treeSetHaplo('${esc(h)}')">${label} (${c})</span>`;
+                    onclick="treeSetHaplo(${jstr(h)})">${label} (${c})</span>`;
         }).join("");
     }
 
@@ -2681,7 +2644,7 @@
         const col = colorForAggregate(h);
         const txt = h === "C" || h === "R2" ? "#001736" : col;
         return `
-          <div class="stat-card font-bold" onclick="treeSetHaplo('${esc(h)}')">
+          <div class="stat-card font-bold" onclick="treeSetHaplo(${jstr(h)})">
             <div class="w-10 h-10 rounded-xl flex-shrink-0 ${h === 'C' ? 'border border-gray-400' : ''}" style="background:${col}22;border:2px solid ${h === 'C' ? '#cbd5e1' : col}"></div>
             <div><p class="text-[10px] font-bold text-gray-400 uppercase">${esc(h)}</p><p class="text-2xl font-black" style="color:${txt}">${c}</p></div>
           </div>
@@ -2698,8 +2661,8 @@
       const header = `
         <div class="tree-row">
           <div class="${styleClass}" style="background:${color};color:${textColor};${root.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
-            <span class="tree-toggle" onclick="toggleTreeNode('${esc(root.pathKey)}');event.stopPropagation();"><span>${root.children.length || root.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
-            <span onclick="handleTreeNodeClick('${esc(root.pathKey)}')" style="cursor:pointer;">${esc(root.display)}</span>
+            <span class="tree-toggle" onclick="toggleTreeNode(${jstr(root.pathKey)});event.stopPropagation();"><span>${root.children.length || root.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
+            <span onclick="handleTreeNodeClick(${jstr(root.pathKey)})" style="cursor:pointer;">${esc(root.display)}</span>
             <span class="tree-count">${root.count}</span>
           </div>
         </div>
@@ -2714,9 +2677,6 @@
 
       return header + childrenHtml;
     }
-
-    // This version keeps the structural backbone nodes visible in Direct Ancestors mode
-    // (e.g. BT, CT, CF, GHIJK, HIJK, IJK, IJ, etc.) instead of flattening them away.
 
     function renderTree() {
       const samples = treeFilteredSamples();
@@ -2757,14 +2717,9 @@
       }
 
       const html = [];
-
-      if (displayRoot.display === "Y-Adam") {
-        html.push(renderFocusedRoot(displayRoot));
-      } else {
-        html.push(renderFocusedRoot(displayRoot));
-      }
-
+      html.push(renderFocusedRoot(displayRoot));
       document.getElementById("tree-inner").innerHTML = html.join("");
+      updateTreeFloatingToggle();
     }
 
     function renderTreeNode(node) {
@@ -2776,8 +2731,8 @@
       const nodeHeader = `
         <div class="tree-row">
           <div class="${styleClass}" style="background:${color};color:${textColor};${node.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
-            <span class="tree-toggle" onclick="toggleTreeNode('${esc(node.pathKey)}');event.stopPropagation();"><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
-            <span onclick="handleTreeNodeClick('${esc(node.pathKey)}')" style="cursor:pointer;">${esc(node.display)}</span>
+            <span class="tree-toggle" onclick="toggleTreeNode(${jstr(node.pathKey)});event.stopPropagation();"><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
+            <span onclick="handleTreeNodeClick(${jstr(node.pathKey)})" style="cursor:pointer;">${esc(node.display)}</span>
             <span class="tree-count">${node.count}</span>
           </div>
         </div>
@@ -2798,7 +2753,7 @@
       return `
         <li>
           <div class="tree-row">
-            <div class="tree-sample-card" onclick='openSampleModalByUid("${esc(sample.__uid)}")'>
+            <div class="tree-sample-card" onclick="openSampleModalByUid(${jstr(sample.__uid)})">
               <div class="tree-sample-line">
                 <span class="tree-sample-dot"></span>
                 <div class="flex-1 min-w-0">
@@ -2826,10 +2781,6 @@
       renderTree();
     }
 
-    function focusTreeNode(pathKey) {
-      handleTreeNodeClick(pathKey);
-    }
-
     function toggleTreeSearchIcon() {
       const input = document.getElementById("treeSearch");
       const icon = document.getElementById("tree-search-icon");
@@ -2854,6 +2805,7 @@
       renderAncientArchive();
       updateModernSummary();
       updateAncientSummary();
+      renderTree();
       updateTreeFloatingToggle();
     })();
   </script>
