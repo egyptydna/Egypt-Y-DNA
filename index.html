@@ -950,7 +950,6 @@
     </div>
   </main>
 
-
   <div id="global-tree-floating-toggle" class="tree-floating-toggle">
     <button id="tree-inline-mode-toggle" class="ctrl-btn" onclick="toggleTreeModeInline()">Show Full SNP Path</button>
   </div>
@@ -1267,9 +1266,7 @@
       wrap.style.display = treeSection.classList.contains("active") ? "flex" : "none";
     }
 
-    function toggleTreeModeShortcut() {
-      setTreeMode(treeMode === "direct" ? "full" : "direct");
-    }
+    
 
     function getPreferredDirectPath(sample) {
       if (isRealValue(sample.snp_path)) return sample.snp_path;
@@ -2511,6 +2508,8 @@
         requestAnimationFrame(() => scrollTreeIntoView());
       }
     }
+
+    
 
     function toggleTreeModeInline() {
       setTreeMode(treeMode === "direct" ? "full" : "direct");
