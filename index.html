@@ -1318,26 +1318,28 @@
 
       studySamples = (studyR.data || []).map((s, index) => normalizeStudySample(s, index));
 
-      ancientSamples = (ancR.data || []).map((s, index) => addUid({
-        ...s,
-        __sourceType: "ancient",
-        name: valueOrDash(s.name),
-        kit_number: valueOrDash(s.kit_number),
-        sample_id: valueOrDash(s.sample_id),
-        governorate: valueOrDash(s.governorate),
-        site: valueOrDash(s.site),
-        y_dna: valueOrDash(s.y_dna),
-        mt_dna: valueOrDash(s.mt_dna),
-        snp_path: valueOrDash(s.snp_path),
-        full_snp_path: valueOrDash(s.full_snp_path),
-        y_link_1: valueOrDash(s.y_link_1),
-        y_link_2: valueOrDash(s.y_link_2),
-        mt_link_1: valueOrDash(s.mt_link_1),
-        mt_link_2: valueOrDash(s.mt_link_2),
-        description: valueOrDash(s.description),
-        period: valueOrDash(s.period),
-        cultural_group: valueOrDash(s.cultural_group)
-      }, "ancient", index));
+      
+ancientSamples = (ancR.data || []).map((s, index) => addUid({
+  ...s,
+  __sourceType: "ancient",
+  name: valueOrDash(s.name),
+  kit_number: valueOrDash(s.kit_number),
+  sample_id: valueOrDash(s.sample_id),
+  governorate: valueOrDash(s.governorate),
+  site: valueOrDash(s.site),
+  y_dna: valueOrDash(s.y_dna),
+  mt_dna: valueOrDash(s.mt_dna),
+  snp_path: valueOrDash(s.snp_path),
+  full_snp_path: valueOrDash(s.full_snp_path),
+  y_link_1: valueOrDash(s.y_link_1),
+  y_link_2: valueOrDash(s.y_link_2),
+  mt_link_1: valueOrDash(s.mt_link_1),
+  mt_link_2: valueOrDash(s.mt_link_2),
+  description: valueOrDash(s.description),
+  period: valueOrDash(s.period),
+  cultural_group: valueOrDash(s.cultural_group)
+}, "ancient", index));
+
     }
 
     function parsePath(fullPath, yDna = "") {
