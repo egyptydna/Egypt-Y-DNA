@@ -215,7 +215,7 @@
 
     .tree-floating-toggle {
       position: fixed;
-      top: 110px;
+      top: 120px;
       right: 24px;
       z-index: 99999;
       display: none;
@@ -229,13 +229,6 @@
       background: rgba(255,255,255,.98);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-    }
-
-    @media (max-width: 900px) {
-      .tree-floating-toggle {
-        top: 96px;
-        right: 12px;
-      }
     }
 
     #tree-inner {
@@ -1256,6 +1249,29 @@
       });
     }
 
+    function positionTreeFloatingToggle() {
+      const wrap = document.getElementById("global-tree-floating-toggle");
+      const treeSection = document.getElementById("section-tree");
+      const treeWrap = document.getElementById("tree-wrap");
+      const nav = document.querySelector("nav");
+      if (!wrap || !treeSection || !treeWrap) return;
+
+      if (!treeSection.classList.contains("active")) {
+        wrap.style.display = "none";
+        return;
+      }
+
+      const navBottom = nav ? nav.getBoundingClientRect().bottom : 80;
+      const treeRect = treeWrap.getBoundingClientRect();
+
+      const top = Math.max(navBottom + 12, treeRect.top + 16);
+      const right = Math.max(12, window.innerWidth - treeRect.right + 16);
+
+      wrap.style.top = `${top}px`;
+      wrap.style.right = `${right}px`;
+      wrap.style.display = "flex";
+    }
+
     function updateTreeFloatingToggle() {
       const btn = document.getElementById("tree-inline-mode-toggle");
       const wrap = document.getElementById("global-tree-floating-toggle");
@@ -1263,7 +1279,11 @@
       if (!btn || !wrap || !treeSection) return;
 
       btn.textContent = treeMode === "direct" ? "Show Full SNP Path" : "Show Direct Ancestors";
-      wrap.style.display = treeSection.classList.contains("active") ? "flex" : "none";
+      if (treeSection.classList.contains("active")) {
+        positionTreeFloatingToggle();
+      } else {
+        wrap.style.display = "none";
+      }
     }
 
     
@@ -2542,6 +2562,7 @@
       const el = document.getElementById("tree-inner");
       el.style.transform = `scale(${treeScale})`;
       el.style.transformOrigin = "top left";
+      positionTreeFloatingToggle();
     }
 
     function treeReset() {
@@ -2770,6 +2791,7 @@
 
       document.getElementById("tree-inner").innerHTML = html.join("");
       updateTreeFloatingToggle();
+      positionTreeFloatingToggle();
     }
 
     function renderTreeNode(node) {
@@ -2849,6 +2871,9 @@
       });
       toggleTreeSearchIcon();
       updateTreeFloatingToggle();
+
+      window.addEventListener("scroll", positionTreeFloatingToggle, { passive: true });
+      window.addEventListener("resize", positionTreeFloatingToggle);
     });
 
     (async function boot() {
@@ -2863,6 +2888,7 @@
 
       if (document.getElementById("section-tree")?.classList.contains("active")) {
         renderTree();
+        positionTreeFloatingToggle();
       }
     })();
   </script>
