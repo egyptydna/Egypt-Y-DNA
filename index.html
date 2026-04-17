@@ -418,11 +418,11 @@
     .tree-ul.root-list::before {
       content: "";
       position: absolute;
-      top: -6px;
+      top: 0;
       bottom: 20px;
       left: 24px;
       width: 2px;
-      background: #cfd7e3;
+      background: #d8dee8;
     }
 
     .tree-ul.focused-root-list::before {
@@ -442,7 +442,7 @@
       bottom: 18px;
       left: 14px;
       width: 2px;
-      background: #cfd7e3;
+      background: #d8dee8;
     }
 
     .tree-ul > li,
@@ -459,7 +459,7 @@
       left: 24px;
       width: 14px;
       height: 2px;
-      background: #cfd7e3;
+      background: #d8dee8;
     }
 
     .tree-ul.focused-root-list > li::before {
@@ -479,7 +479,7 @@
       left: -24px;
       width: 24px;
       height: 2px;
-      background: #cfd7e3;
+      background: #d8dee8;
     }
 
     .tree-ul.root-list > li:last-child::after {
@@ -1167,45 +1167,6 @@
         return Math.min(...childValues);
       }
       return 999;
-    }
-
-    function isMainLineDisplayNode(display) {
-      const d = String(display || "");
-      return ![
-        "Y-Adam","A0-T","BT","CT","CF","F","GHIJK","HIJK","IJK","IJ","J",
-        "K","K2","K2b","LT","DE","P","P-V1651","P-M1254","P-P337","P-P284","P-P226","R-M173"
-      ].includes(d) && haploRootOrderValue(d) !== 999;
-    }
-
-    function findFirstMainLineNode(node, rootLabel) {
-      if (!node) return null;
-      if (isMainLineDisplayNode(node.display) && extractSortRoot(node.display) === rootLabel) {
-        return node;
-      }
-      for (const ch of (node.children || [])) {
-        const found = findFirstMainLineNode(ch, rootLabel);
-        if (found) return found;
-      }
-      return null;
-    }
-
-    function buildMainLineDisplayRoots(samples) {
-      const roots = [];
-
-      HAPLO_ROOT_ORDER.forEach(rootLabel => {
-        const groupSamples = samples.filter(s => extractSortRoot(haplo(s.y_dna, s.snp_path)) === rootLabel);
-        if (!groupSamples.length) return;
-
-        const groupRawRoot = buildRawTree(groupSamples);
-        const groupCompressedRoot = compressForDirect(groupRawRoot, null);
-        const firstNode = findFirstMainLineNode(groupCompressedRoot, rootLabel);
-
-        if (firstNode) {
-          roots.push(firstNode);
-        }
-      });
-
-      return roots;
     }
 
     let modernSamples = [];
@@ -2655,6 +2616,9 @@
       return header + childrenHtml;
     }
 
+    // This version keeps the structural backbone nodes visible in Direct Ancestors mode
+    // (e.g. BT, CT, CF, GHIJK, HIJK, IJK, IJ, etc.) instead of flattening them away.
+
     function renderTree() {
       const samples = treeFilteredSamples();
       buildPills(samples);
@@ -2702,13 +2666,7 @@
             <span class="tree-count">${displayRoot.count}</span>
           </div>
         `);
-
-        if (treeMode === "direct" && !activePath) {
-          const mainLineRoots = buildMainLineDisplayRoots(samples);
-          html.push(`<ul class="tree-ul root-list">${mainLineRoots.map(renderTreeNode).join("")}</ul>`);
-        } else {
-          html.push(`<ul class="tree-ul root-list">${sortNodeChildren(displayRoot.children).map(renderTreeNode).join("")}</ul>`);
-        }
+        html.push(`<ul class="tree-ul root-list">${sortNodeChildren(displayRoot.children).map(renderTreeNode).join("")}</ul>`);
       } else {
         html.push(renderFocusedRoot(displayRoot));
       }
