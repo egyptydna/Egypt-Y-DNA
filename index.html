@@ -44,40 +44,32 @@
     .nav-link {
       cursor: pointer;
       position: relative;
-      transition: all .2s ease;
+      transition: all .3s;
       font-size: .75rem;
-      padding: 8px 10px;
-      border-radius: 12px;
-    }
-    .nav-link:hover {
-      color: #001736;
-      background: rgba(0,23,54,.05);
     }
     .nav-link.active {
       color: #001736;
       font-weight: 800;
-      background: rgba(119,90,25,.10);
     }
     .nav-link.active::after {
       content: '';
       position: absolute;
-      bottom: 2px;
-      left: 10px;
-      right: 10px;
+      bottom: -5px;
+      left: 0;
+      width: 100%;
       height: 2px;
       background: #775a19;
-      border-radius: 999px;
     }
 
     .page-section { display: none; }
     .page-section.active {
       display: block;
-      animation: fadeInOpacity .25s ease;
+      animation: fadeIn .35s ease;
     }
 
-    @keyframes fadeInOpacity {
-      from { opacity: 0; }
-      to   { opacity: 1; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     .stat-card {
@@ -215,9 +207,9 @@
 
     .tree-floating-toggle {
       position: fixed;
-      top: 120px;
+      top: 96px;
       right: 24px;
-      z-index: 99999;
+      z-index: 9999;
       display: none;
       justify-content: flex-end;
       pointer-events: none;
@@ -229,6 +221,13 @@
       background: rgba(255,255,255,.98);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
+    }
+
+    @media (max-width: 900px) {
+      .tree-floating-toggle {
+        top: 88px;
+        right: 12px;
+      }
     }
 
     #tree-inner {
@@ -889,6 +888,9 @@
     </div>
 
     <div id="tree-wrap">
+      <div class="tree-floating-toggle">
+        <button id="btn-tree-floating-toggle" class="ctrl-btn" onclick="toggleTreeModeShortcut()">Show Full SNP Path</button>
+      </div>
       <div id="tree-inner">
         <div style="padding:40px;text-align:center;color:#94a3b8;font-weight:700;">Loading tree…</div>
       </div>
@@ -942,10 +944,6 @@
       </table>
     </div>
   </main>
-
-  <div id="global-tree-floating-toggle" class="tree-floating-toggle">
-    <button id="tree-inline-mode-toggle" class="ctrl-btn" onclick="toggleTreeModeInline()">Show Full SNP Path</button>
-  </div>
 
   <footer class="bg-primary text-white py-16 px-8 mt-20 font-bold text-sm">
     <div class="max-w-screen-2xl mx-auto pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -1249,44 +1247,15 @@
       });
     }
 
-    function positionTreeFloatingToggle() {
-      const wrap = document.getElementById("global-tree-floating-toggle");
-      const treeSection = document.getElementById("section-tree");
-      const treeWrap = document.getElementById("tree-wrap");
-      const nav = document.querySelector("nav");
-      if (!wrap || !treeSection || !treeWrap) return;
-
-      if (!treeSection.classList.contains("active")) {
-        wrap.style.display = "none";
-        return;
-      }
-
-      const navBottom = nav ? nav.getBoundingClientRect().bottom : 80;
-      const treeRect = treeWrap.getBoundingClientRect();
-
-      const top = Math.max(navBottom + 12, treeRect.top + 16);
-      const right = Math.max(12, window.innerWidth - treeRect.right + 16);
-
-      wrap.style.top = `${top}px`;
-      wrap.style.right = `${right}px`;
-      wrap.style.display = "flex";
-    }
-
     function updateTreeFloatingToggle() {
-      const btn = document.getElementById("tree-inline-mode-toggle");
-      const wrap = document.getElementById("global-tree-floating-toggle");
-      const treeSection = document.getElementById("section-tree");
-      if (!btn || !wrap || !treeSection) return;
-
+      const btn = document.getElementById("btn-tree-floating-toggle");
+      if (!btn) return;
       btn.textContent = treeMode === "direct" ? "Show Full SNP Path" : "Show Direct Ancestors";
-      if (treeSection.classList.contains("active")) {
-        positionTreeFloatingToggle();
-      } else {
-        wrap.style.display = "none";
-      }
     }
 
-    
+    function toggleTreeModeShortcut() {
+      setTreeMode(treeMode === "direct" ? "full" : "direct");
+    }
 
     function getPreferredDirectPath(sample) {
       if (isRealValue(sample.snp_path)) return sample.snp_path;
@@ -2529,7 +2498,14 @@
       }
     }
 
-    
+    function updateTreeFloatingToggle() {
+      const btn = document.getElementById("tree-inline-mode-toggle");
+      const wrap = document.querySelector(".tree-floating-toggle");
+      if (!btn || !wrap) return;
+
+      btn.textContent = treeMode === "direct" ? "Show Full SNP Path" : "Show Direct Ancestors";
+      wrap.style.display = document.getElementById("section-tree")?.classList.contains("active") ? "flex" : "none";
+    }
 
     function toggleTreeModeInline() {
       setTreeMode(treeMode === "direct" ? "full" : "direct");
@@ -2562,7 +2538,6 @@
       const el = document.getElementById("tree-inner");
       el.style.transform = `scale(${treeScale})`;
       el.style.transformOrigin = "top left";
-      positionTreeFloatingToggle();
     }
 
     function treeReset() {
@@ -2790,8 +2765,6 @@
       }
 
       document.getElementById("tree-inner").innerHTML = html.join("");
-      updateTreeFloatingToggle();
-      positionTreeFloatingToggle();
     }
 
     function renderTreeNode(node) {
@@ -2871,9 +2844,6 @@
       });
       toggleTreeSearchIcon();
       updateTreeFloatingToggle();
-
-      window.addEventListener("scroll", positionTreeFloatingToggle, { passive: true });
-      window.addEventListener("resize", positionTreeFloatingToggle);
     });
 
     (async function boot() {
@@ -2885,11 +2855,6 @@
       updateModernSummary();
       updateAncientSummary();
       updateTreeFloatingToggle();
-
-      if (document.getElementById("section-tree")?.classList.contains("active")) {
-        renderTree();
-        positionTreeFloatingToggle();
-      }
     })();
   </script>
 </body>
