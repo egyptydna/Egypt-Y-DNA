@@ -942,7 +942,10 @@
         </div>
 
         <div>
-          <div class="sample-detail-label">Full SNP Path</div>
+          <div class="flex items-center justify-between gap-4 flex-wrap">
+            <div id="sample-modal-path-label" class="sample-detail-label">Direct Ancestors</div>
+            <button id="sample-modal-path-toggle" class="ctrl-btn hidden" type="button" onclick="toggleSamplePathMode()"></button>
+          </div>
           <div id="sample-modal-path" class="sample-detail-code"></div>
         </div>
 
@@ -959,6 +962,7 @@
           <div>
             <div class="sample-detail-label">MT-Links</div>
             <div id="sample-modal-mt-links" class="flex gap-3 flex-wrap"></div>
+            <div id="sample-modal-study-link-wrap" class="mt-6 flex justify-end"></div>
           </div>
         </div>
       </div>
@@ -1089,6 +1093,8 @@
     let collapsedNodes = new Set();
     let lastTreeRawRoot = null;
     let tooltipRAF = null;
+    let currentSampleModal = null;
+    let samplePathMode = "direct";
 
     function esc(s) {
       return String(s ?? "")
@@ -1101,6 +1107,70 @@
     function valueOrDash(v) {
       const s = String(v ?? "").trim();
       return s ? s : "—";
+    }
+
+    function getDescriptionValue(row) {
+      return valueOrDash((row && (row.description ?? row.Description)) ?? "—");
+    }
+
+    function hideChartTooltip() {
+      const tooltipEl = document.getElementById("chartjs-ext-tooltip");
+      if (!tooltipEl) return;
+      tooltipEl.style.opacity = 0;
+      tooltipEl.innerHTML = "";
+    }
+
+    function scrollIntoViewById(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      requestAnimationFrame(() => {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+
+    function getPreferredDirectPath(sample) {
+      if (isRealValue(sample.snp_path)) return sample.snp_path;
+      if (isRealValue(sample.full_snp_path)) return sample.full_snp_path;
+      return "—";
+    }
+
+    function getPreferredFullPath(sample) {
+      if (isRealValue(sample.full_snp_path)) return sample.full_snp_path;
+      if (isRealValue(sample.snp_path)) return sample.snp_path;
+      return "—";
+    }
+
+    function updateSampleModalPath() {
+      if (!currentSampleModal) return;
+
+      const directPath = getPreferredDirectPath(currentSampleModal);
+      const fullPath = getPreferredFullPath(currentSampleModal);
+      const samePath = directPath === fullPath;
+
+      const labelEl = document.getElementById("sample-modal-path-label");
+      const pathEl = document.getElementById("sample-modal-path");
+      const toggleEl = document.getElementById("sample-modal-path-toggle");
+
+      if (samplePathMode === "full") {
+        labelEl.textContent = "Full SNP Path";
+        pathEl.textContent = fullPath;
+      } else {
+        labelEl.textContent = "Direct Ancestors";
+        pathEl.textContent = directPath;
+      }
+
+      if (samePath || !isRealValue(fullPath) || !isRealValue(directPath)) {
+        toggleEl.classList.add("hidden");
+        toggleEl.textContent = "";
+      } else {
+        toggleEl.classList.remove("hidden");
+        toggleEl.textContent = samplePathMode === "direct" ? "Show Full SNP Path" : "Show Direct Ancestors";
+      }
+    }
+
+    function toggleSamplePathMode() {
+      samplePathMode = samplePathMode === "direct" ? "full" : "direct";
+      updateSampleModalPath();
     }
 
     function isRealValue(v) {
@@ -1149,7 +1219,7 @@
 
     function buildModalLinkButtons(urls) {
       const valid = (urls || []).filter(x => isRealValue(x) && isUrl(x));
-      if (!valid.length) return `<span class="text-sm font-bold text-gray-400">No links</span>`;
+      if (!valid.length) return `<span class="sample-detail-value text-gray-400">—</span>`;
       return valid.map(link => `
         <a href="${esc(link)}" target="_blank" class="sample-link-btn">
           <span class="material-symbols-outlined">link</span>
@@ -1158,16 +1228,13 @@
     }
 
     function buildStudyLinkButton(sample) {
-      const studyLink = isUrl(sample.study_link) ? sample.study_link : (isUrl(sample.description) ? sample.description : "");
+      const studyLink = isUrl(sample.study_link) ? sample.study_link : "";
       if (!studyLink) return "";
       return `
-        <div class="mt-6">
-          <div class="sample-detail-label">Study Link</div>
-          <a href="${esc(studyLink)}" target="_blank" class="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-secondary text-white font-black text-sm hover:opacity-90 transition-all">
-            <span class="material-symbols-outlined" style="font-size:18px">open_in_new</span>
-            Open Study
-          </a>
-        </div>
+        <a href="${esc(studyLink)}" target="_blank" class="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-secondary text-white font-black text-sm hover:opacity-90 transition-all">
+          <span class="material-symbols-outlined" style="font-size:18px">open_in_new</span>
+          Open Study
+        </a>
       `;
     }
 
@@ -1276,7 +1343,7 @@
         site: "—",
         period: "—",
         cultural_group: "—",
-        description: valueOrDash(s.description || s.study_reference || s.study_link),
+        description: getDescriptionValue(s),
         y_dna: valueOrDash(s.y_dna),
         mt_dna: valueOrDash(s.mt_dna),
         snp_path: valueOrDash(s.snp_path),
@@ -1313,7 +1380,7 @@
         y_link_2: valueOrDash(s.y_link_2),
         mt_link_1: valueOrDash(s.mt_link_1),
         mt_link_2: valueOrDash(s.mt_link_2),
-        description: valueOrDash(s.description)
+        description: getDescriptionValue(s)
       }, "modern", index));
 
       studySamples = (studyR.data || []).map((s, index) => normalizeStudySample(s, index));
@@ -1334,7 +1401,7 @@
         y_link_2: valueOrDash(s.y_link_2),
         mt_link_1: valueOrDash(s.mt_link_1),
         mt_link_2: valueOrDash(s.mt_link_2),
-        description: valueOrDash(s.description),
+        description: getDescriptionValue(s),
         period: valueOrDash(s.period),
         cultural_group: valueOrDash(s.cultural_group)
       }, "ancient", index));
@@ -1788,6 +1855,7 @@
             if (event?.native?.target) event.native.target.style.cursor = activeEls.length ? 'pointer' : 'default';
           },
           onClick: (_, els) => {
+            hideChartTooltip();
             if (els.length && options.onSliceClick) options.onSliceClick(labels[els[0].index]);
           }
         }
@@ -1939,7 +2007,7 @@
       else if (sorted.length) showRegionHaplo(gov, sorted[0][0]);
     }
 
-    function showRegionHaplo(gov, hp) {
+    function showRegionHaplo(gov, hp, shouldScroll = true) {
       const { pool } = getRegionTotals(gov);
       const matches = pool.filter(s => haplo(s.y_dna, s.snp_path) === hp);
       const pct = pool.length ? ((matches.length / pool.length) * 100).toFixed(1) : "0.0";
@@ -1954,11 +2022,16 @@
       box.style.background = col + "0D";
 
       document.getElementById("region-modal-kits-grid").innerHTML = matches.map(s => sampleCardHTML(s)).join("");
+
+      if (shouldScroll) {
+        scrollIntoViewById("region-modal-kit-box");
+      }
     }
 
     function closeRegionModal(e) {
       if (!e || e.target.id === "region-modal") {
         document.getElementById("region-modal").classList.remove("active");
+        hideChartTooltip();
       }
     }
 
@@ -2080,22 +2153,27 @@
         sample.__sourceType === "study" ? "Modern study sample" :
         "Modern sample";
 
+      currentSampleModal = sample;
+      samplePathMode = "direct";
+
       document.getElementById("sample-modal-name").textContent = sample.name || sample.sample_id || sample.kit_number || "Sample";
       document.getElementById("sample-modal-subtitle").textContent = `${sample.governorate || sample.site || "Unknown location"} • ${typeLabel}`;
       document.getElementById("sample-modal-kit").textContent = sample.kit_number || sample.sample_id || "—";
       document.getElementById("sample-modal-location").textContent = sample.governorate || sample.site || "—";
       document.getElementById("sample-modal-ydna").textContent = sample.y_dna || "—";
       document.getElementById("sample-modal-mtdna").textContent = sample.mt_dna || "—";
-      document.getElementById("sample-modal-path").textContent = sample.full_snp_path || "—";
+
+      updateSampleModalPath();
 
       const descWrap = document.getElementById("sample-modal-description-wrap");
       const descEl = document.getElementById("sample-modal-description");
+      const ancientDescription = sample.description ?? sample.Description;
 
       if (
         sample.__sourceType === "ancient" &&
-        isRealValue(sample.description)
+        isRealValue(ancientDescription)
       ) {
-        descEl.innerHTML = esc(sample.description).replace(/\n/g, "<br>");
+        descEl.innerHTML = esc(ancientDescription).replace(/\n/g, "<br>");
         descWrap.classList.remove("hidden");
       } else {
         descEl.innerHTML = "";
@@ -2105,9 +2183,11 @@
       document.getElementById("sample-modal-y-links").innerHTML =
         buildModalLinkButtons([sample.y_link_1, sample.y_link_2]);
 
-      const mtLinksHtml = buildModalLinkButtons([sample.mt_link_1, sample.mt_link_2]);
-      const studyLinkHtml = sample.__sourceType === "study" ? buildStudyLinkButton(sample) : "";
-      document.getElementById("sample-modal-mt-links").innerHTML = mtLinksHtml + studyLinkHtml;
+      document.getElementById("sample-modal-mt-links").innerHTML =
+        buildModalLinkButtons([sample.mt_link_1, sample.mt_link_2]);
+
+      document.getElementById("sample-modal-study-link-wrap").innerHTML =
+        sample.__sourceType === "study" ? buildStudyLinkButton(sample) : "";
 
       document.getElementById("sample-modal-study").classList.toggle("hidden", sample.__sourceType !== "study");
       document.getElementById("sample-modal-ancient").classList.toggle("hidden", sample.__sourceType !== "ancient");
@@ -2117,6 +2197,9 @@
     function closeSampleModal(e) {
       if (!e || e.target.id === "sample-detail-modal") {
         document.getElementById("sample-detail-modal").classList.remove("active");
+        currentSampleModal = null;
+        samplePathMode = "direct";
+        hideChartTooltip();
       }
     }
 
@@ -2156,7 +2239,7 @@
       if (hp) showNationalHaplo(type, hp);
     }
 
-    function showNationalHaplo(type, hp) {
+    function showNationalHaplo(type, hp, shouldScroll = true) {
       const la = document.getElementById("modal-kit-list");
       const pool = type === "ANCIENT" ? ancientSamples : allModernLikeSamples();
       const total = pool.length;
@@ -2181,15 +2264,21 @@
       la.classList.remove("hidden");
 
       document.getElementById("kits-container").innerHTML = matches.map(s => sampleCardHTML(s)).join("");
+
+      if (shouldScroll) {
+        scrollIntoViewById("modal-kit-list");
+      }
     }
 
     function closeModal(e) {
       if (!e || e.target.id === "detail-modal") {
         document.getElementById("detail-modal").classList.remove("active");
+        hideChartTooltip();
       }
     }
 
     function showSection(id) {
+      hideChartTooltip();
       document.querySelectorAll(".page-section").forEach(s => s.classList.remove("active"));
       document.querySelectorAll(".nav-link").forEach(n => {
         n.classList.remove("active");
