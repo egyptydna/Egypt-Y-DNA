@@ -2090,10 +2090,12 @@
 
       const descWrap = document.getElementById("sample-modal-description-wrap");
       const descEl = document.getElementById("sample-modal-description");
-      const formattedDescription = formatDescriptionHTML(sample);
 
-      if (formattedDescription) {
-        descEl.innerHTML = formattedDescription;
+      if (
+        sample.__sourceType === "ancient" &&
+        isRealValue(sample.description)
+      ) {
+        descEl.innerHTML = esc(sample.description).replace(/\n/g, "<br>");
         descWrap.classList.remove("hidden");
       } else {
         descEl.innerHTML = "";
