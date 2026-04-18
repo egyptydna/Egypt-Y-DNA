@@ -1728,7 +1728,7 @@
     }
 
     function chartBorderWidth(label) {
-      return 2;
+      return label === "C" ? 0.8 : 0.55;
     }
 
     function buildModalLinkButtons(urls) {
@@ -2390,7 +2390,7 @@
             borderWidth: labels.map(l => chartBorderWidth(l)),
             borderColor: labels.map(l => chartBorderColor(l)),
             borderAlign: 'inner',
-            spacing: 1,
+            spacing: 0,
             hoverOffset: 6
           }]
         },
@@ -2442,7 +2442,7 @@
             data: values,
             backgroundColor: labels.map(l => colorForAggregate(l)),
             borderColor: labels.map(l => l === "C" ? "#cfd5df" : "#ffffff"),
-            borderWidth: labels.map(l => l === "C" ? 0.45 : 0.25),
+            borderWidth: labels.map(l => l === "C" ? 0.35 : 0.18),
             borderAlign: 'inner',
             spacing: 0,
             radius: "99%",
