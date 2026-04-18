@@ -661,61 +661,77 @@
     .sample-link-btn:hover { transform: scale(1.08); }
 
     .mini-canvas-wrap {
-      width: 86px;
-      height: 86px;
+      width: 108px;
+      height: 108px;
       flex-shrink: 0;
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 999px;
-      background: #ffffff;
-      border: 1px solid #e7eaee;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.92), 0 6px 16px rgba(0,23,54,.04);
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      border-radius: 0;
+      overflow: visible;
     }
 
     .mini-canvas-wrap canvas {
-      width: 68px !important;
-      height: 68px !important;
+      width: 104px !important;
+      height: 104px !important;
       display: block;
     }
 
     .region-card {
-      min-height: 128px;
-      padding: 1.05rem 1.15rem;
-      gap: 1rem;
+      padding: 1.1rem 1.2rem;
+      border-radius: 2rem;
+      min-height: 138px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
+      border: 1px solid #e7eaee;
+      box-shadow: 0 12px 28px rgba(0,23,54,.045);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
       align-items: center;
+      gap: .9rem;
     }
 
-    .region-card:hover .mini-canvas-wrap {
-      transform: translateY(-1px) scale(1.02);
-      transition: transform .22s ease;
+    .region-card:hover {
+      border-color: #cfd8e3;
+      box-shadow: 0 20px 38px rgba(0,23,54,.09);
+      transform: translateY(-2px);
+    }
+
+    .region-card-main {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      gap: .95rem;
     }
 
     .region-card-copy {
       min-width: 0;
-      flex: 1;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: .5rem;
+      gap: .45rem;
     }
 
     .region-card-title {
-      font-size: 1.35rem;
-      line-height: 1.06;
+      font-size: 1.08rem;
+      font-weight: 900;
       letter-spacing: -.03em;
+      line-height: 1.1;
       text-transform: uppercase;
       color: #001736;
-      font-weight: 800;
       margin: 0;
     }
 
     .region-card-subline {
       display: flex;
-      flex-wrap: wrap;
-      gap: .45rem;
       align-items: center;
+      gap: .55rem;
+      flex-wrap: wrap;
+      margin-top: 2px;
     }
 
     .region-total-pill,
@@ -723,49 +739,77 @@
       display: inline-flex;
       align-items: center;
       min-height: 28px;
-      padding: 0 10px;
+      padding: 0 11px;
       border-radius: 999px;
-      font-size: 9px;
-      font-weight: 800;
-      letter-spacing: .08em;
+      font-size: 10px;
+      font-weight: 900;
       text-transform: uppercase;
-      border: 1px solid #e5e7eb;
-      background: #f8fafc;
-      color: #64748b;
+      letter-spacing: .08em;
+      white-space: nowrap;
+    }
+
+    .region-total-pill {
+      background: #eef2f7;
+      color: #475569;
     }
 
     .region-top-pill {
+      border: 1px solid #e2e8f0;
       background: #ffffff;
     }
 
     .region-card-arrow {
-      width: 40px;
-      height: 40px;
-      border-radius: 13px;
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
       border: 1px solid #e5e7eb;
+      background: #ffffff;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       color: #94a3b8;
-      background: #ffffff;
-      box-shadow: 0 6px 16px rgba(0,23,54,.05);
       transition: all .22s ease;
+      box-shadow: 0 8px 18px rgba(0,23,54,.05);
       flex-shrink: 0;
     }
 
     .region-card:hover .region-card-arrow {
       color: #001736;
-      border-color: #cfd8e3;
+      border-color: #cbd5e1;
       transform: translateX(2px);
     }
 
-    @media (max-width: 900px) {
-      .region-card { min-height: 118px; padding: .95rem 1rem; }
-      .region-card-title { font-size: 1.15rem; }
-      .mini-canvas-wrap { width: 76px; height: 76px; }
-      .mini-canvas-wrap canvas { width: 60px !important; height: 60px !important; }
+    @media (max-width: 1200px) {
+      .mini-canvas-wrap {
+        width: 98px;
+        height: 98px;
+      }
+      .mini-canvas-wrap canvas {
+        width: 94px !important;
+        height: 94px !important;
+      }
     }
 
+    @media (max-width: 900px) {
+      .region-card {
+        padding: 1rem 1.05rem;
+        min-height: 126px;
+      }
+      .mini-canvas-wrap {
+        width: 88px;
+        height: 88px;
+      }
+      .mini-canvas-wrap canvas {
+        width: 84px !important;
+        height: 84px !important;
+      }
+      .region-card-main {
+        gap: .75rem;
+      }
+      .region-card-title {
+        font-size: 1rem;
+      }
+    }
     .region-summary-card {
       border-radius: 1.25rem;
       border: 1px solid #e5e7eb;
@@ -1107,7 +1151,7 @@
 
     <section class="space-y-10">
       <h2 class="text-3xl md:text-5xl font-black font-headline uppercase tracking-tighter">Regional Archives</h2>
-      <div id="stats-grid" class="grid grid-cols-1 xl:grid-cols-2 gap-5 md:gap-6"></div>
+      <div id="stats-grid" class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-5 md:gap-6"></div>
     </section>
   </main>
 
@@ -2397,12 +2441,12 @@
           datasets: [{
             data: values,
             backgroundColor: labels.map(l => colorForAggregate(l)),
-            borderColor: labels.map(l => l === "C" ? "#d4d8e1" : "#ffffff"),
-            borderWidth: labels.map(l => l === "C" ? 0.9 : 0.6),
+            borderColor: labels.map(l => l === "C" ? "#cfd5df" : "#ffffff"),
+            borderWidth: labels.map(l => l === "C" ? 0.45 : 0.25),
             borderAlign: 'inner',
             spacing: 0,
-            radius: "94%",
-            hoverOffset: 2
+            radius: "99%",
+            hoverOffset: 1
           }]
         },
         options: {
@@ -2424,6 +2468,7 @@
               }
             }
           },
+          layout: { padding: 0 },
           onHover: (event, activeEls) => {
             if (event?.native?.target) event.native.target.style.cursor = activeEls.length ? 'pointer' : 'default';
           },
@@ -2532,14 +2577,16 @@
         card.className = "stat-card region-card font-bold";
         card.onclick = () => openRegionModal(gov);
         card.innerHTML = `
-          <div class="mini-canvas-wrap"><canvas id="${cid}"></canvas></div>
-          <div class="region-card-copy">
-            <h4 class="region-card-title">${esc(gov === "—" ? "Unassigned" : gov)}</h4>
-            <div class="region-card-subline">
-              <span class="region-total-pill">Total: ${pool.length}</span>
-              <span class="region-top-pill" style="color:${topText};${topHap === 'C' ? 'box-shadow: inset 0 0 0 1px #cbd5e1;' : ''}">
-                Top: ${esc(topHap)} ${topPct}%
-              </span>
+          <div class="region-card-main">
+            <div class="mini-canvas-wrap"><canvas id="${cid}"></canvas></div>
+            <div class="region-card-copy">
+              <h4 class="region-card-title">${esc(gov === "—" ? "Unassigned" : gov)}</h4>
+              <div class="region-card-subline">
+                <span class="region-total-pill">Total: ${pool.length}</span>
+                <span class="region-top-pill" style="color:${topText};${topHap === 'C' ? 'box-shadow: inset 0 0 0 1px #cbd5e1;' : ''}">
+                  Top: ${esc(topHap)} ${topPct}%
+                </span>
+              </div>
             </div>
           </div>
           <div class="region-card-arrow">
