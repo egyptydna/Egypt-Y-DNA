@@ -11,7 +11,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
   <script>
@@ -24,8 +24,8 @@
             background: "#f8f9fa"
           },
           fontFamily: {
-            headline: ["Inter"],
-            body: ["Inter"],
+            headline: ["Manrope"],
+            body: ["Manrope"],
             mono: ["JetBrains Mono"]
           }
         }
@@ -214,7 +214,7 @@
     #tree-inner {
       padding: 24px 24px 56px 12px;
       min-width: 1180px;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Manrope', sans-serif;
       transform-origin: top left;
     }
 
@@ -222,7 +222,7 @@
       padding: 10px 40px 10px 14px;
       border-radius: 12px;
       border: 1px solid #cbd5e1;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Manrope', sans-serif;
       font-size: 14px;
       font-weight: 700;
       outline: none;
@@ -249,7 +249,7 @@
       border-radius: 12px;
       border: 1px solid #e5e7eb;
       background: #fff;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Manrope', sans-serif;
       font-size: 11px;
       font-weight: 800;
       text-transform: uppercase;
@@ -676,42 +676,130 @@
       overflow: visible;
     }
 
-    .mini-canvas-wrap {
-      width: 86px;
-      height: 86px;
-      flex-shrink: 0;
-      position: relative;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #ffffff 0%, #f8fafc 58%, #edf2f7 100%);
-      border: 1px solid #e5e7eb;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 10px 24px rgba(0,23,54,.06);
-      overflow: hidden;
-      z-index: 1;
-    }
-
-    .mini-canvas-wrap canvas {
-      width: 66px !important;
-      height: 66px !important;
-      display: block;
-      position: relative;
-      z-index: 2;
-    }
-
     .region-card {
-      padding: 1.22rem 1.3rem;
+      padding: 1.35rem 1.45rem;
       border-radius: 2rem;
-      gap: 1.2rem;
-      min-height: 138px;
+      min-height: 152px;
       background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
       border: 1px solid #e7eaee;
       box-shadow: 0 12px 28px rgba(0,23,54,.045);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 1.2rem;
     }
 
     .region-card:hover {
       border-color: #cfd8e3;
       box-shadow: 0 20px 38px rgba(0,23,54,.09);
+      transform: translateY(-2px);
+    }
+
+    .region-card-main {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .region-card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      min-width: 0;
+    }
+
+    .region-card-copy {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .region-card-bar-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .region-composition-track {
+      width: 100%;
+      height: 14px;
+      border-radius: 999px;
+      background: #eef2f7;
+      border: 1px solid #e5e7eb;
+      padding: 2px;
+      display: flex;
+      align-items: stretch;
+      gap: 2px;
+      overflow: hidden;
+      box-shadow: inset 0 1px 2px rgba(15,23,42,.06);
+    }
+
+    .region-composition-segment {
+      height: 100%;
+      border-radius: 999px;
+      min-width: 6px;
+      transition: transform .16s ease, opacity .16s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .region-composition-segment:hover {
+      transform: scaleY(1.08);
+      opacity: .96;
+    }
+
+    .region-composition-segment.c-lineage {
+      box-shadow: inset 0 0 0 1px #cbd5e1;
+      background: #ffffff !important;
+    }
+
+    .region-mini-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .region-mini-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 26px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      color: #475569;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      box-shadow: 0 4px 10px rgba(0,23,54,.03);
+    }
+
+    .region-mini-chip-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+
+    .region-mini-chip-dot.c-lineage {
+      background: #ffffff !important;
+      box-shadow: inset 0 0 0 1px #cbd5e1;
+    }
+
+    @media (max-width: 900px) {
+      .region-card {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+
+      .region-card-arrow {
+        justify-self: flex-end;
+      }
     }
 
     .region-card-title {
@@ -790,7 +878,7 @@
       color: #fff;
       border-radius: 12px;
       padding: 8px 10px;
-      font-family: 'Inter', sans-serif;
+      font-family: 'Manrope', sans-serif;
       font-size: 11px;
       font-weight: 800;
       line-height: 1.35;
@@ -2320,15 +2408,68 @@
       return { pool, totals };
     }
 
+
+    function regionTopBreakdown(totals, total) {
+      return Object.entries(totals)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, 4)
+        .map(([hap, count]) => {
+          const pct = total ? Math.round((count / total) * 100) : 0;
+          return { hap, count, pct };
+        });
+    }
+
+    function buildRegionCompositionHTML(gov, totals, total) {
+      const entries = Object.entries(totals).sort((a,b) => b[1] - a[1]);
+      if (!entries.length) {
+        return `
+          <div class="region-card-bar-wrap">
+            <div class="region-composition-track"></div>
+          </div>
+        `;
+      }
+
+      const segments = entries.map(([hap, count]) => {
+        const pct = total ? (count / total) * 100 : 0;
+        const color = colorForAggregate(hap);
+        const width = Math.max(pct, entries.length > 1 ? 5 : 0);
+        return `
+          <span
+            class="region-composition-segment ${hap === 'C' ? 'c-lineage' : ''}"
+            style="width:${width}%;background:${color}"
+            title="${esc(hap)}: ${count}"
+            onclick="event.stopPropagation();openRegionModal('${esc(gov)}','${esc(hap)}')"
+          ></span>
+        `;
+      }).join("");
+
+      const chips = regionTopBreakdown(totals, total).map(item => {
+        const color = colorForAggregate(item.hap);
+        return `
+          <span class="region-mini-chip" onclick="event.stopPropagation();openRegionModal('${esc(gov)}','${esc(item.hap)}')">
+            <span class="region-mini-chip-dot ${item.hap === 'C' ? 'c-lineage' : ''}" style="background:${color}"></span>
+            ${esc(item.hap)} ${item.pct}%
+          </span>
+        `;
+      }).join("");
+
+      return `
+        <div class="region-card-bar-wrap">
+          <div class="region-composition-track">${segments}</div>
+          <div class="region-mini-legend">${chips}</div>
+        </div>
+      `;
+    }
+
+
     function renderDashboard() {
       const grid = document.getElementById("stats-grid");
       grid.innerHTML = "";
 
-      GOV_LIST.forEach((gov, idx) => {
+      GOV_LIST.forEach((gov) => {
         const { pool, totals } = getRegionTotals(gov);
         if (!pool.length && gov !== "—") return;
 
-        const cid = `chart-${idx}`;
         const topEntry = Object.entries(totals).sort((a,b)=>b[1]-a[1])[0] || ["—", 0];
         const topHap = topEntry[0];
         const topCount = topEntry[1];
@@ -2340,27 +2481,25 @@
         card.className = "stat-card region-card font-bold";
         card.onclick = () => openRegionModal(gov);
         card.innerHTML = `
-          <div class="mini-canvas-wrap"><canvas id="${cid}"></canvas></div>
-          <div class="min-w-0 text-left flex-1 pl-1">
-            <h4 class="region-card-title">${esc(gov === "—" ? "Unassigned" : gov)}</h4>
-            <div class="region-card-subline">
-              <span class="region-total-pill">Total: ${pool.length}</span>
-              <span class="region-top-pill" style="color:${topText};${topHap === 'C' ? 'box-shadow: inset 0 0 0 1px #cbd5e1;' : ''}">
-                Top: ${esc(topHap)} ${topPct}%
-              </span>
+          <div class="region-card-main">
+            <div class="region-card-head">
+              <div class="region-card-copy">
+                <h4 class="region-card-title">${esc(gov === "—" ? "Unassigned" : gov)}</h4>
+                <div class="region-card-subline">
+                  <span class="region-total-pill">Total: ${pool.length}</span>
+                  <span class="region-top-pill" style="color:${topText};${topHap === 'C' ? 'box-shadow: inset 0 0 0 1px #cbd5e1;' : ''}">
+                    Top: ${esc(topHap)} ${topPct}%
+                  </span>
+                </div>
+              </div>
             </div>
+            ${buildRegionCompositionHTML(gov, totals, pool.length)}
           </div>
           <div class="region-card-arrow">
             <span class="material-symbols-outlined" style="font-size:20px">arrow_forward</span>
           </div>
         `;
         grid.appendChild(card);
-
-        if (pool.length > 0) {
-          setTimeout(() => {
-            makeMiniRegionChart(cid, totals, pool.length, (hap) => openRegionModal(gov, hap));
-          }, 20);
-        }
       });
 
       updateModernSummary();
