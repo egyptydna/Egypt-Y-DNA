@@ -205,31 +205,6 @@
       min-height: 420px;
     }
 
-    .tree-floating-toggle {
-      position: fixed;
-      top: 96px;
-      right: 24px;
-      z-index: 9999;
-      display: none;
-      justify-content: flex-end;
-      pointer-events: none;
-    }
-
-    .tree-floating-toggle .ctrl-btn {
-      pointer-events: auto;
-      box-shadow: 0 10px 24px rgba(0,23,54,.12);
-      background: rgba(255,255,255,.98);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-
-    @media (max-width: 900px) {
-      .tree-floating-toggle {
-        top: 88px;
-        right: 12px;
-      }
-    }
-
     #tree-inner {
       padding: 24px 24px 56px 12px;
       min-width: 1180px;
@@ -556,7 +531,7 @@
       background: #fff;
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 4px;
       box-shadow: 0 6px 16px rgba(0,23,54,.03);
       cursor: pointer;
     }
@@ -580,6 +555,16 @@
       font-weight: 800;
       line-height: 1.25;
       word-break: break-word;
+    }
+
+    .tree-sample-ethnic {
+      font-size: 10px;
+      color: #64748b;
+      font-weight: 800;
+      line-height: 1.25;
+      word-break: break-word;
+      text-transform: uppercase;
+      letter-spacing: .04em;
     }
 
     .tree-sample-dot {
@@ -744,6 +729,24 @@
       backdrop-filter: blur(8px);
     }
 
+    .tree-summary-card {
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      border-radius: 1.5rem;
+      padding: 1rem 1.1rem;
+      min-height: 96px;
+      box-shadow: 0 12px 24px rgba(0,23,54,.04);
+    }
+
+    .tree-summary-number {
+      font-size: 2rem;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -.03em;
+      color: #001736;
+      margin-top: 8px;
+    }
+
     @media (max-width: 1100px) {
       .region-modal-top {
         grid-template-columns: 1fr;
@@ -830,16 +833,17 @@
     </header>
 
     <div class="archive-scroll shadow-2xl">
-      <table class="table-fixed min-w-[1200px]">
+      <table class="table-fixed min-w-[1380px]">
         <thead>
           <tr class="thead-row text-center font-headline">
-            <th class="w-[18%] pl-8">Identification</th>
+            <th class="w-[16%] pl-8">Identification</th>
             <th class="w-[10%]">Kit / ID</th>
-            <th class="w-[12%]">Location</th>
-            <th class="w-[28%]">Y-Lineage (SNP Path)</th>
-            <th class="w-[10%]">Y-Sources</th>
-            <th class="w-[12%]">mt-DNA</th>
-            <th class="w-[10%] pr-8">mt-Sources</th>
+            <th class="w-[11%]">Location</th>
+            <th class="w-[12%]">Ethnic Group</th>
+            <th class="w-[24%]">Y-Lineage (SNP Path)</th>
+            <th class="w-[9%]">Y-Sources</th>
+            <th class="w-[10%]">mt-DNA</th>
+            <th class="w-[8%] pr-8">mt-Sources</th>
           </tr>
         </thead>
         <tbody id="archive-body" class="divide-y divide-gray-50 bg-white font-headline"></tbody>
@@ -879,6 +883,8 @@
         <div id="tree-pills" class="flex flex-wrap gap-2"></div>
       </div>
     </div>
+
+    <div id="tree-summary-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-4"></div>
 
     <div class="flex flex-wrap gap-5 items-center text-[10px] font-headline font-black uppercase tracking-widest text-gray-400">
       <span class="tree-legend-chip"><span class="inline-block w-5 h-3 rounded" style="background:#001736"></span>Node</span>
@@ -1021,6 +1027,10 @@
           <div>
             <div class="sample-detail-label">mt-DNA</div>
             <div id="sample-modal-mtdna" class="sample-detail-value"></div>
+          </div>
+          <div id="sample-modal-ethnic-wrap" class="hidden md:col-span-2">
+            <div class="sample-detail-label">Ethnic Group</div>
+            <div id="sample-modal-ethnic" class="sample-detail-value"></div>
           </div>
         </div>
 
@@ -1232,6 +1242,10 @@
       return valueOrDash((row && (row.description ?? row.Description)) ?? "—");
     }
 
+    function getEthnicGroupValue(row) {
+      return valueOrDash((row && (row.ethnic_group ?? row.Ethnic_group ?? row.ethnicity ?? row.ethnicGroup)) ?? "—");
+    }
+
     function hideChartTooltip() {
       const tooltipEl = document.getElementById("chartjs-ext-tooltip");
       if (!tooltipEl) return;
@@ -1247,10 +1261,19 @@
       });
     }
 
+    function scrollTreeIntoView() {
+      const wrap = document.getElementById("tree-wrap");
+      if (!wrap) return;
+      const y = wrap.getBoundingClientRect().top + window.scrollY - 24;
+      window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+    }
+
     function updateTreeFloatingToggle() {
       const btn = document.getElementById("btn-tree-floating-toggle");
-      if (!btn) return;
+      const wrap = document.querySelector(".tree-floating-toggle");
+      if (!btn || !wrap) return;
       btn.textContent = treeMode === "direct" ? "Show Full SNP Path" : "Show Direct Ancestors";
+      wrap.style.display = document.getElementById("section-tree")?.classList.contains("active") ? "flex" : "none";
     }
 
     function toggleTreeModeShortcut() {
@@ -1367,29 +1390,6 @@
       `;
     }
 
-    function formatDescriptionHTML(sample) {
-      const raw = String(sample.description || "").trim();
-      if (!raw || raw === "—") return "";
-
-      if (sample.__sourceType === "study" && isUrl(raw)) {
-        return `
-          <a href="${esc(raw)}" target="_blank" class="text-secondary underline break-all font-bold">
-            ${esc(raw)}
-          </a>
-        `;
-      }
-
-      if (isUrl(raw)) {
-        return `
-          <a href="${esc(raw)}" target="_blank" class="text-secondary underline break-all font-bold">
-            ${esc(raw)}
-          </a>
-        `;
-      }
-
-      return esc(raw).replace(/\n/g, "<br>");
-    }
-
     function links(s, type) {
       const l1 = type === "y" ? s.y_link_1 : s.mt_link_1;
       const l2 = type === "y" ? s.y_link_2 : s.mt_link_2;
@@ -1446,13 +1446,17 @@
       return modernSamples.concat(studySamples);
     }
 
+    function allTreeSamples() {
+      return modernSamples.concat(studySamples).concat(ancientSamples);
+    }
+
     function matchSearchRow(s, q) {
       if (!q) return true;
       const ql = sclean(q);
       const fields = [
         s.name, s.kit_number, s.sample_id, s.governorate, s.site,
         s.period, s.study_reference, s.study_link, s.cultural_group,
-        s.y_dna, s.snp_path, s.full_snp_path, s.description
+        s.y_dna, s.snp_path, s.full_snp_path, s.description, s.ethnic_group
       ];
       return fields.some(f => sclean(f).includes(ql));
     }
@@ -1473,6 +1477,7 @@
         period: "—",
         cultural_group: "—",
         description: getDescriptionValue(s),
+        ethnic_group: getEthnicGroupValue(s),
         y_dna: valueOrDash(s.y_dna),
         mt_dna: valueOrDash(s.mt_dna),
         snp_path: valueOrDash(s.snp_path),
@@ -1501,6 +1506,7 @@
         sample_id: valueOrDash(s.sample_id),
         governorate: valueOrDash(s.governorate),
         site: valueOrDash(s.site),
+        ethnic_group: getEthnicGroupValue(s),
         y_dna: valueOrDash(s.y_dna),
         mt_dna: valueOrDash(s.mt_dna),
         snp_path: valueOrDash(s.snp_path),
@@ -1522,6 +1528,7 @@
         sample_id: valueOrDash(s.sample_id),
         governorate: valueOrDash(s.governorate),
         site: valueOrDash(s.site),
+        ethnic_group: "—",
         y_dna: valueOrDash(s.y_dna),
         mt_dna: valueOrDash(s.mt_dna),
         snp_path: valueOrDash(s.snp_path),
@@ -1970,14 +1977,6 @@
       bar.classList.add("active");
     }
 
-    function scrollTreeIntoView() {
-      const wrap = document.getElementById("tree-wrap");
-      if (!wrap) return;
-
-      const y = wrap.getBoundingClientRect().top + window.scrollY - 24;
-      window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
-    }
-
     function externalTooltipHandler(context) {
       const tooltipEl = document.getElementById('chartjs-ext-tooltip');
       const { chart, tooltip } = context;
@@ -2236,6 +2235,7 @@
     }
 
     function sampleCardHTML(s) {
+      const showEthnic = isRealValue(s.ethnic_group);
       return `
         <div class="p-6 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm hover:border-secondary transition-all text-left font-bold">
           <div class="flex justify-between mb-4 text-[10px] items-center gap-3">
@@ -2248,7 +2248,8 @@
           </div>
           <p class="font-black uppercase text-sm mb-1 text-center">${esc(s.name || '—')}</p>
           <p class="text-[10px] text-secondary font-mono text-center mb-2">${esc(s.sample_id || s.kit_number || '')}</p>
-          <span class="text-[9px] text-gray-400 font-mono snp-text mb-4 text-center block">${esc(s.snp_path || '—')}</span>
+          ${showEthnic ? `<p class="text-[9px] text-gray-500 font-black uppercase text-center mb-2">${esc(s.ethnic_group)}</p>` : ``}
+          <span class="text-[9px] text-gray-400 font-mono snp-text mb-4 text-center block">${esc(s.snp_path || s.y_dna || '—')}</span>
           <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
             <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest text-center">Y-DNA</p>${links(s, 'y')}</div>
             <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 text-center tracking-widest">mt-DNA</p>${links(s, 'mt')}</div>
@@ -2280,6 +2281,7 @@
             </td>
             <td class="px-2 py-6 font-mono text-[10px] text-gray-400">${esc(s.kit_number || s.sample_id || '—')}</td>
             <td class="px-2 py-6 text-[10px] font-black text-gray-400 uppercase">${esc(s.governorate || '—')}</td>
+            <td class="px-2 py-6 text-[10px] font-black uppercase text-gray-500">${esc(s.ethnic_group || '—')}</td>
             <td class="px-4 py-6 text-left">
               <div class="flex items-start gap-2">
                 <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${dotClass}" style="background:${colorForAggregate(h)}"></span>
@@ -2363,17 +2365,24 @@
       document.getElementById("sample-modal-ydna").textContent = sample.y_dna || "—";
       document.getElementById("sample-modal-mtdna").textContent = sample.mt_dna || "—";
 
+      const ethnicWrap = document.getElementById("sample-modal-ethnic-wrap");
+      const ethnicEl = document.getElementById("sample-modal-ethnic");
+      if (sample.__sourceType !== "ancient" && isRealValue(sample.ethnic_group)) {
+        ethnicEl.textContent = sample.ethnic_group;
+        ethnicWrap.classList.remove("hidden");
+      } else {
+        ethnicEl.textContent = "";
+        ethnicWrap.classList.add("hidden");
+      }
+
       updateSampleModalPath();
 
       const descWrap = document.getElementById("sample-modal-description-wrap");
       const descEl = document.getElementById("sample-modal-description");
-      const ancientDescription = sample.description ?? sample.Description;
+      const descriptionValue = sample.description ?? sample.Description;
 
-      if (
-        sample.__sourceType === "ancient" &&
-        isRealValue(ancientDescription)
-      ) {
-        descEl.innerHTML = esc(ancientDescription).replace(/\n/g, "<br>");
+      if (isRealValue(descriptionValue)) {
+        descEl.innerHTML = esc(descriptionValue).replace(/\n/g, "<br>");
         descWrap.classList.remove("hidden");
       } else {
         descEl.innerHTML = "";
@@ -2496,19 +2505,6 @@
         renderTree();
         requestAnimationFrame(() => scrollTreeIntoView());
       }
-    }
-
-    function updateTreeFloatingToggle() {
-      const btn = document.getElementById("tree-inline-mode-toggle");
-      const wrap = document.querySelector(".tree-floating-toggle");
-      if (!btn || !wrap) return;
-
-      btn.textContent = treeMode === "direct" ? "Show Full SNP Path" : "Show Direct Ancestors";
-      wrap.style.display = document.getElementById("section-tree")?.classList.contains("active") ? "flex" : "none";
-    }
-
-    function toggleTreeModeInline() {
-      setTreeMode(treeMode === "direct" ? "full" : "direct");
     }
 
     function setTreeMode(mode) {
@@ -2689,6 +2685,32 @@
       }).join("");
     }
 
+    function buildTreeSummary(samples) {
+      const total = samples.length;
+      const modernCount = samples.filter(s => s.__sourceType === "modern").length;
+      const studyCount = samples.filter(s => s.__sourceType === "study").length;
+      const ancientCount = samples.filter(s => s.__sourceType === "ancient").length;
+
+      document.getElementById("tree-summary-grid").innerHTML = `
+        <div class="tree-summary-card">
+          <div class="text-[10px] font-black uppercase tracking-[.18em] text-gray-400">Total Samples Shown</div>
+          <div class="tree-summary-number">${total}</div>
+        </div>
+        <div class="tree-summary-card">
+          <div class="text-[10px] font-black uppercase tracking-[.18em] text-gray-400">Modern Samples</div>
+          <div class="tree-summary-number">${modernCount}</div>
+        </div>
+        <div class="tree-summary-card">
+          <div class="text-[10px] font-black uppercase tracking-[.18em] text-gray-400">Study Samples</div>
+          <div class="tree-summary-number">${studyCount}</div>
+        </div>
+        <div class="tree-summary-card">
+          <div class="text-[10px] font-black uppercase tracking-[.18em] text-gray-400">Ancient Samples</div>
+          <div class="tree-summary-number">${ancientCount}</div>
+        </div>
+      `;
+    }
+
     function renderFocusedRoot(root) {
       const color = nodeBadgeColor(root);
       const textColor = nodeBadgeTextColor(root);
@@ -2715,13 +2737,11 @@
       return header + childrenHtml;
     }
 
-    // This version keeps the structural backbone nodes visible in Direct Ancestors mode
-    // (e.g. BT, CT, CF, GHIJK, HIJK, IJK, IJ, etc.) instead of flattening them away.
-
     function renderTree() {
       const samples = treeFilteredSamples();
       buildPills(samples);
       buildTreeStats(samples);
+      buildTreeSummary(samples);
 
       const activePath = treeFocusPath || treeSearchTargetPath || null;
       const rawRoot = buildRawTree(samples);
@@ -2757,14 +2777,9 @@
       }
 
       const html = [];
-
-      if (displayRoot.display === "Y-Adam") {
-        html.push(renderFocusedRoot(displayRoot));
-      } else {
-        html.push(renderFocusedRoot(displayRoot));
-      }
-
+      html.push(renderFocusedRoot(displayRoot));
       document.getElementById("tree-inner").innerHTML = html.join("");
+      updateTreeFloatingToggle();
     }
 
     function renderTreeNode(node) {
@@ -2795,6 +2810,7 @@
     }
 
     function renderTreeSample(sample) {
+      const showEthnic = sample.__sourceType !== "ancient" && isRealValue(sample.ethnic_group);
       return `
         <li>
           <div class="tree-row">
@@ -2804,6 +2820,7 @@
                 <div class="flex-1 min-w-0">
                   <div class="tree-sample-name">${esc(sample.name || "—")}</div>
                   <div class="tree-sample-gov">${esc(sample.governorate || sample.site || "—")}</div>
+                  ${showEthnic ? `<div class="tree-sample-ethnic">${esc(sample.ethnic_group)}</div>` : ``}
                 </div>
                 ${sample.__sourceType === "study" ? `<span class="tree-study-badge">Study</span>` : ``}
                 ${sample.__sourceType === "ancient" ? `<span class="tree-ancient-badge">Ancient</span>` : ``}
@@ -2815,7 +2832,7 @@
     }
 
     function openSampleModalByUid(uid) {
-      const pool = modernSamples.concat(studySamples).concat(ancientSamples);
+      const pool = allTreeSamples();
       const sample = pool.find(s => s.__uid === uid);
       if (sample) openSampleModal(sample);
     }
@@ -2824,10 +2841,6 @@
       if (collapsedNodes.has(pathKey)) collapsedNodes.delete(pathKey);
       else collapsedNodes.add(pathKey);
       renderTree();
-    }
-
-    function focusTreeNode(pathKey) {
-      handleTreeNodeClick(pathKey);
     }
 
     function toggleTreeSearchIcon() {
@@ -2854,6 +2867,7 @@
       renderAncientArchive();
       updateModernSummary();
       updateAncientSummary();
+      renderTree();
       updateTreeFloatingToggle();
     })();
   </script>
