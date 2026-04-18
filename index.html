@@ -700,22 +700,22 @@
     }
 
     .region-card {
-      padding: 1.15rem 1.2rem;
-      border-radius: 1.9rem;
-      gap: 1.1rem;
-      min-height: 124px;
+      padding: 1.22rem 1.3rem;
+      border-radius: 2rem;
+      gap: 1.2rem;
+      min-height: 138px;
       background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
       border: 1px solid #e7eaee;
-      box-shadow: 0 10px 26px rgba(0,23,54,.04);
+      box-shadow: 0 12px 28px rgba(0,23,54,.045);
     }
 
     .region-card:hover {
       border-color: #cfd8e3;
-      box-shadow: 0 18px 34px rgba(0,23,54,.08);
+      box-shadow: 0 20px 38px rgba(0,23,54,.09);
     }
 
     .region-card-title {
-      font-size: 1.02rem;
+      font-size: 1.08rem;
       font-weight: 900;
       letter-spacing: -.03em;
       line-height: 1.15;
@@ -728,20 +728,20 @@
       align-items: center;
       gap: .6rem;
       flex-wrap: wrap;
-      margin-top: 8px;
+      margin-top: 10px;
     }
 
     .region-total-pill,
     .region-top-pill {
       display: inline-flex;
       align-items: center;
-      min-height: 28px;
+      min-height: 29px;
       padding: 0 12px;
       border-radius: 999px;
       font-size: 10px;
       font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: .1em;
+      letter-spacing: .08em;
       white-space: nowrap;
     }
 
@@ -913,7 +913,7 @@
 
     <section class="space-y-10">
       <h2 class="text-3xl md:text-5xl font-black font-headline uppercase tracking-tighter">Regional Archives</h2>
-      <div id="stats-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 md:gap-6"></div>
+      <div id="stats-grid" class="grid grid-cols-1 xl:grid-cols-2 gap-6 md:gap-7"></div>
     </section>
   </main>
 
@@ -2197,23 +2197,25 @@
       const base = totalBase || values.reduce((a,b)=>a+b,0);
 
       charts[id] = new Chart(el.getContext("2d"), {
-        type: "pie",
+        type: "doughnut",
         data: {
           labels,
           datasets: [{
             data: values,
             backgroundColor: labels.map(l => colorForAggregate(l)),
-            borderColor: labels.map(l => chartBorderColor(l)),
-            borderWidth: labels.map(l => chartBorderWidth(l)),
+            borderColor: labels.map(l => l === "C" ? "#cbd5e1" : "#f8fafc"),
+            borderWidth: labels.map(l => l === "C" ? 1.4 : 1.1),
             borderAlign: 'inner',
-            spacing: 1,
-            hoverOffset: 4
+            spacing: 0,
+            radius: "92%",
+            hoverOffset: 3
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           animation: { duration: 180 },
+          cutout: "62%",
           plugins: {
             legend: { display: false },
             tooltip: {
