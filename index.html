@@ -1246,6 +1246,25 @@
       return valueOrDash((row && (row.ethnic_group ?? row.Ethnic_group ?? row.ethnicity ?? row.ethnicGroup)) ?? "—");
     }
 
+    function treeScopeSamples(scope) {
+      const samples = treeFilteredSamples();
+      if (scope === "modern") return samples.filter(s => s.__sourceType === "modern");
+      if (scope === "study") return samples.filter(s => s.__sourceType === "study");
+      if (scope === "ancient") return samples.filter(s => s.__sourceType === "ancient");
+      return samples;
+    }
+
+    function treeScopeLabel(scope) {
+      if (scope === "modern") return "Modern Samples";
+      if (scope === "study") return "Study Samples";
+      if (scope === "ancient") return "Ancient Samples";
+      return "All Shown Samples";
+    }
+
+    function getEthnicGroupValue(row) {
+      return valueOrDash((row && (row.ethnic_group ?? row.Ethnic_group ?? row.ethnicity ?? row.ethnicGroup)) ?? "—");
+    }
+
     function hideChartTooltip() {
       const tooltipEl = document.getElementById("chartjs-ext-tooltip");
       if (!tooltipEl) return;
@@ -2235,7 +2254,10 @@
     }
 
     function sampleCardHTML(s) {
-      const showEthnic = isRealValue(s.ethnic_group);
+      const ethnicLine = s.__sourceType !== "ancient" && isRealValue(s.ethnic_group)
+        ? `<p class="text-[9px] text-gray-400 font-black uppercase tracking-wide text-center mb-1">Ethnic Group: ${esc(s.ethnic_group)}</p>`
+        : "";
+
       return `
         <div class="p-6 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm hover:border-secondary transition-all text-left font-bold">
           <div class="flex justify-between mb-4 text-[10px] items-center gap-3">
@@ -2248,7 +2270,7 @@
           </div>
           <p class="font-black uppercase text-sm mb-1 text-center">${esc(s.name || '—')}</p>
           <p class="text-[10px] text-secondary font-mono text-center mb-2">${esc(s.sample_id || s.kit_number || '')}</p>
-          ${showEthnic ? `<p class="text-[9px] text-gray-500 font-black uppercase text-center mb-2">${esc(s.ethnic_group)}</p>` : ``}
+          ${ethnicLine}
           <span class="text-[9px] text-gray-400 font-mono snp-text mb-4 text-center block">${esc(s.snp_path || s.y_dna || '—')}</span>
           <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
             <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest text-center">Y-DNA</p>${links(s, 'y')}</div>
@@ -2258,7 +2280,7 @@
       `;
     }
 
-    function renderArchive() {
+        function renderArchive() {
       const tbody = document.getElementById("archive-body");
       const search = document.getElementById("archiveSearch").value.trim();
       const hF = document.getElementById("filterHaplo").value;
@@ -2277,6 +2299,7 @@
           <tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
             <td class="px-4 py-6">
               <div class="font-black uppercase text-sm">${esc(s.name || '—')}</div>
+              ${s.__sourceType !== "ancient" && isRealValue(s.ethnic_group) ? `<div class="text-[9px] font-black uppercase tracking-wide text-gray-400 mt-1">${esc(s.ethnic_group)}</div>` : ``}
               ${s.__sourceType === "study" ? `<div class="mt-2"><span class="tree-study-badge">STUDY</span></div>` : ``}
             </td>
             <td class="px-2 py-6 font-mono text-[10px] text-gray-400">${esc(s.kit_number || s.sample_id || '—')}</td>
@@ -2641,6 +2664,68 @@
       requestAnimationFrame(() => scrollTreeIntoView());
     }
 
+
+    function openTreeBreakdownModal(scope = "total", selectedHap = null) {
+      const pool = treeScopeSamples(scope);
+      const totals = {};
+      pool.forEach(s => {
+        const h = haplo(s.y_dna, s.snp_path);
+        totals[h] = (totals[h] || 0) + 1;
+      });
+
+      document.getElementById("modal-title").textContent = `TREE BREAKDOWN — ${treeScopeLabel(scope).toUpperCase()}`;
+      document.getElementById("detail-modal").classList.add("active");
+      document.getElementById("modal-kit-list").classList.add("hidden");
+
+      makePie("modalChartCanvas", totals, `TREE-${scope.toUpperCase()}`, pool.length, {
+        onSliceClick: (slice) => showTreeBreakdownHaplo(scope, slice)
+      });
+
+      const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
+
+      document.getElementById("modal-legend").innerHTML = sorted.length ? sorted.map(([hap, count]) => {
+        const pct = pool.length ? ((count / pool.length) * 100).toFixed(1) : "0.0";
+        return `
+          <div onclick="showTreeBreakdownHaplo('${esc(scope)}','${esc(hap)}')" class="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-secondary/10 transition-all font-bold">
+            <div class="flex items-center gap-3">
+              <div class="w-4 h-4 rounded-full ${hap === 'C' ? 'border border-gray-400' : ''}" style="background:${colorForAggregate(hap)}"></div>
+              <span class="uppercase">${esc(hap)}</span>
+            </div>
+            <span>${count} (${pct}%)</span>
+          </div>
+        `;
+      }).join("") : `<div class="p-4 rounded-xl bg-gray-50 text-sm font-bold text-gray-400">No samples are currently shown for this selection.</div>`;
+
+      if (selectedHap && totals[selectedHap]) {
+        showTreeBreakdownHaplo(scope, selectedHap, false);
+      }
+    }
+
+    function showTreeBreakdownHaplo(scope, hp, shouldScroll = true) {
+      const la = document.getElementById("modal-kit-list");
+      const pool = treeScopeSamples(scope);
+      const matches = pool.filter(s => haplo(s.y_dna, s.snp_path) === hp);
+      const pct = pool.length ? ((matches.length / pool.length) * 100).toFixed(1) : "0.0";
+
+      document.getElementById("selected-haplo-display").textContent = hp;
+      document.getElementById("modal-sample-count").textContent = `${matches.length} FOUND`;
+      document.getElementById("modal-explainer").textContent = `${pct}% of ${treeScopeLabel(scope).toLowerCase()} belong to ${hp}`;
+
+      const col = colorForAggregate(hp);
+      la.style.borderColor = col;
+      la.style.backgroundColor = col + "08";
+      la.classList.remove("hidden");
+
+      document.getElementById("kits-container").innerHTML = matches.map(s => sampleCardHTML(s)).join("");
+
+      if (shouldScroll) scrollIntoViewById("modal-kit-list");
+    }
+
+    function treeSetHaploAndInspect(h) {
+      treeSetHaplo(h);
+      openTreeBreakdownModal("total", h || null);
+    }
+
     function buildPills(samples) {
       const counts = {};
       samples.forEach(s => {
@@ -2652,7 +2737,7 @@
         .filter(h => counts[h]);
 
       document.getElementById("tree-pills").innerHTML =
-        `<span class="haplo-pill ${!treeHaploFilter ? 'on' : ''}" style="color:#001736;background:${!treeHaploFilter ? '#e2e8f0' : '#fff'}" onclick="treeSetHaplo(null)">All</span>` +
+        `<span class="haplo-pill ${!treeHaploFilter ? 'on' : ''}" style="color:#001736;background:${!treeHaploFilter ? '#e2e8f0' : '#fff'}" onclick="treeSetHaploAndInspect(null)">All</span>` +
         ordered.map(h => {
           const c = counts[h];
           const col = colorForAggregate(h);
@@ -2660,11 +2745,11 @@
           const label = h === "R1A" ? "R1a" : h === "R1B" ? "R1b" : h;
           return `<span class="haplo-pill ${treeHaploFilter === h ? 'on' : ''}"
                     style="color:${txt};background:${treeHaploFilter === h ? col + '22' : '#fff'};${h === 'C' ? 'border-color:#cbd5e1;' : ''}"
-                    onclick="treeSetHaplo('${esc(h)}')">${label} (${c})</span>`;
+                    onclick="treeSetHaploAndInspect('${esc(h)}')">${label} (${c})</span>`;
         }).join("");
     }
 
-    function buildTreeStats(samples) {
+        function buildTreeStats(samples) {
       const counts = {};
       samples.forEach(s => {
         const h = haplo(s.y_dna, s.snp_path);
@@ -2677,7 +2762,7 @@
         const col = colorForAggregate(h);
         const txt = h === "C" || h === "R2" ? "#001736" : col;
         return `
-          <div class="stat-card font-bold" onclick="treeSetHaplo('${esc(h)}')">
+          <div class="stat-card font-bold" onclick="treeSetHaploAndInspect('${esc(h)}')">
             <div class="w-10 h-10 rounded-xl flex-shrink-0 ${h === 'C' ? 'border border-gray-400' : ''}" style="background:${col}22;border:2px solid ${h === 'C' ? '#cbd5e1' : col}"></div>
             <div><p class="text-[10px] font-bold text-gray-400 uppercase">${esc(h)}</p><p class="text-2xl font-black" style="color:${txt}">${c}</p></div>
           </div>
@@ -2685,33 +2770,33 @@
       }).join("");
     }
 
-    function buildTreeSummary(samples) {
+        function buildTreeSummary(samples) {
       const total = samples.length;
       const modernCount = samples.filter(s => s.__sourceType === "modern").length;
       const studyCount = samples.filter(s => s.__sourceType === "study").length;
       const ancientCount = samples.filter(s => s.__sourceType === "ancient").length;
 
       document.getElementById("tree-summary-grid").innerHTML = `
-        <div class="tree-summary-card">
+        <div class="tree-summary-card cursor-pointer" onclick="openTreeBreakdownModal('total')">
           <div class="text-[10px] font-black uppercase tracking-[.18em] text-gray-400">Total Samples Shown</div>
           <div class="tree-summary-number">${total}</div>
         </div>
-        <div class="tree-summary-card">
+        <div class="tree-summary-card cursor-pointer" onclick="openTreeBreakdownModal('modern')">
           <div class="text-[10px] font-black uppercase tracking-[.18em] text-gray-400">Modern Samples</div>
           <div class="tree-summary-number">${modernCount}</div>
         </div>
-        <div class="tree-summary-card">
+        <div class="tree-summary-card cursor-pointer" onclick="openTreeBreakdownModal('study')">
           <div class="text-[10px] font-black uppercase tracking-[.18em] text-gray-400">Study Samples</div>
           <div class="tree-summary-number">${studyCount}</div>
         </div>
-        <div class="tree-summary-card">
+        <div class="tree-summary-card cursor-pointer" onclick="openTreeBreakdownModal('ancient')">
           <div class="text-[10px] font-black uppercase tracking-[.18em] text-gray-400">Ancient Samples</div>
           <div class="tree-summary-number">${ancientCount}</div>
         </div>
       `;
     }
 
-    function renderFocusedRoot(root) {
+        function renderFocusedRoot(root) {
       const color = nodeBadgeColor(root);
       const textColor = nodeBadgeTextColor(root);
       const styleClass = treeBadgeStyle(root);
