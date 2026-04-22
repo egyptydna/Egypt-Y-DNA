@@ -1116,7 +1116,8 @@
       <div class="flex gap-4 md:gap-7 items-center font-headline text-primary whitespace-nowrap">
         <span onclick="showSection('home')" id="nav-home" class="nav-link active uppercase tracking-widest font-bold">Dashboard</span>
         <span onclick="showSection('archive')" id="nav-archive" class="nav-link uppercase tracking-widest text-gray-400 font-bold">Archive</span>
-        <span onclick="showSection('tree')" id="nav-tree" class="nav-link uppercase tracking-widest text-gray-400 font-bold">Phylo Tree</span>
+        <span onclick="showSection('ytree')" id="nav-ytree" class="nav-link uppercase tracking-widest text-gray-400 font-bold">Y-DNA Tree</span>
+        <span onclick="showSection('mtree')" id="nav-mtree" class="nav-link uppercase tracking-widest text-gray-400 font-bold">mtDNA Tree</span>
         <span onclick="showSection('ancient')" id="nav-ancient" class="nav-link uppercase tracking-widest text-gray-400 font-bold">Ancient DNA</span>
       </div>
     </div>
@@ -1223,8 +1224,6 @@
             <div class="search-note">Press Enter to search</div>
           </div>
 
-          <button id="btn-tree-y" class="ctrl-btn on" onclick="setTreeType('y')">Y-DNA</button>
-          <button id="btn-tree-mt" class="ctrl-btn" onclick="setTreeType('mt')">mtDNA</button>
           <button id="btn-modern" class="ctrl-btn on" onclick="treeToggleSource('modern')">Modern</button>
           <button id="btn-study" class="ctrl-btn on" onclick="treeToggleSource('study')">Study</button>
           <button id="btn-ancient" class="ctrl-btn on" onclick="treeToggleSource('ancient')">Ancient</button>
@@ -1852,13 +1851,9 @@
     function updateTreeTypeUI() {
       const titleEl = document.getElementById("tree-main-title");
       const inputEl = document.getElementById("treeSearch");
-      const btnY = document.getElementById("btn-tree-y");
-      const btnMt = document.getElementById("btn-tree-mt");
       const btnFull = document.getElementById("btn-full");
       if (titleEl) titleEl.textContent = getTreeTitleText();
       if (inputEl) inputEl.placeholder = getTreeSearchPlaceholder();
-      if (btnY) btnY.classList.toggle("on", currentTreeType === "y");
-      if (btnMt) btnMt.classList.toggle("on", currentTreeType === "mt");
       if (btnFull) btnFull.textContent = currentTreeType === "mt" ? "Full mtDNA Path" : "Full SNP Path";
     }
 
@@ -3149,6 +3144,19 @@
       }
     }
 
+    function activateTreeSection(type) {
+      currentTreeType = type === "mt" ? "mt" : "y";
+      document.getElementById("section-tree").classList.add("active");
+      const navId = currentTreeType === "mt" ? "nav-mtree" : "nav-ytree";
+      const nl = document.getElementById(navId);
+      if (nl) {
+        nl.classList.add("active");
+        nl.classList.remove("text-gray-400");
+      }
+      updateTreeTypeUI();
+      renderTree();
+    }
+
     function showSection(id) {
       hideChartTooltip();
       document.querySelectorAll(".page-section").forEach(s => s.classList.remove("active"));
@@ -3157,18 +3165,21 @@
         n.classList.add("text-gray-400");
       });
 
-      document.getElementById("section-" + id).classList.add("active");
-      const nl = document.getElementById("nav-" + id);
-      nl.classList.add("active");
-      nl.classList.remove("text-gray-400");
+      if (id === "ytree") {
+        activateTreeSection("y");
+      } else if (id === "mtree") {
+        activateTreeSection("mt");
+      } else {
+        document.getElementById("section-" + id).classList.add("active");
+        const nl = document.getElementById("nav-" + id);
+        if (nl) {
+          nl.classList.add("active");
+          nl.classList.remove("text-gray-400");
+        }
+      }
 
       updateTreeFloatingToggle();
       window.scrollTo({ top: 0, behavior: "smooth" });
-
-      if (id === "tree") {
-        updateTreeTypeUI();
-        renderTree();
-      }
     }
 
     function setTreeType(type) {
@@ -3267,6 +3278,10 @@
       if (treeShowModern) samples = samples.concat(modernSamples);
       if (treeShowStudy) samples = samples.concat(studySamples);
       if (treeShowAncient) samples = samples.concat(ancientSamples);
+
+      if (currentTreeType === "mt") {
+        samples = samples.filter(s => isRealValue(s.full_mtDNA_path) && String(s.full_mtDNA_path).trim() !== "—");
+      }
 
       if (treeHaploFilter) {
         samples = samples.filter(s => treeGroupForSample(s) === treeHaploFilter);
