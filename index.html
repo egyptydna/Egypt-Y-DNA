@@ -1826,6 +1826,15 @@
       return mtPrimaryLineFromPath(fullPath, mtDna);
     }
 
+    function mtTerminalFromPath(fullPath, mtDna = "") {
+      const raw = String(fullPath || "").trim();
+      if (raw && raw !== "—") {
+        const segs = raw.split(">").map(x => x.trim()).filter(Boolean).filter(x => x !== "—");
+        if (segs.length) return segs[segs.length - 1];
+      }
+      return valueOrDash(mtDna);
+    }
+
     function parseMtPath(fullPath, mtDna = "") {
       const raw = String(fullPath || "").trim();
       if (!raw || raw === "—") {
@@ -3420,14 +3429,14 @@
       la.style.backgroundColor = col + "08";
       la.classList.remove("hidden");
 
-      document.getElementById("kits-container").innerHTML = matches.map(s => sampleCardHTML(s)).join("");
+      document.getElementById("kits-container").innerHTML = matches.map(s => currentTreeType === "mt" ? treeBreakdownSampleCardHTML(s) : sampleCardHTML(s)).join("");
 
       if (shouldScroll) scrollIntoViewById("modal-kit-list");
     }
 
 
     function treeBreakdownSampleCardHTML(s) {
-      const mtTitle = valueOrDash(s.mt_dna);
+      const mtTitle = mtTerminalFromPath(s.full_mtDNA_path, s.mt_dna);
       const mtPath = valueOrDash(s.full_mtDNA_path || s.mt_dna);
       const mtLinks = links(s, 'mt');
 
@@ -3442,7 +3451,6 @@
             </div>
           </div>
           <p class="font-black uppercase text-sm mb-1 text-center">${esc(s.name || '—')}</p>
-          <p class="text-[10px] text-secondary font-mono text-center mb-2">${esc(s.governorate || s.site || '—')}</p>
           <span class="text-[9px] text-gray-400 font-mono snp-text mb-4 text-center block">${esc(mtPath)}</span>
           <div class="flex justify-center items-center mt-4 pt-4 border-t border-gray-200">
             <div>
