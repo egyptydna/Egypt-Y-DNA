@@ -283,7 +283,7 @@
       font-weight: 800;
       text-transform: uppercase;
       cursor: pointer;
-      border: 2px solid transparent;
+      border: 2px solid #e5e7eb;
       transition: all .2s;
       white-space: nowrap;
       background: #fff;
@@ -3473,20 +3473,28 @@
         counts[h] = (counts[h] || 0) + 1;
       });
 
-      const ordered = currentTreeType === "mt"
-        ? Object.keys(counts).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }))
-        : ["A1","A1b","B","C","E","G","H","I","J1","J2","L","Q1","Q2","R1A","R1B","R2","T"].filter(h => counts[h]);
+      let ordered;
+      if (currentTreeType === "mt") {
+        const extras = Object.keys(counts)
+          .filter(h => !MT_PRIMARY_LINES.includes(h) && h !== "Other")
+          .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }));
+        ordered = [...MT_PRIMARY_LINES, ...extras];
+      } else {
+        ordered = ["A1","A1b","B","C","E","G","H","I","J1","J2","L","Q1","Q2","R1A","R1B","R2","T"].filter(h => counts[h]);
+      }
 
       document.getElementById("tree-pills").innerHTML =
         `<span class="haplo-pill ${!treeHaploFilter ? 'on' : ''}" style="color:#001736;background:${!treeHaploFilter ? '#e2e8f0' : '#fff'}" onclick="treeSetHaplo(null)">All</span>` +
         ordered.map(h => {
-          const c = counts[h];
+          const c = counts[h] || 0;
           const col = treeColorForLabel(h);
-          const txt = treeTextColorForLabel(h);
           const label = h === "R1A" ? "R1a" : h === "R1B" ? "R1b" : h;
-          const needsBorder = treeBorderColorForLabel(h) !== '#ffffff';
-          return `<span class="haplo-pill ${treeHaploFilter === h ? 'on' : ''}"
-                    style="color:${txt};background:${treeHaploFilter === h ? col + '22' : '#fff'};${needsBorder ? 'border-color:#cbd5e1;' : ''}"
+          const isSelected = treeHaploFilter === h;
+          const border = isSelected ? col : '#e5e7eb';
+          const bg = isSelected ? col + '18' : '#ffffff';
+          const txt = currentTreeType === "mt" ? col : treeTextColorForLabel(h);
+          return `<span class="haplo-pill ${isSelected ? 'on' : ''}"
+                    style="color:${txt};background:${bg};border-color:${border};opacity:${c ? '1' : '.55'}"
                     onclick="treeSetHaplo('${esc(h)}')">${label} (${c})</span>`;
         }).join("");
     }
