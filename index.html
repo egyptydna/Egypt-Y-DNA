@@ -384,8 +384,8 @@
     }
 
     .tree-toggle {
-      width: 36px;
-      height: 36px;
+      width: 28px;
+      height: 28px;
       border-radius: 999px;
       background: rgba(255,255,255,.18);
       display: inline-flex;
@@ -394,17 +394,14 @@
       cursor: pointer;
       flex-shrink: 0;
       user-select: none;
-      border: 1px solid rgba(255,255,255,.12);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
-      transition: transform .15s ease, background .15s ease;
+      transition: all .15s ease;
     }
     .tree-toggle:hover {
-      transform: scale(1.04);
       background: rgba(255,255,255,.26);
     }
 
     .tree-toggle span {
-      font-size: 18px;
+      font-size: 14px;
       line-height: 1;
       font-weight: 900;
     }
@@ -1496,8 +1493,8 @@
 
     const MT_PRIMARY_LINES = ["L0","L2","N","I","R0","HV","H","J","T","U","K","W","X","M","L4","L3"];
     const MT_COLORS = {
-      "L0": "#67d4df",
-      "L2": "#7bc8d6",
+      "L0": "#56cfe1",
+      "L2": "#8d99ae",
       "N": "#86c86f",
       "I": "#ba84dc",
       "R0": "#ef6a4c",
@@ -1510,9 +1507,9 @@
       "W": "#d9c39a",
       "X": "#9d9d9d",
       "M": "#4d84d7",
-      "L4": "#59bfcf",
-      "L3": "#8bdbe3",
-      "Other": "#001736"
+      "L4": "#2f9eae",
+      "L3": "#7fd3dd",
+      "Other": "#7fc8d6"
     };
 
     const BASE_COLOR = "#001736";
@@ -3156,7 +3153,7 @@
       la.style.backgroundColor = col + "08";
       la.classList.remove("hidden");
 
-      document.getElementById("kits-container").innerHTML = matches.map(s => sampleCardHTML(s)).join("");
+      document.getElementById("kits-container").innerHTML = matches.map(s => currentTreeType === "mt" ? treeBreakdownSampleCardHTML(s) : sampleCardHTML(s)).join("");
 
       if (shouldScroll) {
         scrollIntoViewById("modal-kit-list");
@@ -3378,7 +3375,7 @@
         totals[h] = (totals[h] || 0) + 1;
       });
 
-      document.getElementById("modal-title").textContent = `${currentTreeType === "mt" ? "MTDNA" : "TREE"} BREAKDOWN — ${treeScopeLabel(scope).toUpperCase()}`;
+      document.getElementById("modal-title").textContent = `${currentTreeType === "mt" ? "MTDNA BREAKDOWN" : "TREE BREAKDOWN"} — ${treeScopeLabel(scope).toUpperCase()}`;
       document.getElementById("detail-modal").classList.add("active");
       document.getElementById("modal-kit-list").classList.add("hidden");
 
@@ -3426,6 +3423,36 @@
       document.getElementById("kits-container").innerHTML = matches.map(s => sampleCardHTML(s)).join("");
 
       if (shouldScroll) scrollIntoViewById("modal-kit-list");
+    }
+
+
+    function treeBreakdownSampleCardHTML(s) {
+      const title = currentTreeType === "mt" ? valueOrDash(s.mt_dna) : valueOrDash(s.y_dna);
+      const path = currentTreeType === "mt" ? valueOrDash(s.full_mtDNA_path || s.mt_dna) : valueOrDash(s.snp_path || s.y_dna);
+      const primaryLinks = currentTreeType === "mt" ? links(s, 'mt') : links(s, 'y');
+      const secondaryLinks = currentTreeType === "mt" ? links(s, 'y') : links(s, 'mt');
+      const primaryLabel = currentTreeType === "mt" ? "mt-DNA" : "Y-DNA";
+      const secondaryLabel = currentTreeType === "mt" ? "Y-DNA" : "mt-DNA";
+
+      return `
+        <div class="p-6 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm hover:border-secondary transition-all text-left font-bold">
+          <div class="flex justify-between mb-4 text-[10px] items-center gap-3">
+            <span class="px-3 py-1 bg-primary text-white rounded-full font-black tracking-tighter">${esc(s.kit_number || s.sample_id || '—')}</span>
+            <div class="flex items-center gap-2 flex-wrap justify-end">
+              ${s.__sourceType === "study" ? `<span class="tree-study-badge">STUDY</span>` : ``}
+              ${s.__sourceType === "ancient" ? `<span class="tree-ancient-badge">ANCIENT</span>` : ``}
+              <span class="text-gray-400 uppercase">${esc(s.governorate || s.site || '—')}</span>
+            </div>
+          </div>
+          <p class="font-black uppercase text-sm mb-1 text-center">${esc(s.name || '—')}</p>
+          <p class="text-[10px] text-secondary font-mono text-center mb-2">${esc(title)}</p>
+          <span class="text-[9px] text-gray-400 font-mono snp-text mb-4 text-center block">${esc(path)}</span>
+          <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
+            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest text-center">${primaryLabel}</p>${primaryLinks}</div>
+            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 text-center tracking-widest">${secondaryLabel}</p>${secondaryLinks}</div>
+          </div>
+        </div>
+      `;
     }
 
     function treeSetHaploAndInspect(h) {
@@ -3513,7 +3540,7 @@
       const header = `
         <div class="tree-row">
           <div class="${styleClass}" style="background:${color};color:${textColor};${root.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
-            <span class="tree-toggle" onclick="toggleTreeNode('${esc(root.pathKey)}');event.stopPropagation();"><span>${root.children.length || root.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
+            <span class="tree-toggle" onclick="return clickTreeToggle(event, '${esc(root.pathKey)}')"><span>${root.children.length || root.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
             <span onclick="handleTreeNodeClick('${esc(root.pathKey)}')" style="cursor:pointer;">${esc(root.display)}</span>
             <span class="tree-count">${root.count}</span>
           </div>
@@ -3584,7 +3611,7 @@
       const nodeHeader = `
         <div class="tree-row">
           <div class="${styleClass}" style="background:${color};color:${textColor};${node.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
-            <span class="tree-toggle" onclick="toggleTreeNode('${esc(node.pathKey)}');event.stopPropagation();"><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
+            <span class="tree-toggle" onclick="return clickTreeToggle(event, '${esc(node.pathKey)}')"><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
             <span onclick="handleTreeNodeClick('${esc(node.pathKey)}')" style="cursor:pointer;">${esc(node.display)}</span>
             <span class="tree-count">${node.count}</span>
           </div>
@@ -3612,7 +3639,7 @@
                 <span class="tree-sample-dot"></span>
                 <div class="flex-1 min-w-0">
                   <div class="tree-sample-name">${esc(sample.name || "—")}</div>
-                  <div class="tree-sample-gov">${esc(sample.governorate || sample.site || "—")} • ${esc(currentTreeType === "mt" ? (sample.mt_dna || "—") : (sample.y_dna || "—"))}</div>
+                  <div class="tree-sample-gov">${esc(sample.governorate || sample.site || "—")} • ${esc(currentTreeType === "mt" ? (sample.mt_dna || sample.full_mtDNA_path || "—") : (sample.y_dna || "—"))}</div>
                   ${showEthnic ? `<div class="tree-sample-ethnic">${esc(sample.ethnic_group)}</div>` : ``}
                 </div>
                 ${sample.__sourceType === "study" ? `<span class="tree-study-badge">Study</span>` : ``}
@@ -3628,6 +3655,16 @@
       const pool = allTreeSamples();
       const sample = pool.find(s => s.__uid === uid);
       if (sample) openSampleModal(sample);
+    }
+
+
+    function clickTreeToggle(event, pathKey) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      toggleTreeNode(pathKey);
+      return false;
     }
 
     function toggleTreeNode(pathKey) {
