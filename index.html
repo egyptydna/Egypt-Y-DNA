@@ -283,7 +283,7 @@
       font-weight: 800;
       text-transform: uppercase;
       cursor: pointer;
-      border: 2px solid #e5e7eb;
+      border: 2px solid transparent;
       transition: all .2s;
       white-space: nowrap;
       background: #fff;
@@ -2588,7 +2588,7 @@
         const subPath = parts.slice(0, i + 1).join(">");
         const isCurrent = subPath === pathKey;
         html.push(`
-          <span class="tree-path-link ${isCurrent ? 'current' : ''}" onclick="focusTreePath(${jsstr(subPath)})">${esc(parts[i])}</span>
+          <span class="tree-path-link ${isCurrent ? 'current' : ''}" onclick='focusTreePath(${jsstr(subPath)})'>${esc(parts[i])}</span>
         `);
         if (i < parts.length - 1) html.push(`<span class="tree-path-sep">></span>`);
       }
@@ -2898,9 +2898,9 @@
 
     function showRegionHaplo(gov, hp, shouldScroll = true) {
       const { pool } = getRegionTotals(gov);
-      const matches = pool.filter(s => treeGroupForSample(s) === hp);
+      const matches = pool.filter(s => haplo(s.y_dna, s.snp_path) === hp);
       const pct = pool.length ? ((matches.length / pool.length) * 100).toFixed(1) : "0.0";
-      const col = treeColorForLabel(hp);
+      const col = colorForAggregate(hp);
 
       document.getElementById("region-modal-haplo").textContent = hp;
       document.getElementById("region-modal-haplo-summary").textContent = `${pct}% of the samples from ${gov} belong to ${hp}`;
@@ -3488,7 +3488,7 @@
       }
 
       document.getElementById("tree-pills").innerHTML =
-        `<span class="haplo-pill ${!treeHaploFilter ? 'on' : ''}" style="color:#001736;background:${!treeHaploFilter ? '#e2e8f0' : '#fff'}" onclick="treeSetHaplo(null)">All</span>` +
+        `<span class="haplo-pill ${!treeHaploFilter ? 'on' : ''}" style="color:#001736;background:${!treeHaploFilter ? '#e2e8f0' : '#fff'}" onclick='treeSetHaplo(null)'>All</span>` +
         ordered.map(h => {
           const c = counts[h] || 0;
           const col = treeColorForLabel(h);
@@ -3499,7 +3499,7 @@
           const txt = currentTreeType === "mt" ? col : treeTextColorForLabel(h);
           return `<span class="haplo-pill ${isSelected ? 'on' : ''}"
                     style="color:${txt};background:${bg};border-color:${border};opacity:${c ? '1' : '.55'}"
-                    onclick="treeSetHaplo(${jsstr(h)})">${label} (${c})</span>`;
+                    onclick='treeSetHaplo(${jsstr(h)})'>${label} (${c})</span>`;
         }).join("");
     }
 
@@ -3516,7 +3516,7 @@
         const col = treeColorForLabel(h);
         const txt = treeTextColorForLabel(h);
         return `
-          <div class="stat-card font-bold" onclick="treeSetHaplo(${jsstr(h)})">
+          <div class="stat-card font-bold" onclick="treeSetHaplo('${esc(h)}')">
             <div class="w-10 h-10 rounded-xl flex-shrink-0 ${treeBorderColorForLabel(h) !== '#ffffff' ? 'border border-gray-400' : ''}" style="background:${col}22;border:2px solid ${treeBorderColorForLabel(h) !== '#ffffff' ? '#cbd5e1' : col}"></div>
             <div><p class="text-[10px] font-bold text-gray-400 uppercase">${esc(h)}</p><p class="text-2xl font-black" style="color:${txt}">${c}</p></div>
           </div>
@@ -3559,8 +3559,8 @@
       const header = `
         <div class="tree-row">
           <div class="${styleClass}" style="background:${color};color:${textColor};${root.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
-            <span class="tree-toggle" onclick="return clickTreeToggle(event, ${jsstr(root.pathKey)})"><span>${root.children.length || root.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
-            <span onclick="handleTreeNodeClick(${jsstr(root.pathKey)})" style="cursor:pointer;">${esc(root.display)}</span>
+            <span class="tree-toggle" onclick='return clickTreeToggle(event, ${jsstr(root.pathKey)})'><span>${root.children.length || root.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
+            <span onclick='handleTreeNodeClick(${jsstr(root.pathKey)})' style="cursor:pointer;">${esc(root.display)}</span>
             <span class="tree-count">${root.count}</span>
           </div>
         </div>
@@ -3630,8 +3630,8 @@
       const nodeHeader = `
         <div class="tree-row">
           <div class="${styleClass}" style="background:${color};color:${textColor};${node.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
-            <span class="tree-toggle" onclick="return clickTreeToggle(event, ${jsstr(node.pathKey)})"><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
-            <span onclick="handleTreeNodeClick(${jsstr(node.pathKey)})" style="cursor:pointer;">${esc(node.display)}</span>
+            <span class="tree-toggle" onclick='return clickTreeToggle(event, ${jsstr(node.pathKey)})'><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
+            <span onclick='handleTreeNodeClick(${jsstr(node.pathKey)})' style="cursor:pointer;">${esc(node.display)}</span>
             <span class="tree-count">${node.count}</span>
           </div>
         </div>
@@ -3653,7 +3653,7 @@
       return `
         <li>
           <div class="tree-row">
-            <div class="tree-sample-card" onclick='openSampleModalByUid(${jsstr(sample.__uid)})'>
+            <div class="tree-sample-card" onclick='openSampleModalByUid("${esc(sample.__uid)}")'>
               <div class="tree-sample-line">
                 <span class="tree-sample-dot"></span>
                 <div class="flex-1 min-w-0">
