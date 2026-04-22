@@ -1609,15 +1609,17 @@
     let samplePathMode = "direct";
 
     function esc(s) {
-    function jsstr(s) {
-      return JSON.stringify(String(s ?? ""));
-    }
-
       return String(s ?? "")
         .replace(/&/g,"&amp;")
         .replace(/</g,"&lt;")
         .replace(/>/g,"&gt;")
         .replace(/"/g,"&quot;");
+    }
+
+    function jsesc(s) {
+      return String(s ?? "")
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'");
     }
 
     function valueOrDash(v) {
@@ -1838,7 +1840,6 @@
       }
       return valueOrDash(mtDna);
     }
-
 
     function parseMtPath(fullPath, mtDna = "") {
       const raw = String(fullPath || "").trim();
@@ -2589,7 +2590,7 @@
         const subPath = parts.slice(0, i + 1).join(">");
         const isCurrent = subPath === pathKey;
         html.push(`
-          <span class="tree-path-link ${isCurrent ? 'current' : ''}" onclick="focusTreePath(${jsstr(subPath)})">${esc(parts[i])}</span>
+          <span class="tree-path-link ${isCurrent ? 'current' : ''}" onclick="focusTreePath('${jsesc(subPath)}')">${esc(parts[i])}</span>
         `);
         if (i < parts.length - 1) html.push(`<span class="tree-path-sep">></span>`);
       }
@@ -3481,7 +3482,9 @@
 
       let ordered;
       if (currentTreeType === "mt") {
-        const extras = Object.keys(counts).filter(h => !MT_PRIMARY_LINES.includes(h)).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }));
+        const extras = Object.keys(counts)
+          .filter(h => !MT_PRIMARY_LINES.includes(h) && h !== "Other")
+          .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }));
         ordered = [...MT_PRIMARY_LINES, ...extras];
       } else {
         ordered = ["A1","A1b","B","C","E","G","H","I","J1","J2","L","Q1","Q2","R1A","R1B","R2","T"].filter(h => counts[h]);
@@ -3498,7 +3501,7 @@
           const txt = currentTreeType === "mt" ? col : treeTextColorForLabel(h);
           return `<span class="haplo-pill ${treeHaploFilter === h ? 'on' : ''}"
                     style="color:${txt};background:${bg};${needsBorder ? 'border-color:#cbd5e1;' : ''}"
-                    onclick="treeSetHaplo(${jsstr(h)})">${label} (${c})</span>`;
+                    onclick="treeSetHaplo('${jsesc(h)}')">${label} (${c})</span>`;
         }).join("");
     }
 
@@ -3515,7 +3518,7 @@
         const col = treeColorForLabel(h);
         const txt = treeTextColorForLabel(h);
         return `
-          <div class="stat-card font-bold" onclick="treeSetHaplo(${jsstr(h)})">
+          <div class="stat-card font-bold" onclick="treeSetHaplo('${jsesc(h)}')">
             <div class="w-10 h-10 rounded-xl flex-shrink-0 ${treeBorderColorForLabel(h) !== '#ffffff' ? 'border border-gray-400' : ''}" style="background:${col}22;border:2px solid ${treeBorderColorForLabel(h) !== '#ffffff' ? '#cbd5e1' : col}"></div>
             <div><p class="text-[10px] font-bold text-gray-400 uppercase">${esc(h)}</p><p class="text-2xl font-black" style="color:${txt}">${c}</p></div>
           </div>
@@ -3558,8 +3561,8 @@
       const header = `
         <div class="tree-row">
           <div class="${styleClass}" style="background:${color};color:${textColor};${root.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
-            <span class="tree-toggle" onclick="return clickTreeToggle(event, ${jsstr(root.pathKey)})"><span>${root.children.length || root.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
-            <span onclick="handleTreeNodeClick(${jsstr(root.pathKey)})" style="cursor:pointer;">${esc(root.display)}</span>
+            <span class="tree-toggle" onclick="return clickTreeToggle(event, '${jsesc(root.pathKey)}')"><span>${root.children.length || root.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
+            <span onclick="handleTreeNodeClick('${jsesc(root.pathKey)}')" style="cursor:pointer;">${esc(root.display)}</span>
             <span class="tree-count">${root.count}</span>
           </div>
         </div>
@@ -3629,8 +3632,8 @@
       const nodeHeader = `
         <div class="tree-row">
           <div class="${styleClass}" style="background:${color};color:${textColor};${node.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
-            <span class="tree-toggle" onclick="return clickTreeToggle(event, ${jsstr(node.pathKey)})"><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
-            <span onclick="handleTreeNodeClick(${jsstr(node.pathKey)})" style="cursor:pointer;">${esc(node.display)}</span>
+            <span class="tree-toggle" onclick="return clickTreeToggle(event, '${jsesc(node.pathKey)}')"><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
+            <span onclick="handleTreeNodeClick('${jsesc(node.pathKey)}')" style="cursor:pointer;">${esc(node.display)}</span>
             <span class="tree-count">${node.count}</span>
           </div>
         </div>
@@ -3657,7 +3660,7 @@
                 <span class="tree-sample-dot"></span>
                 <div class="flex-1 min-w-0">
                   <div class="tree-sample-name">${esc(sample.name || "—")}</div>
-                  <div class="tree-sample-gov">${esc(sample.governorate || sample.site || "—")} • ${esc(currentTreeType === "mt" ? mtTerminalFromPath(sample.full_mtDNA_path, sample.mt_dna) : (sample.y_dna || "—"))}</div>
+                  <div class="tree-sample-gov">${esc(sample.governorate || sample.site || "—")} • ${esc(currentTreeType === "mt" ? (sample.mt_dna || sample.full_mtDNA_path || "—") : (sample.y_dna || "—"))}</div>
                   ${showEthnic ? `<div class="tree-sample-ethnic">${esc(sample.ethnic_group)}</div>` : ``}
                 </div>
                 ${sample.__sourceType === "study" ? `<span class="tree-study-badge">Study</span>` : ``}
