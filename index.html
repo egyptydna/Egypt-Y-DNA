@@ -1616,6 +1616,10 @@
         .replace(/"/g,"&quot;");
     }
 
+    function jsstr(s) {
+      return JSON.stringify(String(s ?? ""));
+    }
+
     function valueOrDash(v) {
       const s = String(v ?? "").trim();
       return s ? s : "—";
@@ -2584,7 +2588,7 @@
         const subPath = parts.slice(0, i + 1).join(">");
         const isCurrent = subPath === pathKey;
         html.push(`
-          <span class="tree-path-link ${isCurrent ? 'current' : ''}" onclick="focusTreePath('${esc(subPath)}')">${esc(parts[i])}</span>
+          <span class="tree-path-link ${isCurrent ? 'current' : ''}" onclick="focusTreePath(${jsstr(subPath)})">${esc(parts[i])}</span>
         `);
         if (i < parts.length - 1) html.push(`<span class="tree-path-sep">></span>`);
       }
@@ -3495,7 +3499,7 @@
           const txt = currentTreeType === "mt" ? col : treeTextColorForLabel(h);
           return `<span class="haplo-pill ${isSelected ? 'on' : ''}"
                     style="color:${txt};background:${bg};border-color:${border};opacity:${c ? '1' : '.55'}"
-                    onclick="treeSetHaplo('${esc(h)}')">${label} (${c})</span>`;
+                    onclick="treeSetHaplo(${jsstr(h)})">${label} (${c})</span>`;
         }).join("");
     }
 
@@ -3512,7 +3516,7 @@
         const col = treeColorForLabel(h);
         const txt = treeTextColorForLabel(h);
         return `
-          <div class="stat-card font-bold" onclick="treeSetHaplo('${esc(h)}')">
+          <div class="stat-card font-bold" onclick="treeSetHaplo(${jsstr(h)})">
             <div class="w-10 h-10 rounded-xl flex-shrink-0 ${treeBorderColorForLabel(h) !== '#ffffff' ? 'border border-gray-400' : ''}" style="background:${col}22;border:2px solid ${treeBorderColorForLabel(h) !== '#ffffff' ? '#cbd5e1' : col}"></div>
             <div><p class="text-[10px] font-bold text-gray-400 uppercase">${esc(h)}</p><p class="text-2xl font-black" style="color:${txt}">${c}</p></div>
           </div>
@@ -3555,8 +3559,8 @@
       const header = `
         <div class="tree-row">
           <div class="${styleClass}" style="background:${color};color:${textColor};${root.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
-            <span class="tree-toggle" onclick="return clickTreeToggle(event, '${esc(root.pathKey)}')"><span>${root.children.length || root.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
-            <span onclick="handleTreeNodeClick('${esc(root.pathKey)}')" style="cursor:pointer;">${esc(root.display)}</span>
+            <span class="tree-toggle" onclick="return clickTreeToggle(event, ${jsstr(root.pathKey)})"><span>${root.children.length || root.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
+            <span onclick="handleTreeNodeClick(${jsstr(root.pathKey)})" style="cursor:pointer;">${esc(root.display)}</span>
             <span class="tree-count">${root.count}</span>
           </div>
         </div>
@@ -3626,8 +3630,8 @@
       const nodeHeader = `
         <div class="tree-row">
           <div class="${styleClass}" style="background:${color};color:${textColor};${node.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
-            <span class="tree-toggle" onclick="return clickTreeToggle(event, '${esc(node.pathKey)}')"><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
-            <span onclick="handleTreeNodeClick('${esc(node.pathKey)}')" style="cursor:pointer;">${esc(node.display)}</span>
+            <span class="tree-toggle" onclick="return clickTreeToggle(event, ${jsstr(node.pathKey)})"><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
+            <span onclick="handleTreeNodeClick(${jsstr(node.pathKey)})" style="cursor:pointer;">${esc(node.display)}</span>
             <span class="tree-count">${node.count}</span>
           </div>
         </div>
@@ -3649,7 +3653,7 @@
       return `
         <li>
           <div class="tree-row">
-            <div class="tree-sample-card" onclick='openSampleModalByUid("${esc(sample.__uid)}")'>
+            <div class="tree-sample-card" onclick='openSampleModalByUid(${jsstr(sample.__uid)})'>
               <div class="tree-sample-line">
                 <span class="tree-sample-dot"></span>
                 <div class="flex-1 min-w-0">
