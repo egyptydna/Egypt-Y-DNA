@@ -3427,17 +3427,14 @@
 
 
     function treeBreakdownSampleCardHTML(s) {
-      const title = currentTreeType === "mt" ? valueOrDash(s.mt_dna) : valueOrDash(s.y_dna);
-      const path = currentTreeType === "mt" ? valueOrDash(s.full_mtDNA_path || s.mt_dna) : valueOrDash(s.snp_path || s.y_dna);
-      const primaryLinks = currentTreeType === "mt" ? links(s, 'mt') : links(s, 'y');
-      const secondaryLinks = currentTreeType === "mt" ? links(s, 'y') : links(s, 'mt');
-      const primaryLabel = currentTreeType === "mt" ? "mt-DNA" : "Y-DNA";
-      const secondaryLabel = currentTreeType === "mt" ? "Y-DNA" : "mt-DNA";
+      const mtTitle = valueOrDash(s.mt_dna);
+      const mtPath = valueOrDash(s.full_mtDNA_path || s.mt_dna);
+      const mtLinks = links(s, 'mt');
 
       return `
         <div class="p-6 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm hover:border-secondary transition-all text-left font-bold">
           <div class="flex justify-between mb-4 text-[10px] items-center gap-3">
-            <span class="px-3 py-1 bg-primary text-white rounded-full font-black tracking-tighter">${esc(s.kit_number || s.sample_id || '—')}</span>
+            <span class="px-3 py-1 bg-secondary text-white rounded-full font-black tracking-tighter">${esc(mtTitle)}</span>
             <div class="flex items-center gap-2 flex-wrap justify-end">
               ${s.__sourceType === "study" ? `<span class="tree-study-badge">STUDY</span>` : ``}
               ${s.__sourceType === "ancient" ? `<span class="tree-ancient-badge">ANCIENT</span>` : ``}
@@ -3445,11 +3442,13 @@
             </div>
           </div>
           <p class="font-black uppercase text-sm mb-1 text-center">${esc(s.name || '—')}</p>
-          <p class="text-[10px] text-secondary font-mono text-center mb-2">${esc(title)}</p>
-          <span class="text-[9px] text-gray-400 font-mono snp-text mb-4 text-center block">${esc(path)}</span>
-          <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
-            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest text-center">${primaryLabel}</p>${primaryLinks}</div>
-            <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 text-center tracking-widest">${secondaryLabel}</p>${secondaryLinks}</div>
+          <p class="text-[10px] text-secondary font-mono text-center mb-2">${esc(s.governorate || s.site || '—')}</p>
+          <span class="text-[9px] text-gray-400 font-mono snp-text mb-4 text-center block">${esc(mtPath)}</span>
+          <div class="flex justify-center items-center mt-4 pt-4 border-t border-gray-200">
+            <div>
+              <p class="text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest text-center">mt-DNA</p>
+              ${mtLinks}
+            </div>
           </div>
         </div>
       `;
