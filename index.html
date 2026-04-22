@@ -384,8 +384,8 @@
     }
 
     .tree-toggle {
-      width: 28px;
-      height: 28px;
+      width: 36px;
+      height: 36px;
       border-radius: 999px;
       background: rgba(255,255,255,.18);
       display: inline-flex;
@@ -394,11 +394,19 @@
       cursor: pointer;
       flex-shrink: 0;
       user-select: none;
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+      transition: transform .15s ease, background .15s ease;
+    }
+    .tree-toggle:hover {
+      transform: scale(1.04);
+      background: rgba(255,255,255,.26);
     }
 
     .tree-toggle span {
-      font-size: 14px;
+      font-size: 18px;
       line-height: 1;
+      font-weight: 900;
     }
 
     .tree-ul,
@@ -1127,10 +1135,10 @@
     <section class="bg-white p-8 md:p-12 rounded-[3rem] md:rounded-[4rem] shadow-xl border border-gray-100">
       <div class="max-w-5xl">
         <p class="text-[10px] font-black text-secondary uppercase tracking-[.3em] mb-4 font-headline">— Project Overview</p>
-        <h2 class="text-4xl md:text-6xl font-black tracking-tighter leading-none text-primary font-headline">A Growing Genetic Archive of Egyptian Y-DNA and mtDNA Lineages</h2>
+        <h2 class="text-4xl md:text-6xl font-black tracking-tighter leading-none text-primary font-headline">A Genomic Archive of Egyptian Y-DNA and mtDNA Lineages</h2>
         <div class="mt-8 max-w-4xl space-y-5 text-[15px] md:text-[17px] leading-8 text-slate-600 font-semibold">
           <p>The Egyptian Y-DNA Project is an independent initiative dedicated to documenting and organizing both the paternal and maternal genetic lineages of Egyptians in a clear, structured, and evidence-based way.</p>
-          <p>The archive now includes both a Y-DNA Tree and an mtDNA Tree, allowing visitors to explore Egyptian paternal and maternal haplogroup data side by side. The current database continues to grow as additional modern, study, and ancient samples are added over time.</p>
+          <p>The archive now includes both a dedicated Y-DNA Tree and a dedicated mtDNA Tree, allowing visitors to explore Egyptian paternal and maternal lineages side by side. The mtDNA Tree is organized around major maternal branches, while both trees continue to grow as additional modern, study, and ancient samples are added over time.</p>
           <p>By collecting real test results and presenting them in a neutral and scientific format, the project aims to serve as a professional genomic reference that reflects the diversity, continuity, and historical depth of the Egyptian population.</p>
         </div>
       </div>
@@ -1486,43 +1494,25 @@
       "A1b": "#000000"
     };
 
+    const MT_PRIMARY_LINES = ["L0","L2","N","I","R0","HV","H","J","T","U","K","W","X","M","L4","L3"];
     const MT_COLORS = {
-      "L0": "#6ad4de",
-      "L1": "#77dbe4",
-      "L2": "#48bfd2",
-      "L3": "#2ea7bf",
-      "L4": "#1f8fa8",
-      "L5": "#5ec2af",
-      "L6": "#80d5c5",
-      "M": "#3f7fd8",
-      "N": "#69c85b",
-      "R": "#f15b49",
-      "R0": "#ff7f66",
-      "JT": "#3f8f1f",
-      "J": "#2f7d1a",
-      "T": "#e3b24b",
-      "U": "#2c6f17",
-      "K": "#b891db",
-      "HV": "#8f5a2d",
-      "H": "#9a6130",
-      "V": "#5aa3a3",
-      "I": "#c584db",
-      "W": "#d4b78f",
+      "L0": "#67d4df",
+      "L2": "#7bc8d6",
+      "N": "#86c86f",
+      "I": "#ba84dc",
+      "R0": "#ef6a4c",
+      "HV": "#99612f",
+      "H": "#8f5525",
+      "J": "#4d8b2f",
+      "T": "#e1b354",
+      "U": "#2d6f20",
+      "K": "#c9a86f",
+      "W": "#d9c39a",
       "X": "#9d9d9d",
-      "A": "#ffd54f",
-      "B": "#5aa3a3",
-      "C": "#ffffff",
-      "D": "#000000",
-      "E": "#0b0aa5",
-      "F": "#f2b24a",
-      "G": "#8f8f8f",
-      "O": "#ff8a65",
-      "P": "#5c6bc0",
-      "Q": "#8c24c8",
-      "S": "#66bb6a",
-      "Y": "#26a69a",
-      "Z": "#8bc34a",
-      "Other": "#64748b"
+      "M": "#4d84d7",
+      "L4": "#59bfcf",
+      "L3": "#8bdbe3",
+      "Other": "#001736"
     };
 
     const BASE_COLOR = "#001736";
@@ -1786,56 +1776,57 @@
       return m ? m[0] : s;
     }
 
-    function mtMajorLineFromLabel(label) {
+    function mtPrimaryLineFromLabel(label) {
       const s = String(label || "").trim().toUpperCase().replace(/^MT-?/, "");
       if (!s || s === "—") return "Other";
 
-      if (/^L[0-9]/.test(s)) {
-        const m = s.match(/^L[0-9]/);
-        return m ? m[0] : "L";
+      for (const line of ["R0","HV","L0","L2","L4","L3","N","I","H","J","T","U","K","W","X","M"]) {
+        if (s.startsWith(line)) return line;
       }
 
-      if (s.startsWith("HV")) return "HV";
-      if (s.startsWith("R0")) return "R0";
-      if (s.startsWith("JT")) return "JT";
+      return "Other";
+    }
 
-      const letters = s.match(/^[A-Z]+/);
-      if (letters) return letters[0];
+    function mtPrimaryLineFromPath(fullPath, mtDna = "") {
+      const raw = String(fullPath || "").trim();
+      if (raw && raw !== "—") {
+        const segs = raw.split(">").map(x => x.trim()).filter(Boolean).filter(x => x !== "—");
+        let current = "Other";
+        segs.forEach(seg => {
+          if (/eve|mrca/i.test(seg)) return;
+          const match = mtPrimaryLineFromLabel(seg);
+          if (match !== "Other") current = match;
+        });
+        if (current !== "Other") return current;
+      }
+      return mtPrimaryLineFromLabel(mtDna);
+    }
 
-      return mtRootFromLabel(s);
+    function mtMajorLineFromLabel(label) {
+      return mtPrimaryLineFromLabel(label);
     }
 
     function mtRootBase(label) {
-      const major = mtMajorLineFromLabel(label);
+      const major = mtPrimaryLineFromLabel(label);
       return major === "Other" ? "Other" : major.charAt(0);
     }
 
     function mtColorForLabel(label) {
-      const major = mtMajorLineFromLabel(label);
-      if (MT_COLORS[major]) return MT_COLORS[major];
-      const base = mtRootBase(label);
-      return MT_COLORS[base] || BASE_COLOR;
+      const major = mtPrimaryLineFromLabel(label);
+      return MT_COLORS[major] || MT_COLORS.Other;
     }
 
     function mtTextColorForLabel(label) {
-      const major = mtMajorLineFromLabel(label);
-      const base = mtRootBase(label);
-      return (major === "C" || base === "C" || major === "A" || major === "W") ? "#001736" : "#0f172a";
+      const major = mtPrimaryLineFromLabel(label);
+      return (major === "W" || major === "X") ? "#001736" : "#ffffff";
     }
 
     function mtBorderColorForLabel(label) {
-      const major = mtMajorLineFromLabel(label);
-      return major === "C" ? MIN_C_BORDER : "#ffffff";
+      return "#ffffff";
     }
 
     function mtHaplo(mtDna, fullPath) {
-      const raw = String(fullPath || "").trim();
-      if (raw && raw !== "—") {
-        const segs = raw.split(">").map(x => x.trim()).filter(Boolean).filter(x => x !== "—");
-        const filtered = segs.filter(x => !/eve|mrca/i.test(x));
-        if (filtered.length) return mtMajorLineFromLabel(filtered[0]);
-      }
-      return mtMajorLineFromLabel(mtDna);
+      return mtPrimaryLineFromPath(fullPath, mtDna);
     }
 
     function parseMtPath(fullPath, mtDna = "") {
@@ -1865,7 +1856,7 @@
 
     function treeGroupForSample(sample) {
       return currentTreeType === "mt"
-        ? mtHaplo(sample.mt_dna, sample.full_mtDNA_path)
+        ? mtPrimaryLineFromPath(sample.full_mtDNA_path, sample.mt_dna)
         : haplo(sample.y_dna, sample.snp_path);
     }
 
@@ -2366,7 +2357,7 @@
                 samples: [],
                 parent: node,
                 count: 0,
-                family: node.family || mtMajorLineFromLabel(disp)
+                family: (mtPrimaryLineFromLabel(disp) !== "Other" ? mtPrimaryLineFromLabel(disp) : (node.family || "Other"))
               };
               node.childMap.set(disp, child);
               node.children.push(child);
@@ -3522,7 +3513,7 @@
       const header = `
         <div class="tree-row">
           <div class="${styleClass}" style="background:${color};color:${textColor};${root.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
-            <span class="tree-toggle" onclick="toggleTreeNode('${esc(root.pathKey)}');event.stopPropagation();"><span>${root.children.length || root.samples.length ? (nodeOpen ? '−' : '+') : '•'}</span></span>
+            <span class="tree-toggle" onclick="toggleTreeNode('${esc(root.pathKey)}');event.stopPropagation();"><span>${root.children.length || root.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
             <span onclick="handleTreeNodeClick('${esc(root.pathKey)}')" style="cursor:pointer;">${esc(root.display)}</span>
             <span class="tree-count">${root.count}</span>
           </div>
@@ -3593,7 +3584,7 @@
       const nodeHeader = `
         <div class="tree-row">
           <div class="${styleClass}" style="background:${color};color:${textColor};${node.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
-            <span class="tree-toggle" onclick="toggleTreeNode('${esc(node.pathKey)}');event.stopPropagation();"><span>${node.children.length || node.samples.length ? (nodeOpen ? '−' : '+') : '•'}</span></span>
+            <span class="tree-toggle" onclick="toggleTreeNode('${esc(node.pathKey)}');event.stopPropagation();"><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
             <span onclick="handleTreeNodeClick('${esc(node.pathKey)}')" style="cursor:pointer;">${esc(node.display)}</span>
             <span class="tree-count">${node.count}</span>
           </div>
