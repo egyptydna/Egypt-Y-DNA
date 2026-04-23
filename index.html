@@ -2599,9 +2599,9 @@
       for (let i = 0; i < parts.length; i++) {
         const subPath = parts.slice(0, i + 1).join(">");
         const isCurrent = subPath === pathKey;
-        const enc = encodePathArg(subPath);
+        const enc = esc(encodePathArg(subPath));
         html.push(`
-          <span class="tree-path-link ${isCurrent ? 'current' : ''}" onclick="focusTreePath(decodePathArg('${enc}'))">${esc(parts[i])}</span>
+          <span class="tree-path-link ${isCurrent ? 'current' : ''}" data-path="${enc}" onclick="return handleTreePathClick(event)">${esc(parts[i])}</span>
         `);
         if (i < parts.length - 1) html.push(`<span class="tree-path-sep">></span>`);
       }
@@ -3339,6 +3339,26 @@
       return samples;
     }
 
+    function handleTreePathClick(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      const encoded = event?.currentTarget?.dataset?.path || "";
+      focusTreePath(decodePathArg(encoded));
+      return false;
+    }
+
+    function handleTreeToggleClick(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      const encoded = event?.currentTarget?.dataset?.path || "";
+      toggleTreeNode(decodePathArg(encoded));
+      return false;
+    }
+
     function focusTreePath(pathKey) {
       treeFocusPath = pathKey;
       treeSearchTargetPath = null;
@@ -3568,13 +3588,13 @@
       const textColor = nodeBadgeTextColor(root);
       const styleClass = treeBadgeStyle(root);
       const nodeOpen = !collapsedNodes.has(root.pathKey);
-      const encPath = encodePathArg(root.pathKey);
+      const encPath = esc(encodePathArg(root.pathKey));
 
       const header = `
         <div class="tree-row">
           <div class="${styleClass}" style="background:${color};color:${textColor};${root.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
-            <span class="tree-toggle" onclick="return clickTreeToggle(event, decodePathArg('${encPath}'))"><span>${root.children.length || root.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
-            <span onclick="handleTreeNodeClick(decodePathArg('${encPath}'))" style="cursor:pointer;">${esc(root.display)}</span>
+            <span class="tree-toggle" data-path="${encPath}" onclick="return handleTreeToggleClick(event)"><span>${root.children.length || root.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
+            <span data-path="${encPath}" onclick="return handleTreePathClick(event)" style="cursor:pointer;">${esc(root.display)}</span>
             <span class="tree-count">${root.count}</span>
           </div>
         </div>
@@ -3640,13 +3660,13 @@
       const textColor = nodeBadgeTextColor(node);
       const styleClass = treeBadgeStyle(node);
       const nodeOpen = !collapsedNodes.has(node.pathKey);
-      const encPath = encodePathArg(node.pathKey);
+      const encPath = esc(encodePathArg(node.pathKey));
 
       const nodeHeader = `
         <div class="tree-row">
           <div class="${styleClass}" style="background:${color};color:${textColor};${node.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
-            <span class="tree-toggle" onclick="return clickTreeToggle(event, decodePathArg('${encPath}'))"><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
-            <span onclick="handleTreeNodeClick(decodePathArg('${encPath}'))" style="cursor:pointer;">${esc(node.display)}</span>
+            <span class="tree-toggle" data-path="${encPath}" onclick="return handleTreeToggleClick(event)"><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
+            <span data-path="${encPath}" onclick="return handleTreePathClick(event)" style="cursor:pointer;">${esc(node.display)}</span>
             <span class="tree-count">${node.count}</span>
           </div>
         </div>
