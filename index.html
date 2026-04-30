@@ -388,21 +388,15 @@
       align-items: center;
       justify-content: center;
       min-height: 24px;
-      padding: 0 9px;
-      border-radius: 999px;
-      background: #f5f3ff;
-      color: #6d28d9;
-      border: 1px solid #c4b5fd;
+      padding: 0 10px;
+      border-radius: 8px;
+      background: #eef2f7;
+      color: #64748b;
+      border: 1px solid #dbe4ee;
       font-size: 10px;
       font-weight: 950;
       letter-spacing: .02em;
-      box-shadow: 0 6px 14px rgba(109,40,217,.12);
-    }
-
-    .tree-node-badge.alias-node {
-      background: linear-gradient(135deg, #6d28d9 0%, #8b5cf6 100%) !important;
-      color: #ffffff !important;
-      border-color: rgba(109,40,217,.28) !important;
+      box-shadow: 0 6px 14px rgba(15,23,42,.06);
     }
 
     .alias-path-chip {
@@ -1693,12 +1687,7 @@
     }
 
     function yPathWithAlias(sample) {
-      const basePath = parsePath(sample?.full_snp_path, sample?.y_dna);
-      const alias = sampleYAlias(sample);
-      if (!alias || basePath.length <= 1) return basePath;
-      const out = [...basePath];
-      out[out.length - 1] = alias;
-      return out;
+      return parsePath(sample?.full_snp_path, sample?.y_dna);
     }
 
     function yDisplayPathWithAlias(sample) {
@@ -2301,7 +2290,6 @@
         if (node.display === "mt-Eve") return BASE_COLOR;
         return mtColorForLabel(node.family || node.display);
       }
-      if (node.isAliasNode) return Y_ALIAS_COLOR;
       const fam = node.family;
       if (node.display === "Y-Adam" || node.display === "A0-T" || node.display === "BT" || node.display === "CT" || node.display === "CF" || node.display === "F" || node.display === "GHIJK" || node.display === "HIJK" || node.display === "IJK" || node.display === "IJ" || node.display === "J" || node.display === "K" || node.display === "K2" || node.display === "K2b" || node.display === "LT" || node.display === "DE" || node.display === "P" || node.display === "P-V1651" || node.display === "P-M1254" || node.display === "P-P337" || node.display === "P-P284" || node.display === "P-P226" || node.display === "R-M173") {
         return BASE_COLOR;
@@ -2322,7 +2310,6 @@
         const base = mtRootBase(node.family || node.display);
         return (major === "C" || base === "A" || base === "W") ? "#001736" : "#ffffff";
       }
-      if (node.isAliasNode) return "#ffffff";
       if (node.family === "C" || node.family === "R2") return "#001736";
       return "#ffffff";
     }
@@ -2335,7 +2322,6 @@
         if (major === "D") return "tree-node-badge tree-node-black";
         return "tree-node-badge";
       }
-      if (node.isAliasNode) return "tree-node-badge alias-node";
       if (node.family === "C") return "tree-node-badge tree-node-white";
       if (node.family === "A1" || node.family === "A1b") return "tree-node-badge tree-node-black";
       return "tree-node-badge";
@@ -2496,15 +2482,14 @@
       };
 
       samples.forEach(sample => {
-        const path = yPathWithAlias(sample);
+        const path = parsePath(sample.full_snp_path, sample.y_dna);
         const alias = sampleYAlias(sample);
         let node = root;
         const ancestorChain = [{ display: "Y-Adam" }];
 
         for (let i = 1; i < path.length; i++) {
           const rawSeg = path[i];
-          const isAliasTerminal = !!alias && i === path.length - 1;
-          const disp = isAliasTerminal ? alias : normalizeDisplay(rawSeg, ancestorChain);
+          const disp = normalizeDisplay(rawSeg, ancestorChain);
           const key = node.pathKey + ">" + disp;
 
           if (!node.childMap.has(disp)) {
@@ -2516,23 +2501,21 @@
               childMap: new Map(),
               samples: [],
               aliases: [],
-              isAliasNode: isAliasTerminal,
               parent: node,
               count: 0,
-              family: isAliasTerminal ? (node.family || inferFamilyFromDisplay(disp, node.family)) : inferFamilyFromDisplay(disp, node.family)
+              family: inferFamilyFromDisplay(disp, node.family)
             };
             node.childMap.set(disp, child);
             node.children.push(child);
           }
 
           node = node.childMap.get(disp);
-          if (isAliasTerminal && alias && !node.aliases.includes(alias)) {
-            node.aliases.push(alias);
-            node.isAliasNode = true;
-          }
           ancestorChain.push({ display: disp });
         }
 
+        if (alias && !node.aliases.includes(alias)) {
+          node.aliases.push(alias);
+        }
         node.samples.push(sample);
       });
 
@@ -2587,7 +2570,6 @@
         children: node.children.map(cloneTree),
         samples: [...node.samples],
         aliases: [...(node.aliases || [])],
-        isAliasNode: !!node.isAliasNode,
         parent: null,
         count: node.count,
         family: node.family
@@ -2639,8 +2621,7 @@
           children,
           samples: [...node.samples],
           aliases: [...(node.aliases || [])],
-          isAliasNode: !!node.isAliasNode,
-          count: node.count,
+            count: node.count,
           family: node.family
         };
       }
@@ -3032,13 +3013,13 @@
         ? `<p class="text-[9px] text-gray-400 font-black uppercase tracking-wide text-center mb-1">Ethnic Group: ${esc(s.ethnic_group)}</p>`
         : "";
       const alias = sampleYAlias(s);
-      const yTitle = alias || s.y_dna || "—";
-      const yPathShown = alias ? yDisplayPathWithAlias(s) : (s.snp_path || s.y_dna || "—");
+      const yTitle = s.y_dna || "—";
+      const yPathShown = s.snp_path || s.y_dna || "—";
 
       return `
         <div class="p-6 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm hover:border-secondary transition-all text-left font-bold">
           <div class="flex justify-between mb-4 text-[10px] items-center gap-3">
-            <span class="px-3 py-1 ${alias ? 'bg-purple-700' : 'bg-primary'} text-white rounded-full font-black tracking-tighter">${esc(yTitle)}</span>
+            <span class="px-3 py-1 bg-primary text-white rounded-full font-black tracking-tighter">${esc(yTitle)}</span>
             <div class="flex items-center gap-2 flex-wrap justify-end">
               ${s.__sourceType === "study" ? `<span class="tree-study-badge">STUDY</span>` : ``}
               ${s.__sourceType === "ancient" ? `<span class="tree-ancient-badge">ANCIENT</span>` : ``}
@@ -3048,7 +3029,7 @@
           <p class="font-black uppercase text-sm mb-1 text-center">${esc(s.name || '—')}</p>
           <p class="text-[10px] text-secondary font-mono text-center mb-2">${esc(s.sample_id || s.kit_number || '')}</p>
           ${ethnicLine}
-          ${alias ? `<div class="flex justify-center mb-2"><span class="alias-path-chip">Alias SNP: ${esc(alias)}</span></div>` : ``}
+          ${alias ? `<div class="flex justify-center mb-2"><span class="alias-path-chip">${esc(alias)}</span></div>` : ``}
           <span class="text-[9px] text-gray-400 font-mono snp-text mb-4 text-center block">${esc(yPathShown)}</span>
           <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
             <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest text-center">Y-DNA</p>${links(s, 'y')}</div>
@@ -3074,7 +3055,7 @@
         const h = haplo(s.y_dna, s.snp_path);
         const dotClass = h === "C" ? 'border border-gray-400' : '';
         const alias = sampleYAlias(s);
-        const yPathShown = alias ? yDisplayPathWithAlias(s) : (s.snp_path || s.y_dna || '—');
+        const yPathShown = s.snp_path || s.y_dna || '—';
         return `
           <tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
             <td class="px-4 py-6">
@@ -3109,7 +3090,7 @@
         const h = haplo(s.y_dna, s.snp_path);
         const dotClass = h === "C" ? 'border border-gray-400' : '';
         const alias = sampleYAlias(s);
-        const yPathShown = alias ? yDisplayPathWithAlias(s) : (s.snp_path || '—');
+        const yPathShown = s.snp_path || '—';
 
         return `
           <tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
@@ -3167,7 +3148,7 @@
       document.getElementById("sample-modal-subtitle").textContent = `${sample.governorate || sample.site || "Unknown location"} • ${typeLabel}`;
       document.getElementById("sample-modal-kit").textContent = sample.kit_number || sample.sample_id || "—";
       document.getElementById("sample-modal-location").textContent = sample.governorate || sample.site || "—";
-      document.getElementById("sample-modal-ydna").textContent = sampleYAlias(sample) ? `${sample.y_dna || "—"} / Alias: ${sampleYAlias(sample)}` : (sample.y_dna || "—");
+      document.getElementById("sample-modal-ydna").textContent = sample.y_dna || "—";
       document.getElementById("sample-modal-mtdna").textContent = sample.mt_dna || "—";
 
       const ethnicWrap = document.getElementById("sample-modal-ethnic-wrap");
@@ -3693,7 +3674,7 @@
           <div class="${styleClass}" style="background:${color};color:${textColor};${root.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
             <span class="tree-toggle" data-path="${encPath}" onclick="return handleTreeToggleClick(event)"><span>${root.children.length || root.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
             <span data-path="${encPath}" onclick="return handleTreePathClick(event)" style="cursor:pointer;">${esc(root.display)}</span>
-            ${(!root.isAliasNode ? (root.aliases || []).map(a => `<span class="tree-alias-chip">${esc(a)}</span>`).join("") : "")}
+            ${(root.aliases || []).map(a => `<span class="tree-alias-chip">${esc(a)}</span>`).join("")}
             <span class="tree-count">${root.count}</span>
           </div>
         </div>
@@ -3766,7 +3747,7 @@
           <div class="${styleClass}" style="background:${color};color:${textColor};${node.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
             <span class="tree-toggle" data-path="${encPath}" onclick="return handleTreeToggleClick(event)"><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
             <span data-path="${encPath}" onclick="return handleTreePathClick(event)" style="cursor:pointer;">${esc(node.display)}</span>
-            ${(!node.isAliasNode ? (node.aliases || []).map(a => `<span class="tree-alias-chip">${esc(a)}</span>`).join("") : "")}
+            ${(node.aliases || []).map(a => `<span class="tree-alias-chip">${esc(a)}</span>`).join("")}
             <span class="tree-count">${node.count}</span>
           </div>
         </div>
