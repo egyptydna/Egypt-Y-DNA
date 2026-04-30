@@ -383,40 +383,22 @@
       font-weight: 900;
     }
 
-    .tree-alias-group {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      flex-wrap: wrap;
-      max-width: 360px;
-    }
-
     .tree-alias-chip {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       min-height: 22px;
-      padding: 0 8px;
+      padding: 3px 9px;
       border-radius: 999px;
-      background: rgba(241,245,249,.96);
-      border: 1px solid rgba(203,213,225,.9);
-      color: #64748b;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      color: #475569;
       font-size: 10px;
       font-weight: 900;
-      letter-spacing: .02em;
       line-height: 1;
+      letter-spacing: .02em;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.75);
       white-space: nowrap;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
-    }
-
-    .tree-alias-chip::before {
-      content: "also";
-      margin-right: 5px;
-      color: #94a3b8;
-      font-size: 8px;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: .08em;
     }
 
     .tree-toggle {
@@ -1548,8 +1530,6 @@
       "Other": "#7fc8d6"
     };
 
-    let SNP_ALIAS_MAP = {};
-
     const BASE_COLOR = "#001736";
     const MIN_C_BORDER = "#9ca3af";
 
@@ -1628,6 +1608,7 @@
     let studySamples = [];
     let ancientSamples = [];
     let charts = {};
+    let SNP_ALIAS_MAP = {};
 
     let treeScale = 1;
     let treeShowModern = true;
@@ -1658,12 +1639,26 @@
       return JSON.stringify(String(s ?? ""));
     }
 
+    function encodePathArg(s) {
+      return encodeURIComponent(String(s ?? ""));
+    }
+
+    function decodePathArg(s) {
+      try {
+        return decodeURIComponent(String(s ?? ""));
+      } catch (e) {
+        return String(s ?? "");
+      }
+    }
+
+
     function normalizeAliasKey(value) {
       return String(value ?? "")
         .trim()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[\s_]+/g, "")
+        .replace(/^([A-Z0-9]+)-/i, "")
+        .replace(/[^A-Za-z0-9]/g, "")
         .toUpperCase();
     }
 
@@ -1680,13 +1675,11 @@
     function aliasLookupKeys(value) {
       const raw = String(value ?? "").trim();
       if (!raw) return [];
-      const upper = raw.toUpperCase();
       const noPrefix = raw.includes("-") ? raw.split("-").slice(1).join("-") : raw;
-      const upperNoPrefix = noPrefix.toUpperCase();
-      return [...new Set([raw, upper, noPrefix, upperNoPrefix, normalizeAliasKey(raw), normalizeAliasKey(noPrefix)].filter(Boolean))];
+      return [...new Set([raw, noPrefix, normalizeAliasKey(raw), normalizeAliasKey(noPrefix)].filter(Boolean))];
     }
 
-    function registerAlias(map, key, alias) {
+    function addAliasToMap(map, key, alias) {
       const k = normalizeAliasKey(key);
       const a = String(alias ?? "").trim();
       if (!k || !a || a === "—" || normalizeAliasKey(a) === k) return;
@@ -1694,80 +1687,59 @@
       map[k].add(a);
     }
 
+    function getEndSnpCandidateFromMasterRow(row) {
+      const priorityColumns = [
+        "end_snp", "End_SNP", "END_SNP",
+        "terminal_snp", "Terminal_SNP", "TERMINAL_SNP",
+        "final_snp", "Final_SNP", "FINAL_SNP",
+        "snp", "SNP", "y_snp", "Y_SNP",
+        "y_dna", "Y_DNA", "haplogroup", "Haplogroup", "clade", "Clade", "node", "Node"
+      ];
+      for (const col of priorityColumns) {
+        const val = row?.[col];
+        if (val !== null && val !== undefined && String(val).trim() && String(val).trim() !== "—") return String(val).trim();
+      }
+      const ignored = new Set(["y_dna_alias", "alias", "aliases", "description", "note", "notes", "created_at", "updated_at", "full_snp_path", "full_mtDNA_path", "full_mtdna_path", "mt_dna", "mtdna"]);
+      for (const [col, value] of Object.entries(row || {})) {
+        if (ignored.has(String(col))) continue;
+        if (value === null || value === undefined || typeof value === "object") continue;
+        const raw = String(value).trim();
+        if (!raw || raw === "—" || raw.length > 80) continue;
+        if (/^[A-Z0-9]+[-]?[A-Z0-9]+/i.test(raw)) return raw;
+      }
+      return "";
+    }
+
     function buildSnpAliasMapFromMaster(rows) {
       const map = {};
       (rows || []).forEach(row => {
         const aliases = splitAliasValues(row?.y_dna_alias);
         if (!aliases.length) return;
-
-        const candidateKeys = new Set();
-        Object.entries(row || {}).forEach(([col, value]) => {
-          if (col === "y_dna_alias") return;
-          if (value === null || value === undefined) return;
-          if (typeof value === "object") return;
-          const raw = String(value).trim();
-          if (!raw || raw === "—" || raw.length > 120) return;
-          candidateKeys.add(raw);
-          aliasLookupKeys(raw).forEach(k => candidateKeys.add(k));
-        });
-
-        aliases.forEach(alias => {
-          aliasLookupKeys(alias).forEach(k => candidateKeys.add(k));
-        });
-
-        candidateKeys.forEach(key => {
-          aliases.forEach(alias => registerAlias(map, key, alias));
-        });
+        const endSnp = getEndSnpCandidateFromMasterRow(row);
+        if (!endSnp) return;
+        aliasLookupKeys(endSnp).forEach(key => aliases.forEach(alias => addAliasToMap(map, key, alias)));
       });
-
       const out = {};
-      Object.entries(map).forEach(([key, set]) => {
-        out[key] = [...set];
-      });
+      Object.entries(map).forEach(([key, set]) => { out[key] = [...set]; });
       return out;
     }
 
     function getNodeAliasList(node) {
-      if (!node) return [];
-      const out = [];
-      const keys = [
-        ...aliasLookupKeys(node.display),
-        ...aliasLookupKeys(node.raw),
-        ...aliasLookupKeys(node.family)
-      ];
-
+      if (currentTreeType !== "y" || !node) return [];
+      const keys = [...aliasLookupKeys(node.display), ...aliasLookupKeys(node.raw)];
+      const aliases = [];
       keys.forEach(key => {
-        const values = SNP_ALIAS_MAP[normalizeAliasKey(key)] || SNP_ALIAS_MAP[key] || SNP_ALIAS_MAP[String(key).toUpperCase()];
-        if (Array.isArray(values)) out.push(...values);
-        else if (isRealValue(values)) out.push(values);
+        const values = SNP_ALIAS_MAP[normalizeAliasKey(key)];
+        if (Array.isArray(values)) aliases.push(...values);
       });
-
-      const ownKeys = new Set([
-        normalizeAliasKey(node.display),
-        normalizeAliasKey(node.raw),
-        ...aliasLookupKeys(node.display).map(normalizeAliasKey),
-        ...aliasLookupKeys(node.raw).map(normalizeAliasKey)
-      ]);
-
-      return [...new Set(out.map(v => String(v).trim()).filter(v => v && !ownKeys.has(normalizeAliasKey(v))))];
+      const ownKeys = new Set([normalizeAliasKey(node.display), normalizeAliasKey(node.raw), ...aliasLookupKeys(node.display).map(normalizeAliasKey), ...aliasLookupKeys(node.raw).map(normalizeAliasKey)]);
+      return [...new Set(aliases.map(v => String(v).trim()).filter(v => v && !ownKeys.has(normalizeAliasKey(v))))];
     }
 
     function nodeAliasHTML(node) {
       const aliases = getNodeAliasList(node);
       if (!aliases.length) return "";
-      return `<span class="tree-alias-group">${aliases.map(a => `<span class="tree-alias-chip">${esc(a)}</span>`).join("")}</span>`;
-    }
-
-    function encodePathArg(s) {
-      return encodeURIComponent(String(s ?? ""));
-    }
-
-    function decodePathArg(s) {
-      try {
-        return decodeURIComponent(String(s ?? ""));
-      } catch (e) {
-        return String(s ?? "");
-      }
+      return aliases.map(a => `<span class="tree-alias-chip" title="Alias / equivalent SNP on another tree">${esc(a)}</span>`).join("");
     }
 
     function valueOrDash(v) {
@@ -2608,12 +2580,15 @@
     function searchMatchesNode(node, queryClean) {
       const d = sclean(node.display);
       if (d === queryClean) return true;
-
       if (node.display.includes("-")) {
         const suffix = sclean(node.display.split("-").slice(1).join("-"));
         if (suffix === queryClean) return true;
       }
-
+      const aliases = getNodeAliasList(node);
+      if (aliases.some(alias => {
+        const a = sclean(alias);
+        return a === queryClean || a.includes(queryClean) || queryClean.includes(a);
+      })) return true;
       return false;
     }
 
