@@ -389,19 +389,27 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 26px;
-      padding: 0 10px;
-      border-radius: 8px;
-      background: #eef2f7;
-      color: #334155;
-      border: 1px solid rgba(148,163,184,.55);
-      font-size: 11px;
+      min-height: 42px;
+      padding: 0 2px;
+      color: #64748b;
+      font-size: 13px;
       font-weight: 900;
       letter-spacing: .01em;
       line-height: 1;
-      box-shadow: 0 6px 14px rgba(0,23,54,.06), inset 0 0 0 1px rgba(255,255,255,.72);
-      margin-left: -6px;
+      margin-left: -2px;
       white-space: nowrap;
+      cursor: pointer;
+      transition: color .15s ease, transform .15s ease, text-decoration-color .15s ease;
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 5px;
+      text-decoration-color: transparent;
+    }
+
+    .tree-alias-snp:hover {
+      color: #775a19;
+      transform: translateY(-1px);
+      text-decoration-color: #775a19;
     }
 
     .tree-toggle {
@@ -1687,9 +1695,20 @@
       });
     }
 
+    function searchTreeAlias(alias) {
+      if (!alias) return false;
+      const input = document.getElementById("treeSearch");
+      if (input) input.value = String(alias);
+      treeSearchQuery = String(alias);
+      runTreeSearch();
+      return false;
+    }
+
     function renderNodeAliases(node) {
       if (currentTreeType === "mt" || !node || !Array.isArray(node.aliases) || !node.aliases.length) return "";
-      return node.aliases.map(alias => `<span class="tree-alias-snp">${esc(alias)}</span>`).join("");
+      return node.aliases
+        .map(alias => `<span class="tree-alias-snp" title="Search alias SNP ${esc(alias)}" onclick='return searchTreeAlias(${jsstr(alias)})'>${esc(alias)}</span>`)
+        .join("");
     }
 
     function getDescriptionValue(row) {
@@ -1717,6 +1736,10 @@
 
     function getEthnicGroupValue(row) {
       return valueOrDash((row && (row.ethnic_group ?? row.Ethnic_group ?? row.ethnicity ?? row.ethnicGroup)) ?? "—");
+    }
+
+    function getTestTypeValue(row) {
+      return valueOrDash((row && (row.test_type ?? row.Test_type ?? row.testType ?? row.test ?? row.Test)) ?? "—");
     }
 
     function hideChartTooltip() {
@@ -2088,6 +2111,7 @@
         cultural_group: "—",
         description: getDescriptionValue(s),
         ethnic_group: getEthnicGroupValue(s),
+        test_type: getTestTypeValue(s),
         y_dna: valueOrDash(s.y_dna),
         y_dna_alias: getYAliasValue(s),
         mt_dna: valueOrDash(s.mt_dna),
@@ -2119,6 +2143,7 @@
         governorate: valueOrDash(s.governorate),
         site: valueOrDash(s.site),
         ethnic_group: getEthnicGroupValue(s),
+        test_type: getTestTypeValue(s),
         y_dna: valueOrDash(s.y_dna),
         y_dna_alias: getYAliasValue(s),
         mt_dna: valueOrDash(s.mt_dna),
@@ -2143,6 +2168,7 @@
         governorate: valueOrDash(s.governorate),
         site: valueOrDash(s.site),
         ethnic_group: "—",
+        test_type: "—",
         y_dna: valueOrDash(s.y_dna),
         y_dna_alias: getYAliasValue(s),
         mt_dna: valueOrDash(s.mt_dna),
@@ -3756,11 +3782,11 @@
       return `<li>${nodeHeader}${inner}</li>`;
     }
 
-    function treeSampleTypeLabel(sample) {
-      if (!sample) return "Sample";
-      if (sample.__sourceType === "study") return "Study";
-      if (sample.__sourceType === "ancient") return "Ancient";
-      return "Modern";
+    function treeSampleSubtitle(sample) {
+      const location = valueOrDash(sample?.governorate || sample?.site || "—");
+      if (!sample || sample.__sourceType === "study" || sample.__sourceType === "ancient") return location;
+      const testType = valueOrDash(sample.test_type);
+      return isRealValue(testType) ? `${location} • ${testType}` : location;
     }
 
     function renderTreeSample(sample) {
@@ -3773,7 +3799,7 @@
                 <span class="tree-sample-dot"></span>
                 <div class="flex-1 min-w-0">
                   <div class="tree-sample-name">${esc(sample.name || "—")}</div>
-                  <div class="tree-sample-gov">${esc(sample.governorate || sample.site || "—")} • ${esc(treeSampleTypeLabel(sample))}</div>
+                  <div class="tree-sample-gov">${esc(treeSampleSubtitle(sample))}</div>
                   ${showEthnic ? `<div class="tree-sample-ethnic">${esc(sample.ethnic_group)}</div>` : ``}
                 </div>
                 ${sample.__sourceType === "study" ? `<span class="tree-study-badge">Study</span>` : ``}
