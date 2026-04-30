@@ -384,20 +384,24 @@
     }
 
     .tree-alias-snp {
+      position: relative;
+      z-index: 2;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 24px;
+      min-height: 26px;
       padding: 0 10px;
-      border-radius: 9px;
-      background: #e8edf3;
+      border-radius: 8px;
+      background: #eef2f7;
       color: #334155;
       border: 1px solid rgba(148,163,184,.55);
       font-size: 11px;
       font-weight: 900;
       letter-spacing: .01em;
       line-height: 1;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.55);
+      box-shadow: 0 6px 14px rgba(0,23,54,.06), inset 0 0 0 1px rgba(255,255,255,.72);
+      margin-left: -6px;
+      white-space: nowrap;
     }
 
     .tree-toggle {
@@ -3662,8 +3666,9 @@
           <div class="${styleClass}" style="background:${color};color:${textColor};${root.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
             <span class="tree-toggle" data-path="${encPath}" onclick="return handleTreeToggleClick(event)"><span>${root.children.length || root.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
             <span data-path="${encPath}" onclick="return handleTreePathClick(event)" style="cursor:pointer;">${esc(root.display)}</span>
-            <span class="tree-count">${root.count}</span>${renderNodeAliases(root)}
+            <span class="tree-count">${root.count}</span>
           </div>
+          ${renderNodeAliases(root)}
         </div>
       `;
 
@@ -3734,8 +3739,9 @@
           <div class="${styleClass}" style="background:${color};color:${textColor};${node.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
             <span class="tree-toggle" data-path="${encPath}" onclick="return handleTreeToggleClick(event)"><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
             <span data-path="${encPath}" onclick="return handleTreePathClick(event)" style="cursor:pointer;">${esc(node.display)}</span>
-            <span class="tree-count">${node.count}</span>${renderNodeAliases(node)}
+            <span class="tree-count">${node.count}</span>
           </div>
+          ${renderNodeAliases(node)}
         </div>
       `;
 
@@ -3750,6 +3756,13 @@
       return `<li>${nodeHeader}${inner}</li>`;
     }
 
+    function treeSampleTypeLabel(sample) {
+      if (!sample) return "Sample";
+      if (sample.__sourceType === "study") return "Study";
+      if (sample.__sourceType === "ancient") return "Ancient";
+      return "Modern";
+    }
+
     function renderTreeSample(sample) {
       const showEthnic = sample.__sourceType !== "ancient" && isRealValue(sample.ethnic_group);
       return `
@@ -3760,7 +3773,7 @@
                 <span class="tree-sample-dot"></span>
                 <div class="flex-1 min-w-0">
                   <div class="tree-sample-name">${esc(sample.name || "—")}</div>
-                  <div class="tree-sample-gov">${esc(sample.governorate || sample.site || "—")} • ${esc(currentTreeType === "mt" ? (sample.mt_dna || sample.full_mtDNA_path || "—") : (sample.y_dna || "—"))}</div>
+                  <div class="tree-sample-gov">${esc(sample.governorate || sample.site || "—")} • ${esc(treeSampleTypeLabel(sample))}</div>
                   ${showEthnic ? `<div class="tree-sample-ethnic">${esc(sample.ethnic_group)}</div>` : ``}
                 </div>
                 ${sample.__sourceType === "study" ? `<span class="tree-study-badge">Study</span>` : ``}
