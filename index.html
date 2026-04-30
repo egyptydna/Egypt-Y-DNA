@@ -383,36 +383,21 @@
       font-weight: 900;
     }
 
-    .tree-alias-chip {
+    .tree-alias-snp {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       min-height: 24px;
       padding: 0 10px;
-      border-radius: 8px;
-      background: #eef2f7;
-      color: #64748b;
-      border: 1px solid #dbe4ee;
-      font-size: 10px;
-      font-weight: 950;
-      letter-spacing: .02em;
-      box-shadow: 0 6px 14px rgba(15,23,42,.06);
-    }
-
-    .alias-path-chip {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: #f5f3ff;
-      color: #6d28d9;
-      border: 1px solid #c4b5fd;
-      font-size: 9px;
+      border-radius: 9px;
+      background: #e8edf3;
+      color: #334155;
+      border: 1px solid rgba(148,163,184,.55);
+      font-size: 11px;
       font-weight: 900;
-      letter-spacing: .04em;
-      text-transform: uppercase;
-      white-space: nowrap;
+      letter-spacing: .01em;
+      line-height: 1;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.55);
     }
 
     .tree-toggle {
@@ -1546,7 +1531,6 @@
 
     const BASE_COLOR = "#001736";
     const MIN_C_BORDER = "#9ca3af";
-    const Y_ALIAS_COLOR = "#6d28d9";
 
     const SPECIAL_NODE_LABELS = new Set([
       "Y-Adam","A0-T","A1","A1b","BT","CT","CF","F","GHIJK","HIJK","IJK","IJ","J","J1","J2",
@@ -1670,30 +1654,38 @@
       return s ? s : "—";
     }
 
-    function normalizeYAliasSnp(aliasValue) {
-      if (!isRealValue(aliasValue)) return "";
-      let x = String(aliasValue).trim();
-      if (!x || x === "—") return "";
-      const parts = x.split(">").map(p => p.trim()).filter(Boolean).filter(p => p !== "—");
-      if (parts.length) x = parts[parts.length - 1];
-      x = x.replace(/^Y-?DNA\s*[:=]?\s*/i, "").trim();
-      x = x.replace(/^SNP\s*[:=]?\s*/i, "").trim();
-      x = x.replace(/^[A-Z][A-Z0-9]{0,3}-/, "").trim();
-      return x;
+    function getYAliasValue(row) {
+      return valueOrDash((row && (row.y_dna_alias ?? row.Y_DNA_alias ?? row.yDNA_alias ?? row.alias)) ?? "—");
     }
 
-    function sampleYAlias(sample) {
-      return normalizeYAliasSnp(sample?.y_dna_alias ?? sample?.Y_DNA_alias ?? sample?.Y_dna_alias ?? sample?.ydna_alias ?? sample?.yAlias);
+    function extractAliasSNPs(aliasValue) {
+      const raw = String(aliasValue ?? "").trim();
+      if (!raw || raw === "—") return [];
+
+      return [...new Set(
+        raw
+          .split(/[;,|*]+/)
+          .map(x => String(x || "").trim())
+          .filter(Boolean)
+          .map(x => x.split(">").map(y => y.trim()).filter(Boolean).pop() || x)
+          .map(x => x.replace(/^[A-Z][A-Z0-9]*-/i, ""))
+          .map(x => x.replace(/^[-–—]+/, "").trim())
+          .filter(Boolean)
+          .filter(x => x !== "—")
+      )];
     }
 
-    function yPathWithAlias(sample) {
-      return parsePath(sample?.full_snp_path, sample?.y_dna);
+    function addAliasToNode(node, aliasValue) {
+      if (!node || currentTreeType === "mt") return;
+      if (!Array.isArray(node.aliases)) node.aliases = [];
+      extractAliasSNPs(aliasValue).forEach(alias => {
+        if (!node.aliases.some(x => sclean(x) === sclean(alias))) node.aliases.push(alias);
+      });
     }
 
-    function yDisplayPathWithAlias(sample) {
-      const path = yPathWithAlias(sample);
-      if (!path || !path.length) return "—";
-      return path.join(">");
+    function renderNodeAliases(node) {
+      if (currentTreeType === "mt" || !node || !Array.isArray(node.aliases) || !node.aliases.length) return "";
+      return node.aliases.map(alias => `<span class="tree-alias-snp">${esc(alias)}</span>`).join("");
     }
 
     function getDescriptionValue(row) {
@@ -1776,8 +1768,6 @@
         if (isRealValue(sample.mt_dna)) return sample.mt_dna;
         return "—";
       }
-      const aliasPath = yDisplayPathWithAlias(sample);
-      if (sampleYAlias(sample) && isRealValue(aliasPath)) return aliasPath;
       if (isRealValue(sample.full_snp_path)) return sample.full_snp_path;
       if (isRealValue(sample.snp_path)) return sample.snp_path;
       return "—";
@@ -2095,7 +2085,7 @@
         description: getDescriptionValue(s),
         ethnic_group: getEthnicGroupValue(s),
         y_dna: valueOrDash(s.y_dna),
-        y_dna_alias: valueOrDash(s.y_dna_alias),
+        y_dna_alias: getYAliasValue(s),
         mt_dna: valueOrDash(s.mt_dna),
         snp_path: valueOrDash(s.snp_path),
         full_snp_path: valueOrDash(s.full_snp_path),
@@ -2126,7 +2116,7 @@
         site: valueOrDash(s.site),
         ethnic_group: getEthnicGroupValue(s),
         y_dna: valueOrDash(s.y_dna),
-        y_dna_alias: valueOrDash(s.y_dna_alias),
+        y_dna_alias: getYAliasValue(s),
         mt_dna: valueOrDash(s.mt_dna),
         snp_path: valueOrDash(s.snp_path),
         full_snp_path: valueOrDash(s.full_snp_path),
@@ -2150,7 +2140,7 @@
         site: valueOrDash(s.site),
         ethnic_group: "—",
         y_dna: valueOrDash(s.y_dna),
-        y_dna_alias: valueOrDash(s.y_dna_alias),
+        y_dna_alias: getYAliasValue(s),
         mt_dna: valueOrDash(s.mt_dna),
         snp_path: valueOrDash(s.snp_path),
         full_snp_path: valueOrDash(s.full_snp_path),
@@ -2421,7 +2411,8 @@
           samples: [],
           parent: null,
           count: 0,
-          family: null
+          family: null,
+          aliases: []
         };
 
         samples.forEach(sample => {
@@ -2443,7 +2434,8 @@
                 samples: [],
                 parent: node,
                 count: 0,
-                family: (mtPrimaryLineFromLabel(disp) !== "Other" ? mtPrimaryLineFromLabel(disp) : (node.family || "Other"))
+                family: (mtPrimaryLineFromLabel(disp) !== "Other" ? mtPrimaryLineFromLabel(disp) : (node.family || "Other")),
+                aliases: []
               };
               node.childMap.set(disp, child);
               node.children.push(child);
@@ -2478,12 +2470,12 @@
         samples: [],
         parent: null,
         count: 0,
-        family: null
+        family: null,
+        aliases: []
       };
 
       samples.forEach(sample => {
         const path = parsePath(sample.full_snp_path, sample.y_dna);
-        const alias = sampleYAlias(sample);
         let node = root;
         const ancestorChain = [{ display: "Y-Adam" }];
 
@@ -2500,10 +2492,10 @@
               children: [],
               childMap: new Map(),
               samples: [],
-              aliases: [],
               parent: node,
               count: 0,
-              family: inferFamilyFromDisplay(disp, node.family)
+              family: inferFamilyFromDisplay(disp, node.family),
+              aliases: []
             };
             node.childMap.set(disp, child);
             node.children.push(child);
@@ -2513,10 +2505,8 @@
           ancestorChain.push({ display: disp });
         }
 
-        if (alias && !node.aliases.includes(alias)) {
-          node.aliases.push(alias);
-        }
         node.samples.push(sample);
+        addAliasToNode(node, sample.y_dna_alias);
       });
 
       function finalize(node) {
@@ -2535,12 +2525,17 @@
 
     function searchMatchesNode(node, queryClean) {
       const d = sclean(node.display);
-      if (d === queryClean) return true;
+      if (d === queryClean || d.includes(queryClean)) return true;
 
       if (node.display.includes("-")) {
         const suffix = sclean(node.display.split("-").slice(1).join("-"));
-        if (suffix === queryClean) return true;
+        if (suffix === queryClean || suffix.includes(queryClean)) return true;
       }
+
+      if (Array.isArray(node.aliases) && node.aliases.some(alias => {
+        const a = sclean(alias);
+        return a === queryClean || a.includes(queryClean);
+      })) return true;
 
       return false;
     }
@@ -2569,10 +2564,10 @@
         pathKey: node.pathKey,
         children: node.children.map(cloneTree),
         samples: [...node.samples],
-        aliases: [...(node.aliases || [])],
         parent: null,
         count: node.count,
-        family: node.family
+        family: node.family,
+        aliases: Array.isArray(node.aliases) ? [...node.aliases] : []
       };
     }
 
@@ -2620,9 +2615,9 @@
           pathKey: node.pathKey,
           children,
           samples: [...node.samples],
-          aliases: [...(node.aliases || [])],
-            count: node.count,
-          family: node.family
+          count: node.count,
+          family: node.family,
+          aliases: Array.isArray(node.aliases) ? [...node.aliases] : []
         };
       }
 
@@ -2639,7 +2634,8 @@
         children: rawRoot.children.map(compress),
         samples: [...rawRoot.samples],
         count: rawRoot.count,
-        family: rawRoot.family
+        family: rawRoot.family,
+        aliases: Array.isArray(rawRoot.aliases) ? [...rawRoot.aliases] : []
       };
 
       sortCompressedTree(out);
@@ -3012,14 +3008,11 @@
       const ethnicLine = s.__sourceType !== "ancient" && isRealValue(s.ethnic_group)
         ? `<p class="text-[9px] text-gray-400 font-black uppercase tracking-wide text-center mb-1">Ethnic Group: ${esc(s.ethnic_group)}</p>`
         : "";
-      const alias = sampleYAlias(s);
-      const yTitle = s.y_dna || "—";
-      const yPathShown = s.snp_path || s.y_dna || "—";
 
       return `
         <div class="p-6 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm hover:border-secondary transition-all text-left font-bold">
           <div class="flex justify-between mb-4 text-[10px] items-center gap-3">
-            <span class="px-3 py-1 bg-primary text-white rounded-full font-black tracking-tighter">${esc(yTitle)}</span>
+            <span class="px-3 py-1 bg-primary text-white rounded-full font-black tracking-tighter">${esc(s.y_dna || '—')}</span>
             <div class="flex items-center gap-2 flex-wrap justify-end">
               ${s.__sourceType === "study" ? `<span class="tree-study-badge">STUDY</span>` : ``}
               ${s.__sourceType === "ancient" ? `<span class="tree-ancient-badge">ANCIENT</span>` : ``}
@@ -3029,8 +3022,7 @@
           <p class="font-black uppercase text-sm mb-1 text-center">${esc(s.name || '—')}</p>
           <p class="text-[10px] text-secondary font-mono text-center mb-2">${esc(s.sample_id || s.kit_number || '')}</p>
           ${ethnicLine}
-          ${alias ? `<div class="flex justify-center mb-2"><span class="alias-path-chip">${esc(alias)}</span></div>` : ``}
-          <span class="text-[9px] text-gray-400 font-mono snp-text mb-4 text-center block">${esc(yPathShown)}</span>
+          <span class="text-[9px] text-gray-400 font-mono snp-text mb-4 text-center block">${esc(s.snp_path || s.y_dna || '—')}</span>
           <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
             <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest text-center">Y-DNA</p>${links(s, 'y')}</div>
             <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 text-center tracking-widest">mt-DNA</p>${links(s, 'mt')}</div>
@@ -3054,8 +3046,6 @@
       tbody.innerHTML = rows.map(s => {
         const h = haplo(s.y_dna, s.snp_path);
         const dotClass = h === "C" ? 'border border-gray-400' : '';
-        const alias = sampleYAlias(s);
-        const yPathShown = s.snp_path || s.y_dna || '—';
         return `
           <tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
             <td class="px-4 py-6">
@@ -3069,7 +3059,7 @@
             <td class="px-4 py-6 text-left">
               <div class="flex items-start gap-2">
                 <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${dotClass}" style="background:${colorForAggregate(h)}"></span>
-                <span class="text-[10px] font-mono font-bold text-gray-500 snp-text">${alias ? `<span class="alias-path-chip mr-2">${esc(alias)}</span>` : ``}${esc(yPathShown)}</span>
+                <span class="text-[10px] font-mono font-bold text-gray-500 snp-text">${esc(s.snp_path || s.y_dna || '—')}</span>
               </div>
             </td>
             <td class="px-2 py-6">${links(s,'y')}</td>
@@ -3089,8 +3079,6 @@
       tbody.innerHTML = rows.map(s => {
         const h = haplo(s.y_dna, s.snp_path);
         const dotClass = h === "C" ? 'border border-gray-400' : '';
-        const alias = sampleYAlias(s);
-        const yPathShown = s.snp_path || '—';
 
         return `
           <tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
@@ -3109,7 +3097,7 @@
                 <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${dotClass}" style="background:${colorForAggregate(h)}"></span>
                 <div>
                   <div class="text-[11px] font-black">${esc(s.y_dna || '—')}</div>
-                  <div class="text-[9px] font-mono text-gray-400 snp-text">${alias ? `<span class="alias-path-chip mr-2">${esc(alias)}</span>` : ``}${esc(yPathShown)}</div>
+                  <div class="text-[9px] font-mono text-gray-400 snp-text">${esc(s.snp_path || '—')}</div>
                 </div>
               </div>
             </td>
@@ -3674,8 +3662,7 @@
           <div class="${styleClass}" style="background:${color};color:${textColor};${root.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
             <span class="tree-toggle" data-path="${encPath}" onclick="return handleTreeToggleClick(event)"><span>${root.children.length || root.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
             <span data-path="${encPath}" onclick="return handleTreePathClick(event)" style="cursor:pointer;">${esc(root.display)}</span>
-            ${(root.aliases || []).map(a => `<span class="tree-alias-chip">${esc(a)}</span>`).join("")}
-            <span class="tree-count">${root.count}</span>
+            <span class="tree-count">${root.count}</span>${renderNodeAliases(root)}
           </div>
         </div>
       `;
@@ -3747,8 +3734,7 @@
           <div class="${styleClass}" style="background:${color};color:${textColor};${node.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
             <span class="tree-toggle" data-path="${encPath}" onclick="return handleTreeToggleClick(event)"><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
             <span data-path="${encPath}" onclick="return handleTreePathClick(event)" style="cursor:pointer;">${esc(node.display)}</span>
-            ${(node.aliases || []).map(a => `<span class="tree-alias-chip">${esc(a)}</span>`).join("")}
-            <span class="tree-count">${node.count}</span>
+            <span class="tree-count">${node.count}</span>${renderNodeAliases(node)}
           </div>
         </div>
       `;
@@ -3774,7 +3760,7 @@
                 <span class="tree-sample-dot"></span>
                 <div class="flex-1 min-w-0">
                   <div class="tree-sample-name">${esc(sample.name || "—")}</div>
-                  <div class="tree-sample-gov">${esc(sample.governorate || sample.site || "—")} • ${esc(currentTreeType === "mt" ? (sample.mt_dna || sample.full_mtDNA_path || "—") : (sampleYAlias(sample) || sample.y_dna || "—"))}</div>
+                  <div class="tree-sample-gov">${esc(sample.governorate || sample.site || "—")} • ${esc(currentTreeType === "mt" ? (sample.mt_dna || sample.full_mtDNA_path || "—") : (sample.y_dna || "—"))}</div>
                   ${showEthnic ? `<div class="tree-sample-ethnic">${esc(sample.ethnic_group)}</div>` : ``}
                 </div>
                 ${sample.__sourceType === "study" ? `<span class="tree-study-badge">Study</span>` : ``}
