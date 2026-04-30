@@ -383,24 +383,6 @@
       font-weight: 900;
     }
 
-    .tree-alias-chip {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 22px;
-      padding: 3px 9px;
-      border-radius: 999px;
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
-      color: #475569;
-      font-size: 10px;
-      font-weight: 900;
-      line-height: 1;
-      letter-spacing: .02em;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.75);
-      white-space: nowrap;
-    }
-
     .tree-toggle {
       width: 28px;
       height: 28px;
@@ -1608,7 +1590,6 @@
     let studySamples = [];
     let ancientSamples = [];
     let charts = {};
-    let SNP_ALIAS_MAP = {};
 
     let treeScale = 1;
     let treeShowModern = true;
@@ -1649,97 +1630,6 @@
       } catch (e) {
         return String(s ?? "");
       }
-    }
-
-
-    function normalizeAliasKey(value) {
-      return String(value ?? "")
-        .trim()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/^([A-Z0-9]+)-/i, "")
-        .replace(/[^A-Za-z0-9]/g, "")
-        .toUpperCase();
-    }
-
-    function splitAliasValues(value) {
-      if (Array.isArray(value)) return value.map(v => String(v).trim()).filter(Boolean);
-      const raw = String(value ?? "").trim();
-      if (!raw || raw === "—") return [];
-      return raw
-        .split(/[,;|\n\r]+/)
-        .map(v => v.trim())
-        .filter(v => v && v !== "—");
-    }
-
-    function aliasLookupKeys(value) {
-      const raw = String(value ?? "").trim();
-      if (!raw) return [];
-      const noPrefix = raw.includes("-") ? raw.split("-").slice(1).join("-") : raw;
-      return [...new Set([raw, noPrefix, normalizeAliasKey(raw), normalizeAliasKey(noPrefix)].filter(Boolean))];
-    }
-
-    function addAliasToMap(map, key, alias) {
-      const k = normalizeAliasKey(key);
-      const a = String(alias ?? "").trim();
-      if (!k || !a || a === "—" || normalizeAliasKey(a) === k) return;
-      if (!map[k]) map[k] = new Set();
-      map[k].add(a);
-    }
-
-    function getEndSnpCandidateFromMasterRow(row) {
-      const priorityColumns = [
-        "end_snp", "End_SNP", "END_SNP",
-        "terminal_snp", "Terminal_SNP", "TERMINAL_SNP",
-        "final_snp", "Final_SNP", "FINAL_SNP",
-        "snp", "SNP", "y_snp", "Y_SNP",
-        "y_dna", "Y_DNA", "haplogroup", "Haplogroup", "clade", "Clade", "node", "Node"
-      ];
-      for (const col of priorityColumns) {
-        const val = row?.[col];
-        if (val !== null && val !== undefined && String(val).trim() && String(val).trim() !== "—") return String(val).trim();
-      }
-      const ignored = new Set(["y_dna_alias", "alias", "aliases", "description", "note", "notes", "created_at", "updated_at", "full_snp_path", "full_mtDNA_path", "full_mtdna_path", "mt_dna", "mtdna"]);
-      for (const [col, value] of Object.entries(row || {})) {
-        if (ignored.has(String(col))) continue;
-        if (value === null || value === undefined || typeof value === "object") continue;
-        const raw = String(value).trim();
-        if (!raw || raw === "—" || raw.length > 80) continue;
-        if (/^[A-Z0-9]+[-]?[A-Z0-9]+/i.test(raw)) return raw;
-      }
-      return "";
-    }
-
-    function buildSnpAliasMapFromMaster(rows) {
-      const map = {};
-      (rows || []).forEach(row => {
-        const aliases = splitAliasValues(row?.y_dna_alias);
-        if (!aliases.length) return;
-        const endSnp = getEndSnpCandidateFromMasterRow(row);
-        if (!endSnp) return;
-        aliasLookupKeys(endSnp).forEach(key => aliases.forEach(alias => addAliasToMap(map, key, alias)));
-      });
-      const out = {};
-      Object.entries(map).forEach(([key, set]) => { out[key] = [...set]; });
-      return out;
-    }
-
-    function getNodeAliasList(node) {
-      if (currentTreeType !== "y" || !node) return [];
-      const keys = [...aliasLookupKeys(node.display), ...aliasLookupKeys(node.raw)];
-      const aliases = [];
-      keys.forEach(key => {
-        const values = SNP_ALIAS_MAP[normalizeAliasKey(key)];
-        if (Array.isArray(values)) aliases.push(...values);
-      });
-      const ownKeys = new Set([normalizeAliasKey(node.display), normalizeAliasKey(node.raw), ...aliasLookupKeys(node.display).map(normalizeAliasKey), ...aliasLookupKeys(node.raw).map(normalizeAliasKey)]);
-      return [...new Set(aliases.map(v => String(v).trim()).filter(v => v && !ownKeys.has(normalizeAliasKey(v))))];
-    }
-
-    function nodeAliasHTML(node) {
-      const aliases = getNodeAliasList(node);
-      if (!aliases.length) return "";
-      return aliases.map(a => `<span class="tree-alias-chip" title="Alias / equivalent SNP on another tree">${esc(a)}</span>`).join("");
     }
 
     function valueOrDash(v) {
@@ -2158,14 +2048,11 @@
     }
 
     async function loadAll() {
-      const [modR, studyR, ancR, masterR] = await Promise.all([
+      const [modR, studyR, ancR] = await Promise.all([
         _sb.from("Modern_published_samples").select("*"),
         _sb.from("Modern_study_samples").select("*"),
-        _sb.from("Ancient_published_samples").select("*"),
-        _sb.from("dna_haplogroup_master").select("*")
+        _sb.from("Ancient_published_samples").select("*")
       ]);
-
-      SNP_ALIAS_MAP = buildSnpAliasMapFromMaster(masterR.data || []);
 
       modernSamples = (modR.data || []).map((s, index) => addUid({
         ...s,
@@ -2580,15 +2467,12 @@
     function searchMatchesNode(node, queryClean) {
       const d = sclean(node.display);
       if (d === queryClean) return true;
+
       if (node.display.includes("-")) {
         const suffix = sclean(node.display.split("-").slice(1).join("-"));
         if (suffix === queryClean) return true;
       }
-      const aliases = getNodeAliasList(node);
-      if (aliases.some(alias => {
-        const a = sclean(alias);
-        return a === queryClean || a.includes(queryClean) || queryClean.includes(a);
-      })) return true;
+
       return false;
     }
 
@@ -3711,7 +3595,6 @@
           <div class="${styleClass}" style="background:${color};color:${textColor};${root.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
             <span class="tree-toggle" data-path="${encPath}" onclick="return handleTreeToggleClick(event)"><span>${root.children.length || root.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
             <span data-path="${encPath}" onclick="return handleTreePathClick(event)" style="cursor:pointer;">${esc(root.display)}</span>
-            ${nodeAliasHTML(root)}
             <span class="tree-count">${root.count}</span>
           </div>
         </div>
@@ -3784,7 +3667,6 @@
           <div class="${styleClass}" style="background:${color};color:${textColor};${node.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
             <span class="tree-toggle" data-path="${encPath}" onclick="return handleTreeToggleClick(event)"><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
             <span data-path="${encPath}" onclick="return handleTreePathClick(event)" style="cursor:pointer;">${esc(node.display)}</span>
-            ${nodeAliasHTML(node)}
             <span class="tree-count">${node.count}</span>
           </div>
         </div>
