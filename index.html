@@ -383,6 +383,42 @@
       font-weight: 900;
     }
 
+    .tree-alias-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+      max-width: 360px;
+    }
+
+    .tree-alias-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 22px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: rgba(241,245,249,.96);
+      border: 1px solid rgba(203,213,225,.9);
+      color: #64748b;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .02em;
+      line-height: 1;
+      white-space: nowrap;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
+    }
+
+    .tree-alias-chip::before {
+      content: "also";
+      margin-right: 5px;
+      color: #94a3b8;
+      font-size: 8px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
     .tree-toggle {
       width: 28px;
       height: 28px;
@@ -1512,6 +1548,25 @@
       "Other": "#7fc8d6"
     };
 
+    const SNP_ALIAS_MAP = {
+      /*
+        Alternative SNP labels / equivalent names shown beside tree nodes.
+        Add entries here when another source uses a different SNP name for the same branch.
+
+        Format:
+        "Main node as shown in the tree": ["Alternative SNP 1", "Alternative SNP 2"],
+
+        Examples:
+        "E-M35": ["E-P2"],
+        "J-P58": ["J-M267"],
+        "R-M269": ["R1b-M269"],
+        "H14a17'31'32": ["H14a-a"],
+
+        The function works for both Y-DNA and mtDNA nodes. If a node has no entry here,
+        nothing extra is shown, so the tree stays clean.
+      */
+    };
+
     const BASE_COLOR = "#001736";
     const MIN_C_BORDER = "#9ca3af";
 
@@ -1618,6 +1673,39 @@
 
     function jsstr(s) {
       return JSON.stringify(String(s ?? ""));
+    }
+
+    function aliasLookupKeys(value) {
+      const raw = String(value ?? "").trim();
+      if (!raw) return [];
+      const upper = raw.toUpperCase();
+      const noPrefix = raw.includes("-") ? raw.split("-").slice(1).join("-") : raw;
+      const upperNoPrefix = noPrefix.toUpperCase();
+      return [...new Set([raw, upper, noPrefix, upperNoPrefix].filter(Boolean))];
+    }
+
+    function getNodeAliasList(node) {
+      if (!node) return [];
+      const out = [];
+      const keys = [
+        ...aliasLookupKeys(node.display),
+        ...aliasLookupKeys(node.raw),
+        ...aliasLookupKeys(node.family)
+      ];
+
+      keys.forEach(key => {
+        const values = SNP_ALIAS_MAP[key] || SNP_ALIAS_MAP[String(key).toUpperCase()];
+        if (Array.isArray(values)) out.push(...values);
+        else if (isRealValue(values)) out.push(values);
+      });
+
+      return [...new Set(out.map(v => String(v).trim()).filter(v => v && v !== node.display && v !== node.raw))];
+    }
+
+    function nodeAliasHTML(node) {
+      const aliases = getNodeAliasList(node);
+      if (!aliases.length) return "";
+      return `<span class="tree-alias-group">${aliases.map(a => `<span class="tree-alias-chip">${esc(a)}</span>`).join("")}</span>`;
     }
 
     function encodePathArg(s) {
@@ -3595,6 +3683,7 @@
           <div class="${styleClass}" style="background:${color};color:${textColor};${root.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
             <span class="tree-toggle" data-path="${encPath}" onclick="return handleTreeToggleClick(event)"><span>${root.children.length || root.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
             <span data-path="${encPath}" onclick="return handleTreePathClick(event)" style="cursor:pointer;">${esc(root.display)}</span>
+            ${nodeAliasHTML(root)}
             <span class="tree-count">${root.count}</span>
           </div>
         </div>
@@ -3667,6 +3756,7 @@
           <div class="${styleClass}" style="background:${color};color:${textColor};${node.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
             <span class="tree-toggle" data-path="${encPath}" onclick="return handleTreeToggleClick(event)"><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
             <span data-path="${encPath}" onclick="return handleTreePathClick(event)" style="cursor:pointer;">${esc(node.display)}</span>
+            ${nodeAliasHTML(node)}
             <span class="tree-count">${node.count}</span>
           </div>
         </div>
