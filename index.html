@@ -3789,6 +3789,15 @@
       treeSearchResultPath = "";
       treeFocusPath = null;
 
+      /*
+        IMPORTANT FIX:
+        A tree pill such as J2, E, J1, etc. filters the visible sample set.
+        Search must always run globally across the currently enabled sources
+        (Modern / Study / Ancient), not only inside the selected pill.
+        Example: if J2 is selected and the user searches P58, P58 must still be found.
+      */
+      if (treeHaploFilter) treeHaploFilter = null;
+
       if (!q) {
         document.getElementById("tree-result-path").classList.remove("active");
         document.getElementById("tree-result-path").innerHTML = "";
