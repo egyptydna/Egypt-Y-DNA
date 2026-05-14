@@ -1129,11 +1129,59 @@
         grid-template-columns: 1fr;
       }
     }
+
+    .share-floating-btn {
+      position: fixed;
+      right: 18px;
+      bottom: 78px;
+      z-index: 900;
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      background: #001736;
+      color: #ffffff;
+      border: 1px solid rgba(255,255,255,.2);
+      box-shadow: 0 18px 36px rgba(0,23,54,.22);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform .18s ease, background .18s ease;
+    }
+    .share-floating-btn:hover {
+      background: #775a19;
+      transform: translateY(-2px);
+    }
+    .share-toast {
+      position: fixed;
+      right: 18px;
+      bottom: 138px;
+      z-index: 901;
+      background: rgba(15,23,42,.96);
+      color: #fff;
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .share-toast.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
   </style>
 </head>
 <body class="bg-background text-primary font-body antialiased">
 
   <div id="chartjs-ext-tooltip" class="chartjs-ext-tooltip"></div>
+  <div id="share-toast" class="share-toast">Link copied</div>
+  <button id="share-floating-btn" class="share-floating-btn" type="button" onclick="copyCurrentShareLink()" title="Copy share link"><span class="material-symbols-outlined">share</span></button>
 
   <nav class="w-full bg-white border-b border-gray-100 h-20 sticky top-0 z-40">
     <div class="flex justify-between items-center px-4 md:px-8 h-full max-w-screen-2xl mx-auto">
@@ -1636,6 +1684,7 @@
     let tooltipRAF = null;
     let currentSampleModal = null;
     let samplePathMode = "direct";
+    let isApplyingSharedLink = false;
 
     function esc(s) {
       return String(s ?? "")
@@ -1764,16 +1813,160 @@
       window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
     }
 
+
+    function shareHash(section, params = {}) {
+      const pairs = [section];
+      Object.entries(params).forEach(([key, value]) => {
+        if (value === null || value === undefined || String(value).trim() === "") return;
+        pairs.push(`${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`);
+      });
+      return pairs.join("&");
+    }
+
+    function replaceShareHash(section, params = {}) {
+      if (isApplyingSharedLink) return;
+      const hash = shareHash(section, params);
+      if (window.location.hash.replace(/^#/, "") !== hash) {
+        history.replaceState(null, "", `${window.location.pathname}${window.location.search}#${hash}`);
+      }
+    }
+
+    function currentShareUrl() {
+      return `${window.location.origin}${window.location.pathname}${window.location.search}${window.location.hash}`;
+    }
+
+    function showShareToast(text = "Link copied") {
+      const toast = document.getElementById("share-toast");
+      if (!toast) return;
+      toast.textContent = text;
+      toast.classList.add("active");
+      clearTimeout(showShareToast._t);
+      showShareToast._t = setTimeout(() => toast.classList.remove("active"), 1700);
+    }
+
+    async function copyCurrentShareLink() {
+      const url = currentShareUrl();
+      try {
+        await navigator.clipboard.writeText(url);
+        showShareToast("Link copied");
+      } catch (err) {
+        window.prompt("Copy this share link:", url);
+      }
+    }
+
+    function setSectionActiveForShare(id) {
+      document.querySelectorAll(".page-section").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll(".nav-link").forEach(n => {
+        n.classList.remove("active");
+        n.classList.add("text-gray-400");
+      });
+
+      if (id === "ytree" || id === "mtree") {
+        currentTreeType = id === "mtree" ? "mt" : "y";
+        document.getElementById("section-tree").classList.add("active");
+        const navId = currentTreeType === "mt" ? "nav-mtree" : "nav-ytree";
+        const navEl = document.getElementById(navId);
+        if (navEl) {
+          navEl.classList.add("active");
+          navEl.classList.remove("text-gray-400");
+        }
+        updateTreeTypeUI();
+        updateTreeFloatingToggle();
+        return;
+      }
+
+      const sectionId = id === "dashboard" ? "home" : id;
+      const sec = document.getElementById("section-" + sectionId);
+      if (sec) sec.classList.add("active");
+      const nav = document.getElementById("nav-" + sectionId);
+      if (nav) {
+        nav.classList.add("active");
+        nav.classList.remove("text-gray-400");
+      }
+      updateTreeFloatingToggle();
+    }
+
+    function applyAnySharedLinkFromHash() {
+      const rawHash = String(window.location.hash || "").replace(/^#/, "");
+      if (!rawHash) return false;
+      const parts = rawHash.split("&");
+      const section = decodeURIComponent(parts[0] || "");
+      const params = {};
+      parts.slice(1).forEach(part => {
+        const eq = part.indexOf("=");
+        if (eq === -1) return;
+        const k = decodeURIComponent(part.slice(0, eq));
+        const v = decodeURIComponent(part.slice(eq + 1));
+        params[k] = v;
+      });
+
+      isApplyingSharedLink = true;
+      try {
+        if (section === "ytree" || section === "mtree") {
+          currentTreeType = section === "mtree" ? "mt" : "y";
+          treeFocusPath = params.node || null;
+          treeSearchTargetPath = null;
+          treeSearchResultPath = "";
+          treeHaploFilter = params.haplo || null;
+          setSectionActiveForShare(section);
+          if (treeFocusPath) {
+            renderClickableTreePath(treeFocusPath);
+            document.getElementById("btn-tree-back").classList.remove("hidden");
+          }
+          renderTree();
+          if (params.breakdown) {
+            openTreeBreakdownModal(params.breakdown, params.breakdownHaplo || null);
+          }
+          return true;
+        }
+
+        if (section === "archive") {
+          setSectionActiveForShare("archive");
+          if (document.getElementById("archiveSearch")) document.getElementById("archiveSearch").value = params.search || "";
+          if (document.getElementById("filterHaplo")) document.getElementById("filterHaplo").value = params.haplo || "";
+          if (document.getElementById("filterGov")) document.getElementById("filterGov").value = params.gov || "";
+          renderArchive();
+          return true;
+        }
+
+        if (section === "ancient") {
+          setSectionActiveForShare("ancient");
+          if (document.getElementById("ancientSearch")) document.getElementById("ancientSearch").value = params.search || "";
+          renderAncientArchive();
+          if (params.type || params.haplo) openModal("ANCIENT", params.haplo || null);
+          return true;
+        }
+
+        if (section === "dashboard" || section === "home") {
+          setSectionActiveForShare("home");
+          if (params.region) openRegionModal(params.region, params.haplo || null);
+          else if (params.type || params.haplo) openModal("MODERN", params.haplo || null);
+          return true;
+        }
+
+        if (section === "sample") {
+          const sample = allTreeSamples().find(s =>
+            String(s.__sourceType || "") === String(params.source || "") &&
+            (String(s.kit_number || "") === String(params.id || "") || String(s.sample_id || "") === String(params.id || ""))
+          );
+          if (sample) openSampleModal(sample);
+          return !!sample;
+        }
+      } finally {
+        isApplyingSharedLink = false;
+      }
+      return false;
+    }
+
     function sharedTreeSectionHash() {
       return currentTreeType === "mt" ? "mtree" : "ytree";
     }
 
     function updateSharedTreeUrl(pathKey) {
-      if (!pathKey || pathKey === "Y-Adam" || pathKey === "mt-Eve") return;
-      const hash = `${sharedTreeSectionHash()}&node=${encodeURIComponent(pathKey)}`;
-      if (window.location.hash.replace(/^#/, "") !== hash) {
-        history.replaceState(null, "", `${window.location.pathname}${window.location.search}#${hash}`);
-      }
+      const params = {};
+      if (pathKey && pathKey !== "Y-Adam" && pathKey !== "mt-Eve") params.node = pathKey;
+      if (treeHaploFilter) params.haplo = treeHaploFilter;
+      replaceShareHash(sharedTreeSectionHash(), params);
     }
 
     function applySharedTreeLinkFromHash() {
@@ -2135,15 +2328,46 @@
       return modernSamples.concat(studySamples).concat(ancientSamples);
     }
 
+    function isLikelySnpSearch(q) {
+      const x = String(q || "").trim();
+      return /^[A-Za-z]{1,4}-?[A-Za-z]*\d+[A-Za-z0-9]*$/.test(x) || /^[A-Za-z]+\d+[A-Za-z0-9]*$/.test(x);
+    }
+
+    function markerTokens(text) {
+      return String(text || "")
+        .toUpperCase()
+        .split(/[^A-Z0-9]+/)
+        .map(x => x.trim())
+        .filter(Boolean)
+        .flatMap(x => {
+          const noPrefix = x.replace(/^[A-Z]{1,4}(?=[A-Z]*\d)/, "");
+          return noPrefix && noPrefix !== x ? [x, noPrefix] : [x];
+        })
+        .map(x => sclean(x))
+        .filter(Boolean);
+    }
+
+    function markerExactMatch(fields, q) {
+      const qClean = sclean(String(q || "").replace(/^[A-Z]{1,4}-/i, ""));
+      if (!qClean) return false;
+      return fields.some(field => markerTokens(field).includes(qClean) || markerTokens(field).includes(sclean(q)));
+    }
+
     function matchSearchRow(s, q) {
       if (!q) return true;
       const ql = sclean(q);
-      const fields = [
+      const normalFields = [
         s.name, s.kit_number, s.sample_id, s.governorate, s.site,
         s.period, s.study_reference, s.study_link, s.cultural_group,
-        s.y_dna, s.y_dna_alias, s.snp_path, s.full_snp_path, s.description, s.ethnic_group
+        s.description, s.ethnic_group, s.mt_dna, s.full_mtDNA_path
       ];
-      return fields.some(f => sclean(f).includes(ql));
+      const markerFields = [s.y_dna, s.y_dna_alias, s.snp_path, s.full_snp_path];
+
+      if (isLikelySnpSearch(q)) {
+        return markerExactMatch(markerFields, q) || normalFields.some(f => sclean(f).includes(ql));
+      }
+
+      return normalFields.concat(markerFields).some(f => sclean(f).includes(ql));
     }
 
     function addUid(sample, sourceType, index) {
@@ -3042,6 +3266,7 @@
     }
 
     function openRegionModal(gov, selectedHap = null) {
+      replaceShareHash("dashboard", { region: gov, haplo: selectedHap || "" });
       const { pool, totals } = getRegionTotals(gov);
       const total = pool.length;
 
@@ -3075,6 +3300,7 @@
     }
 
     function showRegionHaplo(gov, hp, shouldScroll = true) {
+      replaceShareHash("dashboard", { region: gov, haplo: hp });
       const { pool } = getRegionTotals(gov);
       const matches = pool.filter(s => haplo(s.y_dna, s.snp_path) === hp);
       const pct = pool.length ? ((matches.length / pool.length) * 100).toFixed(1) : "0.0";
@@ -3141,6 +3367,10 @@
         (!gF || governorateMatch(s.governorate, gF))
       );
 
+      if (document.getElementById("section-archive")?.classList.contains("active")) {
+        replaceShareHash("archive", { search, haplo: hF, gov: gF });
+      }
+
       tbody.innerHTML = rows.map(s => {
         const h = haplo(s.y_dna, s.snp_path);
         const dotClass = h === "C" ? 'border border-gray-400' : '';
@@ -3173,6 +3403,10 @@
       const search = document.getElementById("ancientSearch").value.trim();
 
       const rows = ancientSamples.filter(s => matchSearchRow(s, search));
+
+      if (document.getElementById("section-ancient")?.classList.contains("active")) {
+        replaceShareHash("ancient", { search });
+      }
 
       tbody.innerHTML = rows.map(s => {
         const h = haplo(s.y_dna, s.snp_path);
@@ -3222,6 +3456,7 @@
     }
 
     function openSampleModal(sample) {
+      replaceShareHash("sample", { source: sample.__sourceType || "", id: sample.kit_number || sample.sample_id || "" });
       const typeLabel =
         sample.__sourceType === "ancient" ? "Ancient sample" :
         sample.__sourceType === "study" ? "Modern study sample" :
@@ -3285,6 +3520,7 @@
     }
 
     function openModal(type, hp) {
+      replaceShareHash(type === "ANCIENT" ? "ancient" : "dashboard", { type, haplo: hp || "" });
       const pool = type === "ANCIENT" ? ancientSamples : allModernLikeSamples();
       const total = pool.length;
       const totals = {};
@@ -3321,6 +3557,7 @@
     }
 
     function showNationalHaplo(type, hp, shouldScroll = true) {
+      replaceShareHash(type === "ANCIENT" ? "ancient" : "dashboard", { type, haplo: hp });
       const la = document.getElementById("modal-kit-list");
       const pool = type === "ANCIENT" ? ancientSamples : allModernLikeSamples();
       const total = pool.length;
@@ -3393,6 +3630,8 @@
       }
 
       updateTreeFloatingToggle();
+      if (id === "ytree" || id === "mtree") updateSharedTreeUrl(treeFocusPath);
+      else replaceShareHash(id === "home" ? "dashboard" : id, {});
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -3415,6 +3654,7 @@
       updateTreeTypeUI();
       updateTreeFloatingToggle();
       toggleTreeSearchIcon();
+      updateSharedTreeUrl(null);
       renderTree();
       requestAnimationFrame(() => scrollTreeIntoView());
     }
@@ -3461,6 +3701,7 @@
       document.getElementById("btn-tree-back").classList.add("hidden");
       updateTreeFloatingToggle();
       toggleTreeSearchIcon();
+      updateSharedTreeUrl(null);
       renderTree();
       requestAnimationFrame(() => scrollTreeIntoView());
     }
@@ -3472,6 +3713,7 @@
       document.getElementById("btn-tree-back").classList.add("hidden");
       document.getElementById("tree-result-path").classList.remove("active");
       document.getElementById("tree-result-path").innerHTML = "";
+      updateSharedTreeUrl(null);
       renderTree();
       requestAnimationFrame(() => scrollTreeIntoView());
     }
@@ -3483,6 +3725,7 @@
       treeSearchResultPath = "";
       document.getElementById("tree-result-path").classList.remove("active");
       document.getElementById("tree-result-path").innerHTML = "";
+      updateSharedTreeUrl(null);
       renderTree();
       requestAnimationFrame(() => scrollTreeIntoView());
     }
@@ -3528,8 +3771,8 @@
       treeFocusPath = pathKey;
       treeSearchTargetPath = null;
       treeSearchResultPath = "";
-      renderClickableTreePath(pathKey);
       updateSharedTreeUrl(pathKey);
+      renderClickableTreePath(pathKey);
       document.getElementById("btn-tree-back").classList.toggle("hidden", pathKey === (currentTreeType === "mt" ? "mt-Eve" : "Y-Adam"));
       renderTree();
       requestAnimationFrame(() => scrollTreeIntoView());
@@ -3581,6 +3824,7 @@
 
 
     function openTreeBreakdownModal(scope = "total", selectedHap = null) {
+      replaceShareHash(sharedTreeSectionHash(), { node: treeFocusPath || "", haplo: treeHaploFilter || "", breakdown: scope, breakdownHaplo: selectedHap || "" });
       const pool = treeScopeSamples(scope);
       const totals = {};
       pool.forEach(s => {
@@ -3619,6 +3863,7 @@
     }
 
     function showTreeBreakdownHaplo(scope, hp, shouldScroll = true) {
+      replaceShareHash(sharedTreeSectionHash(), { node: treeFocusPath || "", haplo: treeHaploFilter || "", breakdown: scope, breakdownHaplo: hp });
       const la = document.getElementById("modal-kit-list");
       const pool = treeScopeSamples(scope);
       const matches = pool.filter(s => treeGroupForSample(s) === hp);
@@ -3918,7 +4163,7 @@
         if (event.key === "Enter") runTreeSearch();
       });
       window.addEventListener("hashchange", () => {
-        if (applySharedTreeLinkFromHash()) renderTree();
+        applyAnySharedLinkFromHash();
       });
       toggleTreeSearchIcon();
       updateTreeTypeUI();
@@ -3933,7 +4178,7 @@
       renderAncientArchive();
       updateModernSummary();
       updateAncientSummary();
-      applySharedTreeLinkFromHash();
+      applyAnySharedLinkFromHash();
       renderTree();
       updateTreeTypeUI();
       updateTreeFloatingToggle();
