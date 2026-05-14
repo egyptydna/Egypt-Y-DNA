@@ -1186,7 +1186,7 @@
   <nav class="w-full bg-white border-b border-gray-100 h-20 sticky top-0 z-40">
     <div class="flex justify-between items-center px-4 md:px-8 h-full max-w-screen-2xl mx-auto">
       <div class="flex items-center gap-2 md:gap-8">
-        <a href="#" onclick="location.reload();return false" class="flex flex-col group">
+        <a href="#" onclick="return resetSiteStateAndGoHome(event)" class="flex flex-col group">
           <h1 class="text-xs md:text-xl font-black uppercase tracking-tighter leading-none text-primary group-hover:text-secondary transition-colors font-headline">Egyptian Y-DNA Project</h1>
           <p class="text-[7px] md:text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1 font-headline">National Genomic Archive</p>
         </a>
@@ -1829,6 +1829,98 @@
       if (window.location.hash.replace(/^#/, "") !== hash) {
         history.replaceState(null, "", `${window.location.pathname}${window.location.search}#${hash}`);
       }
+    }
+
+
+    function closeAllOpenModals() {
+      const ids = ["detail-modal", "sample-detail-modal", "region-modal"];
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove("active");
+      });
+      currentSampleModal = null;
+      samplePathMode = "direct";
+      hideChartTooltip();
+    }
+
+    function resetTreeStateOnly() {
+      treeScale = 1;
+      treeShowModern = true;
+      treeShowStudy = true;
+      treeShowAncient = true;
+      treeHaploFilter = null;
+      treeMode = "direct";
+      treeFocusPath = null;
+      treeSearchQuery = "";
+      treeSearchTargetPath = null;
+      treeSearchResultPath = "";
+      collapsedNodes = new Set();
+
+      const treeInner = document.getElementById("tree-inner");
+      if (treeInner) treeInner.style.transform = "";
+
+      const treeSearch = document.getElementById("treeSearch");
+      if (treeSearch) treeSearch.value = "";
+
+      const pathBar = document.getElementById("tree-result-path");
+      if (pathBar) {
+        pathBar.classList.remove("active");
+        pathBar.innerHTML = "";
+      }
+
+      const backBtn = document.getElementById("btn-tree-back");
+      if (backBtn) backBtn.classList.add("hidden");
+
+      const modernBtn = document.getElementById("btn-modern");
+      const studyBtn = document.getElementById("btn-study");
+      const ancientBtn = document.getElementById("btn-ancient");
+      const directBtn = document.getElementById("btn-direct");
+      const fullBtn = document.getElementById("btn-full");
+      if (modernBtn) modernBtn.classList.add("on");
+      if (studyBtn) studyBtn.classList.add("on");
+      if (ancientBtn) ancientBtn.classList.add("on");
+      if (directBtn) directBtn.classList.add("on");
+      if (fullBtn) fullBtn.classList.remove("on");
+
+      toggleTreeSearchIcon();
+      updateTreeTypeUI();
+      updateTreeFloatingToggle();
+    }
+
+    function resetSiteStateAndGoHome(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      isApplyingSharedLink = true;
+      try {
+        history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+      } finally {
+        isApplyingSharedLink = false;
+      }
+
+      closeAllOpenModals();
+
+      const archiveSearch = document.getElementById("archiveSearch");
+      const ancientSearch = document.getElementById("ancientSearch");
+      const filterHaplo = document.getElementById("filterHaplo");
+      const filterGov = document.getElementById("filterGov");
+      if (archiveSearch) archiveSearch.value = "";
+      if (ancientSearch) ancientSearch.value = "";
+      if (filterHaplo) filterHaplo.value = "";
+      if (filterGov) filterGov.value = "";
+
+      resetTreeStateOnly();
+      setSectionActiveForShare("home");
+
+      if (typeof renderArchive === "function") renderArchive();
+      if (typeof renderAncientArchive === "function") renderAncientArchive();
+      if (typeof renderTree === "function") renderTree();
+      if (typeof renderDashboard === "function") renderDashboard();
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return false;
     }
 
     function currentShareUrl() {
@@ -3609,6 +3701,7 @@
     }
 
     function showSection(id) {
+      closeAllOpenModals();
       hideChartTooltip();
       document.querySelectorAll(".page-section").forEach(s => s.classList.remove("active"));
       document.querySelectorAll(".nav-link").forEach(n => {
