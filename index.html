@@ -1966,6 +1966,280 @@
       }
     }
 
+
+
+    /* ========================================================
+       COMBINED DASHBOARD LAYOUT FIX
+       Both diagrams in one compact research dashboard.
+       Removes empty middle space and keeps legend close.
+       ======================================================== */
+
+    #section-home {
+      max-width: 1500px !important;
+      padding-top: 1.6rem !important;
+      padding-bottom: 2.2rem !important;
+      gap: 2rem !important;
+    }
+
+    .combined-dashboard-panel {
+      position: relative;
+      overflow: hidden;
+      border-radius: clamp(1.8rem, 3vw, 3.2rem);
+      border: 1px solid #e7eaee;
+      background:
+        radial-gradient(circle at 92% 6%, rgba(119,90,25,.07), transparent 26%),
+        linear-gradient(135deg, #ffffff 0%, #fbfcfd 58%, #f6f8f5 100%);
+      box-shadow: 0 24px 58px rgba(0,23,54,.075);
+      padding: clamp(1.5rem, 2.3vw, 2.6rem);
+    }
+
+    .combined-dashboard-panel::before {
+      content: "";
+      position: absolute;
+      inset: 16px;
+      border: 1px solid rgba(0,23,54,.055);
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    .combined-dashboard-header {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(320px, .92fr) minmax(460px, 1.08fr);
+      gap: clamp(1.3rem, 2.4vw, 2.2rem);
+      align-items: end;
+      margin-bottom: 1.35rem;
+    }
+
+    .combined-dashboard-copy { max-width: 620px; }
+
+    .combined-kicker {
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .26em;
+      text-transform: uppercase;
+      color: #775a19;
+      margin-bottom: .7rem;
+    }
+
+    .combined-title {
+      font-size: clamp(3.15rem, 4.7vw, 5.45rem);
+      line-height: .9;
+      letter-spacing: -.075em;
+      font-weight: 900;
+      color: #001736;
+    }
+
+    .combined-subtitle {
+      max-width: 560px;
+      margin-top: .95rem;
+      font-size: clamp(.92rem, 1vw, 1.06rem);
+      line-height: 1.5;
+      font-weight: 800;
+      color: #64748b;
+    }
+
+    .combined-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: .72rem;
+    }
+
+    .combined-metric-card {
+      min-height: 82px;
+      border: 1px solid #e7eaee;
+      border-radius: 1.25rem;
+      background: rgba(255,255,255,.72);
+      box-shadow: 0 10px 24px rgba(0,23,54,.04);
+      padding: .8rem .95rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .combined-metric-card span {
+      font-size: .56rem;
+      line-height: 1.25;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+
+    .combined-metric-card strong {
+      margin-top: .22rem;
+      font-size: clamp(2rem, 2.6vw, 3.25rem);
+      line-height: .95;
+      letter-spacing: -.055em;
+      font-weight: 900;
+      color: #001736;
+    }
+
+    .combined-charts-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+      align-items: stretch;
+    }
+
+    .combined-chart-card {
+      min-height: 420px;
+      border: 1px solid #e7eaee;
+      border-radius: 1.8rem;
+      background: rgba(255,255,255,.58);
+      box-shadow: 0 14px 32px rgba(0,23,54,.045);
+      padding: 1.05rem;
+      display: flex;
+      flex-direction: column;
+      gap: .85rem;
+    }
+
+    .combined-chart-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      border-bottom: 1px solid #edf0f4;
+      padding-bottom: .7rem;
+    }
+
+    .combined-chart-head p {
+      font-size: 8.5px;
+      font-weight: 900;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: #775a19;
+      margin-bottom: .28rem;
+    }
+
+    .combined-chart-head h3 {
+      font-size: clamp(1.35rem, 1.85vw, 2.05rem);
+      line-height: 1;
+      letter-spacing: -.055em;
+      font-weight: 900;
+      color: #001736;
+    }
+
+    .combined-chart-head span {
+      font-size: .66rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #94a3b8;
+      white-space: nowrap;
+    }
+
+    .combined-chart-body {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(230px, .9fr) minmax(210px, .78fr);
+      gap: .95rem;
+      align-items: center;
+    }
+
+    .combined-chart-wrap {
+      width: min(300px, 22vw);
+      height: min(300px, 22vw);
+      min-width: 230px;
+      min-height: 230px;
+      justify-self: center;
+      cursor: pointer;
+    }
+
+    .combined-chart-wrap canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .combined-legend {
+      width: 100% !important;
+      max-height: 335px;
+      overflow: auto;
+      padding: .65rem !important;
+      border-radius: 1.15rem !important;
+      background: rgba(255,255,255,.74) !important;
+      box-shadow: none !important;
+      border: 1px solid #edf0f4 !important;
+      font-size: .68rem !important;
+      gap: .12rem !important;
+    }
+
+    .combined-legend .pie-legend-row,
+    .combined-legend .home-legend-item {
+      min-height: 25px !important;
+      padding: .16rem .3rem !important;
+      border-radius: .7rem !important;
+      grid-template-columns: 12px minmax(42px, 1fr) auto !important;
+      gap: .42rem !important;
+    }
+
+    .combined-legend .pie-legend-dot,
+    .combined-legend .home-legend-dot {
+      width: .52rem !important;
+      height: .52rem !important;
+    }
+
+    .combined-legend .pie-legend-value { font-size: .68rem !important; }
+
+    .combined-project-note {
+      position: relative;
+      z-index: 1;
+      margin-top: 1rem;
+      border: 1px solid #e7eaee;
+      border-radius: 1.6rem;
+      background: rgba(255,255,255,.56);
+      padding: 1rem 1.15rem;
+      display: grid;
+      grid-template-columns: minmax(260px, .7fr) minmax(420px, 1.3fr);
+      gap: 1.25rem;
+      align-items: start;
+    }
+
+    .combined-project-note .combined-kicker { margin-bottom: .35rem; }
+
+    .combined-project-note h3 {
+      font-size: clamp(1.35rem, 2vw, 2.15rem);
+      line-height: 1.04;
+      letter-spacing: -.055em;
+      font-weight: 900;
+      color: #001736;
+    }
+
+    .combined-project-note p:last-child {
+      font-size: .92rem;
+      line-height: 1.58;
+      font-weight: 800;
+      color: #64748b;
+      margin: 0;
+    }
+
+    #section-home > section + section { margin-top: 2rem !important; }
+
+    @media (max-width: 1250px) {
+      .combined-dashboard-header,
+      .combined-charts-grid,
+      .combined-project-note {
+        grid-template-columns: 1fr;
+      }
+      .combined-metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .combined-chart-body { grid-template-columns: minmax(230px, .95fr) minmax(230px, 1fr); }
+      .combined-chart-wrap { width: min(300px, 36vw); height: min(300px, 36vw); }
+    }
+
+    @media (max-width: 760px) {
+      .combined-dashboard-panel { padding: 1.15rem; border-radius: 1.6rem; }
+      .combined-title { font-size: clamp(2.45rem, 12vw, 3.7rem); }
+      .combined-metrics-grid,
+      .combined-chart-body { grid-template-columns: 1fr; }
+      .combined-chart-card { min-height: auto; }
+      .combined-chart-head { align-items: flex-start; flex-direction: column; }
+      .combined-chart-wrap { width: min(270px, 72vw); height: min(270px, 72vw); }
+      .combined-legend { max-height: 280px; }
+    }
+
   </style>
 </head>
 <body class="bg-background text-primary font-body antialiased">
@@ -1995,63 +2269,72 @@
   </nav>
 
   <main id="section-home" class="page-section active py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-14">
-    <section class="home-hero-panel font-headline">
-      <div>
-        <p class="text-[10px] font-black text-secondary uppercase tracking-[.3em] mb-5">— National Overview</p>
-        <h2 class="home-hero-title">Modern<br/>Y-DNA<br/>Summary</h2>
-        <p class="home-hero-sub">Current overview of the modern Egyptian Y-DNA archive, including published samples and study samples grouped by major paternal lineages.</p>
-        <div class="home-metrics-inline">
-          <div class="home-metric-flat">
-            <div class="home-metric-label">Total Samples</div>
-            <div id="total-national-samples" class="home-metric-number">0</div>
-          </div>
-          <div class="home-metric-flat">
-            <div class="home-metric-label">Mapped Regions</div>
-            <div class="home-metric-number">25</div>
-          </div>
+    <section class="combined-dashboard-panel font-headline">
+      <div class="combined-dashboard-header">
+        <div class="combined-dashboard-copy">
+          <p class="combined-kicker">— Modern Overview</p>
+          <h2 class="combined-title">Modern Egyptian<br/>Lineage Summary</h2>
+          <p class="combined-subtitle">Side-by-side overview of the modern Egyptian archive: paternal Y-DNA lineages and maternal mtDNA branches, including published samples and study samples.</p>
         </div>
-      </div>
-      <div class="home-chart-side">
-        <div class="home-chart-main" onclick="openModal('MODERN')">
-          <canvas id="nationalChartCanvas"></canvas>
-        </div>
-        <div id="national-legend" class="pie-legend-panel"></div>
-      </div>
-    </section>
 
-    <section class="project-overview-section font-headline">
-      <div class="project-overview-inner">
-        <p class="text-[10px] font-black text-secondary uppercase tracking-[.3em] mb-5">— Project Overview</p>
-        <h2 class="project-overview-title">A Genomic Archive of Egyptian Y-DNA and mtDNA Lineages</h2>
-        <div class="project-overview-text space-y-7">
-          <p>The Egyptian Y-DNA Project is an independent initiative dedicated to documenting and organizing both the paternal and maternal genetic lineages of Egyptians in a clear, structured, and evidence-based way.</p>
-          <p>The archive now includes both a dedicated Y-DNA Tree and a dedicated mtDNA Tree, allowing visitors to explore Egyptian paternal and maternal lineages side by side. The mtDNA Tree is organized around major maternal branches, while both trees continue to grow as additional modern, study, and ancient samples are added over time.</p>
-          <p>By collecting real test results and presenting them in a neutral and scientific format, the project aims to serve as a professional genomic reference that reflects the diversity, continuity, and historical depth of the Egyptian population.</p>
+        <div class="combined-metrics-grid">
+          <div class="combined-metric-card">
+            <span>Total Y-DNA Samples</span>
+            <strong id="total-national-samples">0</strong>
+          </div>
+          <div class="combined-metric-card">
+            <span>Mapped Regions</span>
+            <strong>25</strong>
+          </div>
+          <div class="combined-metric-card">
+            <span>Total mtDNA Samples</span>
+            <strong id="total-mtdna-samples">0</strong>
+          </div>
+          <div class="combined-metric-card">
+            <span>Maternal Branches</span>
+            <strong id="total-mtdna-branches">0</strong>
+          </div>
         </div>
       </div>
-    </section>
 
-    <section class="home-mtdna-panel font-headline">
-      <div>
-        <p class="text-[10px] font-black text-secondary uppercase tracking-[.3em] mb-4">— Maternal Overview</p>
-        <h2 class="text-5xl md:text-7xl font-black tracking-tighter leading-none text-primary">Modern<br/>mtDNA<br/>Summary</h2>
-        <p class="mt-6 text-xl leading-8 font-extrabold text-slate-500">Modern and study maternal lineages grouped by major mtDNA branches.</p>
-        <div class="home-metrics-inline home-mtdna-metrics">
-          <div class="home-metric-flat">
-            <div class="home-metric-label">Total mtDNA Samples</div>
-            <div id="total-mtdna-samples" class="home-metric-number">0</div>
+      <div class="combined-charts-grid">
+        <article class="combined-chart-card">
+          <div class="combined-chart-head">
+            <div>
+              <p>— Paternal Overview</p>
+              <h3>Modern Y-DNA Summary</h3>
+            </div>
+            <span>Major paternal lineages</span>
           </div>
-          <div class="home-metric-flat">
-            <div class="home-metric-label">Maternal Branches</div>
-            <div id="total-mtdna-branches" class="home-metric-number">0</div>
+          <div class="combined-chart-body">
+            <div class="combined-chart-wrap" onclick="openModal('MODERN')">
+              <canvas id="nationalChartCanvas"></canvas>
+            </div>
+            <div id="national-legend" class="pie-legend-panel combined-legend"></div>
           </div>
-        </div>
+        </article>
+
+        <article class="combined-chart-card">
+          <div class="combined-chart-head">
+            <div>
+              <p>— Maternal Overview</p>
+              <h3>Modern mtDNA Summary</h3>
+            </div>
+            <span>Major maternal branches</span>
+          </div>
+          <div class="combined-chart-body">
+            <div class="combined-chart-wrap" onclick="openMtHomeModal()">
+              <canvas id="homeMtChartCanvas"></canvas>
+            </div>
+            <div id="home-mt-legend" class="pie-legend-panel combined-legend"></div>
+          </div>
+        </article>
       </div>
-      <div class="home-mtdna-chart-side">
-        <div class="home-mtdna-chart" onclick="openMtHomeModal()">
-          <canvas id="homeMtChartCanvas"></canvas>
-        </div>
-        <div id="home-mt-legend" class="pie-legend-panel"></div>
+
+      <div class="combined-project-note">
+        <p class="combined-kicker">— Project Overview</p>
+        <h3>A genomic archive of Egyptian Y-DNA and mtDNA lineages</h3>
+        <p>The Egyptian Y-DNA Project documents paternal and maternal genetic lineages of Egyptians in a clear, structured, and evidence-based format. The archive combines modern, study, and ancient samples and continues to grow as more results are added.</p>
       </div>
     </section>
 
