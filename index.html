@@ -1612,6 +1612,141 @@
       .home-metric-flat { min-width: 0; }
     }
 
+  
+
+    /* FINAL DASHBOARD LAYOUT FIX:
+       Text + metrics + pie stay in the left area.
+       The legend is the only right-side column.
+       Pie has no white circular frame. */
+    .home-hero-panel,
+    .home-mtdna-panel {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 360px) !important;
+      grid-template-rows: auto auto !important;
+      align-items: center !important;
+      column-gap: clamp(2rem, 5vw, 4.5rem) !important;
+      row-gap: 2rem !important;
+      min-height: auto !important;
+      padding: clamp(2.5rem, 5vw, 4.7rem) !important;
+    }
+
+    .home-hero-panel > div:first-child,
+    .home-mtdna-panel > div:first-child {
+      grid-column: 1 !important;
+      grid-row: 1 !important;
+      align-self: end !important;
+      max-width: 620px !important;
+    }
+
+    .home-chart-side,
+    .home-mtdna-chart-side,
+    .home-mtdna-panel > .flex {
+      display: contents !important;
+    }
+
+    .home-chart-main,
+    .home-mtdna-chart {
+      grid-column: 1 !important;
+      grid-row: 2 !important;
+      justify-self: center !important;
+      align-self: start !important;
+      width: min(430px, 42vw) !important;
+      height: min(430px, 42vw) !important;
+      min-width: 300px !important;
+      min-height: 300px !important;
+      padding: 0 !important;
+      border: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+    }
+
+    .home-chart-main canvas,
+    .home-mtdna-chart canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block !important;
+    }
+
+    #national-legend,
+    #home-mt-legend {
+      grid-column: 2 !important;
+      grid-row: 1 / span 2 !important;
+      align-self: center !important;
+      justify-self: stretch !important;
+      max-width: none !important;
+      width: 100% !important;
+      background: rgba(255,255,255,.55) !important;
+      border: 1px solid rgba(226,232,240,.75) !important;
+      border-radius: 2rem !important;
+      padding: 1rem !important;
+      box-shadow: 0 18px 40px rgba(0,23,54,.045) !important;
+      max-height: none !important;
+      overflow: visible !important;
+    }
+
+    .home-mtdna-metrics {
+      margin-top: 2rem !important;
+    }
+
+    .pie-legend-row,
+    .home-legend-item {
+      min-height: 34px !important;
+      padding: .32rem .55rem !important;
+    }
+
+    @media (max-width: 1050px) {
+      .home-hero-panel,
+      .home-mtdna-panel {
+        grid-template-columns: 1fr !important;
+        grid-template-rows: auto auto auto !important;
+      }
+
+      .home-hero-panel > div:first-child,
+      .home-mtdna-panel > div:first-child,
+      .home-chart-main,
+      .home-mtdna-chart,
+      #national-legend,
+      #home-mt-legend {
+        grid-column: 1 !important;
+      }
+
+      .home-hero-panel > div:first-child,
+      .home-mtdna-panel > div:first-child {
+        grid-row: 1 !important;
+      }
+
+      .home-chart-main,
+      .home-mtdna-chart {
+        grid-row: 2 !important;
+        width: min(390px, 78vw) !important;
+        height: min(390px, 78vw) !important;
+        min-width: 260px !important;
+        min-height: 260px !important;
+      }
+
+      #national-legend,
+      #home-mt-legend {
+        grid-row: 3 !important;
+        max-width: 560px !important;
+        justify-self: center !important;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .home-hero-title {
+        font-size: clamp(3.1rem, 16vw, 5.2rem) !important;
+      }
+
+      .home-metrics-inline {
+        width: 100% !important;
+      }
+
+      .home-metric-number {
+        font-size: clamp(2.5rem, 12vw, 4rem) !important;
+      }
+    }
+
   </style>
 </head>
 <body class="bg-background text-primary font-body antialiased">
@@ -1682,6 +1817,16 @@
         <p class="text-[10px] font-black text-secondary uppercase tracking-[.3em] mb-4">— Maternal Overview</p>
         <h2 class="text-5xl md:text-7xl font-black tracking-tighter leading-none text-primary">Modern<br/>mtDNA<br/>Summary</h2>
         <p class="mt-6 text-xl leading-8 font-extrabold text-slate-500">Modern and study maternal lineages grouped by major mtDNA branches.</p>
+        <div class="home-metrics-inline home-mtdna-metrics">
+          <div class="home-metric-flat">
+            <div class="home-metric-label">Total mtDNA Samples</div>
+            <div id="total-mtdna-samples" class="home-metric-number">0</div>
+          </div>
+          <div class="home-metric-flat">
+            <div class="home-metric-label">Maternal Branches</div>
+            <div id="total-mtdna-branches" class="home-metric-number">0</div>
+          </div>
+        </div>
       </div>
       <div class="home-mtdna-chart-side">
         <div class="home-mtdna-chart" onclick="openMtHomeModal()">
@@ -3402,6 +3547,11 @@
           onSliceClick: (hap) => openMtHomeModal(hap)
         });
       }
+      const mtTotalEl = document.getElementById("total-mtdna-samples");
+      const mtBranchesEl = document.getElementById("total-mtdna-branches");
+      if (mtTotalEl) mtTotalEl.textContent = total;
+      if (mtBranchesEl) mtBranchesEl.textContent = Object.keys(totals).filter(k => totals[k] > 0).length;
+
       const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
       const legend = document.getElementById("home-mt-legend");
       if (legend) {
