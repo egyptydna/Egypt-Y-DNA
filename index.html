@@ -1969,34 +1969,38 @@
 
 
     /* ========================================================
-       COMBINED DASHBOARD LAYOUT FIX
-       Both diagrams in one compact research dashboard.
-       Removes empty middle space and keeps legend close.
+       FINAL DASHBOARD LAYOUT
+       Project summary first, charts below: mtDNA left, Y-DNA right.
+       Compact, balanced, no empty middle space.
        ======================================================== */
 
     #section-home {
       max-width: 1500px !important;
-      padding-top: 1.6rem !important;
+      padding-top: 1.35rem !important;
       padding-bottom: 2.2rem !important;
-      gap: 2rem !important;
+    }
+
+    #section-home > section + section {
+      margin-top: 1.65rem !important;
     }
 
     .combined-dashboard-panel {
       position: relative;
       overflow: hidden;
-      border-radius: clamp(1.8rem, 3vw, 3.2rem);
+      border-radius: clamp(1.8rem, 3vw, 3rem);
       border: 1px solid #e7eaee;
       background:
-        radial-gradient(circle at 92% 6%, rgba(119,90,25,.07), transparent 26%),
-        linear-gradient(135deg, #ffffff 0%, #fbfcfd 58%, #f6f8f5 100%);
-      box-shadow: 0 24px 58px rgba(0,23,54,.075);
-      padding: clamp(1.5rem, 2.3vw, 2.6rem);
+        radial-gradient(circle at 92% 6%, rgba(119,90,25,.06), transparent 25%),
+        linear-gradient(135deg, #ffffff 0%, #fbfcfd 62%, #f6f8f5 100%);
+      box-shadow: 0 22px 54px rgba(0,23,54,.07);
+      padding: clamp(1.45rem, 2.25vw, 2.45rem);
     }
 
-    .combined-dashboard-panel::before {
+    .combined-dashboard-panel::before,
+    .project-overview-clean::before {
       content: "";
       position: absolute;
-      inset: 16px;
+      inset: 14px;
       border: 1px solid rgba(0,23,54,.055);
       border-radius: inherit;
       pointer-events: none;
@@ -2006,13 +2010,13 @@
       position: relative;
       z-index: 1;
       display: grid;
-      grid-template-columns: minmax(320px, .92fr) minmax(460px, 1.08fr);
-      gap: clamp(1.3rem, 2.4vw, 2.2rem);
-      align-items: end;
+      grid-template-columns: minmax(360px, .95fr) minmax(520px, 1.05fr);
+      gap: clamp(1.3rem, 2.3vw, 2.2rem);
+      align-items: center;
       margin-bottom: 1.35rem;
     }
 
-    .combined-dashboard-copy { max-width: 620px; }
+    .combined-dashboard-copy { max-width: 660px; }
 
     .combined-kicker {
       font-size: 9px;
@@ -2020,22 +2024,23 @@
       letter-spacing: .26em;
       text-transform: uppercase;
       color: #775a19;
-      margin-bottom: .7rem;
+      margin-bottom: .55rem;
     }
 
     .combined-title {
-      font-size: clamp(3.15rem, 4.7vw, 5.45rem);
-      line-height: .9;
-      letter-spacing: -.075em;
+      font-size: clamp(2.8rem, 4vw, 4.65rem);
+      line-height: .94;
+      letter-spacing: -.074em;
       font-weight: 900;
       color: #001736;
+      max-width: 760px;
     }
 
     .combined-subtitle {
-      max-width: 560px;
-      margin-top: .95rem;
-      font-size: clamp(.92rem, 1vw, 1.06rem);
-      line-height: 1.5;
+      max-width: 680px;
+      margin-top: .8rem;
+      font-size: clamp(.9rem, .98vw, 1.02rem);
+      line-height: 1.55;
       font-weight: 800;
       color: #64748b;
     }
@@ -2043,23 +2048,45 @@
     .combined-metrics-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: .72rem;
+      gap: .8rem;
+      align-self: center;
     }
 
     .combined-metric-card {
-      min-height: 82px;
+      min-height: 118px;
       border: 1px solid #e7eaee;
-      border-radius: 1.25rem;
-      background: rgba(255,255,255,.72);
+      border-radius: 1.3rem;
+      background: rgba(255,255,255,.76);
       box-shadow: 0 10px 24px rgba(0,23,54,.04);
-      padding: .8rem .95rem;
+      padding: .9rem .85rem;
       display: flex;
       flex-direction: column;
+      align-items: center;
       justify-content: center;
+      text-align: center;
     }
 
+    .combined-metric-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: .65rem;
+      color: #fff;
+      background: #001736;
+      box-shadow: 0 10px 20px rgba(0,23,54,.12);
+    }
+
+    .combined-metric-icon.secondary { background:#775a19; }
+    .combined-metric-icon.maternal { background:#8C24C8; }
+    .combined-metric-icon.branch { background:#2d6f20; }
+
+    .combined-metric-icon .material-symbols-outlined { font-size: 21px; }
+
     .combined-metric-card span {
-      font-size: .56rem;
+      font-size: .55rem;
       line-height: 1.25;
       font-weight: 900;
       letter-spacing: .12em;
@@ -2068,8 +2095,8 @@
     }
 
     .combined-metric-card strong {
-      margin-top: .22rem;
-      font-size: clamp(2rem, 2.6vw, 3.25rem);
+      margin-top: .2rem;
+      font-size: clamp(2rem, 2.6vw, 3.05rem);
       line-height: .95;
       letter-spacing: -.055em;
       font-weight: 900;
@@ -2086,12 +2113,12 @@
     }
 
     .combined-chart-card {
-      min-height: 420px;
+      min-height: 405px;
       border: 1px solid #e7eaee;
-      border-radius: 1.8rem;
-      background: rgba(255,255,255,.58);
+      border-radius: 1.75rem;
+      background: rgba(255,255,255,.60);
       box-shadow: 0 14px 32px rgba(0,23,54,.045);
-      padding: 1.05rem;
+      padding: 1rem;
       display: flex;
       flex-direction: column;
       gap: .85rem;
@@ -2103,7 +2130,7 @@
       justify-content: space-between;
       gap: 1rem;
       border-bottom: 1px solid #edf0f4;
-      padding-bottom: .7rem;
+      padding-bottom: .65rem;
     }
 
     .combined-chart-head p {
@@ -2112,11 +2139,11 @@
       letter-spacing: .22em;
       text-transform: uppercase;
       color: #775a19;
-      margin-bottom: .28rem;
+      margin-bottom: .26rem;
     }
 
     .combined-chart-head h3 {
-      font-size: clamp(1.35rem, 1.85vw, 2.05rem);
+      font-size: clamp(1.25rem, 1.65vw, 1.75rem);
       line-height: 1;
       letter-spacing: -.055em;
       font-weight: 900;
@@ -2124,7 +2151,7 @@
     }
 
     .combined-chart-head span {
-      font-size: .66rem;
+      font-size: .62rem;
       font-weight: 900;
       letter-spacing: .08em;
       text-transform: uppercase;
@@ -2135,14 +2162,14 @@
     .combined-chart-body {
       flex: 1;
       display: grid;
-      grid-template-columns: minmax(230px, .9fr) minmax(210px, .78fr);
-      gap: .95rem;
+      grid-template-columns: minmax(230px, .92fr) minmax(240px, .95fr);
+      gap: .9rem;
       align-items: center;
     }
 
     .combined-chart-wrap {
-      width: min(300px, 22vw);
-      height: min(300px, 22vw);
+      width: min(285px, 20vw);
+      height: min(285px, 20vw);
       min-width: 230px;
       min-height: 230px;
       justify-self: center;
@@ -2156,21 +2183,21 @@
 
     .combined-legend {
       width: 100% !important;
-      max-height: 335px;
+      max-height: 322px;
       overflow: auto;
-      padding: .65rem !important;
-      border-radius: 1.15rem !important;
-      background: rgba(255,255,255,.74) !important;
+      padding: .62rem !important;
+      border-radius: 1.12rem !important;
+      background: rgba(255,255,255,.78) !important;
       box-shadow: none !important;
       border: 1px solid #edf0f4 !important;
-      font-size: .68rem !important;
-      gap: .12rem !important;
+      font-size: .67rem !important;
+      gap: .1rem !important;
     }
 
     .combined-legend .pie-legend-row,
     .combined-legend .home-legend-item {
-      min-height: 25px !important;
-      padding: .16rem .3rem !important;
+      min-height: 24px !important;
+      padding: .15rem .3rem !important;
       border-radius: .7rem !important;
       grid-template-columns: 12px minmax(42px, 1fr) auto !important;
       gap: .42rem !important;
@@ -2182,62 +2209,142 @@
       height: .52rem !important;
     }
 
-    .combined-legend .pie-legend-value { font-size: .68rem !important; }
+    .combined-legend .pie-legend-value { font-size: .67rem !important; }
 
-    .combined-project-note {
+    .combined-card-footer {
+      margin-top: .55rem;
+      padding-top: .65rem;
+      border-top: 1px solid #edf0f4;
+      text-align: center;
+      font-size: .72rem;
+      font-weight: 850;
+      color: #64748b;
+    }
+
+    .project-overview-clean {
+      position: relative;
+      overflow: hidden;
+      border-radius: clamp(1.7rem, 3vw, 2.8rem);
+      border: 1px solid #e7eaee;
+      background: linear-gradient(135deg, #ffffff 0%, #fbfcfd 65%, #f6f8f5 100%);
+      box-shadow: 0 20px 50px rgba(0,23,54,.065);
+      padding: clamp(1.55rem, 2.5vw, 2.7rem);
+    }
+
+    .project-overview-clean-inner {
       position: relative;
       z-index: 1;
-      margin-top: 1rem;
-      border: 1px solid #e7eaee;
-      border-radius: 1.6rem;
-      background: rgba(255,255,255,.56);
-      padding: 1rem 1.15rem;
       display: grid;
-      grid-template-columns: minmax(260px, .7fr) minmax(420px, 1.3fr);
-      gap: 1.25rem;
+      grid-template-columns: minmax(360px, .9fr) minmax(480px, 1.1fr);
+      gap: clamp(1.6rem, 3vw, 3rem);
       align-items: start;
     }
 
-    .combined-project-note .combined-kicker { margin-bottom: .35rem; }
-
-    .combined-project-note h3 {
-      font-size: clamp(1.35rem, 2vw, 2.15rem);
-      line-height: 1.04;
-      letter-spacing: -.055em;
+    .project-overview-clean h2 {
+      font-size: clamp(2rem, 3.1vw, 3.35rem);
+      line-height: 1.02;
+      letter-spacing: -.06em;
       font-weight: 900;
       color: #001736;
+      max-width: 720px;
     }
 
-    .combined-project-note p:last-child {
-      font-size: .92rem;
-      line-height: 1.58;
-      font-weight: 800;
+    .project-overview-clean .lead {
+      margin-top: .95rem;
+      font-size: clamp(.95rem, 1.05vw, 1.08rem);
+      line-height: 1.62;
+      font-weight: 820;
+      color: #64748b;
+      max-width: 720px;
+    }
+
+    .overview-points {
+      display: grid;
+      gap: .85rem;
+    }
+
+    .overview-point {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: .8rem;
+      align-items: start;
+      padding: .85rem;
+      border: 1px solid #edf0f4;
+      border-radius: 1.1rem;
+      background: rgba(255,255,255,.66);
+    }
+
+    .overview-point-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: .85rem;
+      background: #775a19;
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 20px rgba(119,90,25,.12);
+    }
+
+    .overview-point-icon .material-symbols-outlined { font-size: 20px; }
+
+    .overview-point strong {
+      display: block;
+      font-size: .86rem;
+      font-weight: 900;
+      color: #001736;
+      margin-bottom: .18rem;
+    }
+
+    .overview-point p {
+      font-size: .82rem;
+      line-height: 1.48;
+      font-weight: 750;
       color: #64748b;
       margin: 0;
     }
 
-    #section-home > section + section { margin-top: 2rem !important; }
+    .project-overview-disclaimer {
+      position: relative;
+      z-index: 1;
+      margin-top: 1.1rem;
+      padding: .85rem 1rem;
+      border-radius: 1rem;
+      background: rgba(119,90,25,.08);
+      color: #775a19;
+      font-size: .82rem;
+      line-height: 1.45;
+      font-weight: 850;
+    }
 
     @media (max-width: 1250px) {
       .combined-dashboard-header,
       .combined-charts-grid,
-      .combined-project-note {
+      .project-overview-clean-inner {
         grid-template-columns: 1fr;
       }
-      .combined-metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .combined-chart-body { grid-template-columns: minmax(230px, .95fr) minmax(230px, 1fr); }
-      .combined-chart-wrap { width: min(300px, 36vw); height: min(300px, 36vw); }
+      .combined-metrics-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .combined-chart-body { grid-template-columns: minmax(230px, .8fr) minmax(250px, 1fr); }
+      .combined-chart-wrap { width: min(285px, 34vw); height: min(285px, 34vw); }
     }
 
-    @media (max-width: 760px) {
-      .combined-dashboard-panel { padding: 1.15rem; border-radius: 1.6rem; }
-      .combined-title { font-size: clamp(2.45rem, 12vw, 3.7rem); }
-      .combined-metrics-grid,
+    @media (max-width: 900px) {
+      .combined-metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .combined-chart-body { grid-template-columns: 1fr; }
+      .combined-chart-wrap { width: min(280px, 70vw); height: min(280px, 70vw); }
       .combined-chart-card { min-height: auto; }
       .combined-chart-head { align-items: flex-start; flex-direction: column; }
-      .combined-chart-wrap { width: min(270px, 72vw); height: min(270px, 72vw); }
-      .combined-legend { max-height: 280px; }
+      .combined-legend { max-height: 260px; }
+    }
+
+    @media (max-width: 620px) {
+      .combined-dashboard-panel,
+      .project-overview-clean { padding: 1.1rem; border-radius: 1.55rem; }
+      .combined-title { font-size: clamp(2.25rem, 11vw, 3.3rem); }
+      .combined-metrics-grid { grid-template-columns: 1fr 1fr; }
+      .combined-metric-card { min-height: 96px; }
+      .combined-metric-icon { width: 34px; height: 34px; margin-bottom: .45rem; }
+      .project-overview-clean-inner { gap: 1rem; }
     }
 
   </style>
@@ -2274,23 +2381,27 @@
         <div class="combined-dashboard-copy">
           <p class="combined-kicker">— Modern Overview</p>
           <h2 class="combined-title">Modern Egyptian<br/>Lineage Summary</h2>
-          <p class="combined-subtitle">Side-by-side overview of the modern Egyptian archive: paternal Y-DNA lineages and maternal mtDNA branches, including published samples and study samples.</p>
+          <p class="combined-subtitle">A compact overview of the modern Egyptian archive. The paternal Y-DNA summary shows male-line haplogroups, while the maternal mtDNA summary shows female-line branches. Both summaries include published samples and modern study samples.</p>
         </div>
 
         <div class="combined-metrics-grid">
           <div class="combined-metric-card">
+            <div class="combined-metric-icon"><span class="material-symbols-outlined">genetics</span></div>
             <span>Total Y-DNA Samples</span>
             <strong id="total-national-samples">0</strong>
           </div>
           <div class="combined-metric-card">
+            <div class="combined-metric-icon secondary"><span class="material-symbols-outlined">location_on</span></div>
             <span>Mapped Regions</span>
             <strong>25</strong>
           </div>
           <div class="combined-metric-card">
+            <div class="combined-metric-icon maternal"><span class="material-symbols-outlined">female</span></div>
             <span>Total mtDNA Samples</span>
             <strong id="total-mtdna-samples">0</strong>
           </div>
           <div class="combined-metric-card">
+            <div class="combined-metric-icon branch"><span class="material-symbols-outlined">account_tree</span></div>
             <span>Maternal Branches</span>
             <strong id="total-mtdna-branches">0</strong>
           </div>
@@ -2298,22 +2409,6 @@
       </div>
 
       <div class="combined-charts-grid">
-        <article class="combined-chart-card">
-          <div class="combined-chart-head">
-            <div>
-              <p>— Paternal Overview</p>
-              <h3>Modern Y-DNA Summary</h3>
-            </div>
-            <span>Major paternal lineages</span>
-          </div>
-          <div class="combined-chart-body">
-            <div class="combined-chart-wrap" onclick="openModal('MODERN')">
-              <canvas id="nationalChartCanvas"></canvas>
-            </div>
-            <div id="national-legend" class="pie-legend-panel combined-legend"></div>
-          </div>
-        </article>
-
         <article class="combined-chart-card">
           <div class="combined-chart-head">
             <div>
@@ -2328,14 +2423,61 @@
             </div>
             <div id="home-mt-legend" class="pie-legend-panel combined-legend"></div>
           </div>
+          <div class="combined-card-footer">Total mtDNA Samples: <span id="mtdna-footer-total">0</span> &nbsp; | &nbsp; Maternal Branches: <span id="mtdna-footer-branches">0</span></div>
+        </article>
+
+        <article class="combined-chart-card">
+          <div class="combined-chart-head">
+            <div>
+              <p>— Paternal Overview</p>
+              <h3>Modern Y-DNA Summary</h3>
+            </div>
+            <span>Major paternal lineages</span>
+          </div>
+          <div class="combined-chart-body">
+            <div class="combined-chart-wrap" onclick="openModal('MODERN')">
+              <canvas id="nationalChartCanvas"></canvas>
+            </div>
+            <div id="national-legend" class="pie-legend-panel combined-legend"></div>
+          </div>
+          <div class="combined-card-footer">Total Y-DNA Samples: <span id="ydna-footer-total">0</span> &nbsp; | &nbsp; Mapped Regions: 25</div>
         </article>
       </div>
+    </section>
 
-      <div class="combined-project-note">
-        <p class="combined-kicker">— Project Overview</p>
-        <h3>A genomic archive of Egyptian Y-DNA and mtDNA lineages</h3>
-        <p>The Egyptian Y-DNA Project documents paternal and maternal genetic lineages of Egyptians in a clear, structured, and evidence-based format. The archive combines modern, study, and ancient samples and continues to grow as more results are added.</p>
+    <section class="project-overview-clean font-headline">
+      <div class="project-overview-clean-inner">
+        <div>
+          <p class="combined-kicker">— Project Overview</p>
+          <h2>A genomic archive of Egyptian Y-DNA and mtDNA lineages</h2>
+          <p class="lead">The Egyptian Y-DNA Project is an independent archive that documents Egyptian paternal and maternal genetic lineages in a clear, structured, and evidence-based way.</p>
+        </div>
+
+        <div class="overview-points">
+          <div class="overview-point">
+            <div class="overview-point-icon"><span class="material-symbols-outlined">description</span></div>
+            <div>
+              <strong>Clear documentation</strong>
+              <p>Samples are organized with lineage names, SNP paths, locations, links, and source context so visitors can understand each result without confusion.</p>
+            </div>
+          </div>
+          <div class="overview-point">
+            <div class="overview-point-icon"><span class="material-symbols-outlined">account_tree</span></div>
+            <div>
+              <strong>Y-DNA and mtDNA side by side</strong>
+              <p>The archive includes a dedicated Y-DNA Tree and a dedicated mtDNA Tree, making paternal and maternal lineages easier to compare.</p>
+            </div>
+          </div>
+          <div class="overview-point">
+            <div class="overview-point-icon"><span class="material-symbols-outlined">verified_user</span></div>
+            <div>
+              <strong>Neutral scientific format</strong>
+              <p>Modern, study, and ancient samples are presented as a research-style reference, with the archive growing as more reliable results are added.</p>
+            </div>
+          </div>
+        </div>
       </div>
+      <div class="project-overview-disclaimer">All data is presented for scientific, educational, and archival purposes. Sample locations are grouped at the governorate level and do not represent exact personal locations.</div>
     </section>
 
     <section class="h-[450px] md:h-[650px] w-full bg-white rounded-[3rem] md:rounded-[4rem] overflow-hidden shadow-2xl border border-gray-100">
@@ -4017,6 +4159,8 @@
       });
 
       document.getElementById("total-national-samples").textContent = total;
+      const ydnaFooterTotal = document.getElementById("ydna-footer-total");
+      if (ydnaFooterTotal) ydnaFooterTotal.textContent = total;
 
       if (total > 0) {
         makePie("nationalChartCanvas", totals, "NATIONAL", total, {
@@ -4041,6 +4185,16 @@
         totals[h] = (totals[h] || 0) + 1;
         total++;
       });
+      const mtTotalEl = document.getElementById("total-mtdna-samples");
+      const mtBranchesEl = document.getElementById("total-mtdna-branches");
+      const mtFooterTotal = document.getElementById("mtdna-footer-total");
+      const mtFooterBranches = document.getElementById("mtdna-footer-branches");
+      const branchCount = Object.keys(totals).filter(k => totals[k] > 0).length;
+      if (mtTotalEl) mtTotalEl.textContent = total;
+      if (mtBranchesEl) mtBranchesEl.textContent = branchCount;
+      if (mtFooterTotal) mtFooterTotal.textContent = total;
+      if (mtFooterBranches) mtFooterBranches.textContent = branchCount;
+
       if (!document.getElementById("homeMtChartCanvas")) return;
       if (total > 0) {
         makePie("homeMtChartCanvas", totals, "HOME-MTDNA", total, {
