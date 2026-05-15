@@ -2613,6 +2613,98 @@
       .ancient-double-grid { grid-template-columns: 1fr !important; }
     }
 
+
+    /* USER FIX: dashboard must open by default, charts vertically centered without enlarging */
+    .combined-chart-card {
+      min-height: 390px !important;
+    }
+
+    .combined-chart-body {
+      min-height: 322px !important;
+      display: grid !important;
+      grid-template-columns: minmax(285px, .9fr) minmax(255px, .82fr) !important;
+      align-items: center !important;
+      justify-items: center !important;
+      gap: .9rem !important;
+      padding-block: .9rem !important;
+    }
+
+    .combined-chart-wrap {
+      width: min(320px, 20vw) !important;
+      height: min(320px, 20vw) !important;
+      min-width: 285px !important;
+      min-height: 285px !important;
+      align-self: center !important;
+      justify-self: center !important;
+      margin-block: auto !important;
+      transform: translateY(10px);
+    }
+
+    .combined-legend {
+      align-self: center !important;
+      justify-self: stretch !important;
+      max-height: 332px !important;
+    }
+
+    .ancient-summary-layout {
+      grid-template-columns: minmax(390px, .72fr) minmax(760px, 1.28fr) !important;
+      gap: clamp(1.25rem, 2vw, 2.4rem) !important;
+      align-items: center !important;
+    }
+
+    .ancient-double-grid {
+      width: 100% !important;
+      max-width: 980px !important;
+      justify-self: center !important;
+      grid-template-columns: repeat(2, minmax(360px, 1fr)) !important;
+      gap: 1.1rem !important;
+    }
+
+    .ancient-mini-card {
+      min-height: 390px !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
+    .ancient-mini-body {
+      flex: 1 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: center !important;
+      align-items: center !important;
+      gap: .8rem !important;
+      padding-top: .35rem !important;
+    }
+
+    .ancient-mini-chart {
+      width: min(250px, 15vw) !important;
+      height: min(250px, 15vw) !important;
+      min-width: 225px !important;
+      min-height: 225px !important;
+      align-self: center !important;
+      margin-inline: auto !important;
+    }
+
+    .ancient-mini-legend {
+      width: min(100%, 330px) !important;
+      max-height: 155px !important;
+      margin-inline: auto !important;
+    }
+
+    @media (max-width: 1320px) {
+      .combined-chart-body { grid-template-columns: minmax(260px, .82fr) minmax(245px, 1fr) !important; }
+      .combined-chart-wrap { width: min(300px, 31vw) !important; height: min(300px, 31vw) !important; transform: translateY(8px); }
+      .ancient-summary-layout { grid-template-columns: 1fr !important; }
+      .ancient-double-grid { max-width: none !important; grid-template-columns: repeat(2, minmax(320px, 1fr)) !important; }
+      .ancient-mini-chart { width: min(245px, 32vw) !important; height: min(245px, 32vw) !important; }
+    }
+
+    @media (max-width: 900px) {
+      .combined-chart-body { grid-template-columns: 1fr !important; min-height: auto !important; }
+      .combined-chart-wrap { width: min(285px, 68vw) !important; height: min(285px, 68vw) !important; transform: none; }
+      .ancient-double-grid { grid-template-columns: 1fr !important; }
+    }
+
   </style>
 </head>
 <body class="bg-background text-primary font-body antialiased">
@@ -3399,10 +3491,10 @@
         suppressUrlUpdate = true;
         showSection('home');
         suppressUrlUpdate = false;
-        if (location.search) history.replaceState(null, '', location.pathname);
+        if (location.search || location.hash) history.replaceState(null, '', location.pathname);
         return;
       }
-      if (!section) return;
+      if (!section) { showSection('home'); return; }
 
       suppressUrlUpdate = true;
 
