@@ -2370,24 +2370,33 @@
 
     .ancient-summary-layout {
       display: grid;
-      grid-template-columns: minmax(280px, .82fr) minmax(560px, 1.18fr);
-      gap: clamp(1.5rem, 3vw, 3rem);
-      align-items: center;
+      grid-template-columns: 1fr;
+      gap: clamp(1.4rem, 2.4vw, 2.4rem);
+      align-items: start;
+    }
+
+    .ancient-summary-layout > .font-headline {
+      max-width: 980px;
+    }
+
+    .ancient-stat-grid {
+      align-items: end;
     }
 
     .ancient-double-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 1.25rem;
+      gap: 1.35rem;
       width: 100%;
     }
 
     .ancient-mini-card {
       border: 1px solid #edf0f4;
       border-radius: 2rem;
-      background: rgba(255,255,255,.72);
+      background: rgba(255,255,255,.78);
       padding: 1rem;
       min-width: 0;
+      box-shadow: 0 18px 42px rgba(0,23,54,.045);
     }
 
     .ancient-mini-head {
@@ -2396,12 +2405,12 @@
       align-items: end;
       gap: .8rem;
       border-bottom: 1px solid #edf0f4;
-      padding-bottom: .65rem;
-      margin-bottom: .85rem;
+      padding-bottom: .7rem;
+      margin-bottom: .95rem;
     }
 
     .ancient-mini-head h3 {
-      font-size: clamp(1.05rem, 1.35vw, 1.45rem);
+      font-size: clamp(1.12rem, 1.35vw, 1.5rem);
       line-height: 1;
       font-weight: 900;
       letter-spacing: -.04em;
@@ -2419,16 +2428,16 @@
 
     .ancient-mini-body {
       display: grid;
-      grid-template-columns: minmax(170px, .9fr) minmax(180px, 1fr);
-      gap: .8rem;
+      grid-template-columns: minmax(250px, .9fr) minmax(260px, 1fr);
+      gap: 1.1rem;
       align-items: center;
     }
 
     .ancient-mini-chart {
-      width: min(230px, 16vw);
-      height: min(230px, 16vw);
-      min-width: 170px;
-      min-height: 170px;
+      width: min(300px, 22vw);
+      height: min(300px, 22vw);
+      min-width: 235px;
+      min-height: 235px;
       justify-self: center;
       cursor: pointer;
     }
@@ -2439,13 +2448,14 @@
     }
 
     .ancient-mini-legend {
-      max-height: 245px;
-      overflow: auto;
+      max-height: none;
+      overflow: visible;
       border-radius: 1.2rem;
       border: 1px solid #edf0f4;
-      background: rgba(255,255,255,.75);
-      padding: .45rem;
+      background: rgba(255,255,255,.78);
+      padding: .5rem;
       gap: .08rem;
+      min-width: 0;
     }
 
     .ancient-mini-legend .pie-legend-dot {
@@ -2453,15 +2463,22 @@
       height: .58rem !important;
     }
 
-    @media (max-width: 1180px) {
-      .ancient-summary-layout { grid-template-columns: 1fr; }
-      .ancient-mini-chart { width: min(220px, 34vw); height: min(220px, 34vw); }
+    @media (max-width: 1320px) {
+      .ancient-double-grid { grid-template-columns: 1fr; }
+      .ancient-mini-body { grid-template-columns: minmax(250px, .72fr) minmax(280px, 1fr); }
+      .ancient-mini-chart { width: min(300px, 40vw); height: min(300px, 40vw); }
     }
 
     @media (max-width: 850px) {
+      .ancient-stat-grid { grid-template-columns: 1fr 1fr; }
       .ancient-double-grid { grid-template-columns: 1fr; }
       .ancient-mini-body { grid-template-columns: 1fr; }
-      .ancient-mini-chart { width: min(260px, 70vw); height: min(260px, 70vw); }
+      .ancient-mini-chart { width: min(280px, 70vw); height: min(280px, 70vw); }
+      .ancient-mini-legend { max-height: 260px; overflow: auto; }
+    }
+
+    @media (max-width: 520px) {
+      .ancient-stat-grid { grid-template-columns: 1fr; }
     }
 
   </style>
@@ -2706,10 +2723,14 @@
         <p class="text-[10px] font-black text-secondary uppercase tracking-[.3em] mb-2">— Archaeogenetics</p>
         <h2 class="text-4xl md:text-7xl font-black tracking-tighter mb-5 leading-tight">Ancient Summary</h2>
         <p class="text-sm md:text-lg font-extrabold text-slate-500 leading-7 max-w-[560px] mb-8">Overview of ancient Egyptian and Egypt-related DNA samples currently included in the archive. The charts separate paternal Y-DNA lineages and maternal mtDNA branches, so ancient samples can be compared by both father-line and mother-line ancestry while keeping their archaeological context visible.</p>
-        <div class="grid grid-cols-2 gap-6 border-t pt-8 font-bold max-w-[460px]">
+        <div class="grid grid-cols-3 gap-5 border-t pt-8 font-bold max-w-[720px] ancient-stat-grid">
           <div>
             <p class="text-[11px] font-bold text-gray-400 uppercase">Total Ancient Samples</p>
             <p id="total-ancient-samples" class="text-4xl md:text-6xl font-black">0</p>
+          </div>
+          <div>
+            <p class="text-[11px] font-bold text-gray-400 uppercase">Ancient Y-DNA Samples</p>
+            <p id="total-ancient-ydna-samples" class="text-4xl md:text-6xl font-black">0</p>
           </div>
           <div>
             <p class="text-[11px] font-bold text-gray-400 uppercase">Ancient mtDNA Samples</p>
@@ -4416,7 +4437,7 @@
       const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
 
       document.getElementById("national-legend").innerHTML = sorted.map(([hap, count]) =>
-        pieLegendRowHTML(hap, count, total, colorForAggregate(hap), `openModal('MODERN','${esc(hap)}')`)
+        pieLegendRowHTML(hap, count, yTotal, colorForAggregate(hap), `openModal('MODERN','${esc(hap)}')`)
       ).join("");
       renderHomeMtSummary();
     }
@@ -4468,12 +4489,17 @@
       const totals = {};
       const mtTotals = {};
       let total = 0;
+      let yTotal = 0;
       let mtTotal = 0;
 
       ancientSamples.forEach(s => {
-        const h = haplo(s.y_dna, s.snp_path);
-        totals[h] = (totals[h] || 0) + 1;
         total++;
+
+        if (isRealValue(s.y_dna) || isRealValue(s.snp_path) || isRealValue(s.full_snp_path)) {
+          const h = haplo(s.y_dna, s.snp_path);
+          totals[h] = (totals[h] || 0) + 1;
+          yTotal++;
+        }
 
         if (isRealValue(s.mt_dna) || isRealValue(s.full_mtDNA_path)) {
           const mt = mtPrimaryLineFromPath(s.full_mtDNA_path, s.mt_dna);
@@ -4483,11 +4509,13 @@
       });
 
       document.getElementById("total-ancient-samples").textContent = total;
+      const yTotalEl = document.getElementById("total-ancient-ydna-samples");
+      if (yTotalEl) yTotalEl.textContent = yTotal;
       const mtTotalEl = document.getElementById("total-ancient-mtdna-samples");
       if (mtTotalEl) mtTotalEl.textContent = mtTotal;
 
       if (total > 0) {
-        makePie("ancientChartCanvas", totals, "ANCIENT", total, {
+        makePie("ancientChartCanvas", totals, "ANCIENT", yTotal, {
           onSliceClick: (hap) => openModal("ANCIENT", hap)
         });
       }
@@ -4504,7 +4532,7 @@
       const mtSorted = Object.entries(mtTotals).sort((a,b)=>b[1]-a[1]);
 
       document.getElementById("ancient-legend").innerHTML = sorted.map(([hap, count]) =>
-        pieLegendRowHTML(hap, count, total, colorForAggregate(hap), `openModal('ANCIENT','${esc(hap)}')`)
+        pieLegendRowHTML(hap, count, yTotal, colorForAggregate(hap), `openModal('ANCIENT','${esc(hap)}')`)
       ).join("");
 
       const mtLegend = document.getElementById("ancient-mt-legend");
@@ -4630,7 +4658,7 @@
       const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
 
       document.getElementById("region-modal-legend").innerHTML = sorted.map(([hap, count]) =>
-        pieLegendRowHTML(hap, count, total, colorForAggregate(hap), `showRegionHaplo('${esc(gov)}','${esc(hap)}')`)
+        pieLegendRowHTML(hap, count, yTotal, colorForAggregate(hap), `showRegionHaplo('${esc(gov)}','${esc(hap)}')`)
       ).join("");
 
       if (selectedHap && totals[selectedHap]) showRegionHaplo(gov, selectedHap);
