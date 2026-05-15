@@ -2587,7 +2587,8 @@
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white p-8 md:p-12 rounded-[3rem] md:rounded-[4rem] shadow-xl border border-gray-100">
       <div class="lg:col-span-5 font-headline">
         <p class="text-[10px] font-black text-secondary uppercase tracking-[.3em] mb-2">— Archaeogenetics</p>
-        <h2 class="text-4xl md:text-7xl font-black tracking-tighter mb-8 leading-tight">Ancient Summary</h2>
+        <h2 class="text-4xl md:text-7xl font-black tracking-tighter mb-5 leading-tight">Ancient Summary</h2>
+        <p class="text-sm md:text-lg font-extrabold text-slate-500 leading-7 max-w-[520px] mb-8">Overview of ancient Egyptian and Egypt-related DNA samples currently included in the archive, grouped by major paternal Y-DNA lineages and linked to their archaeological context.</p>
         <div class="grid grid-cols-2 gap-8 border-t pt-8 font-bold">
           <div>
             <p class="text-[11px] font-bold text-gray-400 uppercase">Total Ancient Samples</p>
@@ -3047,6 +3048,95 @@
       if (!wrap) return;
       const y = wrap.getBoundingClientRect().top + window.scrollY - 24;
       window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+    }
+
+
+    let suppressUrlUpdate = false;
+
+    function currentSectionId() {
+      if (document.getElementById('section-tree')?.classList.contains('active')) return currentTreeType === 'mt' ? 'mtree' : 'ytree';
+      if (document.getElementById('section-archive')?.classList.contains('active')) return 'archive';
+      if (document.getElementById('section-ancient')?.classList.contains('active')) return 'ancient';
+      return 'home';
+    }
+
+    function updateShareUrl(extra = {}) {
+      if (suppressUrlUpdate) return;
+      const params = new URLSearchParams();
+      const section = extra.section || currentSectionId();
+      params.set('section', section);
+
+      if (section === 'archive') {
+        const q = document.getElementById('archiveSearch')?.value?.trim();
+        const haplo = document.getElementById('filterHaplo')?.value;
+        const gov = document.getElementById('filterGov')?.value;
+        if (q) params.set('q', q);
+        if (haplo) params.set('haplo', haplo);
+        if (gov) params.set('gov', gov);
+      }
+
+      if (section === 'ancient') {
+        const q = document.getElementById('ancientSearch')?.value?.trim();
+        if (q) params.set('q', q);
+      }
+
+      if (section === 'ytree' || section === 'mtree') {
+        params.set('tree', section === 'mtree' ? 'mt' : 'y');
+        params.set('mode', treeMode);
+        params.set('modern', treeShowModern ? '1' : '0');
+        params.set('study', treeShowStudy ? '1' : '0');
+        params.set('ancient', treeShowAncient ? '1' : '0');
+        if (treeHaploFilter) params.set('haplo', treeHaploFilter);
+        if (treeFocusPath) params.set('path', treeFocusPath);
+        const q = document.getElementById('treeSearch')?.value?.trim();
+        if (q) params.set('q', q);
+      }
+
+      const url = `${location.pathname}?${params.toString()}`;
+      history.replaceState(null, '', url);
+    }
+
+    function applyInitialUrlState() {
+      const params = new URLSearchParams(location.search);
+      const section = params.get('section');
+      if (!section) return;
+
+      suppressUrlUpdate = true;
+
+      if (section === 'archive') {
+        showSection('archive');
+        if (params.has('q')) document.getElementById('archiveSearch').value = params.get('q') || '';
+        if (params.has('haplo')) document.getElementById('filterHaplo').value = params.get('haplo') || '';
+        if (params.has('gov')) document.getElementById('filterGov').value = params.get('gov') || '';
+        renderArchive();
+      } else if (section === 'ancient') {
+        showSection('ancient');
+        if (params.has('q')) document.getElementById('ancientSearch').value = params.get('q') || '';
+        renderAncientArchive();
+      } else if (section === 'ytree' || section === 'mtree') {
+        showSection(section);
+        treeMode = params.get('mode') === 'full' ? 'full' : 'direct';
+        treeShowModern = params.get('modern') !== '0';
+        treeShowStudy = params.get('study') !== '0';
+        treeShowAncient = params.get('ancient') !== '0';
+        treeHaploFilter = params.get('haplo') || null;
+        treeFocusPath = params.get('path') || null;
+        const q = params.get('q') || '';
+        document.getElementById('treeSearch').value = q;
+        document.getElementById('btn-direct').classList.toggle('on', treeMode === 'direct');
+        document.getElementById('btn-full').classList.toggle('on', treeMode === 'full');
+        document.getElementById('btn-modern').classList.toggle('on', treeShowModern);
+        document.getElementById('btn-study').classList.toggle('on', treeShowStudy);
+        document.getElementById('btn-ancient').classList.toggle('on', treeShowAncient);
+        toggleTreeSearchIcon();
+        renderTree();
+        if (treeFocusPath) renderClickableTreePath(treeFocusPath);
+      } else if (section === 'home') {
+        showSection('home');
+      }
+
+      suppressUrlUpdate = false;
+      updateShareUrl({ section: section });
     }
 
     function updateTreeFloatingToggle() {
@@ -4072,9 +4162,16 @@
           onHover: (event, activeEls) => {
             if (event?.native?.target) event.native.target.style.cursor = activeEls.length ? 'pointer' : 'default';
           },
-          onClick: (_, els) => {
+          onClick: (event, els, chart) => {
             hideChartTooltip();
+            if (chart) {
+              chart.setActiveElements([]);
+              if (chart.tooltip) chart.tooltip.setActiveElements([], { x: 0, y: 0 });
+              chart.update('none');
+            }
             if (els.length && options.onSliceClick) options.onSliceClick(labels[els[0].index]);
+            setTimeout(hideChartTooltip, 0);
+            setTimeout(hideChartTooltip, 80);
           }
         }
       });
@@ -4140,9 +4237,16 @@
           onHover: (event, activeEls) => {
             if (event?.native?.target) event.native.target.style.cursor = activeEls.length ? 'pointer' : 'default';
           },
-          onClick: (_, els) => {
+          onClick: (event, els, chart) => {
             hideChartTooltip();
+            if (chart) {
+              chart.setActiveElements([]);
+              if (chart.tooltip) chart.tooltip.setActiveElements([], { x: 0, y: 0 });
+              chart.update('none');
+            }
             if (els.length && onSliceClick) onSliceClick(labels[els[0].index]);
+            setTimeout(hideChartTooltip, 0);
+            setTimeout(hideChartTooltip, 80);
           }
         }
       });
@@ -4381,6 +4485,7 @@
       const search = document.getElementById("archiveSearch").value.trim();
       const hF = document.getElementById("filterHaplo").value;
       const gF = document.getElementById("filterGov").value;
+      updateShareUrl({ section: 'archive' });
 
       const rows = allModernLikeSamples().filter(s =>
         matchSearchRow(s, search) &&
@@ -4418,6 +4523,7 @@
     function renderAncientArchive() {
       const tbody = document.getElementById("ancient-body");
       const search = document.getElementById("ancientSearch").value.trim();
+      updateShareUrl({ section: 'ancient' });
 
       const rows = ancientSamples.filter(s => matchSearchRow(s, search));
 
@@ -4631,6 +4737,7 @@
       }
 
       updateTreeFloatingToggle();
+      updateShareUrl({ section: id });
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -4654,6 +4761,7 @@
       updateTreeFloatingToggle();
       toggleTreeSearchIcon();
       renderTree();
+      updateShareUrl({ section: currentTreeType === 'mt' ? 'mtree' : 'ytree' });
       requestAnimationFrame(() => scrollTreeIntoView());
     }
 
@@ -4663,6 +4771,7 @@
       document.getElementById("btn-full").classList.toggle("on", mode === "full");
       updateTreeFloatingToggle();
       renderTree();
+      updateShareUrl({ section: currentTreeType === 'mt' ? 'mtree' : 'ytree' });
       requestAnimationFrame(() => scrollTreeIntoView());
     }
 
@@ -4676,6 +4785,7 @@
       document.getElementById("btn-ancient").classList.toggle("on", treeShowAncient);
 
       renderTree();
+      updateShareUrl({ section: currentTreeType === 'mt' ? 'mtree' : 'ytree' });
       requestAnimationFrame(() => scrollTreeIntoView());
     }
 
@@ -4711,6 +4821,7 @@
       document.getElementById("tree-result-path").classList.remove("active");
       document.getElementById("tree-result-path").innerHTML = "";
       renderTree();
+      updateShareUrl({ section: currentTreeType === 'mt' ? 'mtree' : 'ytree' });
       requestAnimationFrame(() => scrollTreeIntoView());
     }
 
@@ -4722,6 +4833,7 @@
       document.getElementById("tree-result-path").classList.remove("active");
       document.getElementById("tree-result-path").innerHTML = "";
       renderTree();
+      updateShareUrl({ section: currentTreeType === 'mt' ? 'mtree' : 'ytree' });
       requestAnimationFrame(() => scrollTreeIntoView());
     }
 
@@ -4769,6 +4881,7 @@
       renderClickableTreePath(pathKey);
       document.getElementById("btn-tree-back").classList.toggle("hidden", pathKey === (currentTreeType === "mt" ? "mt-Eve" : "Y-Adam"));
       renderTree();
+      updateShareUrl({ section: currentTreeType === 'mt' ? 'mtree' : 'ytree' });
       requestAnimationFrame(() => scrollTreeIntoView());
     }
 
@@ -4787,6 +4900,7 @@
         document.getElementById("tree-result-path").classList.remove("active");
         document.getElementById("tree-result-path").innerHTML = "";
         renderTree();
+        updateShareUrl({ section: currentTreeType === 'mt' ? 'mtree' : 'ytree' });
         requestAnimationFrame(() => scrollTreeIntoView());
         return;
       }
@@ -4812,6 +4926,7 @@
       }
 
       renderTree();
+      updateShareUrl({ section: currentTreeType === 'mt' ? 'mtree' : 'ytree' });
       requestAnimationFrame(() => scrollTreeIntoView());
     }
 
@@ -5128,6 +5243,7 @@
       if (collapsedNodes.has(pathKey)) collapsedNodes.delete(pathKey);
       else collapsedNodes.add(pathKey);
       renderTree();
+      updateShareUrl({ section: currentTreeType === 'mt' ? 'mtree' : 'ytree' });
     }
 
     function toggleTreeSearchIcon() {
@@ -5158,6 +5274,7 @@
       renderTree();
       updateTreeTypeUI();
       updateTreeFloatingToggle();
+      applyInitialUrlState();
     })();
   </script>
 </body>
