@@ -1355,23 +1355,31 @@
 
 
 
+
+
     /* ======================================================
-       FINAL UI FIXES REQUESTED: professional dashboard layout,
-       larger charts, horizontal legend, centered region cards,
-       bigger sample names, and highlighted clicked tree nodes.
+       REAL FINAL FIXES MAY 15:
+       - Modern pie smaller than before, no white chart frame
+       - legend below pie as compact stacked rows
+       - metrics without card frames
+       - project overview smaller and full-width aligned
+       - mtDNA chart added to dashboard
+       - larger sample names in modal kit cards
+       - tree line/node hover highlight
+       - region cards centered with larger pies
        ====================================================== */
 
     .home-modern-hero {
       border: 0 !important;
-      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 48%, #eef6f6 100%) !important;
-      box-shadow: 0 28px 80px rgba(0,23,54,.10) !important;
-      padding: clamp(2.4rem, 5vw, 5.4rem) !important;
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 52%, #eef7f6 100%) !important;
+      box-shadow: 0 24px 70px rgba(0,23,54,.09) !important;
+      padding: clamp(2.2rem, 4.4vw, 4.6rem) !important;
     }
 
     .home-modern-content {
-      grid-template-columns: minmax(360px, .86fr) minmax(520px, 1.14fr) !important;
+      grid-template-columns: minmax(360px, .95fr) minmax(460px, 1.05fr) !important;
       align-items: center !important;
-      gap: clamp(2rem, 4vw, 5.5rem) !important;
+      gap: clamp(2.2rem, 4vw, 4.8rem) !important;
     }
 
     .home-modern-chart-panel {
@@ -1385,13 +1393,13 @@
       flex-direction: column !important;
       align-items: center !important;
       justify-content: center !important;
-      gap: 26px !important;
+      gap: 20px !important;
       width: 100% !important;
     }
 
     .home-modern-chart-wrap {
-      width: min(100%, 640px) !important;
-      max-width: 640px !important;
+      width: min(100%, 500px) !important;
+      max-width: 500px !important;
       aspect-ratio: 1 / 1 !important;
       justify-self: center !important;
       align-self: center !important;
@@ -1399,54 +1407,48 @@
 
     .home-modern-legend {
       width: 100% !important;
-      max-width: 760px !important;
-      display: flex !important;
-      flex-direction: row !important;
-      flex-wrap: wrap !important;
-      justify-content: center !important;
-      align-items: center !important;
-      gap: 12px 18px !important;
+      max-width: 560px !important;
+      display: grid !important;
+      grid-template-columns: repeat(3, minmax(115px, 1fr)) !important;
+      gap: 7px 12px !important;
       margin-top: 0 !important;
+      align-items: stretch !important;
     }
 
     .modern-legend-row {
-      width: auto !important;
-      min-width: 92px !important;
-      padding: 8px 10px !important;
-      border: 0 !important;
-      background: transparent !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      padding: 7px 10px !important;
+      border: 1px solid rgba(226,232,240,.85) !important;
+      background: rgba(255,255,255,.45) !important;
       box-shadow: none !important;
-      font-size: 12px !important;
-      line-height: 1.15 !important;
-      flex-direction: column !important;
-      justify-content: center !important;
-      gap: 4px !important;
-      text-align: center !important;
+      border-radius: 999px !important;
+      font-size: 11px !important;
+      line-height: 1.1 !important;
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 8px !important;
+      text-align: left !important;
     }
 
     .modern-legend-row:hover {
-      background: rgba(255,255,255,.68) !important;
+      background: rgba(255,255,255,.9) !important;
       transform: translateY(-1px) !important;
-      border-radius: 16px !important;
+      box-shadow: 0 8px 18px rgba(0,23,54,.06) !important;
     }
 
-    .modern-legend-row > div {
-      justify-content: center !important;
-      gap: 7px !important;
-    }
-
-    .modern-legend-dot {
-      width: 12px !important;
-      height: 12px !important;
-    }
+    .modern-legend-row > div { justify-content: flex-start !important; gap: 7px !important; }
+    .modern-legend-dot { width: 11px !important; height: 11px !important; flex: 0 0 auto !important; border-radius: 999px !important; }
 
     .home-modern-metrics {
       display: flex !important;
       align-items: flex-end !important;
-      gap: clamp(2rem, 4vw, 4.5rem) !important;
-      margin-top: 44px !important;
-      padding-top: 24px !important;
-      border-top: 1px solid rgba(203,213,225,.65) !important;
+      gap: clamp(2rem, 4vw, 4rem) !important;
+      margin-top: 36px !important;
+      padding-top: 20px !important;
+      border-top: 1px solid rgba(203,213,225,.72) !important;
     }
 
     .home-modern-metric {
@@ -1459,75 +1461,136 @@
     }
 
     .home-modern-metric + .home-modern-metric {
-      padding-left: clamp(1.8rem, 3vw, 3.4rem) !important;
-      border-left: 1px solid rgba(203,213,225,.75) !important;
+      padding-left: clamp(1.6rem, 3vw, 3rem) !important;
+      border-left: 1px solid rgba(203,213,225,.85) !important;
     }
 
-    .home-modern-metric-number {
-      font-size: clamp(3.2rem, 5.4vw, 5.9rem) !important;
-    }
+    .home-modern-metric-number { font-size: clamp(3rem, 4.6vw, 4.9rem) !important; }
 
     .project-overview-plain {
       max-width: none !important;
       width: 100% !important;
-      padding: clamp(2.4rem, 4vw, 4.2rem) clamp(2rem, 6vw, 6rem) !important;
+      padding: clamp(2.1rem, 3.6vw, 3.6rem) clamp(2rem, 6vw, 6rem) !important;
       margin: 0 !important;
     }
 
     .project-overview-title {
-      max-width: 1260px !important;
-      font-size: clamp(3rem, 5.2vw, 6.2rem) !important;
+      max-width: 1160px !important;
+      font-size: clamp(2.45rem, 4.05vw, 4.95rem) !important;
+      line-height: .98 !important;
+      letter-spacing: -.065em !important;
     }
 
     .project-overview-text {
-      max-width: 1260px !important;
-      font-size: clamp(1.16rem, 1.45vw, 1.42rem) !important;
-      line-height: 1.92 !important;
-      gap: 22px !important;
+      max-width: 1160px !important;
+      font-size: clamp(1.05rem, 1.18vw, 1.24rem) !important;
+      line-height: 1.78 !important;
+      gap: 18px !important;
+      font-weight: 750 !important;
     }
 
-    .tree-sample-name {
-      font-size: 15px !important;
-      font-weight: 900 !important;
+    .home-mtdna-summary {
+      border: 0 !important;
+      border-radius: clamp(2rem, 4vw, 4rem) !important;
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 55%, #f3fbfb 100%) !important;
+      box-shadow: 0 18px 48px rgba(0,23,54,.07) !important;
+      padding: clamp(1.8rem, 3.8vw, 3.8rem) !important;
     }
 
-    .tree-sample-card {
-      min-width: 290px !important;
-      padding: 12px 16px !important;
+    .home-mtdna-grid {
+      display: grid;
+      grid-template-columns: minmax(270px,.72fr) minmax(380px,1.28fr);
+      gap: clamp(2rem,4vw,4rem);
+      align-items: center;
     }
 
-    .sample-card-name-strong {
-      font-size: clamp(1rem, 1.15vw, 1.28rem) !important;
-      line-height: 1.18 !important;
-      font-weight: 900 !important;
-      letter-spacing: -.015em !important;
-      color: #00008B !important;
+    .home-mtdna-title {
+      font-size: clamp(2.5rem, 4.2vw, 5rem);
+      line-height: .92;
+      letter-spacing: -.06em;
+      font-weight: 900;
+      color: #001736;
     }
 
-    .tree-node-badge.tree-node-selected,
-    .tree-root-badge.tree-node-selected {
-      outline: 3px solid rgba(119,90,25,.72) !important;
-      outline-offset: 4px !important;
-      box-shadow: 0 0 0 8px rgba(119,90,25,.10), 0 16px 34px rgba(0,23,54,.16) !important;
-      transform: translateY(-1px) !important;
+    .home-mtdna-subtitle {
+      max-width: 600px;
+      margin-top: 18px;
+      color: #64748b;
+      font-size: clamp(1rem,1.2vw,1.2rem);
+      line-height: 1.65;
+      font-weight: 800;
     }
 
-    .tree-path-link.current,
-    .tree-path-link.selected-path {
+    .home-mtdna-chart-panel {
+      display: grid;
+      grid-template-columns: minmax(240px, 320px) 1fr;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .home-mtdna-chart-wrap {
+      width: min(100%, 320px);
+      aspect-ratio: 1/1;
+      cursor: pointer;
+    }
+
+    .home-mtdna-legend {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(120px,1fr));
+      gap: 8px 12px;
+    }
+
+    .mtdna-legend-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(226,232,240,.9);
+      background: rgba(255,255,255,.55);
+      padding: 8px 11px;
+      font-size: 11px;
+      font-weight: 900;
+      color: #001736;
+      cursor: pointer;
+    }
+
+    .mtdna-legend-row:hover { background:#fff; transform:translateY(-1px); box-shadow:0 8px 18px rgba(0,23,54,.06); }
+    .mtdna-legend-dot { width:11px;height:11px;border-radius:999px;flex:0 0 auto; }
+
+    .tree-ul.root-list > li:hover::before,
+    .tree-ul.focused-root-list > li:hover::before,
+    .tree-ul ul > li:hover::before {
       background: #775a19 !important;
-      border-color: #775a19 !important;
-      color: #ffffff !important;
-      box-shadow: 0 8px 18px rgba(119,90,25,.18) !important;
+      height: 3px !important;
+      box-shadow: 0 0 0 4px rgba(119,90,25,.08) !important;
     }
 
-    .haplo-pill.on {
-      box-shadow: 0 0 0 3px rgba(119,90,25,.13), 0 8px 18px rgba(0,23,54,.08) !important;
-      transform: translateY(-1px) !important;
+    .tree-ul.root-list > li:hover > ul::before,
+    .tree-ul.focused-root-list > li:hover > ul::before,
+    .tree-ul ul > li:hover > ul::before {
+      background: #775a19 !important;
+      width: 3px !important;
+      box-shadow: 0 0 0 4px rgba(119,90,25,.08) !important;
+    }
+
+    .tree-row:hover .tree-node-badge,
+    .tree-row:hover .tree-root-badge {
+      outline: 3px solid rgba(119,90,25,.45) !important;
+      outline-offset: 3px !important;
+      box-shadow: 0 0 0 7px rgba(119,90,25,.08), 0 14px 28px rgba(0,23,54,.14) !important;
+    }
+
+    .sample-card-name-strong,
+    .tree-sample-name {
+      font-size: clamp(1.05rem, 1.18vw, 1.35rem) !important;
+      line-height: 1.15 !important;
+      font-weight: 900 !important;
     }
 
     .region-card {
-      min-height: 240px !important;
-      padding: 1.6rem 1.5rem 1.5rem !important;
+      min-height: 250px !important;
+      padding: 1.7rem 1.5rem 1.6rem !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
@@ -1541,7 +1604,7 @@
       flex-direction: column !important;
       align-items: center !important;
       justify-content: center !important;
-      gap: 12px !important;
+      gap: 10px !important;
       width: 100% !important;
       min-width: 0 !important;
     }
@@ -1553,73 +1616,39 @@
       width: 100% !important;
       display: flex !important;
       flex-direction: column !important;
-      gap: 8px !important;
+      gap: 7px !important;
     }
 
-    .mini-canvas-wrap {
-      width: 150px !important;
-      height: 150px !important;
-      margin: 0 auto !important;
-    }
-
-    .mini-canvas-wrap canvas {
-      width: 146px !important;
-      height: 146px !important;
-    }
+    .mini-canvas-wrap { width: 165px !important; height: 165px !important; margin: 0 auto !important; }
+    .mini-canvas-wrap canvas { width: 160px !important; height: 160px !important; }
 
     .region-card-title {
       text-align: center !important;
-      font-size: clamp(1.05rem, 1.25vw, 1.36rem) !important;
+      font-size: clamp(1.12rem, 1.35vw, 1.48rem) !important;
       width: 100% !important;
       margin: 0 auto !important;
     }
 
-    .region-card-subline {
-      justify-content: center !important;
-      margin-top: 4px !important;
-    }
-
-    .region-card-arrow {
-      position: absolute !important;
-      right: 22px !important;
-      top: 50% !important;
-      transform: translateY(-50%) !important;
-    }
-
-    .region-card:hover .region-card-arrow {
-      transform: translateY(-50%) translateX(2px) !important;
-    }
+    .region-card-subline { justify-content: center !important; margin-top: 2px !important; }
+    .region-card-arrow { position: absolute !important; right: 22px !important; top: 50% !important; transform: translateY(-50%) !important; }
+    .region-card:hover .region-card-arrow { transform: translateY(-50%) translateX(2px) !important; }
 
     @media (max-width: 1180px) {
-      .home-modern-content {
-        grid-template-columns: 1fr !important;
-      }
-      .home-modern-chart-wrap {
-        max-width: 520px !important;
-      }
+      .home-modern-content { grid-template-columns: 1fr !important; }
+      .home-modern-chart-wrap { max-width: 430px !important; }
+      .home-modern-legend { grid-template-columns: repeat(2, minmax(120px, 1fr)) !important; }
+      .home-mtdna-grid { grid-template-columns: 1fr; }
+      .home-mtdna-chart-panel { grid-template-columns: 1fr; justify-items:center; }
+      .home-mtdna-legend { width:100%; max-width:560px; }
     }
 
     @media (max-width: 680px) {
-      .home-modern-metrics {
-        align-items: flex-start !important;
-        flex-direction: column !important;
-        gap: 18px !important;
-      }
-      .home-modern-metric + .home-modern-metric {
-        padding-left: 0 !important;
-        border-left: 0 !important;
-      }
-      .home-modern-legend {
-        justify-content: flex-start !important;
-      }
-      .mini-canvas-wrap {
-        width: 132px !important;
-        height: 132px !important;
-      }
-      .mini-canvas-wrap canvas {
-        width: 128px !important;
-        height: 128px !important;
-      }
+      .home-modern-chart-wrap { max-width: 330px !important; }
+      .home-modern-metrics { align-items:flex-start !important; flex-direction:column !important; gap:18px !important; }
+      .home-modern-metric + .home-modern-metric { padding-left:0 !important; border-left:0 !important; }
+      .home-modern-legend, .home-mtdna-legend { grid-template-columns: 1fr !important; }
+      .mini-canvas-wrap { width: 142px !important; height: 142px !important; }
+      .mini-canvas-wrap canvas { width: 138px !important; height: 138px !important; }
     }
 
     .share-floating-btn {
@@ -1721,6 +1750,22 @@
             <canvas id="nationalChartCanvas"></canvas>
           </div>
           <div id="national-legend" class="home-modern-legend"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="home-mtdna-summary font-headline">
+      <div class="home-mtdna-grid">
+        <div>
+          <div class="home-kicker">Maternal Overview</div>
+          <h2 class="home-mtdna-title">Modern mtDNA<br/>Summary</h2>
+          <p class="home-mtdna-subtitle">Current overview of modern and study mtDNA results, grouped by major maternal lineages.</p>
+        </div>
+        <div class="home-mtdna-chart-panel">
+          <div class="home-mtdna-chart-wrap" onclick="showSection('mtree')">
+            <canvas id="homeMtChartCanvas"></canvas>
+          </div>
+          <div id="home-mtdna-legend" class="home-mtdna-legend"></div>
         </div>
       </div>
     </section>
@@ -3763,6 +3808,46 @@
       }).join("");
     }
 
+
+    function updateModernMtSummary() {
+      const totals = {};
+      let total = 0;
+
+      allModernLikeSamples().forEach(s => {
+        if (!isRealValue(s.mt_dna) && !isRealValue(s.full_mtDNA_path)) return;
+        const h = mtPrimaryLineFromPath(s.full_mtDNA_path, s.mt_dna);
+        if (!h || h === "Other") return;
+        totals[h] = (totals[h] || 0) + 1;
+        total++;
+      });
+
+      const canvas = document.getElementById("homeMtChartCanvas");
+      const legend = document.getElementById("home-mtdna-legend");
+      if (!canvas || !legend) return;
+
+      if (total > 0) {
+        makePie("homeMtChartCanvas", totals, "MODERN-MTDNA", total, {
+          getColor: mtColorForLabel,
+          getBorderColor: mtBorderColorForLabel,
+          onSliceClick: () => showSection('mtree')
+        });
+      }
+
+      const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
+      legend.innerHTML = sorted.map(([hap, count]) => {
+        const pct = total ? ((count / total) * 100).toFixed(1) : "0.0";
+        return `
+          <div class="mtdna-legend-row" onclick="showSection('mtree')" title="${esc(hap)}: ${count} samples (${pct}%)">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="mtdna-legend-dot" style="background:${mtColorForLabel(hap)}"></span>
+              <span>${esc(hap)}</span>
+            </div>
+            <span>${pct}%</span>
+          </div>
+        `;
+      }).join("");
+    }
+
     function updateAncientSummary() {
       const totals = {};
       let total = 0;
@@ -4771,9 +4856,11 @@
       await loadAll();
       populateFilters();
       renderDashboard();
+      updateModernMtSummary();
       renderArchive();
       renderAncientArchive();
       updateModernSummary();
+      updateModernMtSummary();
       updateAncientSummary();
       applyAnySharedLinkFromHash();
       renderTree();
