@@ -2381,7 +2381,7 @@
         <div class="combined-dashboard-copy">
           <p class="combined-kicker">— Modern Overview</p>
           <h2 class="combined-title">Modern Egyptian<br/>Lineage Summary</h2>
-          <p class="combined-subtitle">A compact overview of the modern Egyptian archive. The paternal Y-DNA summary shows male-line haplogroups, while the maternal mtDNA summary shows female-line branches. Both summaries include published samples and modern study samples.</p>
+          <p class="combined-subtitle">This dashboard summarizes the modern Egyptian archive in two parts: Y-DNA on the left for paternal lineages and mtDNA on the right for maternal branches. The numbers include both published samples and modern study samples, giving a quick overview of the current archive before exploring the detailed tables and trees below.</p>
         </div>
 
         <div class="combined-metrics-grid">
@@ -2412,23 +2412,6 @@
         <article class="combined-chart-card">
           <div class="combined-chart-head">
             <div>
-              <p>— Maternal Overview</p>
-              <h3>Modern mtDNA Summary</h3>
-            </div>
-            <span>Major maternal branches</span>
-          </div>
-          <div class="combined-chart-body">
-            <div class="combined-chart-wrap" onclick="openMtHomeModal()">
-              <canvas id="homeMtChartCanvas"></canvas>
-            </div>
-            <div id="home-mt-legend" class="pie-legend-panel combined-legend"></div>
-          </div>
-          <div class="combined-card-footer">Total mtDNA Samples: <span id="mtdna-footer-total">0</span> &nbsp; | &nbsp; Maternal Branches: <span id="mtdna-footer-branches">0</span></div>
-        </article>
-
-        <article class="combined-chart-card">
-          <div class="combined-chart-head">
-            <div>
               <p>— Paternal Overview</p>
               <h3>Modern Y-DNA Summary</h3>
             </div>
@@ -2442,6 +2425,23 @@
           </div>
           <div class="combined-card-footer">Total Y-DNA Samples: <span id="ydna-footer-total">0</span> &nbsp; | &nbsp; Mapped Regions: 25</div>
         </article>
+
+        <article class="combined-chart-card">
+          <div class="combined-chart-head">
+            <div>
+              <p>— Maternal Overview</p>
+              <h3>Modern mtDNA Summary</h3>
+            </div>
+            <span>Major maternal branches</span>
+          </div>
+          <div class="combined-chart-body">
+            <div class="combined-chart-wrap" onclick="openMtHomeModal()">
+              <canvas id="homeMtChartCanvas"></canvas>
+            </div>
+            <div id="home-mt-legend" class="pie-legend-panel combined-legend"></div>
+          </div>
+          <div class="combined-card-footer">Total mtDNA Samples: <span id="mtdna-footer-total">0</span> &nbsp; | &nbsp; Maternal Branches: <span id="mtdna-footer-branches">0</span></div>
+        </article>
       </div>
     </section>
 
@@ -2449,8 +2449,8 @@
       <div class="project-overview-clean-inner">
         <div>
           <p class="combined-kicker">— Project Overview</p>
-          <h2>A genomic archive of Egyptian Y-DNA and mtDNA lineages</h2>
-          <p class="lead">The Egyptian Y-DNA Project is an independent archive that documents Egyptian paternal and maternal genetic lineages in a clear, structured, and evidence-based way.</p>
+          <h2>A genomic archive for Egyptian paternal and maternal lineages</h2>
+          <p class="lead">The Egyptian Y-DNA Project collects, organizes, and explains Egyptian genetic lineages in one neutral archive. Y-DNA follows the paternal line, mtDNA follows the maternal line, and both are presented with clear labels, source links, locations, and tree views so the data can be checked and understood easily.</p>
         </div>
 
         <div class="overview-points">
@@ -2458,21 +2458,21 @@
             <div class="overview-point-icon"><span class="material-symbols-outlined">description</span></div>
             <div>
               <strong>Clear documentation</strong>
-              <p>Samples are organized with lineage names, SNP paths, locations, links, and source context so visitors can understand each result without confusion.</p>
+              <p>Each sample is shown with its lineage name, SNP path when available, location context, source links, and sample details, so the archive stays transparent and easy to verify.</p>
             </div>
           </div>
           <div class="overview-point">
             <div class="overview-point-icon"><span class="material-symbols-outlined">account_tree</span></div>
             <div>
               <strong>Y-DNA and mtDNA side by side</strong>
-              <p>The archive includes a dedicated Y-DNA Tree and a dedicated mtDNA Tree, making paternal and maternal lineages easier to compare.</p>
+              <p>The Y-DNA Tree helps follow male-line branches, while the mtDNA Tree helps follow maternal branches. This keeps both inheritance lines separate but comparable.</p>
             </div>
           </div>
           <div class="overview-point">
             <div class="overview-point-icon"><span class="material-symbols-outlined">verified_user</span></div>
             <div>
               <strong>Neutral scientific format</strong>
-              <p>Modern, study, and ancient samples are presented as a research-style reference, with the archive growing as more reliable results are added.</p>
+              <p>The project separates modern, study, and ancient samples, while keeping the presentation neutral and research-style as new reliable results are added.</p>
             </div>
           </div>
         </div>
@@ -4203,11 +4203,6 @@
           onSliceClick: (hap) => openMtHomeModal(hap)
         });
       }
-      const mtTotalEl = document.getElementById("total-mtdna-samples");
-      const mtBranchesEl = document.getElementById("total-mtdna-branches");
-      if (mtTotalEl) mtTotalEl.textContent = total;
-      if (mtBranchesEl) mtBranchesEl.textContent = Object.keys(totals).filter(k => totals[k] > 0).length;
-
       const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
       const legend = document.getElementById("home-mt-legend");
       if (legend) {
