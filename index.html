@@ -1063,9 +1063,9 @@
       border-radius: 12px;
       padding: 8px 10px;
       font-family: 'Manrope', sans-serif;
-      font-size: 13px;
-      font-weight: 900;
-      line-height: 1.4;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.35;
       box-shadow: 0 12px 30px rgba(0,0,0,.2);
       white-space: nowrap;
       z-index: 99999;
@@ -1129,571 +1129,178 @@
         grid-template-columns: 1fr;
       }
     }
+  
 
+    /* FINAL FIX: keep tree line hover normal, highlight only haplo buttons */
+    .tree-ul::before, .tree-ul ul::before, .tree-ul > li::before, .tree-ul ul > li::before {
+      transition: none !important;
+      box-shadow: none !important;
+    }
+    .haplo-pill:hover {
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 10px 22px rgba(0,23,54,.12);
+      filter: saturate(1.1);
+    }
+    .tree-sample-name {
+      font-size: 13px !important;
+      line-height: 1.25 !important;
+    }
 
-    .home-modern-hero {
-      background: linear-gradient(135deg, #ffffff 0%, #f7fafc 52%, #edf4f4 100%);
-      border: 1px solid #e4eaf0;
+    /* FINAL DASHBOARD FIX */
+    .home-hero-panel {
+      background: linear-gradient(135deg, #ffffff 0%, #f7fbfb 72%, #f1f4ee 100%);
+      border: 1px solid #e7eaee;
       border-radius: 4rem;
-      padding: clamp(2rem, 4vw, 4.5rem);
       box-shadow: 0 28px 70px rgba(0,23,54,.10);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .home-modern-hero::before {
-      content: "";
-      position: absolute;
-      width: 520px;
-      height: 520px;
-      right: -170px;
-      top: -190px;
-      border-radius: 999px;
-      background: radial-gradient(circle, rgba(119,90,25,.16), rgba(119,90,25,0) 68%);
-      pointer-events: none;
-    }
-
-    .home-modern-hero::after {
-      content: "";
-      position: absolute;
-      width: 620px;
-      height: 620px;
-      left: -220px;
-      bottom: -300px;
-      border-radius: 999px;
-      background: radial-gradient(circle, rgba(0,23,54,.09), rgba(0,23,54,0) 70%);
-      pointer-events: none;
-    }
-
-    .home-modern-content {
-      position: relative;
-      z-index: 1;
+      padding: clamp(2.2rem, 5vw, 4.5rem);
       display: grid;
-      grid-template-columns: minmax(280px, .9fr) minmax(360px, 1.1fr);
-      align-items: center;
+      grid-template-columns: minmax(320px, .8fr) minmax(460px, 1.2fr);
       gap: clamp(2rem, 5vw, 5rem);
-    }
-
-    .home-kicker {
-      display: inline-flex;
       align-items: center;
-      gap: 10px;
-      color: #775a19;
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing: .28em;
-      text-transform: uppercase;
-      margin-bottom: 18px;
     }
-
-    .home-kicker::before {
-      content: "";
-      width: 34px;
-      height: 2px;
-      border-radius: 999px;
-      background: #775a19;
-    }
-
-    .home-modern-title {
-      font-size: clamp(4rem, 8vw, 8.7rem);
+    .home-hero-title {
+      font-size: clamp(4rem, 8vw, 8.5rem);
       line-height: .88;
-      letter-spacing: -.075em;
+      letter-spacing: -.08em;
       font-weight: 900;
       color: #001736;
     }
-
-    .home-modern-subtitle {
-      margin-top: 22px;
-      max-width: 620px;
+    .home-hero-sub {
+      margin-top: 1.8rem;
+      max-width: 560px;
+      font-size: clamp(1.05rem, 1.3vw, 1.35rem);
+      line-height: 1.55;
+      font-weight: 800;
       color: #64748b;
-      font-size: clamp(1rem, 1.5vw, 1.25rem);
-      line-height: 1.75;
-      font-weight: 750;
     }
-
-    .home-modern-metrics {
-      margin-top: 38px;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px;
+    .home-metrics-inline {
+      margin-top: 2.8rem;
+      padding-top: 1.4rem;
+      border-top: 1px solid #dfe5ec;
+      display: flex;
+      align-items: flex-end;
+      gap: 3rem;
     }
-
-    .home-modern-metric {
-      background: rgba(255,255,255,.78);
-      border: 1px solid rgba(203,213,225,.72);
-      border-radius: 2rem;
-      padding: 1.35rem 1.45rem;
-      box-shadow: 0 16px 32px rgba(0,23,54,.055);
-      backdrop-filter: blur(10px);
+    .home-metric-flat {
+      min-width: 160px;
     }
-
-    .home-modern-metric-label {
-      font-size: 10px;
-      color: #94a3b8;
+    .home-metric-flat + .home-metric-flat {
+      border-left: 1px solid #d7dee8;
+      padding-left: 3rem;
+    }
+    .home-metric-label {
+      font-size: .72rem;
       font-weight: 900;
       letter-spacing: .14em;
       text-transform: uppercase;
+      color: #94a3b8;
     }
-
-    .home-modern-metric-number {
-      margin-top: 10px;
-      font-size: clamp(2.8rem, 5vw, 5.3rem);
-      line-height: .92;
+    .home-metric-number {
+      margin-top: .25rem;
+      font-size: clamp(3.2rem, 5vw, 5rem);
+      line-height: 1;
       font-weight: 900;
-      letter-spacing: -.05em;
       color: #001736;
+      letter-spacing: -.05em;
     }
-
-    .home-modern-chart-panel {
-      background: rgba(255,255,255,.88);
-      border: 1px solid rgba(226,232,240,.92);
-      border-radius: 3.2rem;
-      padding: clamp(1.4rem, 3vw, 2.6rem);
-      box-shadow: 0 24px 60px rgba(0,23,54,.08);
-      backdrop-filter: blur(12px);
-      display: grid;
-      grid-template-columns: minmax(280px, 1fr) minmax(240px, 320px);
-      align-items: center;
-      gap: clamp(1.4rem, 3vw, 2.4rem);
-    }
-
-    .home-modern-chart-wrap {
-      width: min(100%, 520px);
-      aspect-ratio: 1 / 1;
-      justify-self: center;
-      cursor: pointer;
-    }
-
-    .home-modern-legend {
-      width: 100%;
+    .home-chart-side {
       display: flex;
       flex-direction: column;
-      gap: 7px;
-      font-family: 'Manrope', sans-serif;
+      align-items: center;
+      gap: 1.25rem;
     }
-
-    .project-overview-plain {
-      padding: 0 clamp(.25rem, 2vw, 1rem);
-      max-width: 1120px;
-      margin-inline: auto;
+    .home-chart-main {
+      width: min(460px, 42vw);
+      height: min(460px, 42vw);
+      cursor: pointer;
     }
-
-    .project-overview-title {
-      font-size: clamp(2.4rem, 4.8vw, 5.8rem);
-      line-height: .98;
-      letter-spacing: -.065em;
-      font-weight: 900;
-      color: #001736;
+    .home-chart-main canvas {
+      width: 100% !important;
+      height: 100% !important;
     }
-
-    .project-overview-text {
-      margin-top: 26px;
-      max-width: 940px;
-      display: grid;
-      gap: 18px;
-      color: #475569;
-      font-size: clamp(1rem, 1.3vw, 1.22rem);
-      line-height: 1.85;
-      font-weight: 700;
-    }
-
-    .modern-legend-row {
+    .home-legend-inline {
+      width: 100%;
+      max-width: 760px;
       display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
       align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      padding: 10px 13px;
-      border-radius: 16px;
-      background: #f8fafc;
-      border: 1px solid #edf2f7;
-      cursor: pointer;
-      transition: transform .16s ease, border-color .16s ease, background .16s ease;
-      font-size: 13px;
+      gap: .8rem 1.35rem;
+      font-size: .82rem;
       font-weight: 900;
-      text-transform: uppercase;
-      color: #001736;
     }
-
-    .modern-legend-row:hover {
-      background: #ffffff;
-      border-color: #cbd5e1;
-      transform: translateX(2px);
-    }
-
-    .modern-legend-dot {
-      width: 13px;
-      height: 13px;
-      border-radius: 999px;
-      flex-shrink: 0;
-    }
-
-    @media (max-width: 1180px) {
-      .home-modern-content,
-      .home-modern-chart-panel {
-        grid-template-columns: 1fr;
-      }
-      .home-modern-chart-panel {
-        max-width: 820px;
-      }
-    }
-
-    @media (max-width: 680px) {
-      .home-modern-hero {
-        border-radius: 2.6rem;
-        padding: 1.45rem;
-      }
-      .home-modern-metrics {
-        grid-template-columns: 1fr;
-      }
-      .home-modern-title {
-        font-size: 4rem;
-      }
-      .home-modern-chart-wrap {
-        max-width: 330px;
-      }
-    }
-
-
-
-
-
-    /* ======================================================
-       REAL FINAL FIXES MAY 15:
-       - Modern pie smaller than before, no white chart frame
-       - legend below pie as compact stacked rows
-       - metrics without card frames
-       - project overview smaller and full-width aligned
-       - mtDNA chart added to dashboard
-       - larger sample names in modal kit cards
-       - tree line/node hover highlight
-       - region cards centered with larger pies
-       ====================================================== */
-
-    .home-modern-hero {
-      border: 0 !important;
-      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 52%, #eef7f6 100%) !important;
-      box-shadow: 0 24px 70px rgba(0,23,54,.09) !important;
-      padding: clamp(2.2rem, 4.4vw, 4.6rem) !important;
-    }
-
-    .home-modern-content {
-      grid-template-columns: minmax(360px, .95fr) minmax(460px, 1.05fr) !important;
-      align-items: center !important;
-      gap: clamp(2.2rem, 4vw, 4.8rem) !important;
-    }
-
-    .home-modern-chart-panel {
-      background: transparent !important;
-      border: 0 !important;
-      box-shadow: none !important;
-      backdrop-filter: none !important;
-      border-radius: 0 !important;
-      padding: 0 !important;
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-      justify-content: center !important;
-      gap: 20px !important;
-      width: 100% !important;
-    }
-
-    .home-modern-chart-wrap {
-      width: min(100%, 500px) !important;
-      max-width: 500px !important;
-      aspect-ratio: 1 / 1 !important;
-      justify-self: center !important;
-      align-self: center !important;
-    }
-
-    .home-modern-legend {
-      width: 100% !important;
-      max-width: 560px !important;
-      display: grid !important;
-      grid-template-columns: repeat(3, minmax(115px, 1fr)) !important;
-      gap: 7px 12px !important;
-      margin-top: 0 !important;
-      align-items: stretch !important;
-    }
-
-    .modern-legend-row {
-      width: 100% !important;
-      min-width: 0 !important;
-      padding: 7px 10px !important;
-      border: 1px solid rgba(226,232,240,.85) !important;
-      background: rgba(255,255,255,.45) !important;
-      box-shadow: none !important;
-      border-radius: 999px !important;
-      font-size: 11px !important;
-      line-height: 1.1 !important;
-      display: flex !important;
-      flex-direction: row !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-      gap: 8px !important;
-      text-align: left !important;
-    }
-
-    .modern-legend-row:hover {
-      background: rgba(255,255,255,.9) !important;
-      transform: translateY(-1px) !important;
-      box-shadow: 0 8px 18px rgba(0,23,54,.06) !important;
-    }
-
-    .modern-legend-row > div { justify-content: flex-start !important; gap: 7px !important; }
-    .modern-legend-dot { width: 11px !important; height: 11px !important; flex: 0 0 auto !important; border-radius: 999px !important; }
-
-    .home-modern-metrics {
-      display: flex !important;
-      align-items: flex-end !important;
-      gap: clamp(2rem, 4vw, 4rem) !important;
-      margin-top: 36px !important;
-      padding-top: 20px !important;
-      border-top: 1px solid rgba(203,213,225,.72) !important;
-    }
-
-    .home-modern-metric {
-      background: transparent !important;
-      border: 0 !important;
-      border-radius: 0 !important;
-      padding: 0 !important;
-      box-shadow: none !important;
-      backdrop-filter: none !important;
-    }
-
-    .home-modern-metric + .home-modern-metric {
-      padding-left: clamp(1.6rem, 3vw, 3rem) !important;
-      border-left: 1px solid rgba(203,213,225,.85) !important;
-    }
-
-    .home-modern-metric-number { font-size: clamp(3rem, 4.6vw, 4.9rem) !important; }
-
-    .project-overview-plain {
-      max-width: none !important;
-      width: 100% !important;
-      padding: clamp(2.1rem, 3.6vw, 3.6rem) clamp(2rem, 6vw, 6rem) !important;
-      margin: 0 !important;
-    }
-
-    .project-overview-title {
-      max-width: 1160px !important;
-      font-size: clamp(2.45rem, 4.05vw, 4.95rem) !important;
-      line-height: .98 !important;
-      letter-spacing: -.065em !important;
-    }
-
-    .project-overview-text {
-      max-width: 1160px !important;
-      font-size: clamp(1.05rem, 1.18vw, 1.24rem) !important;
-      line-height: 1.78 !important;
-      gap: 18px !important;
-      font-weight: 750 !important;
-    }
-
-    .home-mtdna-summary {
-      border: 0 !important;
-      border-radius: clamp(2rem, 4vw, 4rem) !important;
-      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 55%, #f3fbfb 100%) !important;
-      box-shadow: 0 18px 48px rgba(0,23,54,.07) !important;
-      padding: clamp(1.8rem, 3.8vw, 3.8rem) !important;
-    }
-
-    .home-mtdna-grid {
-      display: grid;
-      grid-template-columns: minmax(270px,.72fr) minmax(380px,1.28fr);
-      gap: clamp(2rem,4vw,4rem);
-      align-items: center;
-    }
-
-    .home-mtdna-title {
-      font-size: clamp(2.5rem, 4.2vw, 5rem);
-      line-height: .92;
-      letter-spacing: -.06em;
-      font-weight: 900;
-      color: #001736;
-    }
-
-    .home-mtdna-subtitle {
-      max-width: 600px;
-      margin-top: 18px;
-      color: #64748b;
-      font-size: clamp(1rem,1.2vw,1.2rem);
-      line-height: 1.65;
-      font-weight: 800;
-    }
-
-    .home-mtdna-chart-panel {
-      display: grid;
-      grid-template-columns: minmax(240px, 320px) 1fr;
-      gap: 24px;
-      align-items: center;
-    }
-
-    .home-mtdna-chart-wrap {
-      width: min(100%, 320px);
-      aspect-ratio: 1/1;
-      cursor: pointer;
-    }
-
-    .home-mtdna-legend {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(120px,1fr));
-      gap: 8px 12px;
-    }
-
-    .mtdna-legend-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(226,232,240,.9);
-      background: rgba(255,255,255,.55);
-      padding: 8px 11px;
-      font-size: 11px;
-      font-weight: 900;
-      color: #001736;
-      cursor: pointer;
-    }
-
-    .mtdna-legend-row:hover { background:#fff; transform:translateY(-1px); box-shadow:0 8px 18px rgba(0,23,54,.06); }
-    .mtdna-legend-dot { width:11px;height:11px;border-radius:999px;flex:0 0 auto; }
-
-    .tree-ul.root-list > li:hover::before,
-    .tree-ul.focused-root-list > li:hover::before,
-    .tree-ul ul > li:hover::before {
-      background: #775a19 !important;
-      height: 3px !important;
-      box-shadow: 0 0 0 4px rgba(119,90,25,.08) !important;
-    }
-
-    .tree-ul.root-list > li:hover > ul::before,
-    .tree-ul.focused-root-list > li:hover > ul::before,
-    .tree-ul ul > li:hover > ul::before {
-      background: #775a19 !important;
-      width: 3px !important;
-      box-shadow: 0 0 0 4px rgba(119,90,25,.08) !important;
-    }
-
-    .tree-row:hover .tree-node-badge,
-    .tree-row:hover .tree-root-badge {
-      outline: 3px solid rgba(119,90,25,.45) !important;
-      outline-offset: 3px !important;
-      box-shadow: 0 0 0 7px rgba(119,90,25,.08), 0 14px 28px rgba(0,23,54,.14) !important;
-    }
-
-    .sample-card-name-strong,
-    .tree-sample-name {
-      font-size: clamp(1.05rem, 1.18vw, 1.35rem) !important;
-      line-height: 1.15 !important;
-      font-weight: 900 !important;
-    }
-
-    .region-card {
-      min-height: 250px !important;
-      padding: 1.7rem 1.5rem 1.6rem !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      text-align: center !important;
-      position: relative !important;
-      overflow: hidden !important;
-    }
-
-    .region-card-main {
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-      justify-content: center !important;
-      gap: 10px !important;
-      width: 100% !important;
-      min-width: 0 !important;
-    }
-
-    .region-card-copy {
-      align-items: center !important;
-      justify-content: center !important;
-      text-align: center !important;
-      width: 100% !important;
-      display: flex !important;
-      flex-direction: column !important;
-      gap: 7px !important;
-    }
-
-    .mini-canvas-wrap { width: 165px !important; height: 165px !important; margin: 0 auto !important; }
-    .mini-canvas-wrap canvas { width: 160px !important; height: 160px !important; }
-
-    .region-card-title {
-      text-align: center !important;
-      font-size: clamp(1.12rem, 1.35vw, 1.48rem) !important;
-      width: 100% !important;
-      margin: 0 auto !important;
-    }
-
-    .region-card-subline { justify-content: center !important; margin-top: 2px !important; }
-    .region-card-arrow { position: absolute !important; right: 22px !important; top: 50% !important; transform: translateY(-50%) !important; }
-    .region-card:hover .region-card-arrow { transform: translateY(-50%) translateX(2px) !important; }
-
-    @media (max-width: 1180px) {
-      .home-modern-content { grid-template-columns: 1fr !important; }
-      .home-modern-chart-wrap { max-width: 430px !important; }
-      .home-modern-legend { grid-template-columns: repeat(2, minmax(120px, 1fr)) !important; }
-      .home-mtdna-grid { grid-template-columns: 1fr; }
-      .home-mtdna-chart-panel { grid-template-columns: 1fr; justify-items:center; }
-      .home-mtdna-legend { width:100%; max-width:560px; }
-    }
-
-    @media (max-width: 680px) {
-      .home-modern-chart-wrap { max-width: 330px !important; }
-      .home-modern-metrics { align-items:flex-start !important; flex-direction:column !important; gap:18px !important; }
-      .home-modern-metric + .home-modern-metric { padding-left:0 !important; border-left:0 !important; }
-      .home-modern-legend, .home-mtdna-legend { grid-template-columns: 1fr !important; }
-      .mini-canvas-wrap { width: 142px !important; height: 142px !important; }
-      .mini-canvas-wrap canvas { width: 138px !important; height: 138px !important; }
-    }
-
-    .share-floating-btn {
-      position: fixed;
-      right: 18px;
-      bottom: 78px;
-      z-index: 900;
-      width: 52px;
-      height: 52px;
-      border-radius: 18px;
-      background: #001736;
-      color: #ffffff;
-      border: 1px solid rgba(255,255,255,.2);
-      box-shadow: 0 18px 36px rgba(0,23,54,.22);
+    .home-legend-item {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
+      gap: .45rem;
       cursor: pointer;
-      transition: transform .18s ease, background .18s ease;
+      white-space: nowrap;
+      color: #001736;
+      transition: transform .16s ease;
     }
-    .share-floating-btn:hover {
-      background: #775a19;
-      transform: translateY(-2px);
+    .home-legend-item:hover { transform: translateY(-2px); }
+    .home-legend-dot {
+      width: .75rem;
+      height: .75rem;
+      border-radius: 999px;
+      display: inline-block;
     }
-    .share-toast {
-      position: fixed;
-      right: 18px;
-      bottom: 138px;
-      z-index: 901;
-      background: rgba(15,23,42,.96);
-      color: #fff;
-      border-radius: 14px;
-      padding: 10px 14px;
-      font-size: 11px;
+    .project-overview-section {
+      width: 100%;
+      max-width: none;
+      padding: 4.5rem 5vw 4rem;
+      background: transparent;
+    }
+    .project-overview-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    .project-overview-title {
+      font-size: clamp(3.2rem, 5.4vw, 6.2rem);
+      line-height: .98;
+      letter-spacing: -.07em;
       font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(8px);
-      transition: opacity .2s ease, transform .2s ease;
+      color: #001736;
+      max-width: 1160px;
     }
-    .share-toast.active {
-      opacity: 1;
-      transform: translateY(0);
+    .project-overview-text {
+      margin-top: 2rem;
+      max-width: 1150px;
+      font-size: clamp(1.25rem, 1.55vw, 1.65rem);
+      line-height: 1.8;
+      font-weight: 800;
+      color: #475569;
+    }
+    .home-mtdna-panel {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+      border-radius: 3.5rem;
+      border: 1px solid #e7eaee;
+      box-shadow: 0 24px 60px rgba(0,23,54,.08);
+      padding: clamp(2rem, 4vw, 3.5rem);
+      display: grid;
+      grid-template-columns: minmax(260px, .75fr) minmax(380px, 1.25fr);
+      align-items: center;
+      gap: 2rem;
+    }
+    .home-mtdna-chart {
+      width: min(330px, 35vw);
+      height: min(330px, 35vw);
+      margin: 0 auto;
+    }
+    .home-mtdna-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .7rem 1.1rem;
+      font-weight: 900;
+      font-size: .85rem;
+      justify-content: center;
+    }
+    @media (max-width: 1050px) {
+      .home-hero-panel, .home-mtdna-panel { grid-template-columns: 1fr; }
+      .home-chart-main { width: min(430px, 78vw); height: min(430px, 78vw); }
+      .home-mtdna-chart { width: min(320px, 72vw); height: min(320px, 72vw); }
+      .home-metrics-inline { gap: 1.5rem; }
+      .home-metric-flat + .home-metric-flat { padding-left: 1.5rem; }
     }
 
   </style>
@@ -1701,13 +1308,11 @@
 <body class="bg-background text-primary font-body antialiased">
 
   <div id="chartjs-ext-tooltip" class="chartjs-ext-tooltip"></div>
-  <div id="share-toast" class="share-toast">Link copied</div>
-  <button id="share-floating-btn" class="share-floating-btn" type="button" onclick="copyCurrentShareLink()" title="Copy share link"><span class="material-symbols-outlined">share</span></button>
 
   <nav class="w-full bg-white border-b border-gray-100 h-20 sticky top-0 z-40">
     <div class="flex justify-between items-center px-4 md:px-8 h-full max-w-screen-2xl mx-auto">
       <div class="flex items-center gap-2 md:gap-8">
-        <a href="#" onclick="return resetSiteStateAndGoHome(event)" class="flex flex-col group">
+        <a href="#" onclick="location.reload();return false" class="flex flex-col group">
           <h1 class="text-xs md:text-xl font-black uppercase tracking-tighter leading-none text-primary group-hover:text-secondary transition-colors font-headline">Egyptian Y-DNA Project</h1>
           <p class="text-[7px] md:text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1 font-headline">National Genomic Archive</p>
         </a>
@@ -1726,57 +1331,54 @@
     </div>
   </nav>
 
-  <main id="section-home" class="page-section active py-8 md:py-12 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-14 md:space-y-18">
-    <section class="home-modern-hero">
-      <div class="home-modern-content">
-        <div class="font-headline">
-          <div class="home-kicker">National Overview</div>
-          <h2 class="home-modern-title">Modern<br/>Summary</h2>
-          <p class="home-modern-subtitle">Current overview of the modern Egyptian Y-DNA archive, including published samples and study samples grouped by major paternal lineages.</p>
-          <div class="home-modern-metrics">
-            <div class="home-modern-metric">
-              <p class="home-modern-metric-label">Total Samples</p>
-              <p id="total-national-samples" class="home-modern-metric-number">0</p>
-            </div>
-            <div class="home-modern-metric">
-              <p class="home-modern-metric-label">Mapped Regions</p>
-              <p class="home-modern-metric-number">25</p>
-            </div>
+  <main id="section-home" class="page-section active py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-14">
+    <section class="home-hero-panel font-headline">
+      <div>
+        <p class="text-[10px] font-black text-secondary uppercase tracking-[.3em] mb-5">— National Overview</p>
+        <h2 class="home-hero-title">Modern<br/>Summary</h2>
+        <p class="home-hero-sub">Current overview of the modern Egyptian Y-DNA archive, including published samples and study samples grouped by major paternal lineages.</p>
+        <div class="home-metrics-inline">
+          <div class="home-metric-flat">
+            <div class="home-metric-label">Total Samples</div>
+            <div id="total-national-samples" class="home-metric-number">0</div>
+          </div>
+          <div class="home-metric-flat">
+            <div class="home-metric-label">Mapped Regions</div>
+            <div class="home-metric-number">25</div>
           </div>
         </div>
+      </div>
+      <div class="home-chart-side">
+        <div class="home-chart-main" onclick="openModal('MODERN')">
+          <canvas id="nationalChartCanvas"></canvas>
+        </div>
+        <div id="national-legend" class="home-legend-inline"></div>
+      </div>
+    </section>
 
-        <div class="home-modern-chart-panel">
-          <div class="home-modern-chart-wrap" onclick="openModal('MODERN')">
-            <canvas id="nationalChartCanvas"></canvas>
-          </div>
-          <div id="national-legend" class="home-modern-legend"></div>
+    <section class="project-overview-section font-headline">
+      <div class="project-overview-inner">
+        <p class="text-[10px] font-black text-secondary uppercase tracking-[.3em] mb-5">— Project Overview</p>
+        <h2 class="project-overview-title">A Genomic Archive of Egyptian Y-DNA and mtDNA Lineages</h2>
+        <div class="project-overview-text space-y-7">
+          <p>The Egyptian Y-DNA Project is an independent initiative dedicated to documenting and organizing both the paternal and maternal genetic lineages of Egyptians in a clear, structured, and evidence-based way.</p>
+          <p>The archive now includes both a dedicated Y-DNA Tree and a dedicated mtDNA Tree, allowing visitors to explore Egyptian paternal and maternal lineages side by side. The mtDNA Tree is organized around major maternal branches, while both trees continue to grow as additional modern, study, and ancient samples are added over time.</p>
+          <p>By collecting real test results and presenting them in a neutral and scientific format, the project aims to serve as a professional genomic reference that reflects the diversity, continuity, and historical depth of the Egyptian population.</p>
         </div>
       </div>
     </section>
 
-    <section class="home-mtdna-summary font-headline">
-      <div class="home-mtdna-grid">
-        <div>
-          <div class="home-kicker">Maternal Overview</div>
-          <h2 class="home-mtdna-title">Modern mtDNA<br/>Summary</h2>
-          <p class="home-mtdna-subtitle">Current overview of modern and study mtDNA results, grouped by major maternal lineages.</p>
-        </div>
-        <div class="home-mtdna-chart-panel">
-          <div class="home-mtdna-chart-wrap" onclick="showSection('mtree')">
-            <canvas id="homeMtChartCanvas"></canvas>
-          </div>
-          <div id="home-mtdna-legend" class="home-mtdna-legend"></div>
-        </div>
+    <section class="home-mtdna-panel font-headline">
+      <div>
+        <p class="text-[10px] font-black text-secondary uppercase tracking-[.3em] mb-4">— Maternal Overview</p>
+        <h2 class="text-5xl md:text-7xl font-black tracking-tighter leading-none text-primary">mtDNA<br/>Summary</h2>
+        <p class="mt-6 text-xl leading-8 font-extrabold text-slate-500">Modern and study maternal lineages grouped by major mtDNA branches.</p>
       </div>
-    </section>
-
-    <section class="project-overview-plain font-headline">
-      <p class="home-kicker">Project Overview</p>
-      <h2 class="project-overview-title">A Genomic Archive of Egyptian Y-DNA and mtDNA Lineages</h2>
-      <div class="project-overview-text">
-        <p>The Egyptian Y-DNA Project is an independent initiative dedicated to documenting and organizing both the paternal and maternal genetic lineages of Egyptians in a clear, structured, and evidence-based way.</p>
-        <p>The archive now includes both a dedicated Y-DNA Tree and a dedicated mtDNA Tree, allowing visitors to explore Egyptian paternal and maternal lineages side by side. The mtDNA Tree is organized around major maternal branches, while both trees continue to grow as additional modern, study, and ancient samples are added over time.</p>
-        <p>By collecting real test results and presenting them in a neutral and scientific format, the project aims to serve as a professional genomic reference that reflects the diversity, continuity, and historical depth of the Egyptian population.</p>
+      <div class="flex flex-col items-center gap-6">
+        <div class="home-mtdna-chart" onclick="openMtHomeModal()">
+          <canvas id="homeMtChartCanvas"></canvas>
+        </div>
+        <div id="home-mt-legend" class="home-mtdna-legend"></div>
       </div>
     </section>
 
@@ -1785,7 +1387,7 @@
     </section>
 
     <section class="space-y-10">
-      <h2 class="text-3xl md:text-5xl font-black font-headline uppercase tracking-tighter">Regional Archives</h2>
+      <h2 class="text-3xl md:text-5xl font-black font-headline uppercase tracking-tighter text-center">Regional Archives</h2>
       <div id="stats-grid" class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-5 md:gap-6"></div>
     </section>
   </main>
@@ -2224,7 +1826,6 @@
     let tooltipRAF = null;
     let currentSampleModal = null;
     let samplePathMode = "direct";
-    let isApplyingSharedLink = false;
 
     function esc(s) {
       return String(s ?? "")
@@ -2351,294 +1952,6 @@
       if (!wrap) return;
       const y = wrap.getBoundingClientRect().top + window.scrollY - 24;
       window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
-    }
-
-
-    function shareHash(section, params = {}) {
-      const pairs = [section];
-      Object.entries(params).forEach(([key, value]) => {
-        if (value === null || value === undefined || String(value).trim() === "") return;
-        pairs.push(`${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`);
-      });
-      return pairs.join("&");
-    }
-
-    function replaceShareHash(section, params = {}) {
-      if (isApplyingSharedLink) return;
-      const hash = shareHash(section, params);
-      if (window.location.hash.replace(/^#/, "") !== hash) {
-        history.replaceState(null, "", `${window.location.pathname}${window.location.search}#${hash}`);
-      }
-    }
-
-
-    function closeAllOpenModals() {
-      const ids = ["detail-modal", "sample-detail-modal", "region-modal"];
-      ids.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.remove("active");
-      });
-      currentSampleModal = null;
-      samplePathMode = "direct";
-      hideChartTooltip();
-    }
-
-    function resetTreeStateOnly() {
-      treeScale = 1;
-      treeShowModern = true;
-      treeShowStudy = true;
-      treeShowAncient = true;
-      treeHaploFilter = null;
-      treeMode = "direct";
-      treeFocusPath = null;
-      treeSearchQuery = "";
-      treeSearchTargetPath = null;
-      treeSearchResultPath = "";
-      collapsedNodes = new Set();
-
-      const treeInner = document.getElementById("tree-inner");
-      if (treeInner) treeInner.style.transform = "";
-
-      const treeSearch = document.getElementById("treeSearch");
-      if (treeSearch) treeSearch.value = "";
-
-      const pathBar = document.getElementById("tree-result-path");
-      if (pathBar) {
-        pathBar.classList.remove("active");
-        pathBar.innerHTML = "";
-      }
-
-      const backBtn = document.getElementById("btn-tree-back");
-      if (backBtn) backBtn.classList.add("hidden");
-
-      const modernBtn = document.getElementById("btn-modern");
-      const studyBtn = document.getElementById("btn-study");
-      const ancientBtn = document.getElementById("btn-ancient");
-      const directBtn = document.getElementById("btn-direct");
-      const fullBtn = document.getElementById("btn-full");
-      if (modernBtn) modernBtn.classList.add("on");
-      if (studyBtn) studyBtn.classList.add("on");
-      if (ancientBtn) ancientBtn.classList.add("on");
-      if (directBtn) directBtn.classList.add("on");
-      if (fullBtn) fullBtn.classList.remove("on");
-
-      toggleTreeSearchIcon();
-      updateTreeTypeUI();
-      updateTreeFloatingToggle();
-    }
-
-    function resetSiteStateAndGoHome(event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-
-      isApplyingSharedLink = true;
-      try {
-        history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
-      } finally {
-        isApplyingSharedLink = false;
-      }
-
-      closeAllOpenModals();
-
-      const archiveSearch = document.getElementById("archiveSearch");
-      const ancientSearch = document.getElementById("ancientSearch");
-      const filterHaplo = document.getElementById("filterHaplo");
-      const filterGov = document.getElementById("filterGov");
-      if (archiveSearch) archiveSearch.value = "";
-      if (ancientSearch) ancientSearch.value = "";
-      if (filterHaplo) filterHaplo.value = "";
-      if (filterGov) filterGov.value = "";
-
-      resetTreeStateOnly();
-      setSectionActiveForShare("home");
-
-      if (typeof renderArchive === "function") renderArchive();
-      if (typeof renderAncientArchive === "function") renderAncientArchive();
-      if (typeof renderTree === "function") renderTree();
-      if (typeof renderDashboard === "function") renderDashboard();
-
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return false;
-    }
-
-    function currentShareUrl() {
-      return `${window.location.origin}${window.location.pathname}${window.location.search}${window.location.hash}`;
-    }
-
-    function showShareToast(text = "Link copied") {
-      const toast = document.getElementById("share-toast");
-      if (!toast) return;
-      toast.textContent = text;
-      toast.classList.add("active");
-      clearTimeout(showShareToast._t);
-      showShareToast._t = setTimeout(() => toast.classList.remove("active"), 1700);
-    }
-
-    async function copyCurrentShareLink() {
-      const url = currentShareUrl();
-      try {
-        await navigator.clipboard.writeText(url);
-        showShareToast("Link copied");
-      } catch (err) {
-        window.prompt("Copy this share link:", url);
-      }
-    }
-
-    function setSectionActiveForShare(id) {
-      document.querySelectorAll(".page-section").forEach(s => s.classList.remove("active"));
-      document.querySelectorAll(".nav-link").forEach(n => {
-        n.classList.remove("active");
-        n.classList.add("text-gray-400");
-      });
-
-      if (id === "ytree" || id === "mtree") {
-        currentTreeType = id === "mtree" ? "mt" : "y";
-        document.getElementById("section-tree").classList.add("active");
-        const navId = currentTreeType === "mt" ? "nav-mtree" : "nav-ytree";
-        const navEl = document.getElementById(navId);
-        if (navEl) {
-          navEl.classList.add("active");
-          navEl.classList.remove("text-gray-400");
-        }
-        updateTreeTypeUI();
-        updateTreeFloatingToggle();
-        return;
-      }
-
-      const sectionId = id === "dashboard" ? "home" : id;
-      const sec = document.getElementById("section-" + sectionId);
-      if (sec) sec.classList.add("active");
-      const nav = document.getElementById("nav-" + sectionId);
-      if (nav) {
-        nav.classList.add("active");
-        nav.classList.remove("text-gray-400");
-      }
-      updateTreeFloatingToggle();
-    }
-
-    function applyAnySharedLinkFromHash() {
-      const rawHash = String(window.location.hash || "").replace(/^#/, "");
-      if (!rawHash) return false;
-      const parts = rawHash.split("&");
-      const section = decodeURIComponent(parts[0] || "");
-      const params = {};
-      parts.slice(1).forEach(part => {
-        const eq = part.indexOf("=");
-        if (eq === -1) return;
-        const k = decodeURIComponent(part.slice(0, eq));
-        const v = decodeURIComponent(part.slice(eq + 1));
-        params[k] = v;
-      });
-
-      isApplyingSharedLink = true;
-      try {
-        if (section === "ytree" || section === "mtree") {
-          currentTreeType = section === "mtree" ? "mt" : "y";
-          treeFocusPath = params.node || null;
-          treeSearchTargetPath = null;
-          treeSearchResultPath = "";
-          treeHaploFilter = params.haplo || null;
-          setSectionActiveForShare(section);
-          if (treeFocusPath) {
-            renderClickableTreePath(treeFocusPath);
-            document.getElementById("btn-tree-back").classList.remove("hidden");
-          }
-          renderTree();
-          if (params.breakdown) {
-            openTreeBreakdownModal(params.breakdown, params.breakdownHaplo || null);
-          }
-          return true;
-        }
-
-        if (section === "archive") {
-          setSectionActiveForShare("archive");
-          if (document.getElementById("archiveSearch")) document.getElementById("archiveSearch").value = params.search || "";
-          if (document.getElementById("filterHaplo")) document.getElementById("filterHaplo").value = params.haplo || "";
-          if (document.getElementById("filterGov")) document.getElementById("filterGov").value = params.gov || "";
-          renderArchive();
-          return true;
-        }
-
-        if (section === "ancient") {
-          setSectionActiveForShare("ancient");
-          if (document.getElementById("ancientSearch")) document.getElementById("ancientSearch").value = params.search || "";
-          renderAncientArchive();
-          if (params.type || params.haplo) openModal("ANCIENT", params.haplo || null);
-          return true;
-        }
-
-        if (section === "dashboard" || section === "home") {
-          setSectionActiveForShare("home");
-          if (params.region) openRegionModal(params.region, params.haplo || null);
-          else if (params.type || params.haplo) openModal("MODERN", params.haplo || null);
-          return true;
-        }
-
-        if (section === "sample") {
-          const sample = allTreeSamples().find(s =>
-            String(s.__sourceType || "") === String(params.source || "") &&
-            (String(s.kit_number || "") === String(params.id || "") || String(s.sample_id || "") === String(params.id || ""))
-          );
-          if (sample) openSampleModal(sample);
-          return !!sample;
-        }
-      } finally {
-        isApplyingSharedLink = false;
-      }
-      return false;
-    }
-
-    function sharedTreeSectionHash() {
-      return currentTreeType === "mt" ? "mtree" : "ytree";
-    }
-
-    function updateSharedTreeUrl(pathKey) {
-      const params = {};
-      if (pathKey && pathKey !== "Y-Adam" && pathKey !== "mt-Eve") params.node = pathKey;
-      if (treeHaploFilter) params.haplo = treeHaploFilter;
-      replaceShareHash(sharedTreeSectionHash(), params);
-    }
-
-    function applySharedTreeLinkFromHash() {
-      const rawHash = String(window.location.hash || "").replace(/^#/, "");
-      if (!rawHash) return false;
-
-      const parts = rawHash.split("&");
-      const section = parts[0];
-      if (section !== "ytree" && section !== "mtree") return false;
-
-      const nodePart = parts.find(x => x.startsWith("node="));
-      currentTreeType = section === "mtree" ? "mt" : "y";
-      treeFocusPath = nodePart ? decodeURIComponent(nodePart.replace(/^node=/, "")) : null;
-      treeSearchTargetPath = null;
-      treeSearchResultPath = "";
-      treeHaploFilter = null;
-
-      document.querySelectorAll(".page-section").forEach(s => s.classList.remove("active"));
-      document.querySelectorAll(".nav-link").forEach(n => {
-        n.classList.remove("active");
-        n.classList.add("text-gray-400");
-      });
-
-      document.getElementById("section-tree").classList.add("active");
-      const navId = currentTreeType === "mt" ? "nav-mtree" : "nav-ytree";
-      const navEl = document.getElementById(navId);
-      if (navEl) {
-        navEl.classList.add("active");
-        navEl.classList.remove("text-gray-400");
-      }
-
-      updateTreeTypeUI();
-      updateTreeFloatingToggle();
-
-      if (treeFocusPath) {
-        renderClickableTreePath(treeFocusPath);
-        document.getElementById("btn-tree-back").classList.remove("hidden");
-      }
-
-      return true;
     }
 
     function updateTreeFloatingToggle() {
@@ -2960,46 +2273,15 @@
       return modernSamples.concat(studySamples).concat(ancientSamples);
     }
 
-    function isLikelySnpSearch(q) {
-      const x = String(q || "").trim();
-      return /^[A-Za-z]{1,4}-?[A-Za-z]*\d+[A-Za-z0-9]*$/.test(x) || /^[A-Za-z]+\d+[A-Za-z0-9]*$/.test(x);
-    }
-
-    function markerTokens(text) {
-      return String(text || "")
-        .toUpperCase()
-        .split(/[^A-Z0-9]+/)
-        .map(x => x.trim())
-        .filter(Boolean)
-        .flatMap(x => {
-          const noPrefix = x.replace(/^[A-Z]{1,4}(?=[A-Z]*\d)/, "");
-          return noPrefix && noPrefix !== x ? [x, noPrefix] : [x];
-        })
-        .map(x => sclean(x))
-        .filter(Boolean);
-    }
-
-    function markerExactMatch(fields, q) {
-      const qClean = sclean(String(q || "").replace(/^[A-Z]{1,4}-/i, ""));
-      if (!qClean) return false;
-      return fields.some(field => markerTokens(field).includes(qClean) || markerTokens(field).includes(sclean(q)));
-    }
-
     function matchSearchRow(s, q) {
       if (!q) return true;
       const ql = sclean(q);
-      const normalFields = [
+      const fields = [
         s.name, s.kit_number, s.sample_id, s.governorate, s.site,
         s.period, s.study_reference, s.study_link, s.cultural_group,
-        s.description, s.ethnic_group, s.mt_dna, s.full_mtDNA_path
+        s.y_dna, s.y_dna_alias, s.snp_path, s.full_snp_path, s.description, s.ethnic_group
       ];
-      const markerFields = [s.y_dna, s.y_dna_alias, s.snp_path, s.full_snp_path];
-
-      if (isLikelySnpSearch(q)) {
-        return markerExactMatch(markerFields, q) || normalFields.some(f => sclean(f).includes(ql));
-      }
-
-      return normalFields.concat(markerFields).some(f => sclean(f).includes(ql));
+      return fields.some(f => sclean(f).includes(ql));
     }
 
     function addUid(sample, sourceType, index) {
@@ -3461,37 +2743,21 @@
       return root;
     }
 
-    function treeSearchTokens(value) {
-      const raw = String(value || "").trim();
-      if (!raw || raw === "—") return [];
+    function searchMatchesNode(node, queryClean) {
+      const d = sclean(node.display);
+      if (d === queryClean || d.includes(queryClean)) return true;
 
-      const out = new Set();
-      const cleanedWhole = sclean(raw);
-      if (cleanedWhole) out.add(cleanedWhole);
-
-      raw.split(/[^A-Za-z0-9]+/).forEach(part => {
-        const c = sclean(part);
-        if (c) out.add(c);
-      });
-
-      if (raw.includes("-")) {
-        const suffix = raw.split("-").slice(1).join("-");
-        const cleanSuffix = sclean(suffix);
-        if (cleanSuffix) out.add(cleanSuffix);
+      if (node.display.includes("-")) {
+        const suffix = sclean(node.display.split("-").slice(1).join("-"));
+        if (suffix === queryClean || suffix.includes(queryClean)) return true;
       }
 
-      return [...out];
-    }
+      if (Array.isArray(node.aliases) && node.aliases.some(alias => {
+        const a = sclean(alias);
+        return a === queryClean || a.includes(queryClean);
+      })) return true;
 
-    function searchMatchesNode(node, queryClean) {
-      if (!queryClean) return false;
-
-      const tokens = [
-        ...treeSearchTokens(node.display),
-        ...(Array.isArray(node.aliases) ? node.aliases.flatMap(treeSearchTokens) : [])
-      ];
-
-      return tokens.some(token => token === queryClean);
+      return false;
     }
 
     function searchTreeExact(root, query) {
@@ -3797,55 +3063,48 @@
       document.getElementById("national-legend").innerHTML = sorted.map(([hap, count]) => {
         const pct = total ? ((count / total) * 100).toFixed(1) : "0.0";
         return `
-          <div onclick="openModal('MODERN','${esc(hap)}')" class="modern-legend-row" title="${esc(hap)}: ${count} samples (${pct}%)">
-            <div class="flex items-center gap-3 min-w-0">
-              <div class="modern-legend-dot ${hap === 'C' ? 'border border-gray-400' : ''}" style="background:${colorForAggregate(hap)}"></div>
-              <span style="color:${textColorForAggregate(hap)}">${esc(hap)}</span>
-            </div>
-            <span class="whitespace-nowrap">${pct}%</span>
-          </div>
-        `;
-      }).join("");
-    }
-
-
-    function updateModernMtSummary() {
-      const totals = {};
-      let total = 0;
-
-      allModernLikeSamples().forEach(s => {
-        if (!isRealValue(s.mt_dna) && !isRealValue(s.full_mtDNA_path)) return;
-        const h = mtPrimaryLineFromPath(s.full_mtDNA_path, s.mt_dna);
-        if (!h || h === "Other") return;
-        totals[h] = (totals[h] || 0) + 1;
-        total++;
-      });
-
-      const canvas = document.getElementById("homeMtChartCanvas");
-      const legend = document.getElementById("home-mtdna-legend");
-      if (!canvas || !legend) return;
-
-      if (total > 0) {
-        makePie("homeMtChartCanvas", totals, "MODERN-MTDNA", total, {
-          getColor: mtColorForLabel,
-          getBorderColor: mtBorderColorForLabel,
-          onSliceClick: () => showSection('mtree')
-        });
-      }
-
-      const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
-      legend.innerHTML = sorted.map(([hap, count]) => {
-        const pct = total ? ((count / total) * 100).toFixed(1) : "0.0";
-        return `
-          <div class="mtdna-legend-row" onclick="showSection('mtree')" title="${esc(hap)}: ${count} samples (${pct}%)">
-            <div class="flex items-center gap-2 min-w-0">
-              <span class="mtdna-legend-dot" style="background:${mtColorForLabel(hap)}"></span>
-              <span>${esc(hap)}</span>
-            </div>
+          <div onclick="openModal('MODERN','${esc(hap)}')" class="home-legend-item">
+            <span class="home-legend-dot ${hap === 'C' ? 'border border-gray-400' : ''}" style="background:${colorForAggregate(hap)}"></span>
+            <span>${esc(hap)}</span>
             <span>${pct}%</span>
           </div>
         `;
       }).join("");
+      renderHomeMtSummary();
+    }
+
+    function renderHomeMtSummary() {
+      const totals = {};
+      let total = 0;
+      allModernLikeSamples().forEach(s => {
+        if (!isRealValue(s.mt_dna) && !isRealValue(s.full_mtDNA_path)) return;
+        const h = mtPrimaryLineFromPath(s.full_mtDNA_path, s.mt_dna);
+        totals[h] = (totals[h] || 0) + 1;
+        total++;
+      });
+      if (!document.getElementById("homeMtChartCanvas")) return;
+      if (total > 0) {
+        makePie("homeMtChartCanvas", totals, "HOME-MTDNA", total, {
+          getColor: mtColorForLabel,
+          getBorderColor: () => "#ffffff",
+          onSliceClick: (hap) => openMtHomeModal(hap)
+        });
+      }
+      const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
+      const legend = document.getElementById("home-mt-legend");
+      if (legend) {
+        legend.innerHTML = sorted.map(([hap,count]) => {
+          const pct = total ? ((count / total) * 100).toFixed(1) : "0.0";
+          return `<div class="home-legend-item" onclick="openMtHomeModal('${esc(hap)}')"><span class="home-legend-dot" style="background:${mtColorForLabel(hap)}"></span><span>${esc(hap)}</span><span>${pct}%</span></div>`;
+        }).join("");
+      }
+    }
+
+    function openMtHomeModal(selectedHap = null) {
+      const prevType = currentTreeType;
+      currentTreeType = "mt";
+      openTreeBreakdownModal("total", selectedHap);
+      currentTreeType = prevType;
     }
 
     function updateAncientSummary() {
@@ -3911,11 +3170,11 @@
         card.className = "stat-card region-card font-bold";
         card.onclick = () => openRegionModal(gov);
         card.innerHTML = `
-          <div class="region-card-main">
-            <div class="mini-canvas-wrap"><canvas id="${cid}"></canvas></div>
-            <div class="region-card-copy">
-              <h4 class="region-card-title">${esc(gov === "—" ? "Unassigned" : gov)}</h4>
-              <div class="region-card-subline">
+          <div class="region-card-main" style="display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;gap:12px;">
+            <div class="mini-canvas-wrap" style="width:132px;height:132px;"><canvas id="${cid}" style="width:128px!important;height:128px!important;"></canvas></div>
+            <div class="region-card-copy" style="align-items:center;text-align:center;">
+              <h4 class="region-card-title" style="text-align:center;font-size:1.2rem;">${esc(gov === "—" ? "Unassigned" : gov)}</h4>
+              <div class="region-card-subline" style="justify-content:center;">
                 <span class="region-total-pill">Total: ${pool.length}</span>
                 <span class="region-top-pill" style="color:${topText};${topHap === 'C' ? 'box-shadow: inset 0 0 0 1px #cbd5e1;' : ''}">
                   Top: ${esc(topHap)} ${topPct}%
@@ -3923,7 +3182,7 @@
               </div>
             </div>
           </div>
-          <div class="region-card-arrow">
+          <div class="region-card-arrow" style="position:absolute;right:22px;top:50%;transform:translateY(-50%);">
             <span class="material-symbols-outlined" style="font-size:20px">arrow_forward</span>
           </div>
         `;
@@ -3938,7 +3197,6 @@
     }
 
     function openRegionModal(gov, selectedHap = null) {
-      replaceShareHash("dashboard", { region: gov, haplo: selectedHap || "" });
       const { pool, totals } = getRegionTotals(gov);
       const total = pool.length;
 
@@ -3972,7 +3230,6 @@
     }
 
     function showRegionHaplo(gov, hp, shouldScroll = true) {
-      replaceShareHash("dashboard", { region: gov, haplo: hp });
       const { pool } = getRegionTotals(gov);
       const matches = pool.filter(s => haplo(s.y_dna, s.snp_path) === hp);
       const pct = pool.length ? ((matches.length / pool.length) * 100).toFixed(1) : "0.0";
@@ -4015,7 +3272,7 @@
               <span class="text-gray-400 uppercase">${esc(s.governorate || s.site || '—')}</span>
             </div>
           </div>
-          <p class="sample-card-name-strong font-black uppercase mb-1 text-center">${esc(s.name || '—')}</p>
+          <p class="font-black uppercase text-sm mb-1 text-center">${esc(s.name || '—')}</p>
           <p class="text-[10px] text-secondary font-mono text-center mb-2">${esc(s.sample_id || s.kit_number || '')}</p>
           ${ethnicLine}
           <span class="text-[9px] text-gray-400 font-mono snp-text mb-4 text-center block">${esc(s.snp_path || s.y_dna || '—')}</span>
@@ -4038,10 +3295,6 @@
         (!hF || haplo(s.y_dna, s.snp_path) === hF) &&
         (!gF || governorateMatch(s.governorate, gF))
       );
-
-      if (document.getElementById("section-archive")?.classList.contains("active")) {
-        replaceShareHash("archive", { search, haplo: hF, gov: gF });
-      }
 
       tbody.innerHTML = rows.map(s => {
         const h = haplo(s.y_dna, s.snp_path);
@@ -4075,10 +3328,6 @@
       const search = document.getElementById("ancientSearch").value.trim();
 
       const rows = ancientSamples.filter(s => matchSearchRow(s, search));
-
-      if (document.getElementById("section-ancient")?.classList.contains("active")) {
-        replaceShareHash("ancient", { search });
-      }
 
       tbody.innerHTML = rows.map(s => {
         const h = haplo(s.y_dna, s.snp_path);
@@ -4128,7 +3377,6 @@
     }
 
     function openSampleModal(sample) {
-      replaceShareHash("sample", { source: sample.__sourceType || "", id: sample.kit_number || sample.sample_id || "" });
       const typeLabel =
         sample.__sourceType === "ancient" ? "Ancient sample" :
         sample.__sourceType === "study" ? "Modern study sample" :
@@ -4192,7 +3440,6 @@
     }
 
     function openModal(type, hp) {
-      replaceShareHash(type === "ANCIENT" ? "ancient" : "dashboard", { type, haplo: hp || "" });
       const pool = type === "ANCIENT" ? ancientSamples : allModernLikeSamples();
       const total = pool.length;
       const totals = {};
@@ -4229,7 +3476,6 @@
     }
 
     function showNationalHaplo(type, hp, shouldScroll = true) {
-      replaceShareHash(type === "ANCIENT" ? "ancient" : "dashboard", { type, haplo: hp });
       const la = document.getElementById("modal-kit-list");
       const pool = type === "ANCIENT" ? ancientSamples : allModernLikeSamples();
       const total = pool.length;
@@ -4281,7 +3527,6 @@
     }
 
     function showSection(id) {
-      closeAllOpenModals();
       hideChartTooltip();
       document.querySelectorAll(".page-section").forEach(s => s.classList.remove("active"));
       document.querySelectorAll(".nav-link").forEach(n => {
@@ -4303,8 +3548,6 @@
       }
 
       updateTreeFloatingToggle();
-      if (id === "ytree" || id === "mtree") updateSharedTreeUrl(treeFocusPath);
-      else replaceShareHash(id === "home" ? "dashboard" : id, {});
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -4327,7 +3570,6 @@
       updateTreeTypeUI();
       updateTreeFloatingToggle();
       toggleTreeSearchIcon();
-      updateSharedTreeUrl(null);
       renderTree();
       requestAnimationFrame(() => scrollTreeIntoView());
     }
@@ -4374,7 +3616,6 @@
       document.getElementById("btn-tree-back").classList.add("hidden");
       updateTreeFloatingToggle();
       toggleTreeSearchIcon();
-      updateSharedTreeUrl(null);
       renderTree();
       requestAnimationFrame(() => scrollTreeIntoView());
     }
@@ -4386,7 +3627,6 @@
       document.getElementById("btn-tree-back").classList.add("hidden");
       document.getElementById("tree-result-path").classList.remove("active");
       document.getElementById("tree-result-path").innerHTML = "";
-      updateSharedTreeUrl(null);
       renderTree();
       requestAnimationFrame(() => scrollTreeIntoView());
     }
@@ -4398,7 +3638,6 @@
       treeSearchResultPath = "";
       document.getElementById("tree-result-path").classList.remove("active");
       document.getElementById("tree-result-path").innerHTML = "";
-      updateSharedTreeUrl(null);
       renderTree();
       requestAnimationFrame(() => scrollTreeIntoView());
     }
@@ -4410,7 +3649,7 @@
       if (treeShowAncient) samples = samples.concat(ancientSamples);
 
       if (currentTreeType === "mt") {
-        samples = samples.filter(s => isRealValue(s.full_mtDNA_path) && String(s.full_mtDNA_path).trim() !== "—");
+        samples = samples.filter(s => isRealValue(s.full_mtDNA_path) || isRealValue(s.mt_dna));
       }
 
       if (treeHaploFilter) {
@@ -4444,7 +3683,6 @@
       treeFocusPath = pathKey;
       treeSearchTargetPath = null;
       treeSearchResultPath = "";
-      updateSharedTreeUrl(pathKey);
       renderClickableTreePath(pathKey);
       document.getElementById("btn-tree-back").classList.toggle("hidden", pathKey === (currentTreeType === "mt" ? "mt-Eve" : "Y-Adam"));
       renderTree();
@@ -4461,15 +3699,6 @@
       treeSearchTargetPath = null;
       treeSearchResultPath = "";
       treeFocusPath = null;
-
-      /*
-        IMPORTANT FIX:
-        A tree pill such as J2, E, J1, etc. filters the visible sample set.
-        Search must always run globally across the currently enabled sources
-        (Modern / Study / Ancient), not only inside the selected pill.
-        Example: if J2 is selected and the user searches P58, P58 must still be found.
-      */
-      if (treeHaploFilter) treeHaploFilter = null;
 
       if (!q) {
         document.getElementById("tree-result-path").classList.remove("active");
@@ -4490,7 +3719,6 @@
         treeSearchTargetPath = exact.node.pathKey;
         treeSearchResultPath = "";
         renderClickableTreePath(exact.node.pathKey);
-        updateSharedTreeUrl(exact.node.pathKey);
         document.getElementById("btn-tree-back").classList.toggle("hidden", exact.node.pathKey === (currentTreeType === "mt" ? "mt-Eve" : "Y-Adam"));
       } else {
         treeSearchResultPath = `SEARCH RESULT: No exact ${currentTreeType === "mt" ? "mtDNA node" : "SNP"} found for ${q}`;
@@ -4506,7 +3734,6 @@
 
 
     function openTreeBreakdownModal(scope = "total", selectedHap = null) {
-      replaceShareHash(sharedTreeSectionHash(), { node: treeFocusPath || "", haplo: treeHaploFilter || "", breakdown: scope, breakdownHaplo: selectedHap || "" });
       const pool = treeScopeSamples(scope);
       const totals = {};
       pool.forEach(s => {
@@ -4545,7 +3772,6 @@
     }
 
     function showTreeBreakdownHaplo(scope, hp, shouldScroll = true) {
-      replaceShareHash(sharedTreeSectionHash(), { node: treeFocusPath || "", haplo: treeHaploFilter || "", breakdown: scope, breakdownHaplo: hp });
       const la = document.getElementById("modal-kit-list");
       const pool = treeScopeSamples(scope);
       const matches = pool.filter(s => treeGroupForSample(s) === hp);
@@ -4581,7 +3807,7 @@
               <span class="text-gray-400 uppercase">${esc(s.governorate || s.site || '—')}</span>
             </div>
           </div>
-          <p class="sample-card-name-strong font-black uppercase mb-1 text-center">${esc(s.name || '—')}</p>
+          <p class="font-black uppercase text-sm mb-1 text-center">${esc(s.name || '—')}</p>
           <span class="text-[9px] text-gray-400 font-mono snp-text mb-4 text-center block">${esc(mtPath)}</span>
           <div class="flex justify-center items-center mt-4 pt-4 border-t border-gray-200">
             <div>
@@ -4615,19 +3841,17 @@
       }
 
       document.getElementById("tree-pills").innerHTML =
-        `<span class="haplo-pill ${!treeHaploFilter ? 'on' : ''}" style="color:#001736;background:${!treeHaploFilter ? '#e2e8f0' : '#fff'};border-color:${!treeHaploFilter ? '#001736' : '#e5e7eb'}" onclick='treeSetHaplo(null)'>All</span>` +
+        `<span class="haplo-pill ${!treeHaploFilter ? 'on' : ''}" style="color:#001736;background:${!treeHaploFilter ? '#e2e8f0' : '#fff'}" onclick='treeSetHaplo(null)'>All</span>` +
         ordered.map(h => {
           const c = counts[h] || 0;
           const col = treeColorForLabel(h);
           const label = h === "R1A" ? "R1a" : h === "R1B" ? "R1b" : h;
           const isSelected = treeHaploFilter === h;
-          const isLight = h === "C" || h === "R2" || (currentTreeType === "mt" && (h === "W" || h === "X"));
-          const border = h === "C" ? "#9ca3af" : col;
-          const bg = isSelected ? col : "#ffffff";
-          const txt = isSelected ? (isLight ? "#001736" : "#ffffff") : (h === "C" ? "#001736" : col);
-          const shadow = h === "C" ? "box-shadow:inset 0 0 0 1px #cbd5e1;" : "";
+          const border = isSelected ? col : '#e5e7eb';
+          const bg = isSelected ? col + '18' : '#ffffff';
+          const txt = currentTreeType === "mt" ? col : treeTextColorForLabel(h);
           return `<span class="haplo-pill ${isSelected ? 'on' : ''}"
-                    style="color:${txt};background:${bg};border-color:${border};opacity:${c ? '1' : '.55'};${shadow}"
+                    style="color:${txt};background:${bg};border-color:${border};opacity:${c ? '1' : '.55'}"
                     onclick='treeSetHaplo(${jsstr(h)})'>${label} (${c})</span>`;
         }).join("");
     }
@@ -4682,7 +3906,7 @@
         function renderFocusedRoot(root) {
       const color = nodeBadgeColor(root);
       const textColor = nodeBadgeTextColor(root);
-      const styleClass = treeBadgeStyle(root) + (root.pathKey === treeFocusPath || root.pathKey === treeSearchTargetPath ? " tree-node-selected" : "");
+      const styleClass = treeBadgeStyle(root);
       const nodeOpen = !collapsedNodes.has(root.pathKey);
       const encPath = esc(encodePathArg(root.pathKey));
 
@@ -4755,7 +3979,7 @@
     function renderTreeNode(node) {
       const color = nodeBadgeColor(node);
       const textColor = nodeBadgeTextColor(node);
-      const styleClass = treeBadgeStyle(node) + (node.pathKey === treeFocusPath || node.pathKey === treeSearchTargetPath ? " tree-node-selected" : "");
+      const styleClass = treeBadgeStyle(node);
       const nodeOpen = !collapsedNodes.has(node.pathKey);
       const encPath = esc(encodePathArg(node.pathKey));
 
@@ -4844,9 +4068,6 @@
       treeSearch.addEventListener("keydown", (event) => {
         if (event.key === "Enter") runTreeSearch();
       });
-      window.addEventListener("hashchange", () => {
-        applyAnySharedLinkFromHash();
-      });
       toggleTreeSearchIcon();
       updateTreeTypeUI();
       updateTreeFloatingToggle();
@@ -4856,13 +4077,10 @@
       await loadAll();
       populateFilters();
       renderDashboard();
-      updateModernMtSummary();
       renderArchive();
       renderAncientArchive();
       updateModernSummary();
-      updateModernMtSummary();
       updateAncientSummary();
-      applyAnySharedLinkFromHash();
       renderTree();
       updateTreeTypeUI();
       updateTreeFloatingToggle();
