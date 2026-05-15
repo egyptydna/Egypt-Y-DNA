@@ -2559,6 +2559,60 @@
       .ancient-mini-legend { max-height: 240px !important; }
     }
 
+  
+
+    /* FINAL CLEANUP: default dashboard, tighter chart balance, cleaner ancient section */
+    .combined-chart-card { min-height: 390px !important; }
+    .combined-chart-body {
+      grid-template-columns: minmax(310px, .92fr) minmax(260px, .82fr) !important;
+      align-items: center !important;
+      justify-items: center !important;
+      gap: .7rem !important;
+    }
+    .combined-chart-wrap {
+      width: min(340px, 22vw) !important;
+      height: min(340px, 22vw) !important;
+      min-width: 285px !important;
+      min-height: 285px !important;
+    }
+    .combined-legend { max-height: 340px !important; align-self: center !important; }
+
+    .ancient-summary-layout {
+      grid-template-columns: minmax(430px, .8fr) minmax(720px, 1.2fr) !important;
+      align-items: center !important;
+    }
+    .ancient-double-grid {
+      grid-template-columns: repeat(2, minmax(330px, 1fr)) !important;
+      gap: 1rem !important;
+      max-width: 900px !important;
+      justify-self: end !important;
+    }
+    .ancient-mini-card { min-height: 370px !important; }
+    .ancient-mini-head h3 {
+      font-size: clamp(1.05rem, 1.15vw, 1.35rem) !important;
+      white-space: nowrap !important;
+    }
+    .ancient-mini-body { justify-content: center !important; }
+    .ancient-mini-chart {
+      width: min(230px, 14vw) !important;
+      height: min(230px, 14vw) !important;
+      min-width: 210px !important;
+      min-height: 210px !important;
+    }
+    .ancient-mini-legend { max-height: 145px !important; }
+
+    @media (max-width: 1320px) {
+      .combined-chart-body { grid-template-columns: minmax(280px, .85fr) minmax(250px, 1fr) !important; }
+      .combined-chart-wrap { width: min(320px, 33vw) !important; height: min(320px, 33vw) !important; }
+      .ancient-summary-layout { grid-template-columns: 1fr !important; }
+      .ancient-double-grid { justify-self: stretch !important; max-width: none !important; }
+    }
+    @media (max-width: 900px) {
+      .combined-chart-body { grid-template-columns: 1fr !important; }
+      .combined-chart-wrap { width: min(300px, 70vw) !important; height: min(300px, 70vw) !important; }
+      .ancient-double-grid { grid-template-columns: 1fr !important; }
+    }
+
   </style>
 </head>
 <body class="bg-background text-primary font-body antialiased">
@@ -2758,9 +2812,10 @@
             <div class="search-note">Press Enter to search</div>
           </div>
 
-          <button id="btn-modern" class="ctrl-btn on" onclick="treeToggleSource('modern')">Modern</button>
-          <button id="btn-study" class="ctrl-btn on" onclick="treeToggleSource('study')">Study</button>
-          <button id="btn-ancient" class="ctrl-btn on" onclick="treeToggleSource('ancient')">Ancient</button>
+          <button id="btn-source-all" class="ctrl-btn on" onclick="treeSetSources('all')">All Samples</button>
+          <button id="btn-modern" class="ctrl-btn on" onclick="treeSetSources('modern')">Only Modern</button>
+          <button id="btn-study" class="ctrl-btn on" onclick="treeSetSources('study')">Only Study</button>
+          <button id="btn-ancient" class="ctrl-btn on" onclick="treeSetSources('ancient')">Only Ancient</button>
           <button id="btn-direct" class="ctrl-btn on" onclick="setTreeMode('direct')">Direct Ancestors</button>
           <button id="btn-full" class="ctrl-btn" onclick="setTreeMode('full')">Full SNP Path</button>
           <button class="ctrl-btn" onclick="treeZoom(1.18)"><span class="material-symbols-outlined" style="font-size:16px">zoom_in</span></button>
@@ -3303,6 +3358,7 @@
     function updateShareUrl(extra = {}) {
       if (suppressUrlUpdate) return;
       const params = new URLSearchParams();
+      params.set('share', '1');
       const section = extra.section || currentSectionId();
       params.set('section', section);
 
@@ -3339,6 +3395,13 @@
     function applyInitialUrlState() {
       const params = new URLSearchParams(location.search);
       const section = params.get('section');
+      if (params.get('share') !== '1') {
+        suppressUrlUpdate = true;
+        showSection('home');
+        suppressUrlUpdate = false;
+        if (location.search) history.replaceState(null, '', location.pathname);
+        return;
+      }
       if (!section) return;
 
       suppressUrlUpdate = true;
@@ -3365,9 +3428,7 @@
         document.getElementById('treeSearch').value = q;
         document.getElementById('btn-direct').classList.toggle('on', treeMode === 'direct');
         document.getElementById('btn-full').classList.toggle('on', treeMode === 'full');
-        document.getElementById('btn-modern').classList.toggle('on', treeShowModern);
-        document.getElementById('btn-study').classList.toggle('on', treeShowStudy);
-        document.getElementById('btn-ancient').classList.toggle('on', treeShowAncient);
+        updateTreeSourceButtons();
         toggleTreeSearchIcon();
         renderTree();
         if (treeFocusPath) renderClickableTreePath(treeFocusPath);
@@ -5093,15 +5154,48 @@
       requestAnimationFrame(() => scrollTreeIntoView());
     }
 
+    function updateTreeSourceButtons() {
+      const allOn = treeShowModern && treeShowStudy && treeShowAncient;
+      document.getElementById("btn-source-all")?.classList.toggle("on", allOn);
+      document.getElementById("btn-modern")?.classList.toggle("on", treeShowModern && !treeShowStudy && !treeShowAncient);
+      document.getElementById("btn-study")?.classList.toggle("on", !treeShowModern && treeShowStudy && !treeShowAncient);
+      document.getElementById("btn-ancient")?.classList.toggle("on", !treeShowModern && !treeShowStudy && treeShowAncient);
+    }
+
+    function treeSetSources(src) {
+      if (src === "all") {
+        treeShowModern = true;
+        treeShowStudy = true;
+        treeShowAncient = true;
+      } else if (src === "modern") {
+        treeShowModern = true;
+        treeShowStudy = false;
+        treeShowAncient = false;
+      } else if (src === "study") {
+        treeShowModern = false;
+        treeShowStudy = true;
+        treeShowAncient = false;
+      } else if (src === "ancient") {
+        treeShowModern = false;
+        treeShowStudy = false;
+        treeShowAncient = true;
+      }
+      updateTreeSourceButtons();
+      renderTree();
+      updateShareUrl({ section: currentTreeType === 'mt' ? 'mtree' : 'ytree' });
+      requestAnimationFrame(() => scrollTreeIntoView());
+    }
+
     function treeToggleSource(src) {
       if (src === "modern") treeShowModern = !treeShowModern;
       if (src === "study") treeShowStudy = !treeShowStudy;
       if (src === "ancient") treeShowAncient = !treeShowAncient;
-
-      document.getElementById("btn-modern").classList.toggle("on", treeShowModern);
-      document.getElementById("btn-study").classList.toggle("on", treeShowStudy);
-      document.getElementById("btn-ancient").classList.toggle("on", treeShowAncient);
-
+      if (!treeShowModern && !treeShowStudy && !treeShowAncient) {
+        treeShowModern = true;
+        treeShowStudy = true;
+        treeShowAncient = true;
+      }
+      updateTreeSourceButtons();
       renderTree();
       updateShareUrl({ section: currentTreeType === 'mt' ? 'mtree' : 'ytree' });
       requestAnimationFrame(() => scrollTreeIntoView());
@@ -5579,6 +5673,7 @@
       toggleTreeSearchIcon();
       updateTreeTypeUI();
       updateTreeFloatingToggle();
+      if (typeof updateTreeSourceButtons === "function") updateTreeSourceButtons();
     });
 
     (async function boot() {
