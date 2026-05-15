@@ -2705,6 +2705,47 @@
       .ancient-double-grid { grid-template-columns: 1fr !important; }
     }
 
+
+    /* FINAL USER FIX 2: visually center pie charts vertically inside the chart cards */
+    .combined-chart-body {
+      align-items: center !important;
+      padding-top: 1.35rem !important;
+      padding-bottom: 0 !important;
+    }
+
+    .combined-chart-wrap {
+      transform: translateY(38px) !important;
+    }
+
+    .combined-legend {
+      transform: translateY(22px) !important;
+    }
+
+    .combined-card-footer {
+      margin-top: auto !important;
+    }
+
+    .ancient-mini-body {
+      justify-content: center !important;
+      padding-top: 1rem !important;
+      padding-bottom: 0 !important;
+    }
+
+    .ancient-mini-chart {
+      transform: translateY(18px) !important;
+    }
+
+    .ancient-mini-legend {
+      transform: translateY(10px) !important;
+    }
+
+    @media (max-width: 900px) {
+      .combined-chart-wrap,
+      .combined-legend,
+      .ancient-mini-chart,
+      .ancient-mini-legend { transform: none !important; }
+    }
+
   </style>
 </head>
 <body class="bg-background text-primary font-body antialiased">
@@ -3480,14 +3521,21 @@
         if (q) params.set('q', q);
       }
 
-      const url = `${location.pathname}?${params.toString()}`;
+      const hasMeaningfulState =
+        (section === 'archive' && (params.has('q') || params.has('haplo') || params.has('gov'))) ||
+        ((section === 'ytree' || section === 'mtree') && (params.has('q') || params.has('haplo') || params.has('path') || params.get('mode') === 'full' || params.get('modern') === '0' || params.get('study') === '0' || params.get('ancient') === '0')) ||
+        (section === 'ancient' && params.has('q'));
+
+      if (hasMeaningfulState) params.set('state', '1');
+
+      const url = hasMeaningfulState ? `${location.pathname}?${params.toString()}` : location.pathname;
       history.replaceState(null, '', url);
     }
 
     function applyInitialUrlState() {
       const params = new URLSearchParams(location.search);
       const section = params.get('section');
-      if (params.get('share') !== '1') {
+      if (params.get('share') !== '1' || params.get('state') !== '1') {
         suppressUrlUpdate = true;
         showSection('home');
         suppressUrlUpdate = false;
