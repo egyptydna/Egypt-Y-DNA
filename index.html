@@ -1303,6 +1303,106 @@
       .home-metric-flat + .home-metric-flat { padding-left: 1.5rem; }
     }
 
+    /* FINAL PIE CHART STYLE: big pie + clean vertical legend like reference */
+    .pie-display-grid {
+      display: grid;
+      grid-template-columns: minmax(240px, 1fr) minmax(260px, 420px);
+      gap: clamp(1.5rem, 3vw, 3.5rem);
+      align-items: center;
+      width: 100%;
+    }
+
+    .pie-legend-panel {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+      font-family: 'Manrope', sans-serif;
+      font-weight: 900;
+      color: #001736;
+    }
+
+    .pie-legend-row {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: .8rem;
+      min-height: 42px;
+      padding: 0 1rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform .16s ease, background .16s ease, box-shadow .16s ease;
+      background: transparent;
+    }
+
+    .pie-legend-row:hover,
+    .pie-legend-row.active {
+      background: #f0f2f5;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(0,23,54,.06);
+    }
+
+    .pie-legend-dot {
+      width: 13px;
+      height: 13px;
+      border-radius: 999px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .pie-legend-label {
+      font-size: 1rem;
+      line-height: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pie-legend-value {
+      font-size: 1rem;
+      line-height: 1;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .home-chart-side,
+    .home-mtdna-chart-side,
+    .ancient-chart-side {
+      width: 100%;
+    }
+
+    .home-chart-side .home-chart-main {
+      justify-self: center;
+    }
+
+    .home-mtdna-chart-side {
+      display: grid;
+      grid-template-columns: minmax(230px, .9fr) minmax(240px, 1.1fr);
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .ancient-chart-side {
+      display: grid;
+      grid-template-columns: minmax(260px, 420px) minmax(260px, 420px);
+      gap: 2rem;
+      align-items: center;
+      justify-content: end;
+    }
+
+    @media (max-width: 1050px) {
+      .pie-display-grid,
+      .home-mtdna-chart-side,
+      .ancient-chart-side {
+        grid-template-columns: 1fr;
+      }
+
+      .pie-legend-panel {
+        max-width: 520px;
+        margin: 0 auto;
+      }
+    }
+
   </style>
 </head>
 <body class="bg-background text-primary font-body antialiased">
@@ -1335,7 +1435,7 @@
     <section class="home-hero-panel font-headline">
       <div>
         <p class="text-[10px] font-black text-secondary uppercase tracking-[.3em] mb-5">— National Overview</p>
-        <h2 class="home-hero-title">Modern<br/>Summary</h2>
+        <h2 class="home-hero-title">Modern<br/>Y-DNA<br/>Summary</h2>
         <p class="home-hero-sub">Current overview of the modern Egyptian Y-DNA archive, including published samples and study samples grouped by major paternal lineages.</p>
         <div class="home-metrics-inline">
           <div class="home-metric-flat">
@@ -1352,7 +1452,7 @@
         <div class="home-chart-main" onclick="openModal('MODERN')">
           <canvas id="nationalChartCanvas"></canvas>
         </div>
-        <div id="national-legend" class="home-legend-inline"></div>
+        <div id="national-legend" class="pie-legend-panel"></div>
       </div>
     </section>
 
@@ -1371,14 +1471,14 @@
     <section class="home-mtdna-panel font-headline">
       <div>
         <p class="text-[10px] font-black text-secondary uppercase tracking-[.3em] mb-4">— Maternal Overview</p>
-        <h2 class="text-5xl md:text-7xl font-black tracking-tighter leading-none text-primary">mtDNA<br/>Summary</h2>
+        <h2 class="text-5xl md:text-7xl font-black tracking-tighter leading-none text-primary">Modern<br/>mtDNA<br/>Summary</h2>
         <p class="mt-6 text-xl leading-8 font-extrabold text-slate-500">Modern and study maternal lineages grouped by major mtDNA branches.</p>
       </div>
-      <div class="flex flex-col items-center gap-6">
+      <div class="home-mtdna-chart-side">
         <div class="home-mtdna-chart" onclick="openMtHomeModal()">
           <canvas id="homeMtChartCanvas"></canvas>
         </div>
-        <div id="home-mt-legend" class="home-mtdna-legend"></div>
+        <div id="home-mt-legend" class="pie-legend-panel"></div>
       </div>
     </section>
 
@@ -1497,11 +1597,11 @@
           </div>
         </div>
       </div>
-      <div class="lg:col-span-7 flex flex-col md:flex-row items-center gap-8 md:gap-12 justify-end font-headline font-bold">
-        <div class="w-full max-w-[300px] md:w-[420px] md:h-[420px] h-[300px] cursor-pointer" onclick="openModal('ANCIENT')">
+      <div class="lg:col-span-7 ancient-chart-side font-headline font-bold">
+        <div class="w-full max-w-[300px] md:w-[420px] md:h-[420px] h-[300px] cursor-pointer justify-self-center" onclick="openModal('ANCIENT')">
           <canvas id="ancientChartCanvas"></canvas>
         </div>
-        <div id="ancient-legend" class="space-y-1 w-full max-w-[280px] text-[11px]"></div>
+        <div id="ancient-legend" class="pie-legend-panel"></div>
       </div>
     </section>
 
@@ -1547,13 +1647,13 @@
         <span class="material-symbols-outlined text-4xl">close</span>
       </button>
 
-      <div class="flex flex-col md:flex-row gap-8 md:gap-12 items-center">
-        <div class="w-full max-w-[250px] md:w-[280px] aspect-square flex-shrink-0">
-          <canvas id="modalChartCanvas"></canvas>
-        </div>
-        <div class="flex-1 w-full md:border-l md:pl-10 border-gray-100">
-          <h2 id="modal-title" class="text-3xl md:text-5xl font-black font-headline uppercase tracking-tighter leading-tight"></h2>
-          <div id="modal-legend" class="space-y-2 border-t pt-8 mt-8 font-bold"></div>
+      <div>
+        <h2 id="modal-title" class="text-3xl md:text-5xl font-black font-headline uppercase tracking-tighter leading-tight mb-8"></h2>
+        <div class="pie-display-grid">
+          <div class="w-full max-w-[310px] md:max-w-[430px] aspect-square justify-self-center">
+            <canvas id="modalChartCanvas"></canvas>
+          </div>
+          <div id="modal-legend" class="pie-legend-panel"></div>
         </div>
       </div>
 
@@ -1648,17 +1748,14 @@
         <span class="material-symbols-outlined text-4xl">close</span>
       </button>
 
-      <div class="region-modal-top">
-        <div class="bg-white rounded-[2rem] border border-gray-100 p-6 md:p-8">
-          <div class="w-full h-[360px] md:h-[420px]">
+      <div class="bg-white rounded-[2rem] border border-gray-100 p-6 md:p-8">
+        <h2 id="region-modal-title" class="text-4xl md:text-7xl font-black tracking-tighter leading-none"></h2>
+        <p id="region-modal-summary" class="mt-5 mb-8 text-sm md:text-xl font-black uppercase tracking-wider text-gray-400"></p>
+        <div class="pie-display-grid">
+          <div class="w-full h-[360px] md:h-[430px] max-w-[430px] justify-self-center">
             <canvas id="regionChartCanvas"></canvas>
           </div>
-        </div>
-
-        <div class="bg-white rounded-[2rem] border border-gray-100 p-6 md:p-8">
-          <h2 id="region-modal-title" class="text-4xl md:text-7xl font-black tracking-tighter leading-none"></h2>
-          <p id="region-modal-summary" class="mt-5 text-sm md:text-xl font-black uppercase tracking-wider text-gray-400"></p>
-          <div class="border-t mt-8 pt-8 space-y-3" id="region-modal-legend"></div>
+          <div id="region-modal-legend" class="pie-legend-panel"></div>
         </div>
       </div>
 
@@ -2985,6 +3082,19 @@
       });
     }
 
+
+    function pieLegendRowHTML(hap, count, total, color, onClick, extraClass = "") {
+      const pct = total ? ((count / total) * 100).toFixed(1) : "0.0";
+      const needsBorder = hap === "C" || color === "#FFFFFF" || color === "#ffffff";
+      return `
+        <div onclick="${onClick}" class="pie-legend-row ${extraClass}">
+          <span class="pie-legend-dot ${needsBorder ? 'border border-gray-400' : ''}" style="background:${color}"></span>
+          <span class="pie-legend-label">${esc(hap)}</span>
+          <span class="pie-legend-value">${count} (${pct}%)</span>
+        </div>
+      `;
+    }
+
     function makeMiniRegionChart(id, data, totalBase, onSliceClick) {
       const el = document.getElementById(id);
       if (!el) return;
@@ -3060,16 +3170,9 @@
 
       const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
 
-      document.getElementById("national-legend").innerHTML = sorted.map(([hap, count]) => {
-        const pct = total ? ((count / total) * 100).toFixed(1) : "0.0";
-        return `
-          <div onclick="openModal('MODERN','${esc(hap)}')" class="home-legend-item">
-            <span class="home-legend-dot ${hap === 'C' ? 'border border-gray-400' : ''}" style="background:${colorForAggregate(hap)}"></span>
-            <span>${esc(hap)}</span>
-            <span>${pct}%</span>
-          </div>
-        `;
-      }).join("");
+      document.getElementById("national-legend").innerHTML = sorted.map(([hap, count]) =>
+        pieLegendRowHTML(hap, count, total, colorForAggregate(hap), `openModal('MODERN','${esc(hap)}')`)
+      ).join("");
       renderHomeMtSummary();
     }
 
@@ -3093,10 +3196,9 @@
       const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
       const legend = document.getElementById("home-mt-legend");
       if (legend) {
-        legend.innerHTML = sorted.map(([hap,count]) => {
-          const pct = total ? ((count / total) * 100).toFixed(1) : "0.0";
-          return `<div class="home-legend-item" onclick="openMtHomeModal('${esc(hap)}')"><span class="home-legend-dot" style="background:${mtColorForLabel(hap)}"></span><span>${esc(hap)}</span><span>${pct}%</span></div>`;
-        }).join("");
+        legend.innerHTML = sorted.map(([hap,count]) =>
+          pieLegendRowHTML(hap, count, total, mtColorForLabel(hap), `openMtHomeModal('${esc(hap)}')`)
+        ).join("");
       }
     }
 
@@ -3127,18 +3229,9 @@
 
       const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
 
-      document.getElementById("ancient-legend").innerHTML = sorted.map(([hap, count]) => {
-        const pct = total ? ((count / total) * 100).toFixed(1) : "0.0";
-        return `
-          <div onclick="openModal('ANCIENT','${esc(hap)}')" class="flex items-center justify-between text-[11px] font-black py-1.5 px-3 rounded-xl uppercase hover:bg-primary/5 transition-all cursor-pointer">
-            <div class="flex items-center gap-2">
-              <div class="w-2 h-2 rounded-full ${hap === 'C' ? 'border border-gray-400' : ''}" style="background:${colorForAggregate(hap)}"></div>
-              <span>${esc(hap)}</span>
-            </div>
-            <span>${count} (${pct}%)</span>
-          </div>
-        `;
-      }).join("");
+      document.getElementById("ancient-legend").innerHTML = sorted.map(([hap, count]) =>
+        pieLegendRowHTML(hap, count, total, colorForAggregate(hap), `openModal('ANCIENT','${esc(hap)}')`)
+      ).join("");
     }
 
     function getRegionTotals(gov) {
@@ -3210,20 +3303,9 @@
 
       const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
 
-      document.getElementById("region-modal-legend").innerHTML = sorted.map(([hap, count]) => {
-        const pct = total ? ((count / total) * 100).toFixed(1) : "0.0";
-        return `
-          <div onclick="showRegionHaplo('${esc(gov)}','${esc(hap)}')" class="region-summary-card cursor-pointer hover:bg-primary/5 transition-all">
-            <div class="flex items-center justify-between gap-4">
-              <div class="flex items-center gap-3">
-                <div class="w-5 h-5 rounded-full ${hap === 'C' ? 'border border-gray-400' : ''}" style="background:${colorForAggregate(hap)}"></div>
-                <div class="text-xl font-black uppercase">${esc(hap)}</div>
-              </div>
-              <div class="text-xl font-black">${count} (${pct}%)</div>
-            </div>
-          </div>
-        `;
-      }).join("");
+      document.getElementById("region-modal-legend").innerHTML = sorted.map(([hap, count]) =>
+        pieLegendRowHTML(hap, count, total, colorForAggregate(hap), `showRegionHaplo('${esc(gov)}','${esc(hap)}')`)
+      ).join("");
 
       if (selectedHap && totals[selectedHap]) showRegionHaplo(gov, selectedHap);
       else if (sorted.length) showRegionHaplo(gov, sorted[0][0]);
@@ -3459,18 +3541,9 @@
 
       document.getElementById("modal-legend").innerHTML = Object.entries(totals)
         .sort((a,b)=>b[1]-a[1])
-        .map(([hap, count]) => {
-          const pct = total ? ((count / total) * 100).toFixed(1) : "0.0";
-          return `
-            <div onclick="showNationalHaplo('${type}','${esc(hap)}')" class="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-secondary/10 transition-all font-bold">
-              <div class="flex items-center gap-3">
-                <div class="w-4 h-4 rounded-full ${treeBorderColorForLabel(hap) !== '#ffffff' ? 'border border-gray-400' : ''}" style="background:${treeColorForLabel(hap)}"></div>
-                <span class="uppercase">${esc(hap)}</span>
-              </div>
-              <span>${count} (${pct}%)</span>
-            </div>
-          `;
-        }).join("");
+        .map(([hap, count]) =>
+          pieLegendRowHTML(hap, count, total, treeColorForLabel(hap), `showNationalHaplo('${type}','${esc(hap)}')`)
+        ).join("");
 
       if (hp) showNationalHaplo(type, hp);
     }
@@ -3753,18 +3826,9 @@
 
       const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
 
-      document.getElementById("modal-legend").innerHTML = sorted.length ? sorted.map(([hap, count]) => {
-        const pct = pool.length ? ((count / pool.length) * 100).toFixed(1) : "0.0";
-        return `
-          <div onclick="showTreeBreakdownHaplo('${esc(scope)}','${esc(hap)}')" class="flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-secondary/10 transition-all font-bold">
-            <div class="flex items-center gap-3">
-              <div class="w-4 h-4 rounded-full ${treeBorderColorForLabel(hap) !== '#ffffff' ? 'border border-gray-400' : ''}" style="background:${treeColorForLabel(hap)}"></div>
-              <span class="uppercase">${esc(hap)}</span>
-            </div>
-            <span>${count} (${pct}%)</span>
-          </div>
-        `;
-      }).join("") : `<div class="p-4 rounded-xl bg-gray-50 text-sm font-bold text-gray-400">No samples are currently shown for this selection.</div>`;
+      document.getElementById("modal-legend").innerHTML = sorted.length ? sorted.map(([hap, count]) =>
+        pieLegendRowHTML(hap, count, pool.length, treeColorForLabel(hap), `showTreeBreakdownHaplo('${esc(scope)}','${esc(hap)}')`)
+      ).join("") : `<div class="p-4 rounded-xl bg-gray-50 text-sm font-bold text-gray-400">No samples are currently shown for this selection.</div>`;
 
       if (selectedHap && totals[selectedHap]) {
         showTreeBreakdownHaplo(scope, selectedHap, false);
@@ -3849,7 +3913,7 @@
           const isSelected = treeHaploFilter === h;
           const border = isSelected ? col : '#e5e7eb';
           const bg = isSelected ? col + '18' : '#ffffff';
-          const txt = currentTreeType === "mt" ? col : treeTextColorForLabel(h);
+          const txt = (h === "C" || h === "R2") ? "#001736" : col;
           return `<span class="haplo-pill ${isSelected ? 'on' : ''}"
                     style="color:${txt};background:${bg};border-color:${border};opacity:${c ? '1' : '.55'}"
                     onclick='treeSetHaplo(${jsstr(h)})'>${label} (${c})</span>`;
