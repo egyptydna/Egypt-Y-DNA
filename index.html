@@ -2481,6 +2481,84 @@
       .ancient-stat-grid { grid-template-columns: 1fr; }
     }
 
+  
+
+    /* FINAL FIX 2026-05-15: data loading + cleaner ancient charts */
+    .ancient-summary-layout {
+      grid-template-columns: minmax(420px, .82fr) minmax(680px, 1.18fr) !important;
+      align-items: center !important;
+      gap: clamp(1.5rem, 3vw, 3rem) !important;
+    }
+
+    .ancient-summary-layout > .font-headline {
+      max-width: 640px !important;
+    }
+
+    .ancient-double-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      align-items: stretch !important;
+      gap: 1.15rem !important;
+    }
+
+    .ancient-mini-card {
+      display: flex !important;
+      flex-direction: column !important;
+      min-height: 420px !important;
+      padding: 1rem !important;
+    }
+
+    .ancient-mini-body {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      gap: .85rem !important;
+      min-width: 0 !important;
+    }
+
+    .ancient-mini-chart {
+      width: min(235px, 15vw) !important;
+      height: min(235px, 15vw) !important;
+      min-width: 195px !important;
+      min-height: 195px !important;
+    }
+
+    .ancient-mini-legend {
+      width: 100% !important;
+      max-height: 160px !important;
+      overflow: auto !important;
+      padding: .55rem !important;
+    }
+
+    #ancient-legend .pie-legend-label,
+    #ancient-legend .pie-legend-value,
+    #ancient-mt-legend .pie-legend-label,
+    #ancient-mt-legend .pie-legend-value {
+      font-size: .78rem !important;
+      font-weight: 900 !important;
+    }
+
+    #ancient-legend .pie-legend-row,
+    #ancient-mt-legend .pie-legend-row {
+      min-height: 27px !important;
+      padding: .18rem .35rem !important;
+      gap: .42rem !important;
+      grid-template-columns: 10px minmax(42px, 1fr) auto !important;
+    }
+
+    @media (max-width: 1320px) {
+      .ancient-summary-layout { grid-template-columns: 1fr !important; }
+      .ancient-summary-layout > .font-headline { max-width: 820px !important; }
+      .ancient-mini-chart { width: min(240px, 34vw) !important; height: min(240px, 34vw) !important; }
+    }
+
+    @media (max-width: 850px) {
+      .ancient-double-grid { grid-template-columns: 1fr !important; }
+      .ancient-mini-card { min-height: auto !important; }
+      .ancient-mini-chart { width: min(260px, 72vw) !important; height: min(260px, 72vw) !important; }
+      .ancient-mini-legend { max-height: 240px !important; }
+    }
+
   </style>
 </head>
 <body class="bg-background text-primary font-body antialiased">
@@ -4437,7 +4515,7 @@
       const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
 
       document.getElementById("national-legend").innerHTML = sorted.map(([hap, count]) =>
-        pieLegendRowHTML(hap, count, yTotal, colorForAggregate(hap), `openModal('MODERN','${esc(hap)}')`)
+        pieLegendRowHTML(hap, count, total, colorForAggregate(hap), `openModal('MODERN','${esc(hap)}')`)
       ).join("");
       renderHomeMtSummary();
     }
@@ -4658,7 +4736,7 @@
       const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
 
       document.getElementById("region-modal-legend").innerHTML = sorted.map(([hap, count]) =>
-        pieLegendRowHTML(hap, count, yTotal, colorForAggregate(hap), `showRegionHaplo('${esc(gov)}','${esc(hap)}')`)
+        pieLegendRowHTML(hap, count, total, colorForAggregate(hap), `showRegionHaplo('${esc(gov)}','${esc(hap)}')`)
       ).join("");
 
       if (selectedHap && totals[selectedHap]) showRegionHaplo(gov, selectedHap);
@@ -5504,17 +5582,21 @@
     });
 
     (async function boot() {
-      await loadAll();
-      populateFilters();
-      renderDashboard();
-      renderArchive();
-      renderAncientArchive();
-      updateModernSummary();
-      updateAncientSummary();
-      renderTree();
-      updateTreeTypeUI();
-      updateTreeFloatingToggle();
-      applyInitialUrlState();
+      try {
+        await loadAll();
+        populateFilters();
+        renderDashboard();
+        renderArchive();
+        renderAncientArchive();
+        updateModernSummary();
+        updateAncientSummary();
+        renderTree();
+        updateTreeTypeUI();
+        updateTreeFloatingToggle();
+        applyInitialUrlState();
+      } catch (err) {
+        console.error('Dashboard failed to load:', err);
+      }
     })();
   </script>
 </body>
