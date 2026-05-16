@@ -3656,6 +3656,16 @@
       return v !== null && v !== undefined && String(v).trim() !== "" && String(v).trim() !== "—";
     }
 
+    function hasYTreeValue(sample) {
+      if (!sample) return false;
+      return isRealValue(sample.full_snp_path) || isRealValue(sample.snp_path) || isRealValue(sample.y_dna);
+    }
+
+    function hasMtTreeValue(sample) {
+      if (!sample) return false;
+      return isRealValue(sample.full_mtDNA_path) || isRealValue(sample.mt_dna);
+    }
+
     function isUrl(v) {
       return /^https?:\/\//i.test(String(v || "").trim());
     }
@@ -4697,7 +4707,7 @@
       const totals = {};
       let total = 0;
 
-      allModernLikeSamples().forEach(s => {
+      allModernLikeSamples().filter(hasYTreeValue).forEach(s => {
         const h = aggregateNationalHaplo(haplo(s.y_dna, s.snp_path));
         totals[h] = (totals[h] || 0) + 1;
         total++;
@@ -4774,13 +4784,13 @@
       ancientSamples.forEach(s => {
         total++;
 
-        if (isRealValue(s.y_dna) || isRealValue(s.snp_path) || isRealValue(s.full_snp_path)) {
+        if (hasYTreeValue(s)) {
           const h = haplo(s.y_dna, s.snp_path);
           totals[h] = (totals[h] || 0) + 1;
           yTotal++;
         }
 
-        if (isRealValue(s.mt_dna) || isRealValue(s.full_mtDNA_path)) {
+        if (hasMtTreeValue(s)) {
           const mt = mtPrimaryLineFromPath(s.full_mtDNA_path, s.mt_dna);
           mtTotals[mt] = (mtTotals[mt] || 0) + 1;
           mtTotal++;
@@ -4823,7 +4833,7 @@
     }
 
     function openAncientMtModal(selectedHap = null) {
-      const pool = ancientSamples.filter(s => isRealValue(s.mt_dna) || isRealValue(s.full_mtDNA_path));
+      const pool = ancientSamples.filter(hasMtTreeValue);
       const totals = {};
       pool.forEach(s => {
         const h = mtPrimaryLineFromPath(s.full_mtDNA_path, s.mt_dna);
@@ -4849,7 +4859,7 @@
     }
 
     function showAncientMtHaplo(hp, shouldScroll = true) {
-      const pool = ancientSamples.filter(s => isRealValue(s.mt_dna) || isRealValue(s.full_mtDNA_path));
+      const pool = ancientSamples.filter(hasMtTreeValue);
       const matches = pool.filter(s => mtPrimaryLineFromPath(s.full_mtDNA_path, s.mt_dna) === hp);
       const pct = pool.length ? ((matches.length / pool.length) * 100).toFixed(1) : "0.0";
       const la = document.getElementById("modal-kit-list");
@@ -5157,7 +5167,7 @@
     }
 
     function openModal(type, hp) {
-      const pool = type === "ANCIENT" ? ancientSamples : allModernLikeSamples();
+      const pool = type === "ANCIENT" ? ancientSamples.filter(hasYTreeValue) : allModernLikeSamples().filter(hasYTreeValue);
       const total = pool.length;
       const totals = {};
 
@@ -5185,7 +5195,7 @@
 
     function showNationalHaplo(type, hp, shouldScroll = true) {
       const la = document.getElementById("modal-kit-list");
-      const pool = type === "ANCIENT" ? ancientSamples : allModernLikeSamples();
+      const pool = type === "ANCIENT" ? ancientSamples.filter(hasYTreeValue) : allModernLikeSamples().filter(hasYTreeValue);
       const total = pool.length;
 
       const matches = pool.filter(s => {
@@ -5396,7 +5406,9 @@
       if (treeShowAncient) samples = samples.concat(ancientSamples);
 
       if (currentTreeType === "mt") {
-        samples = samples.filter(s => isRealValue(s.full_mtDNA_path) || isRealValue(s.mt_dna));
+        samples = samples.filter(hasMtTreeValue);
+      } else {
+        samples = samples.filter(hasYTreeValue);
       }
 
       if (treeHaploFilter) {
