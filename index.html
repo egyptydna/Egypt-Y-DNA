@@ -2831,603 +2831,241 @@
     }
 
   
-/* COLOR + PYRAMID DASHBOARD ENHANCEMENT */
-#section-home{
-  background:
-    radial-gradient(circle at 10% 6%,rgba(181,130,25,.11),transparent 31%),
-    radial-gradient(circle at 88% 20%,rgba(0,72,120,.10),transparent 30%),
-    linear-gradient(180deg,#f3eee5 0%,#eef4f8 38%,#f8fafc 100%)!important;
-  border-radius:0!important;
-}
-.dashboard-pyramid-hero{
-  position:relative;overflow:hidden;min-height:340px;border-radius:2.7rem;
-  background-image:linear-gradient(90deg,rgba(255,255,255,.97) 0%,rgba(255,255,255,.84) 34%,rgba(255,255,255,.16) 68%,rgba(0,23,54,.10) 100%),var(--pyramid-bg);
-  background-size:cover;background-position:center 28%;
-  box-shadow:0 28px 70px rgba(0,23,54,.16);border:1px solid rgba(255,255,255,.75);
-  padding:3.2rem;display:flex;align-items:flex-start;justify-content:space-between;
-}
-.dashboard-pyramid-overlay{position:absolute;inset:auto 0 0;height:38%;background:linear-gradient(transparent,rgba(248,250,252,.96))}
-.dashboard-pyramid-copy,.dashboard-pyramid-update{position:relative;z-index:2}
-.dashboard-pyramid-copy{max-width:630px}
-.dashboard-pyramid-copy>p{font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:#8f6818;font-weight:900}
-.dashboard-pyramid-copy h2{margin-top:.7rem;font-size:clamp(3rem,6vw,6.4rem);line-height:.88;letter-spacing:-.075em;font-weight:900;color:#001736}
-.dashboard-pyramid-copy>span{display:block;width:54px;height:3px;background:#b58219;margin-top:1rem}
-.dashboard-pyramid-copy>div{margin-top:1.6rem;max-width:560px;font-size:.92rem;line-height:1.65;color:#334155;font-weight:750}
-.dashboard-pyramid-update{display:flex;gap:.7rem;align-items:center;background:rgba(255,255,255,.91);border:1px solid rgba(255,255,255,.9);padding:.75rem 1rem;border-radius:.9rem;box-shadow:0 12px 28px rgba(0,23,54,.12);backdrop-filter:blur(10px)}
-.dashboard-pyramid-update>span{color:#b58219}.dashboard-pyramid-update small,.dashboard-pyramid-update strong{display:block}.dashboard-pyramid-update small{font-size:.5rem;color:#94a3b8;font-weight:900;letter-spacing:.1em;text-transform:uppercase}.dashboard-pyramid-update strong{font-size:.72rem;color:#001736}
-.combined-dashboard-panel{background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(246,250,253,.97) 58%,rgba(244,239,225,.96))!important;border-color:rgba(181,130,25,.18)!important;box-shadow:0 24px 58px rgba(0,23,54,.10)!important}
-.combined-metric-card:nth-child(1){background:linear-gradient(180deg,#f7fbff,#eef5ff)!important;border-color:#d6e6fb!important}.combined-metric-card:nth-child(2){background:linear-gradient(180deg,#fffaf0,#fff3cf)!important;border-color:#f3dfae!important}.combined-metric-card:nth-child(3){background:linear-gradient(180deg,#fdf7ff,#f4e8ff)!important;border-color:#e8d0f5!important}.combined-metric-card:nth-child(4){background:linear-gradient(180deg,#f4fff6,#e6f7e9)!important;border-color:#cce8d1!important}
-.combined-chart-card:first-child{background:linear-gradient(180deg,rgba(247,251,255,.96),rgba(255,255,255,.97))!important;border-top:4px solid #001736!important}.combined-chart-card:last-child{background:linear-gradient(180deg,rgba(253,247,255,.96),rgba(255,255,255,.97))!important;border-top:4px solid #8c24c8!important}
-.project-overview-clean{background:linear-gradient(135deg,#fff 0%,#f8fbff 62%,#fff8e8 100%)!important;border-color:rgba(181,130,25,.18)!important}
-#stats-grid .region-card{background:linear-gradient(180deg,#fff 0%,#f7fafc 100%)!important;border-color:#dce5ee!important}
-#stats-grid .region-card:hover{border-color:#b58219!important;box-shadow:0 20px 40px rgba(119,90,25,.12)!important}
-@media(max-width:760px){.dashboard-pyramid-hero{min-height:300px;padding:1.4rem;border-radius:1.8rem}.dashboard-pyramid-update{position:absolute;right:1rem;top:1rem}.dashboard-pyramid-copy>div{font-size:.76rem;max-width:76%}.dashboard-pyramid-copy h2{font-size:clamp(2.8rem,14vw,4.8rem)}}
 
-
-/* ========================================================
-   PYRAMID HERO — FULL IMAGE, NO TITLE OR DESCRIPTION
-   ======================================================== */
-.dashboard-pyramid-hero.dashboard-pyramid-hero-image-only {
-  position: relative !important;
-  overflow: hidden !important;
-  min-height: 430px !important;
-  border-radius: 2.7rem !important;
-  padding: 0 !important;
-  display: block !important;
-  background-image: var(--pyramid-bg) !important;
-  background-repeat: no-repeat !important;
-  background-size: cover !important;
-  background-position: center 42% !important;
-  border: 1px solid rgba(255,255,255,.82) !important;
-  box-shadow: 0 28px 70px rgba(0,23,54,.16) !important;
-}
-
-.dashboard-pyramid-hero.dashboard-pyramid-hero-image-only::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(180deg, rgba(0,23,54,.03) 0%, rgba(0,23,54,0) 54%, rgba(248,250,252,.35) 100%);
-  pointer-events: none;
-  z-index: 1;
-}
-
-.dashboard-pyramid-image-shade {
-  position: absolute;
-  inset: auto 0 0;
-  height: 20%;
-  background: linear-gradient(transparent, rgba(248,250,252,.72));
-  pointer-events: none;
-  z-index: 1;
-}
-
-.dashboard-pyramid-hero-image-only .dashboard-pyramid-update {
-  position: absolute !important;
-  top: 1.25rem !important;
-  right: 1.25rem !important;
-  z-index: 3 !important;
-}
-
-.dashboard-pyramid-hero-image-only .dashboard-pyramid-copy,
-.dashboard-pyramid-hero-image-only .dashboard-pyramid-overlay {
-  display: none !important;
-}
-
-@media (max-width: 1100px) {
-  .dashboard-pyramid-hero.dashboard-pyramid-hero-image-only {
-    min-height: 380px !important;
-    background-position: center 44% !important;
-  }
-}
-
-@media (max-width: 760px) {
-  .dashboard-pyramid-hero.dashboard-pyramid-hero-image-only {
-    min-height: 300px !important;
-    border-radius: 1.8rem !important;
-    background-size: cover !important;
-    background-position: center 45% !important;
-  }
-
-  .dashboard-pyramid-hero-image-only .dashboard-pyramid-update {
-    top: .85rem !important;
-    right: .85rem !important;
-  }
-}
-
-
-/* ========================================================
-   REFERENCE-MATCHED PYRAMID HERO + DASHBOARD DONUTS
-   ======================================================== */
-.dashboard-pyramid-hero.dashboard-pyramid-hero-image-only {
-  min-height: 315px !important;
-  border-radius: 2.35rem !important;
-  background-image: var(--pyramid-bg) !important;
-  background-size: cover !important;
-  background-position: center center !important;
-  background-repeat: no-repeat !important;
-  border: 1px solid rgba(255,255,255,.86) !important;
-  box-shadow: 0 24px 58px rgba(0,23,54,.14) !important;
-}
-
-.dashboard-pyramid-hero.dashboard-pyramid-hero-image-only::before {
-  background:
-    linear-gradient(180deg, rgba(0,23,54,.015) 0%, rgba(0,23,54,0) 72%, rgba(0,23,54,.07) 100%) !important;
-}
-
-.dashboard-pyramid-image-shade {
-  height: 10% !important;
-  background: linear-gradient(transparent, rgba(0,23,54,.08)) !important;
-}
-
-.dashboard-pyramid-hero-image-only .dashboard-pyramid-update {
-  top: 1.25rem !important;
-  right: 1.25rem !important;
-  background: rgba(255,255,255,.94) !important;
-  border: 1px solid rgba(255,255,255,.96) !important;
-  box-shadow: 0 10px 26px rgba(0,23,54,.14) !important;
-}
-
-.dashboard-donut-wrap {
-  position: relative !important;
-}
-
-.dashboard-donut-label {
-  position: absolute;
-  inset: 50% auto auto 50%;
-  transform: translate(-50%, -50%);
-  width: 39%;
-  height: 39%;
-  border-radius: 999px;
-  background: #ffffff;
-  box-shadow: inset 0 0 0 1px #e8edf3;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.dashboard-donut-label strong {
-  font-size: clamp(1.55rem, 2.2vw, 2.4rem);
-  line-height: 1;
-  font-weight: 900;
-  letter-spacing: -.055em;
-  color: #001736;
-}
-
-.dashboard-donut-label span {
-  margin-top: .28rem;
-  font-size: .48rem;
-  line-height: 1.18;
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: .07em;
-  font-weight: 900;
-  color: #64748b;
-}
-
-.combined-dashboard-panel {
-  border-radius: 2.35rem !important;
-}
-
-.combined-chart-card {
-  border-radius: 1.55rem !important;
-}
-
-@media (max-width: 1100px) {
-  .dashboard-pyramid-hero.dashboard-pyramid-hero-image-only {
-    min-height: 285px !important;
-    background-position: center center !important;
-  }
-}
-
-@media (max-width: 760px) {
-  .dashboard-pyramid-hero.dashboard-pyramid-hero-image-only {
-    min-height: 225px !important;
-    border-radius: 1.55rem !important;
-  }
-
-  .dashboard-pyramid-hero-image-only .dashboard-pyramid-update {
-    top: .75rem !important;
-    right: .75rem !important;
-  }
-}
-
-
-/* ========================================================
-   MODAL FILTER FIX + LIVE ARCHIVE ACTIVITY
-   ======================================================== */
-.dashboard-pyramid-status {
-  position: absolute !important;
-  top: 1.15rem !important;
-  right: 1.15rem !important;
-  z-index: 4 !important;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: .55rem;
-}
-
-.dashboard-pyramid-status .dashboard-pyramid-update {
-  position: static !important;
-  top: auto !important;
-  right: auto !important;
-  box-shadow: 0 10px 26px rgba(0,23,54,.14) !important;
-}
-
-.dashboard-sample-activity {
-  display: grid;
-  grid-template-columns: repeat(3, auto);
-  gap: .35rem;
-  padding: .42rem;
-  border-radius: .8rem;
-  background: rgba(255,255,255,.92);
-  border: 1px solid rgba(255,255,255,.95);
-  box-shadow: 0 9px 22px rgba(0,23,54,.12);
-  backdrop-filter: blur(10px);
-}
-
-.dashboard-sample-activity > div {
-  min-width: 66px;
-  padding: .34rem .48rem;
-  border-radius: .58rem;
-  background: rgba(248,250,252,.9);
-  text-align: center;
-}
-
-.dashboard-sample-activity small,
-.dashboard-sample-activity strong {
-  display: block;
-}
-
-.dashboard-sample-activity small {
-  font-size: .42rem;
-  line-height: 1;
-  text-transform: uppercase;
-  letter-spacing: .075em;
-  color: #94a3b8;
-  font-weight: 900;
-  white-space: nowrap;
-}
-
-.dashboard-sample-activity strong {
-  margin-top: .22rem;
-  font-size: .88rem;
-  line-height: 1;
-  color: #001736;
-  font-weight: 900;
-}
-
-.dashboard-donut-label {
-  display: none !important;
-}
-
-@media (max-width: 760px) {
-  .dashboard-pyramid-status {
-    top: .7rem !important;
-    right: .7rem !important;
-    transform: scale(.88);
-    transform-origin: top right;
-  }
-
-  .dashboard-sample-activity > div {
-    min-width: 58px;
-  }
-}
-
-
-/* ========================================================
-   PYRAMID STATUS CLEANUP — LAST UPDATED ONLY
-   ======================================================== */
-.dashboard-pyramid-status.dashboard-pyramid-status-date-only {
-  position: absolute !important;
-  top: 1.15rem !important;
-  right: 1.15rem !important;
-  z-index: 4 !important;
-  display: block !important;
-  transform: none !important;
-}
-
-.dashboard-pyramid-status-date-only .dashboard-pyramid-update {
-  position: static !important;
-  top: auto !important;
-  right: auto !important;
-  margin: 0 !important;
-  padding: .72rem .95rem !important;
-  border-radius: .85rem !important;
-  background: rgba(255,255,255,.94) !important;
-  border: 1px solid rgba(255,255,255,.96) !important;
-  box-shadow: 0 10px 26px rgba(0,23,54,.14) !important;
-  backdrop-filter: blur(10px) !important;
-}
-
-.dashboard-sample-activity {
-  display: none !important;
-}
-
-@media (max-width: 760px) {
-  .dashboard-pyramid-status.dashboard-pyramid-status-date-only {
-    top: .75rem !important;
-    right: .75rem !important;
-    transform: scale(.9) !important;
-    transform-origin: top right !important;
-  }
-}
-
-
-/* ========================================================
-   PROFESSIONAL PYRAMID HERO FIX
-   - Removes Safari compositing rectangle behind the date
-   - Makes the image fill the rounded frame edge-to-edge
-   - Removes artificial overlays and visible inner gaps
-   ======================================================== */
-
-.dashboard-pyramid-hero.dashboard-pyramid-hero-image-only {
-  position: relative !important;
-  isolation: isolate !important;
-  contain: paint !important;
-
-  width: 100% !important;
-  min-height: 0 !important;
-  height: auto !important;
-  aspect-ratio: 4.65 / 1 !important;
-
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: hidden !important;
-
-  border: 0 !important;
-  outline: 1px solid rgba(255,255,255,.92) !important;
-  outline-offset: -1px !important;
-  border-radius: 2.35rem !important;
-
-  background-color: #d7c3a0 !important;
-  background-image: var(--pyramid-bg) !important;
-  background-repeat: no-repeat !important;
-  background-size: cover !important;
-  background-position: center center !important;
-
-  box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.72),
-    0 24px 58px rgba(0,23,54,.14) !important;
-
-  transform: translateZ(0) !important;
-  -webkit-transform: translateZ(0) !important;
-  backface-visibility: hidden !important;
-  -webkit-backface-visibility: hidden !important;
-}
-
-/* Remove every image tint/shade that can create visible rectangular layers. */
-.dashboard-pyramid-hero.dashboard-pyramid-hero-image-only::before,
-.dashboard-pyramid-hero.dashboard-pyramid-hero-image-only::after,
-.dashboard-pyramid-image-shade,
-.dashboard-pyramid-overlay {
-  display: none !important;
-  content: none !important;
-  background: none !important;
-}
-
-/* Keep only the date badge. The solid surface avoids Safari's
-   backdrop-filter tile/compositing bug visible as a cloud rectangle. */
-.dashboard-pyramid-status.dashboard-pyramid-status-date-only {
-  position: absolute !important;
-  top: 1.15rem !important;
-  right: 1.15rem !important;
-  z-index: 10 !important;
-
-  display: block !important;
-  width: auto !important;
-  height: auto !important;
-  margin: 0 !important;
-  padding: 0 !important;
-
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  filter: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-
-  transform: translateZ(0) !important;
-  -webkit-transform: translateZ(0) !important;
-}
-
-.dashboard-pyramid-status-date-only .dashboard-pyramid-update {
-  position: relative !important;
-  inset: auto !important;
-
-  display: flex !important;
-  align-items: center !important;
-  gap: .7rem !important;
-
-  margin: 0 !important;
-  padding: .72rem .95rem !important;
-
-  background: #ffffff !important;
-  border: 1px solid rgba(226,232,240,.96) !important;
-  border-radius: .9rem !important;
-
-  box-shadow:
-    0 10px 24px rgba(0,23,54,.13),
-    0 1px 2px rgba(0,23,54,.06) !important;
-
-  filter: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  opacity: 1 !important;
-
-  transform: translateZ(0) !important;
-  -webkit-transform: translateZ(0) !important;
-}
-
-/* No hidden activity panel or leftover box may occupy space. */
-.dashboard-sample-activity {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
-  box-shadow: none !important;
-}
-
-/* Keep the hero visually flush and remove excess space around it. */
-#section-home {
-  overflow: visible !important;
-}
-
-#section-home > .dashboard-pyramid-hero:first-child {
-  width: 100% !important;
-  max-width: none !important;
-  justify-self: stretch !important;
-  align-self: stretch !important;
-}
-
-@media (max-width: 1100px) {
-  .dashboard-pyramid-hero.dashboard-pyramid-hero-image-only {
-    aspect-ratio: 3.7 / 1 !important;
-    border-radius: 2rem !important;
-    background-position: center center !important;
-  }
-}
-
-@media (max-width: 760px) {
-  .dashboard-pyramid-hero.dashboard-pyramid-hero-image-only {
-    aspect-ratio: 2.15 / 1 !important;
-    border-radius: 1.55rem !important;
-    background-position: center center !important;
-  }
-
-  .dashboard-pyramid-status.dashboard-pyramid-status-date-only {
-    top: .72rem !important;
-    right: .72rem !important;
-    transform: scale(.88) translateZ(0) !important;
-    transform-origin: top right !important;
-  }
-}
-
-
-/* ========================================================
-   FINAL CLEAN PYRAMID HERO v16
-   The old rectangle was baked into the original JPEG.
-   This version uses a freshly cropped clean photograph.
-   ======================================================== */
-.dashboard-pyramid-hero.dashboard-pyramid-hero-image-only {
-  position: relative !important;
-  isolation: isolate !important;
-  contain: paint !important;
-
-  width: 100% !important;
-  aspect-ratio: 5.55 / 1 !important;
-  min-height: 0 !important;
-  height: auto !important;
-
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: hidden !important;
-
-  border: 1px solid rgba(255,255,255,.95) !important;
-  outline: none !important;
-  border-radius: 2.25rem !important;
-
-  background-color: #d5b47b !important;
-  background-image: var(--pyramid-bg) !important;
-  background-repeat: no-repeat !important;
-  background-size: cover !important;
-  background-position: center center !important;
-
-  box-shadow:
-    0 22px 52px rgba(0,23,54,.13),
-    inset 0 0 0 1px rgba(255,255,255,.34) !important;
-
-  transform: none !important;
-  -webkit-transform: none !important;
-  backface-visibility: visible !important;
-  -webkit-backface-visibility: visible !important;
-}
-
-.dashboard-pyramid-hero.dashboard-pyramid-hero-image-only::before,
-.dashboard-pyramid-hero.dashboard-pyramid-hero-image-only::after,
-.dashboard-pyramid-image-shade,
-.dashboard-pyramid-overlay,
-.dashboard-sample-activity {
-  display: none !important;
-  content: none !important;
-  background: none !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-.dashboard-pyramid-status.dashboard-pyramid-status-date-only {
-  position: absolute !important;
-  top: 1.05rem !important;
-  right: 1.05rem !important;
-  z-index: 20 !important;
-
-  display: block !important;
-  width: auto !important;
-  height: auto !important;
-  margin: 0 !important;
-  padding: 0 !important;
-
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  filter: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  transform: none !important;
-  -webkit-transform: none !important;
-}
-
-.dashboard-pyramid-status-date-only .dashboard-pyramid-update {
-  position: static !important;
-  inset: auto !important;
-
-  display: flex !important;
-  align-items: center !important;
-  gap: .68rem !important;
-
-  margin: 0 !important;
-  padding: .7rem .92rem !important;
-
-  background: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: .9rem !important;
-
-  box-shadow:
-    0 10px 24px rgba(0,23,54,.14),
-    0 1px 2px rgba(0,23,54,.06) !important;
-
-  filter: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  transform: none !important;
-  -webkit-transform: none !important;
-}
-
-@media (max-width: 1100px) {
-  .dashboard-pyramid-hero.dashboard-pyramid-hero-image-only {
-    aspect-ratio: 4.15 / 1 !important;
-    border-radius: 1.9rem !important;
-  }
-}
-
-@media (max-width: 760px) {
-  .dashboard-pyramid-hero.dashboard-pyramid-hero-image-only {
-    aspect-ratio: 2.35 / 1 !important;
-    border-radius: 1.45rem !important;
-  }
-
-  .dashboard-pyramid-status.dashboard-pyramid-status-date-only {
-    top: .7rem !important;
-    right: .7rem !important;
-    transform: scale(.86) !important;
-    transform-origin: top right !important;
-  }
-}
+    /* ========================================================
+       CONSOLIDATED DASHBOARD + PYRAMID HERO
+       Keeps the hero clean, removes conflicting legacy rules,
+       prevents Safari compositing rectangles, and improves
+       tablet/mobile navigation and chart responsiveness.
+       ======================================================== */
+
+    #section-home {
+      max-width: 1500px !important;
+      padding-top: 1.35rem !important;
+      padding-bottom: 2.2rem !important;
+      overflow: visible !important;
+      background:
+        radial-gradient(circle at 10% 6%, rgba(181,130,25,.11), transparent 31%),
+        radial-gradient(circle at 88% 20%, rgba(0,72,120,.10), transparent 30%),
+        linear-gradient(180deg, #f3eee5 0%, #eef4f8 38%, #f8fafc 100%) !important;
+    }
+
+    #section-home > section + section {
+      margin-top: 1.65rem !important;
+    }
+
+    /* Full-bleed pyramid image inside one rounded surface. */
+    .dashboard-pyramid-hero.dashboard-pyramid-hero-image-only {
+      position: relative !important;
+      isolation: isolate !important;
+      contain: paint !important;
+      width: 100% !important;
+      aspect-ratio: 5.55 / 1 !important;
+      min-height: 0 !important;
+      height: auto !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      border: 1px solid rgba(255,255,255,.96) !important;
+      outline: none !important;
+      border-radius: 2.25rem !important;
+      background-color: #d5b47b !important;
+      background-image: var(--pyramid-bg) !important;
+      background-repeat: no-repeat !important;
+      background-size: cover !important;
+      background-position: center center !important;
+      box-shadow:
+        0 22px 52px rgba(0,23,54,.13),
+        inset 0 0 0 1px rgba(255,255,255,.34) !important;
+      transform: none !important;
+      -webkit-transform: none !important;
+      backface-visibility: visible !important;
+      -webkit-backface-visibility: visible !important;
+    }
+
+    /* Remove every obsolete overlay/shade that could create a visible rectangle. */
+    .dashboard-pyramid-hero.dashboard-pyramid-hero-image-only::before,
+    .dashboard-pyramid-hero.dashboard-pyramid-hero-image-only::after,
+    .dashboard-pyramid-image-shade,
+    .dashboard-pyramid-overlay,
+    .dashboard-pyramid-copy,
+    .dashboard-sample-activity {
+      display: none !important;
+      content: none !important;
+      width: 0 !important;
+      height: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+      background: none !important;
+      box-shadow: none !important;
+      filter: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    /* One solid date badge, without blur/backdrop compositing. */
+    .dashboard-pyramid-status.dashboard-pyramid-status-date-only {
+      position: absolute !important;
+      top: 1.05rem !important;
+      right: 1.05rem !important;
+      z-index: 20 !important;
+      display: block !important;
+      width: auto !important;
+      height: auto !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      filter: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      transform: none !important;
+      -webkit-transform: none !important;
+    }
+
+    .dashboard-pyramid-status-date-only .dashboard-pyramid-update {
+      position: static !important;
+      inset: auto !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: .68rem !important;
+      margin: 0 !important;
+      padding: .7rem .92rem !important;
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: .9rem !important;
+      box-shadow:
+        0 10px 24px rgba(0,23,54,.14),
+        0 1px 2px rgba(0,23,54,.06) !important;
+      filter: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      transform: none !important;
+      -webkit-transform: none !important;
+    }
+
+    .dashboard-pyramid-update > span { color: #b58219; }
+    .dashboard-pyramid-update small,
+    .dashboard-pyramid-update strong { display: block; }
+    .dashboard-pyramid-update small {
+      font-size: .5rem;
+      color: #94a3b8;
+      font-weight: 900;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .dashboard-pyramid-update strong {
+      font-size: .72rem;
+      color: #001736;
+      white-space: nowrap;
+    }
+
+    /* Dashboard color balance. */
+    .combined-dashboard-panel {
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.98), rgba(246,250,253,.97) 58%, rgba(244,239,225,.96)) !important;
+      border-color: rgba(181,130,25,.18) !important;
+      box-shadow: 0 24px 58px rgba(0,23,54,.10) !important;
+      border-radius: 2.35rem !important;
+    }
+
+    .combined-metric-card:nth-child(1) {
+      background: linear-gradient(180deg,#f7fbff,#eef5ff) !important;
+      border-color: #d6e6fb !important;
+    }
+    .combined-metric-card:nth-child(2) {
+      background: linear-gradient(180deg,#fffaf0,#fff3cf) !important;
+      border-color: #f3dfae !important;
+    }
+    .combined-metric-card:nth-child(3) {
+      background: linear-gradient(180deg,#fdf7ff,#f4e8ff) !important;
+      border-color: #e8d0f5 !important;
+    }
+    .combined-metric-card:nth-child(4) {
+      background: linear-gradient(180deg,#f4fff6,#e6f7e9) !important;
+      border-color: #cce8d1 !important;
+    }
+
+    .combined-chart-card {
+      border-radius: 1.55rem !important;
+    }
+    .combined-chart-card:first-child {
+      background: linear-gradient(180deg, rgba(247,251,255,.96), rgba(255,255,255,.97)) !important;
+      border-top: 4px solid #001736 !important;
+    }
+    .combined-chart-card:last-child {
+      background: linear-gradient(180deg, rgba(253,247,255,.96), rgba(255,255,255,.97)) !important;
+      border-top: 4px solid #8c24c8 !important;
+    }
+
+    .project-overview-clean {
+      background: linear-gradient(135deg,#fff 0%,#f8fbff 62%,#fff8e8 100%) !important;
+      border-color: rgba(181,130,25,.18) !important;
+    }
+
+    #stats-grid .region-card {
+      background: linear-gradient(180deg,#fff 0%,#f7fafc 100%) !important;
+      border-color: #dce5ee !important;
+    }
+
+    #stats-grid .region-card:hover {
+      border-color: #b58219 !important;
+      box-shadow: 0 20px 40px rgba(119,90,25,.12) !important;
+    }
+
+    /* Dashboard charts must remain normal pie charts. */
+    .dashboard-donut-label {
+      display: none !important;
+    }
+
+    /* Navigation remains usable on tablets and phones. */
+    nav > div {
+      min-width: 0;
+    }
+
+    nav .font-headline.whitespace-nowrap {
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 4px;
+    }
+
+    nav .font-headline.whitespace-nowrap::-webkit-scrollbar {
+      display: none;
+    }
+
+    @media (max-width: 1100px) {
+      .dashboard-pyramid-hero.dashboard-pyramid-hero-image-only {
+        aspect-ratio: 4.15 / 1 !important;
+        border-radius: 1.9rem !important;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .dashboard-pyramid-hero.dashboard-pyramid-hero-image-only {
+        aspect-ratio: 2.35 / 1 !important;
+        border-radius: 1.45rem !important;
+      }
+
+      .dashboard-pyramid-status.dashboard-pyramid-status-date-only {
+        top: .7rem !important;
+        right: .7rem !important;
+        transform: scale(.86) !important;
+        transform-origin: top right !important;
+      }
+
+      .combined-dashboard-panel,
+      .project-overview-clean {
+        border-radius: 1.55rem !important;
+      }
+
+      .nav-link {
+        font-size: .67rem;
+      }
+    }
 
 </style>
 </head>
@@ -3435,7 +3073,7 @@
 
   <div id="chartjs-ext-tooltip" class="chartjs-ext-tooltip"></div>
 
-  <nav class="w-full bg-white border-b border-gray-100 h-20 sticky top-0 z-40">
+  <nav aria-label="Primary navigation" class="w-full bg-white border-b border-gray-100 h-20 sticky top-0 z-40">
     <div class="flex justify-between items-center px-4 md:px-8 h-full max-w-screen-2xl mx-auto">
       <div class="flex items-center gap-2 md:gap-8">
         <a href="#" onclick="location.reload();return false" class="flex flex-col group">
@@ -3448,11 +3086,11 @@
         </div>
       </div>
       <div class="flex gap-4 md:gap-7 items-center font-headline text-primary whitespace-nowrap">
-        <span onclick="showSection('home')" id="nav-home" class="nav-link active uppercase tracking-widest font-bold">Dashboard</span>
-        <span onclick="showSection('archive')" id="nav-archive" class="nav-link uppercase tracking-widest text-gray-400 font-bold">Archive</span>
-        <span onclick="showSection('ytree')" id="nav-ytree" class="nav-link uppercase tracking-widest text-gray-400 font-bold">Y-DNA Tree</span>
-        <span onclick="showSection('mtree')" id="nav-mtree" class="nav-link uppercase tracking-widest text-gray-400 font-bold">mtDNA Tree</span>
-        <span onclick="showSection('ancient')" id="nav-ancient" class="nav-link uppercase tracking-widest text-gray-400 font-bold">Ancient DNA</span>
+        <button type="button" onclick="showSection('home')" id="nav-home" aria-current="page" class="nav-link active uppercase tracking-widest font-bold">Dashboard</button>
+        <button type="button" onclick="showSection('archive')" id="nav-archive" class="nav-link uppercase tracking-widest text-gray-400 font-bold">Archive</button>
+        <button type="button" onclick="showSection('ytree')" id="nav-ytree" class="nav-link uppercase tracking-widest text-gray-400 font-bold">Y-DNA Tree</button>
+        <button type="button" onclick="showSection('mtree')" id="nav-mtree" class="nav-link uppercase tracking-widest text-gray-400 font-bold">mtDNA Tree</button>
+        <button type="button" onclick="showSection('ancient')" id="nav-ancient" class="nav-link uppercase tracking-widest text-gray-400 font-bold">Ancient DNA</button>
       </div>
     </div>
   </nav>
