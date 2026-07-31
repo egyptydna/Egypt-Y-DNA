@@ -3155,6 +3155,158 @@
   }
 }
 
+
+/* ========================================================
+   PROFESSIONAL PYRAMID HERO FIX
+   - Removes Safari compositing rectangle behind the date
+   - Makes the image fill the rounded frame edge-to-edge
+   - Removes artificial overlays and visible inner gaps
+   ======================================================== */
+
+.dashboard-pyramid-hero.dashboard-pyramid-hero-image-only {
+  position: relative !important;
+  isolation: isolate !important;
+  contain: paint !important;
+
+  width: 100% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  aspect-ratio: 4.65 / 1 !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+
+  border: 0 !important;
+  outline: 1px solid rgba(255,255,255,.92) !important;
+  outline-offset: -1px !important;
+  border-radius: 2.35rem !important;
+
+  background-color: #d7c3a0 !important;
+  background-image: var(--pyramid-bg) !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  background-position: center center !important;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.72),
+    0 24px 58px rgba(0,23,54,.14) !important;
+
+  transform: translateZ(0) !important;
+  -webkit-transform: translateZ(0) !important;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+}
+
+/* Remove every image tint/shade that can create visible rectangular layers. */
+.dashboard-pyramid-hero.dashboard-pyramid-hero-image-only::before,
+.dashboard-pyramid-hero.dashboard-pyramid-hero-image-only::after,
+.dashboard-pyramid-image-shade,
+.dashboard-pyramid-overlay {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+}
+
+/* Keep only the date badge. The solid surface avoids Safari's
+   backdrop-filter tile/compositing bug visible as a cloud rectangle. */
+.dashboard-pyramid-status.dashboard-pyramid-status-date-only {
+  position: absolute !important;
+  top: 1.15rem !important;
+  right: 1.15rem !important;
+  z-index: 10 !important;
+
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+
+  transform: translateZ(0) !important;
+  -webkit-transform: translateZ(0) !important;
+}
+
+.dashboard-pyramid-status-date-only .dashboard-pyramid-update {
+  position: relative !important;
+  inset: auto !important;
+
+  display: flex !important;
+  align-items: center !important;
+  gap: .7rem !important;
+
+  margin: 0 !important;
+  padding: .72rem .95rem !important;
+
+  background: #ffffff !important;
+  border: 1px solid rgba(226,232,240,.96) !important;
+  border-radius: .9rem !important;
+
+  box-shadow:
+    0 10px 24px rgba(0,23,54,.13),
+    0 1px 2px rgba(0,23,54,.06) !important;
+
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  opacity: 1 !important;
+
+  transform: translateZ(0) !important;
+  -webkit-transform: translateZ(0) !important;
+}
+
+/* No hidden activity panel or leftover box may occupy space. */
+.dashboard-sample-activity {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Keep the hero visually flush and remove excess space around it. */
+#section-home {
+  overflow: visible !important;
+}
+
+#section-home > .dashboard-pyramid-hero:first-child {
+  width: 100% !important;
+  max-width: none !important;
+  justify-self: stretch !important;
+  align-self: stretch !important;
+}
+
+@media (max-width: 1100px) {
+  .dashboard-pyramid-hero.dashboard-pyramid-hero-image-only {
+    aspect-ratio: 3.7 / 1 !important;
+    border-radius: 2rem !important;
+    background-position: center center !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .dashboard-pyramid-hero.dashboard-pyramid-hero-image-only {
+    aspect-ratio: 2.15 / 1 !important;
+    border-radius: 1.55rem !important;
+    background-position: center center !important;
+  }
+
+  .dashboard-pyramid-status.dashboard-pyramid-status-date-only {
+    top: .72rem !important;
+    right: .72rem !important;
+    transform: scale(.88) translateZ(0) !important;
+    transform-origin: top right !important;
+  }
+}
+
 </style>
 </head>
 <body class="bg-background text-primary font-body antialiased">
