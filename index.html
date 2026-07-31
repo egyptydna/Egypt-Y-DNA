@@ -2746,6 +2746,24 @@
       .ancient-mini-legend { transform: none !important; }
     }
 
+
+    /* RELATED ANCIENT REFERENCES */
+    .tree-related-badge {
+      display:inline-flex;align-items:center;justify-content:center;padding:2px 8px;border-radius:999px;
+      font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:#0f766e;
+    }
+    .tree-sample-card.related-ancient-card {
+      border:1px dashed #0f766e;background:linear-gradient(180deg,#f0fdfa 0%,#ffffff 100%);
+      box-shadow:0 8px 20px rgba(15,118,110,.08);
+    }
+    .tree-sample-card.related-ancient-card .tree-sample-dot { background:#0f766e; box-shadow:0 0 0 3px rgba(15,118,110,.13); }
+    .related-reference-note {
+      border:1px solid rgba(15,118,110,.24);border-left:8px solid #0f766e;background:#f0fdfa;color:#115e59;
+      border-radius:1.25rem;padding:1rem 1.15rem;font-size:.78rem;line-height:1.55;font-weight:800;
+    }
+    .related-catalog-row { background:rgba(240,253,250,.58); }
+    .related-catalog-row:hover { background:rgba(204,251,241,.62); }
+
   </style>
 </head>
 <body class="bg-background text-primary font-body antialiased">
@@ -2871,7 +2889,7 @@
             <div class="overview-point-icon"><span class="material-symbols-outlined">verified_user</span></div>
             <div>
               <strong>Neutral scientific format</strong>
-              <p>The project separates modern, study, and ancient samples, while keeping the presentation neutral and research-style as new reliable results are added.</p>
+              <p>The project separates modern, study, Ancient Egyptian, and external related ancient references. Related ancient references remain visibly distinct and are excluded from Egyptian statistics and charts.</p>
             </div>
           </div>
         </div>
@@ -2945,10 +2963,11 @@
             <div class="search-note">Press Enter to search</div>
           </div>
 
-          <button id="btn-source-all" class="ctrl-btn on" onclick="treeSetSources('all')">All Samples</button>
-          <button id="btn-modern" class="ctrl-btn on" onclick="treeSetSources('modern')">Only Modern</button>
-          <button id="btn-study" class="ctrl-btn on" onclick="treeSetSources('study')">Only Study</button>
-          <button id="btn-ancient" class="ctrl-btn on" onclick="treeSetSources('ancient')">Only Ancient</button>
+          <button id="btn-source-all" class="ctrl-btn on" onclick="treeSetSources('all')">Show All</button>
+          <button id="btn-modern" class="ctrl-btn on" onclick="treeToggleSource('modern')">Modern</button>
+          <button id="btn-study" class="ctrl-btn on" onclick="treeToggleSource('study')">Study</button>
+          <button id="btn-ancient" class="ctrl-btn on" onclick="treeToggleSource('ancient')">Egyptian Ancient</button>
+          <button id="btn-related" class="ctrl-btn on" onclick="treeToggleSource('related')">Related Ancient</button>
           <button id="btn-direct" class="ctrl-btn on" onclick="setTreeMode('direct')">Direct Ancestors</button>
           <button id="btn-full" class="ctrl-btn" onclick="setTreeMode('full')">Full SNP Path</button>
           <button class="ctrl-btn" onclick="treeZoom(1.18)"><span class="material-symbols-outlined" style="font-size:16px">zoom_in</span></button>
@@ -2962,13 +2981,17 @@
       </div>
     </div>
 
-    <div id="tree-summary-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-4"></div>
+    <div id="tree-summary-grid" class="grid grid-cols-2 lg:grid-cols-5 gap-4"></div>
 
     <div class="flex flex-wrap gap-5 items-center text-[10px] font-headline font-black uppercase tracking-widest text-gray-400">
       <span class="tree-legend-chip"><span class="inline-block w-5 h-3 rounded" style="background:#001736"></span>Node</span>
       <span class="tree-legend-chip"><span class="inline-block w-3 h-3 rounded-full" style="background:#8b6a1c"></span>Egyptian sample</span>
       <span class="tree-legend-chip"><span class="inline-block px-2 py-[2px] rounded-full text-[9px] font-black text-white" style="background:#7c3aed;">Study</span></span>
-      <span class="tree-legend-chip"><span class="inline-block px-2 py-[2px] rounded-full text-[9px] font-black text-white" style="background:#dc2626;">Ancient</span></span>
+      <span class="tree-legend-chip"><span class="inline-block px-2 py-[2px] rounded-full text-[9px] font-black text-white" style="background:#dc2626;">Egyptian Ancient</span></span>
+      <span class="tree-legend-chip"><span class="inline-block px-2 py-[2px] rounded-full text-[9px] font-black text-white" style="background:#0f766e;">Related Ancient</span></span>
+    </div>
+    <div class="related-reference-note">
+      <strong>Related Ancient Samples</strong> are non-Egyptian ancient reference individuals that share Y-DNA or mtDNA branches with samples in the Egyptian archive. They can be shown or hidden in the trees, but they are excluded from every Egyptian total, percentage, regional statistic, and pie chart.
     </div>
 
     <div id="tree-wrap">
@@ -2988,7 +3011,8 @@
       <div class="font-headline">
         <p class="text-[10px] font-black text-secondary uppercase tracking-[.3em] mb-2">— Archaeogenetics</p>
         <h2 class="text-4xl md:text-7xl font-black tracking-tighter mb-5 leading-tight">Ancient Summary</h2>
-        <p class="text-sm md:text-lg font-extrabold text-slate-500 leading-7 max-w-[560px] mb-8">Overview of ancient Egyptian and Egypt-related DNA samples currently included in the archive. The charts separate paternal Y-DNA lineages and maternal mtDNA branches, so ancient samples can be compared by both father-line and mother-line ancestry while keeping their archaeological context visible.</p>
+        <p class="text-sm md:text-lg font-extrabold text-slate-500 leading-7 max-w-[560px] mb-4">Overview of ancient samples from Egypt currently included in the archive. The charts separate paternal Y-DNA lineages and maternal mtDNA branches while preserving their archaeological context.</p>
+        <div class="related-reference-note mb-8">The Ancient Summary, totals, percentages, and pie charts count only samples from <strong>Ancient_published_samples</strong>. Non-Egyptian records from <strong>ancient_related_samples</strong> are reference connections only and are never included in these calculations.</div>
         <div class="grid grid-cols-3 gap-5 border-t pt-8 font-bold max-w-[720px] ancient-stat-grid">
           <div>
             <p class="text-[11px] font-bold text-gray-400 uppercase">Total Ancient Samples</p>
@@ -3033,7 +3057,7 @@
     </section>
 
     <div class="flex flex-col md:flex-row justify-between items-end gap-6">
-      <h2 class="text-3xl md:text-5xl font-black font-headline uppercase tracking-tighter">Ancient Catalog</h2>
+      <h2 class="text-3xl md:text-5xl font-black font-headline uppercase tracking-tighter">Ancient Egyptian Catalog</h2>
       <div class="relative w-full md:w-72">
         <input type="text" id="ancientSearch" onkeydown="if(event.key==='Enter') renderAncientArchive()" placeholder="Search Ancient ID / site (Enter)…" class="w-full pr-12 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none">
         <span class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-secondary">search</span>
@@ -3056,6 +3080,36 @@
         <tbody id="ancient-body" class="divide-y divide-gray-50 bg-white font-headline"></tbody>
       </table>
     </div>
+
+    <section class="space-y-6">
+      <div class="flex flex-col md:flex-row justify-between items-end gap-6">
+        <div>
+          <p class="text-[10px] font-black text-teal-700 uppercase tracking-[.3em] mb-2">— External Archaeogenetic References</p>
+          <h2 class="text-3xl md:text-5xl font-black font-headline uppercase tracking-tighter">Related Ancient Samples</h2>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Reference records</div>
+          <div id="total-related-ancient-samples" class="text-4xl font-black text-teal-700">0</div>
+        </div>
+      </div>
+      <div class="related-reference-note">These are ancient individuals found outside Egypt. They are displayed as comparative phylogenetic references and can appear in the Y-DNA and mtDNA trees. They are not counted in Ancient Egyptian charts, percentages, totals, or regional summaries.</div>
+      <div class="archive-scroll shadow-2xl">
+        <table class="table-fixed min-w-[1280px]">
+          <thead>
+            <tr class="thead-row text-center font-headline">
+              <th class="w-[18%] pl-8">Reference ID & Culture</th>
+              <th class="w-[10%]">Time Period</th>
+              <th class="w-[16%]">Country & Site</th>
+              <th class="w-[24%]">Y-Haplogroup (SNP)</th>
+              <th class="w-[9%]">Y-Sources</th>
+              <th class="w-[10%]">mt-DNA</th>
+              <th class="w-[9%] pr-8">mt-Sources</th>
+            </tr>
+          </thead>
+          <tbody id="related-ancient-body" class="divide-y divide-gray-50 bg-white font-headline"></tbody>
+        </table>
+      </div>
+    </section>
   </main>
 
   <footer class="bg-primary text-white py-16 px-8 mt-20 font-bold text-sm">
@@ -3112,7 +3166,8 @@
             <div class="flex items-center gap-3 flex-wrap">
               <h2 id="sample-modal-name" class="text-2xl md:text-4xl font-black tracking-tighter text-primary"></h2>
               <span id="sample-modal-study" class="tree-study-badge hidden">STUDY</span>
-              <span id="sample-modal-ancient" class="tree-ancient-badge hidden">ANCIENT</span>
+              <span id="sample-modal-ancient" class="tree-ancient-badge hidden">EGYPTIAN ANCIENT</span>
+              <span id="sample-modal-related" class="tree-related-badge hidden">RELATED ANCIENT</span>
             </div>
             <p id="sample-modal-subtitle" class="text-sm md:text-base font-bold text-gray-400 mt-2"></p>
           </div>
@@ -3332,12 +3387,14 @@
     let modernSamples = [];
     let studySamples = [];
     let ancientSamples = [];
+    let relatedAncientSamples = [];
     let charts = {};
 
     let treeScale = 1;
     let treeShowModern = true;
     let treeShowStudy = true;
     let treeShowAncient = true;
+    let treeShowRelated = true;
     let currentTreeType = "y";
     let treeHaploFilter = null;
     let treeMode = "direct";
@@ -3438,14 +3495,16 @@
       if (scope === "modern") return samples.filter(s => s.__sourceType === "modern");
       if (scope === "study") return samples.filter(s => s.__sourceType === "study");
       if (scope === "ancient") return samples.filter(s => s.__sourceType === "ancient");
+      if (scope === "related") return samples.filter(s => s.__sourceType === "related");
       return samples;
     }
 
     function treeScopeLabel(scope) {
       if (scope === "modern") return "Modern Samples";
       if (scope === "study") return "Study Samples";
-      if (scope === "ancient") return "Ancient Samples";
-      return "All Shown Samples";
+      if (scope === "ancient") return "Egyptian Ancient Samples";
+      if (scope === "related") return "Related Ancient References";
+      return "All Shown Egyptian Samples";
     }
 
     function getEthnicGroupValue(row) {
@@ -3515,6 +3574,7 @@
         params.set('modern', treeShowModern ? '1' : '0');
         params.set('study', treeShowStudy ? '1' : '0');
         params.set('ancient', treeShowAncient ? '1' : '0');
+        params.set('related', treeShowRelated ? '1' : '0');
         if (treeHaploFilter) params.set('haplo', treeHaploFilter);
         if (treeFocusPath) params.set('path', treeFocusPath);
         const q = document.getElementById('treeSearch')?.value?.trim();
@@ -3523,7 +3583,7 @@
 
       const hasMeaningfulState =
         (section === 'archive' && (params.has('q') || params.has('haplo') || params.has('gov'))) ||
-        ((section === 'ytree' || section === 'mtree') && (params.has('q') || params.has('haplo') || params.has('path') || params.get('mode') === 'full' || params.get('modern') === '0' || params.get('study') === '0' || params.get('ancient') === '0')) ||
+        ((section === 'ytree' || section === 'mtree') && (params.has('q') || params.has('haplo') || params.has('path') || params.get('mode') === 'full' || params.get('modern') === '0' || params.get('study') === '0' || params.get('ancient') === '0' || params.get('related') === '0')) ||
         (section === 'ancient' && params.has('q'));
 
       if (hasMeaningfulState) params.set('state', '1');
@@ -3562,6 +3622,7 @@
         treeShowModern = params.get('modern') !== '0';
         treeShowStudy = params.get('study') !== '0';
         treeShowAncient = params.get('ancient') !== '0';
+        treeShowRelated = params.get('related') !== '0';
         treeHaploFilter = params.get('haplo') || null;
         treeFocusPath = params.get('path') || null;
         const q = params.get('q') || '';
@@ -3906,14 +3967,14 @@
     }
 
     function allTreeSamples() {
-      return modernSamples.concat(studySamples).concat(ancientSamples);
+      return modernSamples.concat(studySamples).concat(ancientSamples).concat(relatedAncientSamples);
     }
 
     function matchSearchRow(s, q) {
       if (!q) return true;
       const ql = sclean(q);
       const fields = [
-        s.name, s.kit_number, s.sample_id, s.governorate, s.site,
+        s.name, s.kit_number, s.sample_id, s.governorate, s.country, s.region, s.site,
         s.period, s.study_reference, s.study_link, s.cultural_group,
         s.y_dna, s.y_dna_alias, s.snp_path, s.full_snp_path, s.description, s.ethnic_group
       ];
@@ -3954,11 +4015,16 @@
     }
 
     async function loadAll() {
-      const [modR, studyR, ancR] = await Promise.all([
+      const [modR, studyR, ancR, relatedR] = await Promise.all([
         _sb.from("Modern_published_samples").select("*"),
         _sb.from("Modern_study_samples").select("*"),
-        _sb.from("Ancient_published_samples").select("*")
+        _sb.from("Ancient_published_samples").select("*"),
+        _sb.from("ancient_related_samples").select("*")
       ]);
+
+      [modR, studyR, ancR, relatedR].forEach(result => {
+        if (result.error) throw result.error;
+      });
 
       modernSamples = (modR.data || []).map((s, index) => addUid({
         ...s,
@@ -4009,6 +4075,34 @@
         period: valueOrDash(s.period),
         cultural_group: valueOrDash(s.cultural_group)
       }, "ancient", index));
+
+      relatedAncientSamples = (relatedR.data || []).map((s, index) => addUid({
+        ...s,
+        __sourceType: "related",
+        name: valueOrDash(s.name || s.sample_name),
+        kit_number: valueOrDash(s.kit_number || s.sample_id),
+        sample_id: valueOrDash(s.sample_id),
+        country: valueOrDash(s.country),
+        region: valueOrDash(s.region || s.governorate),
+        governorate: valueOrDash(s.governorate || s.region),
+        site: valueOrDash(s.site),
+        ethnic_group: "—",
+        test_type: "—",
+        y_dna: valueOrDash(s.y_dna || s.y_haplogroup),
+        y_dna_alias: getYAliasValue(s),
+        mt_dna: valueOrDash(s.mt_dna || s.mtdna_haplogroup),
+        snp_path: valueOrDash(s.snp_path),
+        full_snp_path: valueOrDash(s.full_snp_path || s.y_full_path),
+        full_mtDNA_path: valueOrDash(s.full_mtDNA_path || s.mtdna_full_path),
+        y_link_1: valueOrDash(s.y_link_1),
+        y_link_2: valueOrDash(s.y_link_2),
+        mt_link_1: valueOrDash(s.mt_link_1),
+        mt_link_2: valueOrDash(s.mt_link_2),
+        description: getDescriptionValue(s),
+        period: valueOrDash(s.period || s.age_label),
+        cultural_group: valueOrDash(s.cultural_group || s.culture),
+        study_reference: valueOrDash(s.study_reference || s.publication)
+      }, "related", index));
     }
 
     function parsePath(fullPath, yDna = "") {
@@ -4993,7 +5087,8 @@
             <span class="px-3 py-1 bg-primary text-white rounded-full font-black tracking-tighter">${esc(s.y_dna || '—')}</span>
             <div class="flex items-center gap-2 flex-wrap justify-end">
               ${s.__sourceType === "study" ? `<span class="tree-study-badge">STUDY</span>` : ``}
-              ${s.__sourceType === "ancient" ? `<span class="tree-ancient-badge">ANCIENT</span>` : ``}
+              ${s.__sourceType === "ancient" ? `<span class="tree-ancient-badge">EGYPTIAN ANCIENT</span>` : ``}
+              ${s.__sourceType === "related" ? `<span class="tree-related-badge">RELATED ANCIENT</span>` : ``}
               <span class="text-gray-400 uppercase">${esc(s.governorate || s.site || '—')}</span>
             </div>
           </div>
@@ -5089,6 +5184,38 @@
       }).join("");
     }
 
+
+    function renderRelatedAncientArchive() {
+      const tbody = document.getElementById("related-ancient-body");
+      if (!tbody) return;
+      const totalEl = document.getElementById("total-related-ancient-samples");
+      if (totalEl) totalEl.textContent = relatedAncientSamples.length;
+
+      tbody.innerHTML = relatedAncientSamples.map(s => {
+        const h = haplo(s.y_dna, s.snp_path);
+        const dotClass = h === "C" ? 'border border-gray-400' : '';
+        const location = [s.country, s.region, s.site].filter(isRealValue).join(" • ") || "—";
+        return `
+          <tr class="related-catalog-row transition-colors text-center font-bold">
+            <td class="px-4 py-6 text-left">
+              <div class="flex items-center gap-2 flex-wrap"><span class="tree-related-badge">RELATED ANCIENT</span><div class="font-black uppercase text-sm">${esc(s.name || '—')}</div></div>
+              <div class="text-[10px] text-teal-700 font-mono mt-1">${esc(s.sample_id || '—')}</div>
+              <div class="text-[9px] text-gray-400 font-bold uppercase mt-1">${esc(s.cultural_group || '—')}</div>
+            </td>
+            <td class="px-2 py-6 text-[10px] font-black uppercase">${esc(s.period || '—')}</td>
+            <td class="px-2 py-6 text-left"><div class="text-[10px] font-black uppercase text-teal-800">${esc(location)}</div></td>
+            <td class="px-4 py-6 text-left">
+              <div class="flex items-start gap-2"><span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${dotClass}" style="background:${colorForAggregate(h)}"></span>
+                <div><div class="text-[11px] font-black">${esc(s.y_dna || '—')}</div><div class="text-[9px] font-mono text-gray-400 snp-text">${esc(s.snp_path || '—')}</div></div>
+              </div>
+            </td>
+            <td class="px-2 py-6">${links(s, 'y')}</td>
+            <td class="px-2 py-6"><div class="text-[11px] font-black text-secondary">${esc(s.mt_dna || '—')}</div></td>
+            <td class="px-4 py-6">${links(s, 'mt')}</td>
+          </tr>`;
+      }).join("");
+    }
+
     function populateFilters() {
       const hs = new Set();
       allModernLikeSamples().forEach(s => hs.add(haplo(s.y_dna, s.snp_path)));
@@ -5105,7 +5232,8 @@
 
     function openSampleModal(sample) {
       const typeLabel =
-        sample.__sourceType === "ancient" ? "Ancient sample" :
+        sample.__sourceType === "ancient" ? "Ancient Egyptian sample" :
+        sample.__sourceType === "related" ? "Non-Egyptian related ancient reference" :
         sample.__sourceType === "study" ? "Modern study sample" :
         "Modern sample";
 
@@ -5113,9 +5241,12 @@
       samplePathMode = "direct";
 
       document.getElementById("sample-modal-name").textContent = sample.name || sample.sample_id || sample.kit_number || "Sample";
-      document.getElementById("sample-modal-subtitle").textContent = `${sample.governorate || sample.site || "Unknown location"} • ${typeLabel}`;
+      const modalLocation = sample.__sourceType === "related"
+        ? [sample.country, sample.region, sample.site].filter(isRealValue).join(" • ")
+        : (sample.governorate || sample.site || "Unknown location");
+      document.getElementById("sample-modal-subtitle").textContent = `${modalLocation || "Unknown location"} • ${typeLabel}`;
       document.getElementById("sample-modal-kit").textContent = sample.kit_number || sample.sample_id || "—";
-      document.getElementById("sample-modal-location").textContent = sample.governorate || sample.site || "—";
+      document.getElementById("sample-modal-location").textContent = modalLocation || "—";
       document.getElementById("sample-modal-ydna").textContent = sample.y_dna || "—";
       document.getElementById("sample-modal-mtdna").textContent = sample.mt_dna || "—";
 
@@ -5154,6 +5285,7 @@
 
       document.getElementById("sample-modal-study").classList.toggle("hidden", sample.__sourceType !== "study");
       document.getElementById("sample-modal-ancient").classList.toggle("hidden", sample.__sourceType !== "ancient");
+      document.getElementById("sample-modal-related").classList.toggle("hidden", sample.__sourceType !== "related");
       document.getElementById("sample-detail-modal").classList.add("active");
     }
 
@@ -5305,11 +5437,12 @@
     }
 
     function updateTreeSourceButtons() {
-      const allOn = treeShowModern && treeShowStudy && treeShowAncient;
+      const allOn = treeShowModern && treeShowStudy && treeShowAncient && treeShowRelated;
       document.getElementById("btn-source-all")?.classList.toggle("on", allOn);
-      document.getElementById("btn-modern")?.classList.toggle("on", treeShowModern && !treeShowStudy && !treeShowAncient);
-      document.getElementById("btn-study")?.classList.toggle("on", !treeShowModern && treeShowStudy && !treeShowAncient);
-      document.getElementById("btn-ancient")?.classList.toggle("on", !treeShowModern && !treeShowStudy && treeShowAncient);
+      document.getElementById("btn-modern")?.classList.toggle("on", treeShowModern);
+      document.getElementById("btn-study")?.classList.toggle("on", treeShowStudy);
+      document.getElementById("btn-ancient")?.classList.toggle("on", treeShowAncient);
+      document.getElementById("btn-related")?.classList.toggle("on", treeShowRelated);
     }
 
     function treeSetSources(src) {
@@ -5317,18 +5450,7 @@
         treeShowModern = true;
         treeShowStudy = true;
         treeShowAncient = true;
-      } else if (src === "modern") {
-        treeShowModern = true;
-        treeShowStudy = false;
-        treeShowAncient = false;
-      } else if (src === "study") {
-        treeShowModern = false;
-        treeShowStudy = true;
-        treeShowAncient = false;
-      } else if (src === "ancient") {
-        treeShowModern = false;
-        treeShowStudy = false;
-        treeShowAncient = true;
+        treeShowRelated = true;
       }
       updateTreeSourceButtons();
       renderTree();
@@ -5340,10 +5462,12 @@
       if (src === "modern") treeShowModern = !treeShowModern;
       if (src === "study") treeShowStudy = !treeShowStudy;
       if (src === "ancient") treeShowAncient = !treeShowAncient;
-      if (!treeShowModern && !treeShowStudy && !treeShowAncient) {
+      if (src === "related") treeShowRelated = !treeShowRelated;
+      if (!treeShowModern && !treeShowStudy && !treeShowAncient && !treeShowRelated) {
         treeShowModern = true;
         treeShowStudy = true;
         treeShowAncient = true;
+        treeShowRelated = true;
       }
       updateTreeSourceButtons();
       renderTree();
@@ -5404,6 +5528,7 @@
       if (treeShowModern) samples = samples.concat(modernSamples);
       if (treeShowStudy) samples = samples.concat(studySamples);
       if (treeShowAncient) samples = samples.concat(ancientSamples);
+      if (treeShowRelated) samples = samples.concat(relatedAncientSamples);
 
       if (currentTreeType === "mt") {
         samples = samples.filter(hasMtTreeValue);
@@ -5496,7 +5621,8 @@
 
 
     function openTreeBreakdownModal(scope = "total", selectedHap = null) {
-      const pool = treeScopeSamples(scope);
+      const visiblePool = treeScopeSamples(scope);
+      const pool = visiblePool.filter(s => s.__sourceType !== "related");
       const totals = {};
       pool.forEach(s => {
         const h = treeGroupForSample(s);
@@ -5526,7 +5652,7 @@
 
     function showTreeBreakdownHaplo(scope, hp, shouldScroll = true) {
       const la = document.getElementById("modal-kit-list");
-      const pool = treeScopeSamples(scope);
+      const pool = treeScopeSamples(scope).filter(s => s.__sourceType !== "related");
       const matches = pool.filter(s => treeGroupForSample(s) === hp);
       const pct = pool.length ? ((matches.length / pool.length) * 100).toFixed(1) : "0.0";
 
@@ -5556,7 +5682,8 @@
             <span class="px-3 py-1 bg-secondary text-white rounded-full font-black tracking-tighter">${esc(mtTitle)}</span>
             <div class="flex items-center gap-2 flex-wrap justify-end">
               ${s.__sourceType === "study" ? `<span class="tree-study-badge">STUDY</span>` : ``}
-              ${s.__sourceType === "ancient" ? `<span class="tree-ancient-badge">ANCIENT</span>` : ``}
+              ${s.__sourceType === "ancient" ? `<span class="tree-ancient-badge">EGYPTIAN ANCIENT</span>` : ``}
+              ${s.__sourceType === "related" ? `<span class="tree-related-badge">RELATED ANCIENT</span>` : ``}
               <span class="text-gray-400 uppercase">${esc(s.governorate || s.site || '—')}</span>
             </div>
           </div>
@@ -5635,6 +5762,7 @@
       const modernCount = samples.filter(s => s.__sourceType === "modern").length;
       const studyCount = samples.filter(s => s.__sourceType === "study").length;
       const ancientCount = samples.filter(s => s.__sourceType === "ancient").length;
+      const relatedCount = samples.filter(s => s.__sourceType === "related").length;
 
       document.getElementById("tree-summary-grid").innerHTML = `
         <div class="tree-summary-card cursor-pointer" onclick="openTreeBreakdownModal('total')">
@@ -5650,8 +5778,13 @@
           <div class="tree-summary-number">${studyCount}</div>
         </div>
         <div class="tree-summary-card cursor-pointer" onclick="openTreeBreakdownModal('ancient')">
-          <div class="text-[10px] font-black uppercase tracking-[.18em] text-gray-400">Ancient Samples</div>
+          <div class="text-[10px] font-black uppercase tracking-[.18em] text-gray-400">Egyptian Ancient</div>
           <div class="tree-summary-number">${ancientCount}</div>
+        </div>
+        <div class="tree-summary-card cursor-pointer" onclick="treeSetSources('all')">
+          <div class="text-[10px] font-black uppercase tracking-[.18em] text-teal-700">Related Ancient References</div>
+          <div class="tree-summary-number" style="color:#0f766e">${relatedCount}</div>
+          <div class="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-2">Excluded from percentages</div>
         </div>
       `;
     }
@@ -5761,6 +5894,10 @@
     function treeSampleSubtitle(sample) {
       const location = valueOrDash(sample?.governorate || sample?.site || "—");
       if (!sample || sample.__sourceType === "study" || sample.__sourceType === "ancient") return location;
+      if (sample.__sourceType === "related") {
+        const externalLocation = [sample.country, sample.site].filter(isRealValue).join(" • ");
+        return externalLocation || location;
+      }
       const testType = valueOrDash(sample.test_type);
       return isRealValue(testType) ? `${location} • ${testType}` : location;
     }
@@ -5770,7 +5907,7 @@
       return `
         <li>
           <div class="tree-row">
-            <div class="tree-sample-card" onclick='openSampleModalByUid("${esc(sample.__uid)}")'>
+            <div class="tree-sample-card ${sample.__sourceType === "related" ? 'related-ancient-card' : ''}" onclick='openSampleModalByUid("${esc(sample.__uid)}")'>
               <div class="tree-sample-line">
                 <span class="tree-sample-dot"></span>
                 <div class="flex-1 min-w-0">
@@ -5779,7 +5916,8 @@
                   ${showEthnic ? `<div class="tree-sample-ethnic">${esc(sample.ethnic_group)}</div>` : ``}
                 </div>
                 ${sample.__sourceType === "study" ? `<span class="tree-study-badge">Study</span>` : ``}
-                ${sample.__sourceType === "ancient" ? `<span class="tree-ancient-badge">Ancient</span>` : ``}
+                ${sample.__sourceType === "ancient" ? `<span class="tree-ancient-badge">Egyptian Ancient</span>` : ``}
+                ${sample.__sourceType === "related" ? `<span class="tree-related-badge">Related Ancient</span>` : ``}
               </div>
             </div>
           </div>
@@ -5835,6 +5973,7 @@
         renderDashboard();
         renderArchive();
         renderAncientArchive();
+        renderRelatedAncientArchive();
         updateModernSummary();
         updateAncientSummary();
         renderTree();
