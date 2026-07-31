@@ -2757,6 +2757,20 @@
       box-shadow:0 8px 20px rgba(15,118,110,.08);
     }
     .tree-sample-card.related-ancient-card .tree-sample-dot { background:#0f766e; box-shadow:0 0 0 3px rgba(15,118,110,.13); }
+    .tree-sample-card.related-ancient-card:hover {
+      border-color:#0f766e;
+      background:linear-gradient(180deg,#ccfbf1 0%,#ffffff 100%);
+      box-shadow:0 14px 30px rgba(15,118,110,.18);
+      transform:translateY(-2px);
+    }
+
+    /* Keep lineage nodes visually dominant and sample cards more compact. */
+    .tree-node-badge { min-width:220px; justify-content:flex-start; }
+    .tree-sample-card { min-width:190px; max-width:255px; padding:8px 11px; }
+    .tree-sample-name { font-size:12px !important; }
+    .tree-sample-gov { font-size:10px; }
+    .tree-study-badge, .tree-ancient-badge, .tree-related-badge { flex-shrink:0; }
+
     .related-reference-note {
       border:1px solid rgba(15,118,110,.24);border-left:8px solid #0f766e;background:#f0fdfa;color:#115e59;
       border-radius:1.25rem;padding:1rem 1.15rem;font-size:.78rem;line-height:1.55;font-weight:800;
@@ -3129,7 +3143,8 @@
       </button>
 
       <div>
-        <h2 id="modal-title" class="text-3xl md:text-5xl font-black font-headline uppercase tracking-tighter leading-tight mb-8"></h2>
+        <h2 id="modal-title" class="text-3xl md:text-5xl font-black font-headline uppercase tracking-tighter leading-tight mb-4"></h2>
+        <div id="modal-stat-note" class="related-reference-note mb-8 hidden"></div>
         <div class="pie-display-grid">
           <div class="w-full max-w-[310px] md:max-w-[430px] aspect-square justify-self-center">
             <canvas id="modalChartCanvas"></canvas>
@@ -3397,6 +3412,7 @@
     let treeShowRelated = true;
     let currentTreeType = "y";
     let treeHaploFilter = null;
+    const treeHaploFilterByType = { y: null, mt: null };
     let treeMode = "direct";
     let treeFocusPath = null;
     let treeSearchQuery = "";
@@ -3624,6 +3640,7 @@
         treeShowAncient = params.get('ancient') !== '0';
         treeShowRelated = params.get('related') !== '0';
         treeHaploFilter = params.get('haplo') || null;
+        treeHaploFilterByType[currentTreeType] = treeHaploFilter;
         treeFocusPath = params.get('path') || null;
         const q = params.get('q') || '';
         document.getElementById('treeSearch').value = q;
@@ -5359,12 +5376,24 @@
     function closeModal(e) {
       if (!e || e.target.id === "detail-modal") {
         document.getElementById("detail-modal").classList.remove("active");
+        document.getElementById("modal-stat-note")?.classList.add("hidden");
         hideChartTooltip();
       }
     }
 
     function activateTreeSection(type) {
-      currentTreeType = type === "mt" ? "mt" : "y";
+      const nextType = type === "mt" ? "mt" : "y";
+      treeHaploFilterByType[currentTreeType] = treeHaploFilter;
+      currentTreeType = nextType;
+      treeHaploFilter = treeHaploFilterByType[currentTreeType] || null;
+      treeFocusPath = null;
+      treeSearchTargetPath = null;
+      treeSearchResultPath = "";
+      collapsedNodes = new Set();
+      const treeInput = document.getElementById("treeSearch");
+      if (treeInput) treeInput.value = "";
+      const treePathBar = document.getElementById("tree-result-path");
+      if (treePathBar) { treePathBar.classList.remove("active"); treePathBar.innerHTML = ""; }
       document.getElementById("section-tree").classList.add("active");
       const navId = currentTreeType === "mt" ? "nav-mtree" : "nav-ytree";
       const nl = document.getElementById(navId);
@@ -5404,8 +5433,9 @@
 
     function setTreeType(type) {
       if (type !== "y" && type !== "mt") return;
+      treeHaploFilterByType[currentTreeType] = treeHaploFilter;
       currentTreeType = type;
-      treeHaploFilter = null;
+      treeHaploFilter = treeHaploFilterByType[currentTreeType] || null;
       treeFocusPath = null;
       treeSearchTargetPath = null;
       treeSearchResultPath = "";
@@ -5513,6 +5543,7 @@
 
     function treeSetHaplo(h) {
       treeHaploFilter = h;
+      treeHaploFilterByType[currentTreeType] = h;
       treeFocusPath = null;
       treeSearchTargetPath = null;
       treeSearchResultPath = "";
@@ -5622,7 +5653,10 @@
 
     function openTreeBreakdownModal(scope = "total", selectedHap = null) {
       const visiblePool = treeScopeSamples(scope);
-      const pool = visiblePool.filter(s => s.__sourceType !== "related");
+      const isRelatedWindow = scope === "related";
+      const pool = isRelatedWindow
+        ? visiblePool.filter(s => s.__sourceType === "related")
+        : visiblePool.filter(s => s.__sourceType !== "related");
       const totals = {};
       pool.forEach(s => {
         const h = treeGroupForSample(s);
@@ -5633,6 +5667,14 @@
       document.getElementById("detail-modal").classList.add("active");
       document.getElementById("modal-kit-list").classList.add("hidden");
 
+      const note = document.getElementById("modal-stat-note");
+      if (note) {
+        note.classList.remove("hidden");
+        note.innerHTML = isRelatedWindow
+          ? `<strong>Reference-only statistics:</strong> this chart calculates percentages only within the currently displayed non-Egyptian Related Ancient References. These values are not added to any Egyptian chart, total, percentage, regional summary, or project statistic.`
+          : `<strong>Egyptian statistics only:</strong> non-Egyptian Related Ancient References are excluded from this chart and from all percentages shown here. Their separate reference-only chart is available from the “Related Ancient References” summary card.`;
+      }
+
       makePie("modalChartCanvas", totals, `TREE-${scope.toUpperCase()}`, pool.length, {
         getColor: treeColorForLabel,
         getBorderColor: treeBorderColorForLabel,
@@ -5640,33 +5682,34 @@
       });
 
       const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
-
       document.getElementById("modal-legend").innerHTML = sorted.length ? sorted.map(([hap, count]) =>
         pieLegendRowHTML(hap, count, pool.length, treeColorForLabel(hap), `showTreeBreakdownHaplo('${esc(scope)}','${esc(hap)}')`)
       ).join("") : `<div class="p-4 rounded-xl bg-gray-50 text-sm font-bold text-gray-400">No samples are currently shown for this selection.</div>`;
 
-      if (selectedHap && totals[selectedHap]) {
-        showTreeBreakdownHaplo(scope, selectedHap, false);
-      }
+      if (selectedHap && totals[selectedHap]) showTreeBreakdownHaplo(scope, selectedHap, false);
     }
 
     function showTreeBreakdownHaplo(scope, hp, shouldScroll = true) {
       const la = document.getElementById("modal-kit-list");
-      const pool = treeScopeSamples(scope).filter(s => s.__sourceType !== "related");
+      const isRelatedWindow = scope === "related";
+      const visiblePool = treeScopeSamples(scope);
+      const pool = isRelatedWindow
+        ? visiblePool.filter(s => s.__sourceType === "related")
+        : visiblePool.filter(s => s.__sourceType !== "related");
       const matches = pool.filter(s => treeGroupForSample(s) === hp);
       const pct = pool.length ? ((matches.length / pool.length) * 100).toFixed(1) : "0.0";
 
       document.getElementById("selected-haplo-display").textContent = hp;
       document.getElementById("modal-sample-count").textContent = `${matches.length} FOUND`;
-      document.getElementById("modal-explainer").textContent = `${pct}% of ${treeScopeLabel(scope).toLowerCase()} belong to ${hp}`;
+      document.getElementById("modal-explainer").textContent = isRelatedWindow
+        ? `${pct}% within the separate Related Ancient reference set belong to ${hp}; this percentage is not part of Egyptian statistics`
+        : `${pct}% of ${treeScopeLabel(scope).toLowerCase()} belong to ${hp}`;
 
       const col = treeColorForLabel(hp);
-      la.style.borderColor = col;
-      la.style.backgroundColor = col + "08";
+      la.style.borderColor = isRelatedWindow ? "#0f766e" : col;
+      la.style.backgroundColor = isRelatedWindow ? "#f0fdfa" : col + "08";
       la.classList.remove("hidden");
-
       document.getElementById("kits-container").innerHTML = matches.map(s => currentTreeType === "mt" ? treeBreakdownSampleCardHTML(s) : sampleCardHTML(s)).join("");
-
       if (shouldScroll) scrollIntoViewById("modal-kit-list");
     }
 
@@ -5758,7 +5801,7 @@
     }
 
         function buildTreeSummary(samples) {
-      const total = samples.length;
+      const total = samples.filter(s => s.__sourceType !== "related").length;
       const modernCount = samples.filter(s => s.__sourceType === "modern").length;
       const studyCount = samples.filter(s => s.__sourceType === "study").length;
       const ancientCount = samples.filter(s => s.__sourceType === "ancient").length;
@@ -5766,7 +5809,7 @@
 
       document.getElementById("tree-summary-grid").innerHTML = `
         <div class="tree-summary-card cursor-pointer" onclick="openTreeBreakdownModal('total')">
-          <div class="text-[10px] font-black uppercase tracking-[.18em] text-gray-400">Total Samples Shown</div>
+          <div class="text-[10px] font-black uppercase tracking-[.18em] text-gray-400">Egyptian Samples Shown</div>
           <div class="tree-summary-number">${total}</div>
         </div>
         <div class="tree-summary-card cursor-pointer" onclick="openTreeBreakdownModal('modern')">
@@ -5781,7 +5824,7 @@
           <div class="text-[10px] font-black uppercase tracking-[.18em] text-gray-400">Egyptian Ancient</div>
           <div class="tree-summary-number">${ancientCount}</div>
         </div>
-        <div class="tree-summary-card cursor-pointer" onclick="treeSetSources('all')">
+        <div class="tree-summary-card cursor-pointer" onclick="openTreeBreakdownModal('related')">
           <div class="text-[10px] font-black uppercase tracking-[.18em] text-teal-700">Related Ancient References</div>
           <div class="tree-summary-number" style="color:#0f766e">${relatedCount}</div>
           <div class="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-2">Excluded from percentages</div>
