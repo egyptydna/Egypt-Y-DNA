@@ -2764,15 +2764,20 @@
       transform:translateY(-2px);
     }
 
-    /* Lineage nodes stay wider than sample cards, while sample details remain fully readable. */
+    /* Compact lineage nodes: width follows the label instead of wasting horizontal space. */
+    .tree-root-badge,
     .tree-node-badge {
-      min-width:310px;
+      width:fit-content;
+      min-width:132px;
+      max-width:none;
       justify-content:flex-start;
+      padding-left:13px;
+      padding-right:13px;
     }
     .tree-sample-card {
       min-width:260px;
       width:fit-content;
-      max-width:290px;
+      max-width:720px;
       padding:10px 14px;
     }
     .tree-sample-name {
