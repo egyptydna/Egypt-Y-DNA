@@ -2830,6 +2830,369 @@
       }
     }
 
+  
+    /* ========================================================
+       2026 DASHBOARD REDESIGN
+       ======================================================== */
+    .dashboard-page {
+      max-width: none !important;
+      padding: 0 !important;
+      background:
+        radial-gradient(circle at 92% 5%, rgba(119,90,25,.08), transparent 26%),
+        linear-gradient(180deg,#f7f8fa 0%,#eef2f6 100%);
+    }
+
+    .dashboard-shell {
+      width: min(100%, 1760px);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 236px minmax(0,1fr);
+      min-height: calc(100vh - 80px);
+    }
+
+    .dashboard-sidebar {
+      background: linear-gradient(180deg,#001736 0%,#002044 54%,#00152f 100%);
+      color: white;
+      padding: 2rem 1rem 1.4rem;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 80px;
+      height: calc(100vh - 80px);
+      z-index: 5;
+    }
+
+    .dashboard-brand {
+      text-align: center;
+      padding: .4rem .6rem 1.6rem;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+    }
+
+    .dashboard-brand-mark {
+      color: #d59a22;
+      font-size: 2.2rem;
+      line-height: 1;
+      margin-bottom: .6rem;
+    }
+
+    .dashboard-brand-title {
+      font-size: 1.28rem;
+      line-height: 1.03;
+      font-weight: 900;
+      letter-spacing: -.045em;
+      text-transform: uppercase;
+    }
+
+    .dashboard-brand-subtitle {
+      margin-top: .6rem;
+      color: #d59a22;
+      font-size: .57rem;
+      font-weight: 900;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    .dashboard-side-nav {
+      display: grid;
+      gap: .45rem;
+      margin-top: 1.3rem;
+    }
+
+    .dashboard-side-link {
+      width: 100%;
+      min-height: 46px;
+      border-radius: .8rem;
+      padding: 0 .9rem;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      color: rgba(255,255,255,.88);
+      font-size: .8rem;
+      font-weight: 800;
+      text-align: left;
+      transition: all .2s ease;
+    }
+
+    .dashboard-side-link .material-symbols-outlined { font-size: 1.15rem; }
+    .dashboard-side-link:hover { background: rgba(255,255,255,.09); transform: translateX(2px); }
+    .dashboard-side-link.active {
+      background: linear-gradient(90deg,#8b6715 0%,#6d5114 100%);
+      color: #fff;
+      box-shadow: 0 12px 24px rgba(0,0,0,.17);
+    }
+
+    .dashboard-side-note {
+      margin-top: auto;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 1rem;
+      padding: .9rem;
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: .65rem;
+      align-items: start;
+    }
+
+    .dashboard-side-note > span { color:#f5a623; }
+    .dashboard-side-note strong,
+    .dashboard-side-note span,
+    .dashboard-side-note em { display:block; }
+    .dashboard-side-note strong { font-size:.68rem; }
+    .dashboard-side-note div span { font-size:.61rem; color:#cbd5e1; margin-top:.18rem; }
+    .dashboard-side-note em { font-size:.59rem; color:#f5a623; margin-top:.28rem; font-style:normal; }
+
+    .dashboard-main {
+      min-width: 0;
+      padding: 1.35rem 1.6rem 2.6rem;
+      display: grid;
+      gap: 1.15rem;
+    }
+
+    .dashboard-hero {
+      min-height: 205px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 0 0 2rem 2rem;
+      background:
+        linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.78) 36%,rgba(243,228,196,.18) 100%),
+        linear-gradient(180deg,#e9f1f8 0%,#f5e5c5 100%);
+      border: 1px solid #e7e9ed;
+      box-shadow: 0 18px 40px rgba(0,23,54,.06);
+      padding: 2.2rem 2rem;
+      isolation: isolate;
+    }
+
+    .dashboard-pyramid-scene {
+      position:absolute;
+      inset:0;
+      overflow:hidden;
+      z-index:-1;
+    }
+
+    .dashboard-pyramid-scene::before {
+      content:"";
+      position:absolute;
+      inset:auto 0 0 28%;
+      height:48%;
+      background:linear-gradient(180deg,rgba(205,168,105,.03),rgba(205,168,105,.22));
+      clip-path:polygon(0 72%,100% 40%,100% 100%,0 100%);
+    }
+
+    .pyramid {
+      position:absolute;
+      bottom:0;
+      display:block;
+      background:linear-gradient(128deg,#e3c391 0 49%,#c49a60 50% 100%);
+      filter:drop-shadow(0 20px 20px rgba(93,65,30,.16));
+      opacity:.76;
+    }
+    .pyramid-main { width:340px;height:170px;right:16%;clip-path:polygon(50% 0,100% 100%,0 100%); }
+    .pyramid-back { width:250px;height:125px;right:40%;opacity:.48;clip-path:polygon(50% 0,100% 100%,0 100%); }
+    .pyramid-small { width:175px;height:88px;right:3%;opacity:.58;clip-path:polygon(50% 0,100% 100%,0 100%); }
+
+    .dashboard-hero-copy { position:relative;z-index:2;max-width:590px; }
+    .dashboard-eyebrow {
+      font-size:.62rem;
+      color:#8b6715;
+      font-weight:900;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      margin-bottom:.5rem;
+    }
+    .dashboard-hero h2 {
+      font-size:clamp(3rem,5.2vw,5.3rem);
+      line-height:.9;
+      font-weight:900;
+      letter-spacing:-.075em;
+      text-transform:uppercase;
+      color:#001736;
+    }
+    .dashboard-hero-copy > p:not(.dashboard-eyebrow) {
+      margin-top:.65rem;
+      color:#51627a;
+      font-size:1rem;
+      font-weight:700;
+    }
+    .dashboard-gold-line { width:48px;height:3px;border-radius:99px;background:#b58219;margin-top:1rem; }
+
+    .dashboard-update-card {
+      position:absolute;
+      top:1.2rem;
+      right:1.3rem;
+      z-index:3;
+      padding:.72rem .95rem;
+      border-radius:.9rem;
+      background:rgba(255,255,255,.92);
+      box-shadow:0 12px 26px rgba(0,23,54,.1);
+      display:flex;
+      align-items:center;
+      gap:.65rem;
+      backdrop-filter:blur(8px);
+    }
+    .dashboard-update-card > span { color:#b58219; }
+    .dashboard-update-card small,
+    .dashboard-update-card strong { display:block; }
+    .dashboard-update-card small { font-size:.53rem;text-transform:uppercase;letter-spacing:.1em;color:#94a3b8;font-weight:900; }
+    .dashboard-update-card strong { font-size:.7rem;color:#001736;margin-top:.08rem; }
+
+    .dashboard-kpi-grid {
+      display:grid;
+      grid-template-columns:repeat(5,minmax(0,1fr));
+      gap:.75rem;
+    }
+    .dashboard-kpi {
+      min-height:112px;
+      padding:.9rem;
+      border:1px solid #e4e8ed;
+      border-radius:1.15rem;
+      background:rgba(255,255,255,.9);
+      box-shadow:0 10px 24px rgba(0,23,54,.05);
+      display:grid;
+      grid-template-columns:46px minmax(0,1fr);
+      gap:.75rem;
+      align-items:center;
+      transition:transform .2s ease,box-shadow .2s ease;
+    }
+    .dashboard-kpi:hover { transform:translateY(-2px);box-shadow:0 16px 32px rgba(0,23,54,.09); }
+    .dashboard-kpi.related { border-color:rgba(15,118,110,.25);background:linear-gradient(180deg,#f0fdfa,#fff); }
+    .dashboard-kpi-icon {
+      width:46px;height:46px;border-radius:999px;color:#fff;display:inline-flex;align-items:center;justify-content:center;
+      box-shadow:0 10px 20px rgba(0,23,54,.12);
+    }
+    .dashboard-kpi-icon .material-symbols-outlined { font-size:1.4rem; }
+    .dashboard-kpi-icon.navy{background:#001736}.dashboard-kpi-icon.gold{background:#d18d05}
+    .dashboard-kpi-icon.violet{background:#8c35c7}.dashboard-kpi-icon.bronze{background:#8b6715}.dashboard-kpi-icon.teal{background:#238c8c}
+    .dashboard-kpi small,.dashboard-kpi strong,.dashboard-kpi div>span{display:block}
+    .dashboard-kpi small{font-size:.52rem;font-weight:900;text-transform:uppercase;letter-spacing:.075em;color:#001736}
+    .dashboard-kpi strong{font-size:1.75rem;line-height:1;font-weight:900;color:#001736;margin:.32rem 0 .25rem}
+    .dashboard-kpi div>span{font-size:.58rem;color:#64748b;font-weight:750;line-height:1.25}
+
+    .dashboard-modern-grid,.dashboard-ancient-grid {
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:1rem;
+    }
+    .dashboard-chart-card,.dashboard-ancient-panel,.dashboard-regions {
+      border:1px solid #e4e8ed;
+      border-radius:1.35rem;
+      background:rgba(255,255,255,.94);
+      box-shadow:0 14px 32px rgba(0,23,54,.055);
+    }
+    .dashboard-chart-card { padding:1rem;min-width:0; }
+    .dashboard-card-head {
+      min-height:52px;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:1rem;
+      border-bottom:1px solid #edf0f4;
+      padding-bottom:.7rem;
+    }
+    .dashboard-card-head small,.dashboard-section-head small {
+      display:block;font-size:.53rem;text-transform:uppercase;letter-spacing:.14em;font-weight:900;color:#8b6715;margin-bottom:.2rem
+    }
+    .dashboard-card-head h3 {font-size:1rem;font-weight:900;color:#001736;letter-spacing:-.03em}
+    .dashboard-card-head>span {font-size:.52rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;white-space:nowrap;margin-top:.2rem}
+    .dashboard-chart-content {
+      display:grid;
+      grid-template-columns:minmax(190px,.9fr) minmax(190px,1fr);
+      gap:.6rem;
+      align-items:center;
+      min-height:292px;
+      padding-top:.65rem;
+    }
+    .dashboard-chart-canvas {width:min(260px,19vw);height:min(260px,19vw);min-width:215px;min-height:215px;justify-self:center;cursor:pointer}
+    .dashboard-chart-canvas canvas {width:100%!important;height:100%!important}
+    .dashboard-legend {
+      max-height:272px;
+      overflow:auto;
+      padding:.4rem!important;
+      border:1px solid #eef1f4!important;
+      border-radius:1rem!important;
+      background:#fbfcfd!important;
+      gap:.05rem!important;
+    }
+    .dashboard-legend .pie-legend-row {min-height:25px!important;padding:.16rem .35rem!important;grid-template-columns:10px minmax(42px,1fr) auto!important;gap:.4rem!important}
+    .dashboard-legend .pie-legend-label,.dashboard-legend .pie-legend-value {font-size:.67rem!important}
+    .dashboard-legend .pie-legend-dot {width:.55rem!important;height:.55rem!important}
+
+    .dashboard-ancient-panel,.dashboard-regions {padding:1.1rem}
+    .dashboard-section-head {
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:1rem;
+      padding:.2rem .2rem 1rem;
+    }
+    .dashboard-section-head h3 {font-size:1.45rem;font-weight:900;letter-spacing:-.045em;color:#001736}
+    .dashboard-section-head p {margin-top:.3rem;font-size:.7rem;color:#64748b;font-weight:700;max-width:720px;line-height:1.5}
+    .dashboard-outline-btn {
+      min-height:38px;padding:0 .85rem;border:1px solid #cbd5e1;border-radius:.7rem;background:#fff;color:#001736;
+      display:inline-flex;align-items:center;gap:.5rem;font-size:.58rem;text-transform:uppercase;letter-spacing:.08em;font-weight:900;white-space:nowrap
+    }
+    .dashboard-outline-btn:hover{border-color:#001736;box-shadow:0 8px 18px rgba(0,23,54,.08)}
+    .dashboard-outline-btn .material-symbols-outlined{font-size:1rem}
+    .ancient-dashboard-card {box-shadow:none;background:#fbfcfd}
+    .dashboard-chart-canvas.ancient {width:min(245px,17vw);height:min(245px,17vw)}
+
+    .dashboard-region-grid {
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:.8rem;
+    }
+    .dashboard-regions .region-card {
+      min-height:132px!important;
+      border-radius:1.15rem!important;
+      padding:.85rem!important;
+      box-shadow:0 8px 18px rgba(0,23,54,.04)!important;
+    }
+    .dashboard-regions .mini-canvas-wrap {width:92px!important;height:92px!important}
+    .dashboard-regions .mini-canvas-wrap canvas {width:88px!important;height:88px!important}
+    .dashboard-regions .region-card-title {font-size:.78rem!important}
+    .dashboard-regions .region-total-pill,.dashboard-regions .region-top-pill {min-height:22px!important;padding:0 7px!important;font-size:8px!important}
+    .dashboard-regions .region-card-arrow {width:32px!important;height:32px!important;border-radius:10px!important;right:10px!important}
+
+    .dashboard-disclaimer {
+      border:1px solid #e3e6e9;border-radius:1rem;background:#fff;padding:.85rem 1rem;display:grid;
+      grid-template-columns:34px 1fr;gap:.7rem;align-items:center;color:#001736
+    }
+    .dashboard-disclaimer>span {color:#b58219}
+    .dashboard-disclaimer strong {font-size:.72rem}
+    .dashboard-disclaimer p {font-size:.64rem;color:#64748b;margin-top:.15rem;font-weight:700}
+
+    @media(max-width:1320px){
+      .dashboard-shell{grid-template-columns:205px minmax(0,1fr)}
+      .dashboard-kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .dashboard-region-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .dashboard-chart-content{grid-template-columns:1fr}
+      .dashboard-chart-canvas,.dashboard-chart-canvas.ancient{width:min(250px,32vw);height:min(250px,32vw)}
+      .dashboard-legend{max-height:180px}
+    }
+    @media(max-width:980px){
+      .dashboard-shell{grid-template-columns:1fr}
+      .dashboard-sidebar{position:relative;top:0;height:auto;padding:1rem}
+      .dashboard-brand{display:none}
+      .dashboard-side-nav{margin:0;grid-template-columns:repeat(5,minmax(0,1fr));gap:.35rem}
+      .dashboard-side-link{justify-content:center;padding:.55rem .4rem;min-height:54px;flex-direction:column;gap:.22rem;font-size:.56rem;text-align:center}
+      .dashboard-side-note{display:none}
+      .dashboard-main{padding:1rem}
+      .dashboard-modern-grid,.dashboard-ancient-grid{grid-template-columns:1fr}
+      .dashboard-chart-content{grid-template-columns:minmax(220px,.8fr) minmax(220px,1fr)}
+      .dashboard-chart-canvas,.dashboard-chart-canvas.ancient{width:min(260px,34vw);height:min(260px,34vw)}
+    }
+    @media(max-width:700px){
+      .dashboard-main{padding:.7rem}
+      .dashboard-hero{min-height:245px;padding:1.35rem}
+      .dashboard-pyramid-scene{opacity:.45}
+      .dashboard-update-card{top:auto;bottom:1rem;left:1rem;right:auto}
+      .dashboard-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .dashboard-kpi{grid-template-columns:38px 1fr;padding:.7rem;min-height:94px}
+      .dashboard-kpi-icon{width:38px;height:38px}
+      .dashboard-modern-grid,.dashboard-ancient-grid,.dashboard-region-grid{grid-template-columns:1fr}
+      .dashboard-chart-content{grid-template-columns:1fr}
+      .dashboard-chart-canvas,.dashboard-chart-canvas.ancient{width:min(250px,72vw);height:min(250px,72vw)}
+      .dashboard-section-head{align-items:flex-start;flex-direction:column}
+    }
+
   </style>
 </head>
 <body class="bg-background text-primary font-body antialiased">
@@ -2858,119 +3221,169 @@
     </div>
   </nav>
 
-  <main id="section-home" class="page-section active py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-14">
-    <section class="combined-dashboard-panel font-headline">
-      <div class="combined-dashboard-header">
-        <div class="combined-dashboard-copy">
-          <p class="combined-kicker">— Modern Overview</p>
-          <h2 class="combined-title">Modern Egyptian<br/>Lineage Summary</h2>
-          <p class="combined-subtitle">This dashboard summarizes the modern Egyptian archive in two parts: Y-DNA on the left for paternal lineages and mtDNA on the right for maternal branches. The numbers include both published samples and modern study samples, giving a quick overview of the current archive before exploring the detailed tables and trees below.</p>
+  
+  <main id="section-home" class="page-section active dashboard-page">
+    <div class="dashboard-shell">
+      <aside class="dashboard-sidebar font-headline">
+        <div class="dashboard-brand">
+          <div class="dashboard-brand-mark">𓂀</div>
+          <div class="dashboard-brand-title">Egyptian<br/>Y-DNA Project</div>
+          <div class="dashboard-brand-subtitle">National Genomic Archive</div>
         </div>
 
-        <div class="combined-metrics-grid">
-          <div class="combined-metric-card">
-            <div class="combined-metric-icon"><span class="material-symbols-outlined">genetics</span></div>
-            <span>Total Y-DNA Samples</span>
-            <strong id="total-national-samples">0</strong>
-          </div>
-          <div class="combined-metric-card">
-            <div class="combined-metric-icon secondary"><span class="material-symbols-outlined">location_on</span></div>
-            <span>Mapped Regions</span>
-            <strong>25</strong>
-          </div>
-          <div class="combined-metric-card">
-            <div class="combined-metric-icon maternal"><span class="material-symbols-outlined">female</span></div>
-            <span>Total mtDNA Samples</span>
-            <strong id="total-mtdna-samples">0</strong>
-          </div>
-          <div class="combined-metric-card">
-            <div class="combined-metric-icon branch"><span class="material-symbols-outlined">account_tree</span></div>
-            <span>Maternal Branches</span>
-            <strong id="total-mtdna-branches">0</strong>
+        <div class="dashboard-side-nav">
+          <button class="dashboard-side-link active" onclick="showSection('home')">
+            <span class="material-symbols-outlined">dashboard</span><span>Dashboard</span>
+          </button>
+          <button class="dashboard-side-link" onclick="showSection('archive')">
+            <span class="material-symbols-outlined">database</span><span>Archive</span>
+          </button>
+          <button class="dashboard-side-link" onclick="showSection('ytree')">
+            <span class="material-symbols-outlined">account_tree</span><span>Y-DNA Tree</span>
+          </button>
+          <button class="dashboard-side-link" onclick="showSection('mtree')">
+            <span class="material-symbols-outlined">hub</span><span>mtDNA Tree</span>
+          </button>
+          <button class="dashboard-side-link" onclick="showSection('ancient')">
+            <span class="material-symbols-outlined">temple_egyptian</span><span>Ancient DNA</span>
+          </button>
+        </div>
+
+        <div class="dashboard-side-note">
+          <span class="material-symbols-outlined">shield</span>
+          <div>
+            <strong>Independent Project</strong>
+            <span>For research purposes</span>
+            <em>Not for medical use</em>
           </div>
         </div>
+      </aside>
+
+      <div class="dashboard-main">
+        <section class="dashboard-hero font-headline">
+          <div class="dashboard-pyramid-scene" aria-hidden="true">
+            <span class="pyramid pyramid-back"></span>
+            <span class="pyramid pyramid-main"></span>
+            <span class="pyramid pyramid-small"></span>
+          </div>
+          <div class="dashboard-hero-copy">
+            <p class="dashboard-eyebrow">National Genomic Archive</p>
+            <h2>Dashboard</h2>
+            <p>Overview of the Egyptian genomic archive</p>
+            <div class="dashboard-gold-line"></div>
+          </div>
+          <div class="dashboard-update-card">
+            <span class="material-symbols-outlined">calendar_month</span>
+            <div>
+              <small>Last updated</small>
+              <strong id="dashboard-last-updated">31 July 2026</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard-kpi-grid font-headline">
+          <article class="dashboard-kpi">
+            <div class="dashboard-kpi-icon navy"><span class="material-symbols-outlined">groups</span></div>
+            <div><small>Modern records</small><strong id="dashboard-total-records">0</strong><span>Published + study</span></div>
+          </article>
+          <article class="dashboard-kpi">
+            <div class="dashboard-kpi-icon gold"><span class="material-symbols-outlined">male</span></div>
+            <div><small>Y-DNA samples</small><strong id="total-national-samples">0</strong><span>Modern paternal lineages</span></div>
+          </article>
+          <article class="dashboard-kpi">
+            <div class="dashboard-kpi-icon violet"><span class="material-symbols-outlined">female</span></div>
+            <div><small>mtDNA samples</small><strong id="total-mtdna-samples">0</strong><span>Modern maternal lineages</span></div>
+          </article>
+          <article class="dashboard-kpi">
+            <div class="dashboard-kpi-icon bronze"><span class="material-symbols-outlined">temple_egyptian</span></div>
+            <div><small>Ancient Egyptian</small><strong id="dashboard-ancient-total">0</strong><span>Included in ancient charts</span></div>
+          </article>
+          <article class="dashboard-kpi related">
+            <div class="dashboard-kpi-icon teal"><span class="material-symbols-outlined">public</span></div>
+            <div><small>Related ancient</small><strong id="dashboard-related-total">0</strong><span>Non-Egyptian references</span></div>
+          </article>
+        </section>
+
+        <section class="dashboard-modern-grid font-headline">
+          <article class="dashboard-chart-card">
+            <div class="dashboard-card-head">
+              <div><small>Modern paternal overview</small><h3>Y-DNA Haplogroup Distribution</h3></div>
+              <span>Egyptian samples only</span>
+            </div>
+            <div class="dashboard-chart-content">
+              <div class="dashboard-chart-canvas" onclick="openModal('MODERN')"><canvas id="nationalChartCanvas"></canvas></div>
+              <div id="national-legend" class="pie-legend-panel dashboard-legend"></div>
+            </div>
+          </article>
+
+          <article class="dashboard-chart-card">
+            <div class="dashboard-card-head">
+              <div><small>Modern maternal overview</small><h3>mtDNA Haplogroup Distribution</h3></div>
+              <span>Egyptian samples only</span>
+            </div>
+            <div class="dashboard-chart-content">
+              <div class="dashboard-chart-canvas" onclick="openMtHomeModal()"><canvas id="homeMtChartCanvas"></canvas></div>
+              <div id="home-mt-legend" class="pie-legend-panel dashboard-legend"></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="dashboard-ancient-panel font-headline">
+          <div class="dashboard-section-head">
+            <div>
+              <small>Archaeogenetic overview</small>
+              <h3>Ancient Egyptian DNA</h3>
+              <p>Only samples from <strong>Ancient_published_samples</strong> are included. Related Ancient References are excluded from these totals and percentages.</p>
+            </div>
+            <button class="dashboard-outline-btn" onclick="showSection('ancient')">Open Ancient Archive <span class="material-symbols-outlined">arrow_forward</span></button>
+          </div>
+
+          <div class="dashboard-ancient-grid">
+            <article class="dashboard-chart-card ancient-dashboard-card">
+              <div class="dashboard-card-head">
+                <div><small>Paternal lineages</small><h3>Ancient Y-DNA Samples</h3></div>
+                <span id="dashboard-ancient-y-count">0 samples</span>
+              </div>
+              <div class="dashboard-chart-content">
+                <div class="dashboard-chart-canvas ancient" onclick="openModal('ANCIENT')"><canvas id="dashboardAncientYChartCanvas"></canvas></div>
+                <div id="dashboard-ancient-y-legend" class="pie-legend-panel dashboard-legend"></div>
+              </div>
+            </article>
+
+            <article class="dashboard-chart-card ancient-dashboard-card">
+              <div class="dashboard-card-head">
+                <div><small>Maternal branches</small><h3>Ancient mtDNA Samples</h3></div>
+                <span id="dashboard-ancient-mt-count">0 samples</span>
+              </div>
+              <div class="dashboard-chart-content">
+                <div class="dashboard-chart-canvas ancient" onclick="openAncientMtModal()"><canvas id="dashboardAncientMtChartCanvas"></canvas></div>
+                <div id="dashboard-ancient-mt-legend" class="pie-legend-panel dashboard-legend"></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="dashboard-regions font-headline">
+          <div class="dashboard-section-head">
+            <div>
+              <small>Regional distribution</small>
+              <h3>Regional Archives</h3>
+              <p>Top Y-DNA haplogroups by Egyptian governorate.</p>
+            </div>
+            <button class="dashboard-outline-btn" onclick="document.getElementById('stats-grid').scrollIntoView({behavior:'smooth'})">View all regions <span class="material-symbols-outlined">south</span></button>
+          </div>
+          <div id="stats-grid" class="dashboard-region-grid"></div>
+        </section>
+
+        <section class="dashboard-disclaimer">
+          <span class="material-symbols-outlined">verified_user</span>
+          <div>
+            <strong>Statistics, percentages and charts include only Egyptian samples.</strong>
+            <p>Related Ancient Samples are shown for phylogenetic reference only and are never included in Egyptian calculations.</p>
+          </div>
+        </section>
       </div>
-
-      <div class="combined-charts-grid">
-        <article class="combined-chart-card">
-          <div class="combined-chart-head">
-            <div>
-              <p>— Paternal Overview</p>
-              <h3>Modern Y-DNA Summary</h3>
-            </div>
-            <span>Major paternal lineages</span>
-          </div>
-          <div class="combined-chart-body">
-            <div class="combined-chart-wrap" onclick="openModal('MODERN')">
-              <canvas id="nationalChartCanvas"></canvas>
-            </div>
-            <div id="national-legend" class="pie-legend-panel combined-legend"></div>
-          </div>
-          <div class="combined-card-footer">Total Y-DNA Samples: <span id="ydna-footer-total">0</span> &nbsp; | &nbsp; Mapped Regions: 25</div>
-        </article>
-
-        <article class="combined-chart-card">
-          <div class="combined-chart-head">
-            <div>
-              <p>— Maternal Overview</p>
-              <h3>Modern mtDNA Summary</h3>
-            </div>
-            <span>Major maternal branches</span>
-          </div>
-          <div class="combined-chart-body">
-            <div class="combined-chart-wrap" onclick="openMtHomeModal()">
-              <canvas id="homeMtChartCanvas"></canvas>
-            </div>
-            <div id="home-mt-legend" class="pie-legend-panel combined-legend"></div>
-          </div>
-          <div class="combined-card-footer">Total mtDNA Samples: <span id="mtdna-footer-total">0</span> &nbsp; | &nbsp; Maternal Branches: <span id="mtdna-footer-branches">0</span></div>
-        </article>
-      </div>
-    </section>
-
-    <section class="project-overview-clean font-headline">
-      <div class="project-overview-clean-inner">
-        <div>
-          <p class="combined-kicker">— Project Overview</p>
-          <h2>A genomic archive for Egyptian paternal and maternal lineages</h2>
-          <p class="lead">The Egyptian Y-DNA Project collects, organizes, and explains Egyptian genetic lineages in one neutral archive. Y-DNA follows the paternal line, mtDNA follows the maternal line, and both are presented with clear labels, source links, locations, and tree views so the data can be checked and understood easily.</p>
-        </div>
-
-        <div class="overview-points">
-          <div class="overview-point">
-            <div class="overview-point-icon"><span class="material-symbols-outlined">description</span></div>
-            <div>
-              <strong>Clear documentation</strong>
-              <p>Each sample is shown with its lineage name, SNP path when available, location context, source links, and sample details, so the archive stays transparent and easy to verify.</p>
-            </div>
-          </div>
-          <div class="overview-point">
-            <div class="overview-point-icon"><span class="material-symbols-outlined">account_tree</span></div>
-            <div>
-              <strong>Y-DNA and mtDNA side by side</strong>
-              <p>The Y-DNA Tree helps follow male-line branches, while the mtDNA Tree helps follow maternal branches. This keeps both inheritance lines separate but comparable.</p>
-            </div>
-          </div>
-          <div class="overview-point">
-            <div class="overview-point-icon"><span class="material-symbols-outlined">verified_user</span></div>
-            <div>
-              <strong>Neutral scientific format</strong>
-              <p>The project separates modern, study, Ancient Egyptian, and external related ancient references. Related ancient references remain visibly distinct and are excluded from Egyptian statistics and charts.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="project-overview-disclaimer">All data is presented for scientific, educational, and archival purposes. Sample locations are grouped at the governorate level and do not represent exact personal locations.</div>
-    </section>
-
-    <section class="h-[450px] md:h-[650px] w-full bg-white rounded-[3rem] md:rounded-[4rem] overflow-hidden shadow-2xl border border-gray-100">
-      <iframe src="https://umap.openstreetmap.de/de/map/egypt-y-dna-project_128746?scaleControl=false&miniMap=false&scrollWheelZoom=false&datalayersControl=true#6/26.938/30.802" class="w-full h-full border-none"></iframe>
-    </section>
-
-    <section class="space-y-10">
-      <h2 class="text-3xl md:text-5xl font-black font-headline uppercase tracking-tighter text-center">Regional Archives</h2>
-      <div id="stats-grid" class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-5 md:gap-6"></div>
-    </section>
+    </div>
   </main>
 
   <main id="section-archive" class="page-section py-10 md:py-16 px-4 md:px-8 max-w-screen-2xl mx-auto space-y-12">
@@ -4904,6 +5317,8 @@
       });
 
       document.getElementById("total-national-samples").textContent = total;
+      const dashRecords = document.getElementById("dashboard-total-records");
+      if (dashRecords) dashRecords.textContent = allModernLikeSamples().length;
       const ydnaFooterTotal = document.getElementById("ydna-footer-total");
       if (ydnaFooterTotal) ydnaFooterTotal.textContent = total;
 
@@ -4993,6 +5408,13 @@
       const mtTotalEl = document.getElementById("total-ancient-mtdna-samples");
       if (mtTotalEl) mtTotalEl.textContent = mtTotal;
 
+      const dashboardAncientTotal = document.getElementById("dashboard-ancient-total");
+      const dashboardAncientYCount = document.getElementById("dashboard-ancient-y-count");
+      const dashboardAncientMtCount = document.getElementById("dashboard-ancient-mt-count");
+      if (dashboardAncientTotal) dashboardAncientTotal.textContent = total;
+      if (dashboardAncientYCount) dashboardAncientYCount.textContent = `${yTotal} samples`;
+      if (dashboardAncientMtCount) dashboardAncientMtCount.textContent = `${mtTotal} samples`;
+
       if (total > 0) {
         makePie("ancientChartCanvas", totals, "ANCIENT", yTotal, {
           onSliceClick: (hap) => openModal("ANCIENT", hap)
@@ -5001,6 +5423,20 @@
 
       if (mtTotal > 0 && document.getElementById("ancientMtChartCanvas")) {
         makePie("ancientMtChartCanvas", mtTotals, "ANCIENT-MTDNA", mtTotal, {
+          getColor: mtColorForLabel,
+          getBorderColor: () => "#ffffff",
+          onSliceClick: (hap) => openAncientMtModal(hap)
+        });
+      }
+
+      if (yTotal > 0 && document.getElementById("dashboardAncientYChartCanvas")) {
+        makePie("dashboardAncientYChartCanvas", totals, "DASHBOARD-ANCIENT-Y", yTotal, {
+          onSliceClick: (hap) => openModal("ANCIENT", hap)
+        });
+      }
+
+      if (mtTotal > 0 && document.getElementById("dashboardAncientMtChartCanvas")) {
+        makePie("dashboardAncientMtChartCanvas", mtTotals, "DASHBOARD-ANCIENT-MT", mtTotal, {
           getColor: mtColorForLabel,
           getBorderColor: () => "#ffffff",
           onSliceClick: (hap) => openAncientMtModal(hap)
@@ -5017,6 +5453,20 @@
       const mtLegend = document.getElementById("ancient-mt-legend");
       if (mtLegend) {
         mtLegend.innerHTML = mtSorted.length ? mtSorted.map(([hap, count]) =>
+          pieLegendRowHTML(hap, count, mtTotal, mtColorForLabel(hap), `openAncientMtModal('${esc(hap)}')`)
+        ).join("") : `<div class="p-4 rounded-xl bg-gray-50 text-sm font-bold text-gray-400">No ancient mtDNA samples available.</div>`;
+      }
+
+      const dashboardYLegend = document.getElementById("dashboard-ancient-y-legend");
+      if (dashboardYLegend) {
+        dashboardYLegend.innerHTML = sorted.length ? sorted.map(([hap, count]) =>
+          pieLegendRowHTML(hap, count, yTotal, colorForAggregate(hap), `openModal('ANCIENT','${esc(hap)}')`)
+        ).join("") : `<div class="p-4 rounded-xl bg-gray-50 text-sm font-bold text-gray-400">No ancient Y-DNA samples available.</div>`;
+      }
+
+      const dashboardMtLegend = document.getElementById("dashboard-ancient-mt-legend");
+      if (dashboardMtLegend) {
+        dashboardMtLegend.innerHTML = mtSorted.length ? mtSorted.map(([hap, count]) =>
           pieLegendRowHTML(hap, count, mtTotal, mtColorForLabel(hap), `openAncientMtModal('${esc(hap)}')`)
         ).join("") : `<div class="p-4 rounded-xl bg-gray-50 text-sm font-bold text-gray-400">No ancient mtDNA samples available.</div>`;
       }
@@ -5286,6 +5736,8 @@
       if (!tbody) return;
       const totalEl = document.getElementById("total-related-ancient-samples");
       if (totalEl) totalEl.textContent = relatedAncientSamples.length;
+      const dashboardRelated = document.getElementById("dashboard-related-total");
+      if (dashboardRelated) dashboardRelated.textContent = relatedAncientSamples.length;
 
       tbody.innerHTML = relatedAncientSamples.map(s => {
         const h = haplo(s.y_dna, s.snp_path);
