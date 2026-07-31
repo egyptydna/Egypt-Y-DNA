@@ -3504,6 +3504,23 @@
       return s ? s : "—";
     }
 
+    function getFullMtDNAPathValue(row) {
+      if (!row) return "—";
+
+      const candidates = [
+        row.full_mtDNA_path,
+        row.full_mtdna_path,
+        row.full_mt_dna_path,
+        row.fullMtDNAPath,
+        row.mtdna_full_path,
+        row.mtDNA_full_path,
+        row.mt_dna_full_path
+      ];
+
+      const found = candidates.find(value => isRealValue(value));
+      return valueOrDash(found);
+    }
+
     function getYAliasValue(row) {
       return valueOrDash((row && (row.y_dna_alias ?? row.Y_DNA_alias ?? row.yDNA_alias ?? row.alias)) ?? "—");
     }
@@ -4044,7 +4061,8 @@
       const fields = [
         s.name, s.kit_number, s.sample_id, s.governorate, s.country, s.region, s.site,
         s.period, s.study_reference, s.study_link, s.cultural_group,
-        s.y_dna, s.y_dna_alias, s.snp_path, s.full_snp_path, s.description, s.ethnic_group
+        s.y_dna, s.y_dna_alias, s.snp_path, s.full_snp_path,
+        s.mt_dna, s.full_mtDNA_path, s.description, s.ethnic_group
       ];
       return fields.some(f => sclean(f).includes(ql));
     }
@@ -4072,7 +4090,7 @@
         mt_dna: valueOrDash(s.mt_dna),
         snp_path: valueOrDash(s.snp_path),
         full_snp_path: valueOrDash(s.full_snp_path),
-        full_mtDNA_path: valueOrDash(s.full_mtDNA_path),
+        full_mtDNA_path: getFullMtDNAPathValue(s),
         y_link_1: valueOrDash(s.y_link_1),
         y_link_2: valueOrDash(s.y_link_2),
         mt_link_1: valueOrDash(s.mt_link_1),
@@ -4109,7 +4127,7 @@
         mt_dna: valueOrDash(s.mt_dna),
         snp_path: valueOrDash(s.snp_path),
         full_snp_path: valueOrDash(s.full_snp_path),
-        full_mtDNA_path: valueOrDash(s.full_mtDNA_path),
+        full_mtDNA_path: getFullMtDNAPathValue(s),
         y_link_1: valueOrDash(s.y_link_1),
         y_link_2: valueOrDash(s.y_link_2),
         mt_link_1: valueOrDash(s.mt_link_1),
@@ -4134,7 +4152,7 @@
         mt_dna: valueOrDash(s.mt_dna),
         snp_path: valueOrDash(s.snp_path),
         full_snp_path: valueOrDash(s.full_snp_path),
-        full_mtDNA_path: valueOrDash(s.full_mtDNA_path),
+        full_mtDNA_path: getFullMtDNAPathValue(s),
         y_link_1: valueOrDash(s.y_link_1),
         y_link_2: valueOrDash(s.y_link_2),
         mt_link_1: valueOrDash(s.mt_link_1),
@@ -4161,7 +4179,7 @@
         mt_dna: valueOrDash(s.mt_dna || s.mtdna_haplogroup),
         snp_path: valueOrDash(s.snp_path),
         full_snp_path: valueOrDash(s.full_snp_path || s.y_full_path),
-        full_mtDNA_path: valueOrDash(s.full_mtDNA_path || s.mtdna_full_path),
+        full_mtDNA_path: getFullMtDNAPathValue(s),
         y_link_1: valueOrDash(s.y_link_1),
         y_link_2: valueOrDash(s.y_link_2),
         mt_link_1: valueOrDash(s.mt_link_1),
@@ -4171,6 +4189,16 @@
         cultural_group: valueOrDash(s.cultural_group || s.culture),
         study_reference: valueOrDash(s.study_reference || s.publication)
       }, "related", index));
+
+      relatedAncientSamples.forEach(sample => {
+        if (isRealValue(sample.mt_dna) && !isRealValue(sample.full_mtDNA_path)) {
+          console.warn(
+            "Related ancient mtDNA path is missing or uses an unsupported column name:",
+            sample.sample_id,
+            sample
+          );
+        }
+      });
     }
 
     function parsePath(fullPath, yDna = "") {
