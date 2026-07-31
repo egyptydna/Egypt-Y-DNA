@@ -2764,11 +2764,30 @@
       transform:translateY(-2px);
     }
 
-    /* Keep lineage nodes visually dominant and sample cards more compact. */
-    .tree-node-badge { min-width:220px; justify-content:flex-start; }
-    .tree-sample-card { min-width:190px; max-width:255px; padding:8px 11px; }
-    .tree-sample-name { font-size:12px !important; }
-    .tree-sample-gov { font-size:10px; }
+    /* Lineage nodes stay wider than sample cards, while sample details remain fully readable. */
+    .tree-node-badge {
+      min-width:310px;
+      justify-content:flex-start;
+    }
+    .tree-sample-card {
+      min-width:260px;
+      width:fit-content;
+      max-width:290px;
+      padding:10px 14px;
+    }
+    .tree-sample-name {
+      font-size:13px !important;
+      line-height:1.3 !important;
+      white-space:normal;
+      overflow:visible;
+      text-overflow:clip;
+    }
+    .tree-sample-gov {
+      font-size:11px;
+      white-space:normal;
+      overflow:visible;
+      text-overflow:clip;
+    }
     .tree-study-badge, .tree-ancient-badge, .tree-related-badge { flex-shrink:0; }
 
     .related-reference-note {
@@ -3025,8 +3044,7 @@
       <div class="font-headline">
         <p class="text-[10px] font-black text-secondary uppercase tracking-[.3em] mb-2">— Archaeogenetics</p>
         <h2 class="text-4xl md:text-7xl font-black tracking-tighter mb-5 leading-tight">Ancient Summary</h2>
-        <p class="text-sm md:text-lg font-extrabold text-slate-500 leading-7 max-w-[560px] mb-4">Overview of ancient samples from Egypt currently included in the archive. The charts separate paternal Y-DNA lineages and maternal mtDNA branches while preserving their archaeological context.</p>
-        <div class="related-reference-note mb-8">The Ancient Summary, totals, percentages, and pie charts count only samples from <strong>Ancient_published_samples</strong>. Non-Egyptian records from <strong>ancient_related_samples</strong> are reference connections only and are never included in these calculations.</div>
+        <p class="text-sm md:text-lg font-extrabold text-slate-500 leading-7 max-w-[590px] mb-8">Overview of ancient samples from Egypt currently included in the archive. The charts separate paternal Y-DNA lineages and maternal mtDNA branches while preserving their archaeological context. Totals, percentages and pie charts on this page count only Egyptian ancient samples. Non-Egyptian Related Ancient References are shown separately for comparison and are never added to these calculations.</p>
         <div class="grid grid-cols-3 gap-5 border-t pt-8 font-bold max-w-[720px] ancient-stat-grid">
           <div>
             <p class="text-[11px] font-bold text-gray-400 uppercase">Total Ancient Samples</p>
