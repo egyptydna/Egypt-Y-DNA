@@ -10,6 +10,11 @@ test('YFull does not establish Big Y',()=>{
   assert.notEqual(ui.status({yfull_id:'YF990099001'}),'confirmed_big_y');
   assert.equal(ui.status({test_type:'Big Y-700'}),'confirmed_big_y');
 });
+test('weaker automatic evidence cannot hide an explicit Big-Y test; a manual status override wins',()=>{
+  const sample={test_type:'Big Y-700',test_status:'yfull_sequencing',sync_published:{test_status:'yfull_sequencing'}};
+  assert.equal(ui.status(sample),'confirmed_big_y');
+  assert.equal(ui.status({...sample,test_status:'str_only'}),'str_only');
+});
 test('terminal only is visible without imaginary branches',()=>{
   assert.equal(ui.terminalPath({y_dna:'J-TEST1'}),'Y-Adam>J-TEST1');
 });
@@ -101,4 +106,17 @@ test('official paths reject missing ancestors, cycles and disconnected roots',()
   assert.equal(ui.officialPath({y_dna:'J-TEST1'},officialRelease,nodes),null);
   nodes.set('J-M1',{parent_label:null});
   assert.equal(ui.officialPath({y_dna:'J-TEST1'},officialRelease,nodes),null);
+});
+test('newer verified paths take priority over an older GitHub reference in the default view',()=>{
+  const sample={y_dna:'J-TEST1',full_snp_path:'Y-Adam>J-NEW1>J-TEST1'};
+  assert.equal(ui.officialPlacement(sample,officialRelease,officialNodes,'auto'),null);
+  assert.equal(ui.officialPlacement(sample,officialRelease,officialNodes,'yfull').label,'J-TEST1');
+  assert.equal(ui.officialPlacement({...sample,full_snp_path:''},officialRelease,officialNodes,'auto').label,'J-TEST1');
+  assert.equal(ui.officialPlacement({...sample,full_snp_path:''},officialRelease,officialNodes,'published'),null);
+});
+test('unnamed YFull and kit profiles display their actual public identifier',()=>{
+  assert.equal(ui.displayName({name:'—',kit_number:'—',yfull_id:'YF990099001'}),'YF990099001');
+  assert.equal(ui.displayName({name:'—',kit_number:'990099001'}),'990099001');
+  assert.equal(ui.displayName({name:'Published ancestor',yfull_id:'YF990099001'}),'Published ancestor');
+  assert.equal(ui.publicId({kit_number:'—',yfull_id:'YF990099001'}),'YF990099001');
 });
