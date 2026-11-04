@@ -4618,7 +4618,6 @@
         description: getDescriptionValue(s)
       }, "modern", index));
 
-      await loadSyncMetadata();
       document.getElementById("treeGovernorate").innerHTML = '<option value="">All governorates</option>' +
         GOV_LIST.map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join("");
       studySamples = (studyR.data || []).map((s, index) => normalizeStudySample(s, index));
@@ -5738,11 +5737,23 @@
           <div style="font-size:9px;opacity:.75">Terminal branch reference, not individually published sequencing.</div></details>` : ''}`;
     }
 
-        function renderArchive() {
+        const ARCHIVE_PAGE_SIZE=100;
+    let archiveVisibleLimit=ARCHIVE_PAGE_SIZE;
+    let archiveFilterKey=null;
+    function loadMoreArchive() {
+      archiveVisibleLimit+=ARCHIVE_PAGE_SIZE;
+      renderArchive();
+    }
+    function renderArchive() {
       const tbody = document.getElementById("archive-body");
       const search = document.getElementById("archiveSearch").value.trim();
       const hF = document.getElementById("filterHaplo").value;
       const gF = document.getElementById("filterGov").value;
+      const filterKey=JSON.stringify([search,hF,gF]);
+      if(filterKey!==archiveFilterKey){
+        archiveVisibleLimit=ARCHIVE_PAGE_SIZE;
+        archiveFilterKey=filterKey;
+      }
       updateShareUrl({ section: 'archive' });
 
       const rows = allModernLikeSamples().filter(s =>
@@ -5751,7 +5762,7 @@
         (!gF || governorateMatch(s.governorate, gF))
       );
 
-      tbody.innerHTML = rows.map(s => {
+      tbody.innerHTML = rows.slice(0,archiveVisibleLimit).map(s => {
         const h = haplo(s.y_dna, s.snp_path, s.full_snp_path);
         const dotClass = h === "C" ? 'border border-gray-400' : '';
         return `
@@ -5775,7 +5786,11 @@
             <td class="px-4 py-6">${links(s,'mt')}</td>
           </tr>
         `;
-      }).join("");
+      }).join("")+(rows.length>archiveVisibleLimit
+        ? `<tr><td colspan="8" class="text-center px-4 py-6">
+          <button class="ctrl-btn" type="button" onclick="loadMoreArchive()">
+          Show next ${Math.min(ARCHIVE_PAGE_SIZE,rows.length-archiveVisibleLimit)} of ${rows.length} samples
+          </button></td></tr>` : "");
     }
 
     function renderAncientArchive() {
@@ -6546,6 +6561,7 @@
     }
 
     function renderTree() {
+      resetSyncCountryFactsIndex();
       renderOfficialTreePanel();
       document.getElementById('ydna-sync-filters').classList.toggle('hidden', currentTreeType === 'mt');
       const samples = treeFilteredSamples();
@@ -6711,6 +6727,23 @@
         updateTreeTypeUI();
         updateTreeFloatingToggle();
         applyInitialUrlState();
+        // First paint uses the public sample archive. Optional topology and
+        // country-count enrichment arrives separately, not on the critical path.
+        setTimeout(async()=>{
+          try {
+            await loadSyncMetadata();
+            resetSyncMetadataIndexes();
+            syncLineagePathCache=syncKnownTerminalPaths();
+            if(document.getElementById('section-home')?.classList.contains('active'))
+              renderDashboard();
+            else updateModernSummary();
+            if(document.getElementById('section-tree')?.classList.contains('active'))
+              renderTree();
+            if(sectionRendered.archive)renderArchive();
+          } catch (error) {
+            console.warn('Optional DNA metadata refresh failed',error);
+          }
+        },0);
       } catch (err) {
         console.error('Dashboard failed to load:', err);
       }
