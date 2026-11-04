@@ -41,19 +41,43 @@
     // A lineage label or shared /tree/ URL is not evidence of a shared individual.
     // Only an exact FTDNA kit or YFull sample ID can join records.
     const parent=samples.map((_,i)=>i);
+    const groupKeys=samples.map(sample=>new Set(identityKeys(sample)));
+    const groupConflict=samples.map(()=>false);
     const find=i=>{while(parent[i]!==i){parent[i]=parent[parent[i]];i=parent[i];}return i;};
-    const union=(a,b)=>{a=find(a);b=find(b);if(a!==b)parent[b]=a;};
+    const hasDistinctIds=(a,b,namespace)=>{
+      const ids=[...new Set([...groupKeys[a],...groupKeys[b]]
+        .filter(key=>key.startsWith(namespace+':')))];
+      return ids.length>1;
+    };
+    const union=(i,j)=>{
+      let a=find(i),b=find(j);
+      if(a===b)return true;
+      // Never let an FTDNA-kit bridge collapse distinct YFull sample IDs,
+      // or a YFull-ID bridge collapse distinct FTDNA kits.
+      if(hasDistinctIds(a,b,'yfull') || hasDistinctIds(a,b,'ftdna')){
+        groupConflict[a]=true;groupConflict[b]=true;
+        return false;
+      }
+      parent[b]=a;
+      for(const key of groupKeys[b])groupKeys[a].add(key);
+      groupConflict[a] ||= groupConflict[b];
+      return true;
+    };
     const owners=new Map();
     samples.forEach((sample,i)=>{
       for(const key of identityKeys(sample)){
-        if(owners.has(key)) union(i,owners.get(key));
-        else owners.set(key,i);
+        // Store ALL owners, not just the first: a conflicting cross-link
+        // must not prevent a later record with the same exact ID from joining.
+        const matches=owners.get(key)||[];
+        for(const peer of matches)union(i,peer);
+        matches.push(i);
+        owners.set(key,matches);
       }
     });
     const groups=new Map();
     samples.forEach((sample,i)=>{
       const root=find(i);
-      if(!groups.has(root)) groups.set(root,[]);
+      if(!groups.has(root))groups.set(root,[]);
       groups.get(root).push(sample);
     });
     const score=s=>['y_dna','full_snp_path','name','governorate','test_type',
@@ -78,7 +102,8 @@
       const result={...chosen,__identity_keys:allKeys,
         __linked_sample_ids:[...new Set(group.map(x=>x.id).filter(x=>x!=null))],
         __duplicate_count:group.length,
-        __duplicate_conflict:Boolean(conflict||group.some(x=>x.__duplicate_conflict))};
+        __duplicate_conflict:Boolean(conflict||groupConflict[find(samples.indexOf(group[0]))]||
+          group.some(x=>x.__duplicate_conflict))};
       const preservable=['name','origin_raw','governorate','governorate_iso','ethnic_group',
         'snp_path','full_snp_path','mt_dna','full_mtDNA_path','mt_link_1','mt_link_2',
         'y_link_1','y_link_2','y_dna_alias','description'];
