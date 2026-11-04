@@ -4142,6 +4142,7 @@
         return "—";
       }
       if (isRealValue(sample.snp_path)) return sample.snp_path;
+      if (isRealValue(sample.y_dna)) return sample.y_dna;
       if (isRealValue(sample.full_snp_path)) return sample.full_snp_path;
       return "—";
     }
@@ -4154,7 +4155,10 @@
       }
       if (isRealValue(sample.full_snp_path)) return sample.full_snp_path;
       if (isRealValue(sample.snp_path)) return sample.snp_path;
-      return "—";
+      const ref=syncLineagePathCache?.get(String(sample.y_dna||'').toUpperCase());
+      if (ref) return ref;
+      const official=YDNASync.officialPath(sample,syncOfficialRelease,syncOfficialNodes);
+      return official ? official.path.join('>') : "—";
     }
 
     function updateSampleModalPath() {
@@ -4172,7 +4176,8 @@
         labelEl.textContent = "Full mtDNA Path";
         pathEl.textContent = fullPath;
       } else if (samplePathMode === "full") {
-        labelEl.textContent = "Full SNP Path";
+        labelEl.textContent = !isRealValue(currentSampleModal.full_snp_path) && !isRealValue(currentSampleModal.snp_path)
+          ? "Source-backed Reference SNP Path (not a complete individual test)" : "Full SNP Path";
         pathEl.textContent = fullPath;
       } else {
         labelEl.textContent = "Direct Ancestors";
@@ -4184,7 +4189,9 @@
         toggleEl.textContent = "";
       } else {
         toggleEl.classList.remove("hidden");
-        toggleEl.textContent = samplePathMode === "direct" ? "Show Full SNP Path" : "Show Direct Ancestors";
+        toggleEl.textContent = samplePathMode === "direct"
+          ? (!isRealValue(currentSampleModal.full_snp_path) && !isRealValue(currentSampleModal.snp_path) ? "Show Reference SNP Path" : "Show Full SNP Path")
+          : "Show Direct Ancestors";
       }
     }
 
@@ -5678,13 +5685,25 @@
           <p class="font-black uppercase text-sm mb-1 text-center">${esc(YDNASync.displayName(s))}</p>
           <p class="text-[10px] text-secondary font-mono text-center mb-2">${esc(YDNASync.publicId(s))}</p>
           ${ethnicLine}
-          <span class="text-[9px] text-gray-400 font-mono snp-text mb-4 text-center block">${esc(s.snp_path || s.y_dna || '—')}</span>
+          <div class="text-[9px] text-gray-400 font-mono snp-text mb-4 text-center block">${archiveLineagePreview(s)}</div>
           <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
             <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 tracking-widest text-center">Y-DNA</p>${links(s, 'y')}</div>
             <div><p class="text-[8px] font-black uppercase text-gray-300 mb-1 text-center tracking-widest">mt-DNA</p>${links(s, 'mt')}</div>
           </div>
         </div>
       `;
+    }
+
+    function archiveLineagePreview(sample) {
+      const reported=isRealValue(sample.snp_path)?sample.snp_path:
+        isRealValue(sample.y_dna)?sample.y_dna:'—';
+      const ref=sample.__sourceType==='modern' &&
+        !isRealValue(sample.full_snp_path) && !isRealValue(sample.snp_path)
+        ? syncLineagePathCache?.get(String(sample.y_dna||'').toUpperCase()) : null;
+      return `<span>${esc(reported)}</span>${ref ?
+        `<details class="mt-1"><summary style="cursor:pointer;font-size:10px">Reference SNP path</summary>
+          <div class="snp-text" style="font-size:9px;opacity:.8">${esc(ref.split('>').join(' > '))}</div>
+          <div style="font-size:9px;opacity:.75">Terminal branch reference, not individually published sequencing.</div></details>` : ''}`;
     }
 
         function renderArchive() {
@@ -5716,7 +5735,7 @@
             <td class="px-4 py-6 text-left">
               <div class="flex items-start gap-2">
                 <span class="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${dotClass}" style="background:${colorForAggregate(h)}"></span>
-                <span class="text-[10px] font-mono font-bold text-gray-500 snp-text">${esc(s.snp_path || s.y_dna || '—')}</span>
+                <div class="text-[10px] font-mono font-bold text-gray-500 snp-text">${archiveLineagePreview(s)}</div>
               </div>
             </td>
             <td class="px-2 py-6">${links(s,'y')}</td>

@@ -175,3 +175,11 @@ test('conflicting sample path takes precedence over country aggregate reference'
   const references=new Map([['J-NEWTERM','Y-Adam>J>J2>J-M410>J-NEWTERM']]);
   assert.equal(ui.yFamily(sample,null,null,references),'J1');
 });
+
+test('modern archive renders terminal IDs instead of dash placeholders and labels references',()=>{
+  const html=fs.readFileSync('index.html','utf8');
+  assert.match(html,/function archiveLineagePreview\(sample\)/);
+  assert.match(html,/isRealValue\(sample\.snp_path\)\?sample\.snp_path/);
+  assert.match(html,/Source-backed Reference SNP Path \(not a complete individual test\)/);
+  assert.match(html,/archiveLineagePreview\(s\)/);
+});
