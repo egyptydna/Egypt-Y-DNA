@@ -5,37 +5,56 @@ const syncTreeAliases = new Map();
 let syncCountryCounts = [];
 
 async function loadSyncMetadata() {
-  // Optional enrichment must never break the existing archive if a migration is unavailable.
-  try {
-    const run = await _sb.from('ydna_sync_runs').select('started_at').in('status', ['completed','partial']).order('started_at',{ascending:false}).limit(1);
-    if (run.data?.[0]) syncLatestStart = Date.parse(run.data[0].started_at);
-    for (let offset=0; ; offset+=1000) {
-      const evidence = await _sb.from('ydna_sync_observations').select('sample_id,project:payload->>project').eq('is_current',true).range(offset,offset+999);
-      if (evidence.error) break;
-      for (const item of evidence.data) {
-        const sample=modernSamples.find(s=>(s.__linked_sample_ids||[s.id]).includes(item.sample_id));
-        if(sample && item.project) sample.__projects=[...new Set([...(sample.__projects||[]),item.project])];
+  // Independent enrichment queries run together. A slow or unavailable
+  // reference service must not block loading the public sample archive.
+  const sampleById=new Map();
+  for(const sample of modernSamples)for(const id of sample.__linked_sample_ids||[sample.id])
+    sampleById.set(id,sample);
+  const runTask=(async()=>{
+    const run=await _sb.from('ydna_sync_runs').select('started_at')
+      .in('status',['completed','partial']).order('started_at',{ascending:false}).limit(1);
+    if(run.data?.[0])syncLatestStart=Date.parse(run.data[0].started_at);
+  })();
+  const observationTask=(async()=>{
+    for(let offset=0;;offset+=1000){
+      const evidence=await _sb.from('ydna_sync_observations')
+        .select('sample_id,project:payload->>project').eq('is_current',true)
+        .range(offset,offset+999);
+      if(evidence.error)break;
+      for(const item of evidence.data){
+        const sample=sampleById.get(item.sample_id);
+        if(sample&&item.project)sample.__projects=[
+          ...new Set([...(sample.__projects||[]),item.project])];
       }
-      if(evidence.data.length<1000) break;
+      if(evidence.data.length<1000)break;
     }
-    for (let offset=0; ; offset+=1000) {
-      const nodes=await _sb.from('ydna_sync_tree_nodes').select('label,aliases').order('source_id').order('label').range(offset,offset+999);
-      if(nodes.error) break;
-      for(const node of nodes.data) {
+  })();
+  const aliasesTask=(async()=>{
+    for(let offset=0;;offset+=1000){
+      const nodes=await _sb.from('ydna_sync_tree_nodes')
+        .select('label,aliases').order('source_id').order('label').range(offset,offset+999);
+      if(nodes.error)break;
+      for(const node of nodes.data){
         const key=node.label.toUpperCase();
-        syncTreeAliases.set(key,[...new Set([...(syncTreeAliases.get(key)||[]),...(Array.isArray(node.aliases)?node.aliases:[]).filter(a=>typeof a==='string')])]);
+        syncTreeAliases.set(key,[...new Set([...(syncTreeAliases.get(key)||[]),
+          ...(Array.isArray(node.aliases)?node.aliases:[])
+            .filter(a=>typeof a==='string')])]);
       }
-      if(nodes.data.length<1000) break;
+      if(nodes.data.length<1000)break;
     }
-    syncCountryCounts=[];
-    for(let offset=0; ; offset+=1000) {
-      const facts=await _sb.from('ydna_sync_country_counts').select('*').eq('is_current',true).order('id').range(offset,offset+999);
-      if(facts.error) break;
-      syncCountryCounts.push(...facts.data);
-      if(facts.data.length<1000) break;
+  })();
+  const countsTask=(async()=>{
+    const facts=[];
+    for(let offset=0;;offset+=1000){
+      const page=await _sb.from('ydna_sync_country_counts').select('*')
+        .eq('is_current',true).order('id').range(offset,offset+999);
+      if(page.error)break;
+      facts.push(...page.data);
+      if(page.data.length<1000)break;
     }
-    await loadOfficialTree();
-  } catch (error) { console.warn('Optional synchronization metadata unavailable'); }
+    syncCountryCounts=facts;
+  })();
+  await Promise.allSettled([runTask,observationTask,aliasesTask,countsTask,loadOfficialTree()]);
 }
 
 function resetSyncTreeFocus() {
@@ -63,17 +82,37 @@ function visibleSyncCountryCounts() {
   });
 }
 
+let syncTerminalPathsMemo=null;
+let syncCountryFactsMemo=null;
+function resetSyncMetadataIndexes() {
+  syncTerminalPathsMemo=null;
+  syncCountryFactsMemo=null;
+}
+function resetSyncCountryFactsIndex() {
+  syncCountryFactsMemo=null;
+}
 function syncKnownTerminalPaths() {
-  return YDNASync.knownTerminalPaths(allTreeSamples().concat(syncCountryCounts
-    .filter(f=>Array.isArray(f.snp_path) && f.snp_path.length && String(f.path_source_url||'').startsWith('https://'))
+  if(syncTerminalPathsMemo)return syncTerminalPathsMemo;
+  syncTerminalPathsMemo=YDNASync.knownTerminalPaths(allTreeSamples().concat(syncCountryCounts
+    .filter(f=>Array.isArray(f.snp_path) && f.snp_path.length &&
+      String(f.path_source_url||'').startsWith('https://'))
     .map(f=>({y_dna:f.node_label,full_snp_path:f.snp_path.join('>')}))));
+  return syncTerminalPathsMemo;
 }
 
 function syncCountryFacts(node) {
-  return visibleSyncCountryCounts().filter(f=>{
-    const placement=syncTreeTopology==='yfull'?YDNASync.officialPath({y_dna:f.node_label},syncOfficialRelease,syncOfficialNodes):null;
-    return (placement?.label||f.node_label).toUpperCase()===node.display.toUpperCase();
-  });
+  if(!syncCountryFactsMemo){
+    syncCountryFactsMemo=new Map();
+    for(const fact of visibleSyncCountryCounts()){
+      const placement=syncTreeTopology==='yfull'
+        ? YDNASync.officialPath({y_dna:fact.node_label},syncOfficialRelease,syncOfficialNodes)
+        : null;
+      const key=String(placement?.label||fact.node_label||'').toUpperCase();
+      if(!syncCountryFactsMemo.has(key))syncCountryFactsMemo.set(key,[]);
+      syncCountryFactsMemo.get(key).push(fact);
+    }
+  }
+  return syncCountryFactsMemo.get(node.display.toUpperCase())||[];
 }
 
 function ensureSyncCountryCountNodes(root,knownPaths) {
@@ -101,8 +140,9 @@ function renderSyncCountryEvidence(node) {
   const facts=syncCountryFacts(node);
   if(!facts.length) return '';
   const known=syncKnownTerminalPaths();
+  const samples=allTreeSamples();
   const rows=facts.map(fact=>{
-    const result=YDNASync.reconcileCountryCount(fact,allTreeSamples(),known);
+    const result=YDNASync.reconcileCountryCount(fact,samples,known);
     const remaining=result.conflict?'Counts differ — review required':result.comparable?
       `${result.known} matching public ID(s) · ${result.unresolved} arithmetically unidentified`:
       'Counted population unspecified — kept separate from profiles';
