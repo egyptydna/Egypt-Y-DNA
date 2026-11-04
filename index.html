@@ -4096,7 +4096,9 @@
         if (params.has('q')) document.getElementById('ancientSearch').value = params.get('q') || '';
         renderAncientArchive();
       } else if (section === 'ytree' || section === 'mtree') {
-        showSection(section);
+        deferTreeRenderForSharedState=true;
+        try { showSection(section); }
+        finally { deferTreeRenderForSharedState=false; }
         treeMode = params.get('mode') === 'full' ? 'full' : 'direct';
         treeShowModern = params.get('modern') !== '0';
         treeShowStudy = params.get('study') !== '0';
@@ -5569,8 +5571,20 @@
       });
       return { pool, totals };
     }
+    let regionChartObserver = null;
     function renderDashboard() {
       const grid = document.getElementById("stats-grid");
+      if(regionChartObserver)regionChartObserver.disconnect();
+      // Offscreen regional canvases are rendered only when visible.
+      regionChartObserver=typeof IntersectionObserver==='function'
+        ? new IntersectionObserver(entries=>{
+            for(const entry of entries) {
+              if(!entry.isIntersecting)continue;
+              regionChartObserver?.unobserve(entry.target);
+              const chart=entry.target.__regionChart;
+              if(chart)makeMiniRegionChart(chart.id,chart.totals,chart.total,chart.onSliceClick);
+            }
+          },{rootMargin:'240px 0px',threshold:0.01}) : null;
       grid.innerHTML = "";
 
       GOV_LIST.forEach((gov, idx) => {
@@ -5607,9 +5621,15 @@
         `;
         grid.appendChild(card);
 
-        setTimeout(() => {
-          makeMiniRegionChart(cid, totals, pool.length, (hap) => openRegionModal(gov, hap));
-        }, 20);
+        const canvas=card.querySelector('canvas');
+        if(regionChartObserver&&canvas){
+          canvas.__regionChart={id:cid,totals,total:pool.length,
+            onSliceClick:(hap)=>openRegionModal(gov,hap)};
+          regionChartObserver.observe(canvas);
+        } else {
+          setTimeout(()=>makeMiniRegionChart(cid,totals,pool.length,
+            (hap)=>openRegionModal(gov,hap)),0);
+        }
       });
 
       updateModernSummary();
@@ -6006,9 +6026,11 @@
         nl.classList.remove("text-gray-400");
       }
       updateTreeTypeUI();
-      renderTree();
+      if(!deferTreeRenderForSharedState)renderTree();
     }
 
+    const sectionRendered={archive:false,ancient:false};
+    let deferTreeRenderForSharedState=false;
     function showSection(id) {
       hideChartTooltip();
       document.querySelectorAll(".page-section").forEach(s => s.classList.remove("active"));
@@ -6030,6 +6052,15 @@
         }
       }
 
+      if(id==='archive'&&!sectionRendered.archive){
+        sectionRendered.archive=true;
+        renderArchive();
+      }
+      if(id==='ancient'&&!sectionRendered.ancient){
+        sectionRendered.ancient=true;
+        renderAncientArchive();
+        renderRelatedAncientArchive();
+      }
       updateTreeFloatingToggle();
       updateShareUrl({ section: id });
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -6674,12 +6705,9 @@
         await loadAll();
         populateFilters();
         renderDashboard();
-        renderArchive();
-        renderAncientArchive();
-        renderRelatedAncientArchive();
-        updateModernSummary();
+        // Do not construct the hidden archive and the entire tree at boot.
+        // Their first render happens in showSection, including shared deep links.
         updateAncientSummary();
-        renderTree();
         updateTreeTypeUI();
         updateTreeFloatingToggle();
         applyInitialUrlState();
