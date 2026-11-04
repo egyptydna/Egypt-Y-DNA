@@ -13,6 +13,7 @@ from pathlib import Path
 from .adapters import ADAPTERS
 from .http import PublicHTTP, Unavailable, SourceRestricted
 from .normalize import Gazetteer, prepare
+from .country_counts import prepare_country_count
 
 PROJECT_URL = 'https://lsfmpmfoqdtkgndtaxen.supabase.co'
 
@@ -76,6 +77,14 @@ def synchronize(sources, apply=False, http=None, db=None):
                 report['discovered_projects'].extend(projects)
                 entry.update(status='ok', records=len(records))
                 for raw in records:
+                    if raw.get('kind')=='country_count':
+                        fact=prepare_country_count(raw)
+                        if apply:
+                            result=db.request('rpc/ydna_sync_ingest_country_count',{'p_record':fact,'p_run':run,'p_dry_run':False})
+                            counts['country_counts_'+result['status']]+=1
+                        else:
+                            counts['country_count_candidates' if fact['accepted'] else 'country_count_review_candidates']+=1
+                        continue
                     if raw.get('visibility') == 'withdrawn':
                         if not raw.get('withdrawal_evidence_url'):
                             raise ValueError('Explicit public withdrawal evidence required')

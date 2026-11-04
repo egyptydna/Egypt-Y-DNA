@@ -4993,7 +4993,7 @@
         aliases: []
       };
 
-      const knownTerminalPaths = YDNASync.knownTerminalPaths(allTreeSamples());
+      const knownTerminalPaths = syncKnownTerminalPaths();
       samples.forEach(sample => {
         const path = parsePath(YDNASync.terminalPath(sample, knownTerminalPaths), sample.y_dna);
         let node = root;
@@ -5029,6 +5029,7 @@
         node.samples.push(sample);
         addAliasToNode(node, sample.y_dna_alias);
       });
+      ensureSyncCountryCountNodes(root, knownTerminalPaths);
 
       function finalize(node) {
         sortNodeChildren(node.children);
@@ -5114,6 +5115,7 @@
         if (SPECIAL_NODE_LABELS.has(node.display)) return true;
         if (keepPath.has(node.pathKey)) return true;
         if (node.samples.length > 0) return true;
+        if (currentTreeType !== "mt" && syncCountryFacts(node).length) return true;
         if (node.children.length !== 1) return true;
         return false;
       }
@@ -6449,6 +6451,7 @@
           </div>
           ${renderNodeAliases(root)}
         </div>
+        ${renderSyncCountryEvidence(root)}
       `;
 
       let childrenHtml = "";
@@ -6523,6 +6526,7 @@
           </div>
           ${renderNodeAliases(node)}
         </div>
+        ${renderSyncCountryEvidence(node)}
       `;
 
       let inner = "";

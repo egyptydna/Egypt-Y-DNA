@@ -2,41 +2,241 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Authorized public Y-DNA exchange (never private administrator data)",
   "type": "object",
-  "required": ["schema_version", "permission_url", "records"],
+  "required": [
+    "schema_version",
+    "permission_url",
+    "records"
+  ],
   "properties": {
-    "schema_version": {"const": 1},
-    "permission_url": {"type": "string", "pattern": "^https://"},
+    "schema_version": {
+      "const": 1
+    },
+    "permission_url": {
+      "type": "string",
+      "pattern": "^https://"
+    },
     "records": {
       "type": "array",
       "items": {
-        "type": "object",
-        "required": ["namespace", "external_id", "source_url"],
-        "properties": {
-          "namespace": {"enum": ["ftdna", "yfull"]},
-          "external_id": {"type": "string"},
-          "source_url": {"type": "string", "pattern": "^https://"},
-          "sample_kind": {"enum": ["modern", "study", "ancient", "unknown"]},
-          "origin_kind": {"enum": ["paternal", "residence", "unknown"]},
-          "country": {"type": "string"},
-          "origin_raw": {"type": "string"},
-          "test_type": {"type": "string"},
-          "haplogroup_status": {"enum": ["confirmed", "predicted", "unknown"]},
-          "y_dna": {"type": "string"},
-          "y_dna_alias": {"type": "string"},
-          "is_new": {"type": "boolean", "description": "Preserve a provider's published New flag; never use it as identity or sole change detection."},
-          "tree_version": {"type": "string"},
-          "snp_path": {"type": "array", "items": {"type": "string"}},
-          "path_source_url": {"type": "string", "pattern": "^https://"},
-          "snp_aliases": {"type": "object", "additionalProperties": {"type": "array", "items": {"type": "string"}}},
-          "identity_evidence_url": {"type": "string", "pattern": "^https://"},
-          "verified_ids": {"type": "array", "items": {"type": "object", "required": ["namespace", "external_id"]}},
-          "str_markers": {"type": "array", "items": {
-            "type": "object", "required": ["position", "marker", "source_label", "value"],
-            "properties": {"position": {"type": "integer", "minimum": 0}, "marker": {"type": "string"}, "source_label": {"type": "string"}, "value": {"type": ["string", "null"]}}
-          }},
-          "visibility": {"enum": ["public", "withdrawn"]},
-          "withdrawal_evidence_url": {"type": "string", "pattern": "^https://"}
-        }
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "namespace",
+              "external_id",
+              "source_url"
+            ],
+            "properties": {
+              "namespace": {
+                "enum": [
+                  "ftdna",
+                  "yfull"
+                ]
+              },
+              "external_id": {
+                "type": "string"
+              },
+              "source_url": {
+                "type": "string",
+                "pattern": "^https://"
+              },
+              "sample_kind": {
+                "enum": [
+                  "modern",
+                  "study",
+                  "ancient",
+                  "unknown"
+                ]
+              },
+              "origin_kind": {
+                "enum": [
+                  "paternal",
+                  "residence",
+                  "unknown"
+                ]
+              },
+              "country": {
+                "type": "string"
+              },
+              "origin_raw": {
+                "type": "string"
+              },
+              "test_type": {
+                "type": "string"
+              },
+              "haplogroup_status": {
+                "enum": [
+                  "confirmed",
+                  "predicted",
+                  "unknown"
+                ]
+              },
+              "y_dna": {
+                "type": "string"
+              },
+              "y_dna_alias": {
+                "type": "string"
+              },
+              "is_new": {
+                "type": "boolean",
+                "description": "Preserve a provider's published New flag; never use it as identity or sole change detection."
+              },
+              "tree_version": {
+                "type": "string"
+              },
+              "snp_path": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "path_source_url": {
+                "type": "string",
+                "pattern": "^https://"
+              },
+              "snp_aliases": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "identity_evidence_url": {
+                "type": "string",
+                "pattern": "^https://"
+              },
+              "verified_ids": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "namespace",
+                    "external_id"
+                  ]
+                }
+              },
+              "str_markers": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "position",
+                    "marker",
+                    "source_label",
+                    "value"
+                  ],
+                  "properties": {
+                    "position": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "marker": {
+                      "type": "string"
+                    },
+                    "source_label": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              },
+              "visibility": {
+                "enum": [
+                  "public",
+                  "withdrawn"
+                ]
+              },
+              "withdrawal_evidence_url": {
+                "type": "string",
+                "pattern": "^https://"
+              }
+            },
+            "not": {
+              "required": [
+                "kind"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "country_count"
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "kind",
+              "namespace",
+              "node_label",
+              "country_code",
+              "reported_count",
+              "count_scope",
+              "population",
+              "observed_at",
+              "source_url"
+            ],
+            "properties": {
+              "kind": {
+                "const": "country_count"
+              },
+              "namespace": {
+                "enum": [
+                  "ftdna",
+                  "yfull"
+                ]
+              },
+              "node_label": {
+                "type": "string"
+              },
+              "country_code": {
+                "const": "EG"
+              },
+              "reported_count": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647
+              },
+              "count_scope": {
+                "enum": [
+                  "direct",
+                  "inclusive"
+                ]
+              },
+              "population": {
+                "enum": [
+                  "ftdna_big_y",
+                  "yfull_modern",
+                  "unknown"
+                ]
+              },
+              "observed_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "source_url": {
+                "type": "string",
+                "pattern": "^https://"
+              },
+              "snp_path": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "path_source_url": {
+                "type": "string",
+                "pattern": "^https://"
+              }
+            }
+          }
+        ]
       }
     }
   }

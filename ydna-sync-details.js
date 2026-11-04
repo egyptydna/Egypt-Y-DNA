@@ -2,6 +2,7 @@ let syncTextQuery = '';
 let syncLatestStart = Infinity;
 const syncComparisons = new Map();
 const syncTreeAliases = new Map();
+let syncCountryCounts = [];
 
 async function loadSyncMetadata() {
   // Optional enrichment must never break the existing archive if a migration is unavailable.
@@ -26,6 +27,13 @@ async function loadSyncMetadata() {
       }
       if(nodes.data.length<1000) break;
     }
+    syncCountryCounts=[];
+    for(let offset=0; ; offset+=1000) {
+      const facts=await _sb.from('ydna_sync_country_counts').select('*').eq('is_current',true).order('id').range(offset,offset+999);
+      if(facts.error) break;
+      syncCountryCounts.push(...facts.data);
+      if(facts.data.length<1000) break;
+    }
   } catch (error) { console.warn('Optional synchronization metadata unavailable'); }
 }
 
@@ -38,6 +46,68 @@ function syncNodeCountHTML(node) {
   if(currentTreeType==='mt') return '';
   const c=YDNASync.nodeCounts(node);
   return `<span class="tree-count" title="Modern testers directly at this node / modern testers including subbranches / confirmed Big Y including subbranches">${c.direct} direct · ${c.modern} modern · ${c.bigY} Big Y</span>`;
+}
+
+function visibleSyncCountryCounts() {
+  if(currentTreeType==='mt' || !treeShowModern || document.getElementById('treeGovernorate').value) return [];
+  const kind=document.getElementById('treeTestStatus').value;
+  return syncCountryCounts.filter(fact=>{
+    if(kind==='modern' && fact.population==='unknown') return false;
+    if(['new','str_only','snp_tested'].includes(kind)) return false;
+    if(kind==='confirmed_big_y' && fact.population!=='ftdna_big_y') return false;
+    if(kind==='yfull' && fact.namespace!=='yfull') return false;
+    if(syncTextQuery && ![fact.node_label,...(fact.snp_path||[])].join(' ').toLowerCase().includes(syncTextQuery.toLowerCase())) return false;
+    if(treeHaploFilter && treeGroupForSample({y_dna:fact.node_label,snp_path:(fact.snp_path||[]).join('>')})!==treeHaploFilter) return false;
+    return true;
+  });
+}
+
+function syncKnownTerminalPaths() {
+  return YDNASync.knownTerminalPaths(allTreeSamples().concat(syncCountryCounts
+    .filter(f=>Array.isArray(f.snp_path) && f.snp_path.length && String(f.path_source_url||'').startsWith('https://'))
+    .map(f=>({y_dna:f.node_label,full_snp_path:f.snp_path.join('>')}))));
+}
+
+function syncCountryFacts(node) {
+  return visibleSyncCountryCounts().filter(f=>f.node_label.toUpperCase()===node.display.toUpperCase());
+}
+
+function ensureSyncCountryCountNodes(root,knownPaths) {
+  for(const fact of visibleSyncCountryCounts()) {
+    const published=Array.isArray(fact.snp_path)&&fact.snp_path.length?fact.snp_path.join('>'):'';
+    const path=parsePath(published || knownPaths.get(fact.node_label) || '',fact.node_label);
+    let node=root;
+    const ancestors=[{display:'Y-Adam'}];
+    for(const raw of path.slice(1)) {
+      const display=normalizeDisplay(raw,ancestors);
+      if(!node.childMap.has(display)) {
+        const child={raw,display,pathKey:node.pathKey+'>'+display,children:[],childMap:new Map(),samples:[],parent:node,count:0,
+          family:inferFamilyFromDisplay(display,node.family),aliases:[]};
+        node.childMap.set(display,child);node.children.push(child);
+      }
+      node=node.childMap.get(display);ancestors.push({display});
+    }
+  }
+}
+
+function renderSyncCountryEvidence(node) {
+  if(currentTreeType==='mt') return '';
+  const facts=syncCountryFacts(node);
+  if(!facts.length) return '';
+  const known=syncKnownTerminalPaths();
+  const rows=facts.map(fact=>{
+    const result=YDNASync.reconcileCountryCount(fact,allTreeSamples(),known);
+    const remaining=result.conflict?'Counts differ — review required':result.comparable?
+      `${result.known} matching public ID(s) · ${result.unresolved} arithmetically unidentified`:
+      'Counted population unspecified — kept separate from profiles';
+    const scope=fact.count_scope==='inclusive'?'including descendants':'directly at this branch';
+    return `<div style="margin:.4rem 0;padding:.5rem .75rem;border-left:3px solid #8b6a1c;font-size:11px;max-width:520px">
+      <strong>${esc(fact.namespace.toUpperCase())} · Egypt: ${result.reported} reported</strong> · ${esc(scope)}<br>
+      ${esc(remaining)}<br>${syncSourceLink(fact.source_url,'Count source')} · As of ${esc(fact.observed_at)}
+      <div style="color:#64748b">Cohort comparison; no specific anonymous record is assigned to a person. Not added to identified tester statistics.</div>
+    </div>`;
+  }).join('');
+  return `<div class="tree-country-evidence">${rows}</div>`;
 }
 
 function syncSourceLink(url, label) {
