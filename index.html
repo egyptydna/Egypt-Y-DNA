@@ -4141,10 +4141,9 @@
         if (isRealValue(sample.mt_dna)) return sample.mt_dna;
         return "—";
       }
-      if (isRealValue(sample.snp_path)) return sample.snp_path;
-      if (isRealValue(sample.y_dna)) return sample.y_dna;
-      if (isRealValue(sample.full_snp_path)) return sample.full_snp_path;
-      return "—";
+      if (isRealValue(sample.snp_path) || isRealValue(sample.full_snp_path))
+        return YDNASync.compactSnpPath(sample);
+      return isRealValue(sample.y_dna) ? sample.y_dna : "—";
     }
 
     function getPreferredFullPath(sample) {
@@ -5684,6 +5683,7 @@
           </div>
           <p class="font-black uppercase text-sm mb-1 text-center">${esc(YDNASync.displayName(s))}</p>
           <p class="text-[10px] text-secondary font-mono text-center mb-2">${esc(YDNASync.identitySummary(s))}</p>
+          ${s.__duplicate_count > 1 ? '<p class="text-[9px] text-secondary text-center mb-1">Verified linked records combined</p>' : ''}
           ${ethnicLine}
           <div class="text-[9px] text-gray-400 font-mono snp-text mb-4 text-center block">${archiveLineagePreview(s)}</div>
           <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
@@ -5695,15 +5695,14 @@
     }
 
     function archiveLineagePreview(sample) {
-      const reported=isRealValue(sample.snp_path)?sample.snp_path:
-        isRealValue(sample.y_dna)?sample.y_dna:'—';
+      const reported=YDNASync.compactSnpPath(sample);
       const full=isRealValue(sample.full_snp_path)?sample.full_snp_path:null;
       const ref=sample.__sourceType==='modern' && !full && !isRealValue(sample.snp_path)
         ? syncLineagePathCache?.get(String(sample.y_dna||'').toUpperCase()) : null;
       const fullLabel=/^YF[0-9]+$/i.test(String(sample.yfull_id||sample.kit_number||'')) ||
         sample.test_type==='YFull sequencing'
         ? 'Published YFull SNP tree path' : 'Published SNP path';
-      return `<span>${esc(reported)}</span>
+      return `<span title="Published SNP path; only documented ancestry is shown">${esc(reported)}</span>
         ${full ? `<details class="mt-1"><summary style="cursor:pointer;font-size:10px">${fullLabel}</summary>
           <div class="snp-text" style="font-size:9px;opacity:.8">${esc(full.split('>').join(' > '))}</div>
           <div style="font-size:9px;opacity:.75">Documented branch ancestry for this profile.</div></details>` : ''}
