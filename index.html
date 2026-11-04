@@ -4323,13 +4323,13 @@
     function treeGroupForSample(sample) {
       return currentTreeType === "mt"
         ? mtPrimaryLineFromPath(sample.full_mtDNA_path, sample.mt_dna)
-        : haplo(sample.y_dna, sample.snp_path);
+        : haplo(sample.y_dna, sample.snp_path, sample.full_snp_path);
     }
 
     function breakdownGroupForSample(sample, type = modalBreakdownTreeType) {
       return type === "mt"
         ? mtPrimaryLineFromPath(sample.full_mtDNA_path, sample.mt_dna)
-        : haplo(sample.y_dna, sample.snp_path);
+        : haplo(sample.y_dna, sample.snp_path, sample.full_snp_path);
     }
 
     function breakdownColorForLabel(label, type = modalBreakdownTreeType) {
@@ -4417,12 +4417,15 @@
       return h + "</div>";
     }
 
-    function haplo(y, snp) {
+    function haplo(y, snp, fullPath = '') {
       const Y = (y || "").trim().toUpperCase();
       const S = (snp || "").trim().toUpperCase();
 
-      if (Y.startsWith("J2") || S.startsWith("J2")) return "J2";
-      if (Y.startsWith("J1") || (Y.startsWith("J-") && !Y.startsWith("J2"))) return "J1";
+      // J-Mxxx can belong to J1 OR J2. Resolve from a documented SNP path
+      // or the versioned licensed reference; never assign unknown J branches to J1.
+      if (Y === "J" || /^J(?:1|2|-)/.test(Y))
+        return YDNASync.yFamily({y_dna:y,snp_path:snp,full_snp_path:fullPath},syncOfficialRelease,syncOfficialNodes);
+      if (!isRealValue(y) && (S.startsWith("J1") || S.startsWith("J2"))) return S.slice(0,2);
 
       if (Y.startsWith("R1A") || S.startsWith("R1A")) return "R1A";
       if (Y.startsWith("R1B") || S.startsWith("R1B")) return "R1B";
@@ -4774,7 +4777,8 @@
 
       if (d === "J1") return "J1";
       if (d === "J2") return "J2";
-      if (u.startsWith("J-")) return parentFamily === "J2" ? "J2" : "J1";
+      // Bare J-SNP without a documented parent has unknown J1/J2 membership.
+      if (u.startsWith("J-")) return ['J1','J2'].includes(parentFamily) ? parentFamily : null;
 
       if (d === "Q") return parentFamily || "Q1";
       if (d === "Q1") return "Q1";
@@ -5380,7 +5384,7 @@
       let total = 0;
 
       allModernLikeSamples().filter(hasYTreeValue).forEach(s => {
-        const h = aggregateNationalHaplo(haplo(s.y_dna, s.snp_path));
+        const h = aggregateNationalHaplo(haplo(s.y_dna, s.snp_path, s.full_snp_path));
         totals[h] = (totals[h] || 0) + 1;
         total++;
       });
@@ -5454,7 +5458,7 @@
         total++;
 
         if (hasYTreeValue(s)) {
-          const h = haplo(s.y_dna, s.snp_path);
+          const h = haplo(s.y_dna, s.snp_path, s.full_snp_path);
           totals[h] = (totals[h] || 0) + 1;
           yTotal++;
         }
@@ -5550,7 +5554,7 @@
       const pool = allModernLikeSamples().filter(s => hasYTreeValue(s) && governorateMatch(s.governorate, gov));
       const totals = {};
       pool.forEach(s => {
-        const h = haplo(s.y_dna, s.snp_path);
+        const h = haplo(s.y_dna, s.snp_path, s.full_snp_path);
         totals[h] = (totals[h] || 0) + 1;
       });
       return { pool, totals };
@@ -5625,7 +5629,7 @@
 
     function showRegionHaplo(gov, hp, shouldScroll = true) {
       const { pool } = getRegionTotals(gov);
-      const matches = pool.filter(s => haplo(s.y_dna, s.snp_path) === hp);
+      const matches = pool.filter(s => haplo(s.y_dna, s.snp_path, s.full_snp_path) === hp);
       const pct = pool.length ? ((matches.length / pool.length) * 100).toFixed(1) : "0.0";
       const col = colorForAggregate(hp);
 
@@ -5688,12 +5692,12 @@
 
       const rows = allModernLikeSamples().filter(s =>
         matchSearchRow(s, search) &&
-        (!hF || haplo(s.y_dna, s.snp_path) === hF) &&
+        (!hF || haplo(s.y_dna, s.snp_path, s.full_snp_path) === hF) &&
         (!gF || governorateMatch(s.governorate, gF))
       );
 
       tbody.innerHTML = rows.map(s => {
-        const h = haplo(s.y_dna, s.snp_path);
+        const h = haplo(s.y_dna, s.snp_path, s.full_snp_path);
         const dotClass = h === "C" ? 'border border-gray-400' : '';
         return `
           <tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
@@ -5727,7 +5731,7 @@
       const rows = ancientSamples.filter(s => matchSearchRow(s, search));
 
       tbody.innerHTML = rows.map(s => {
-        const h = haplo(s.y_dna, s.snp_path);
+        const h = haplo(s.y_dna, s.snp_path, s.full_snp_path);
         const dotClass = h === "C" ? 'border border-gray-400' : '';
 
         return `
@@ -5767,7 +5771,7 @@
       if (totalEl) totalEl.textContent = relatedAncientSamples.length;
 
       tbody.innerHTML = relatedAncientSamples.map(s => {
-        const h = haplo(s.y_dna, s.snp_path);
+        const h = haplo(s.y_dna, s.snp_path, s.full_snp_path);
         const dotClass = h === "C" ? 'border border-gray-400' : '';
         const location = [s.country, s.region, s.site].filter(isRealValue).join(" • ") || "—";
         return `
@@ -5793,7 +5797,7 @@
 
     function populateFilters() {
       const hs = new Set();
-      allModernLikeSamples().forEach(s => hs.add(haplo(s.y_dna, s.snp_path)));
+      allModernLikeSamples().forEach(s => hs.add(haplo(s.y_dna, s.snp_path, s.full_snp_path)));
 
       document.getElementById("filterHaplo").innerHTML =
         '<option value="">All Haplogroups</option>' +
@@ -5881,7 +5885,7 @@
       const totals = {};
 
       pool.forEach(s => {
-        const h = type === "ANCIENT" ? haplo(s.y_dna, s.snp_path) : aggregateNationalHaplo(haplo(s.y_dna, s.snp_path));
+        const h = type === "ANCIENT" ? haplo(s.y_dna, s.snp_path, s.full_snp_path) : aggregateNationalHaplo(haplo(s.y_dna, s.snp_path, s.full_snp_path));
         totals[h] = (totals[h] || 0) + 1;
       });
 
@@ -5908,7 +5912,7 @@
       const total = pool.length;
 
       const matches = pool.filter(s => {
-        const h = type === "ANCIENT" ? haplo(s.y_dna, s.snp_path) : aggregateNationalHaplo(haplo(s.y_dna, s.snp_path));
+        const h = type === "ANCIENT" ? haplo(s.y_dna, s.snp_path, s.full_snp_path) : aggregateNationalHaplo(haplo(s.y_dna, s.snp_path, s.full_snp_path));
         return h === hp;
       });
 
@@ -6571,6 +6575,7 @@
                 <div class="flex-1 min-w-0">
                   <div class="tree-sample-name">${esc(YDNASync.displayName(sample))}</div>
                   <div class="tree-sample-gov">${esc(treeSampleSubtitle(sample))}</div>
+                  ${sample.__duplicate_conflict ? '<div class="tree-sample-gov" style="color:#9a6700">Conflicting terminal results for this kit — verification needed</div>' : ''}
                   ${sample.__sourceType === 'modern' && currentTreeType !== 'mt' ? `<div class="tree-sample-gov">${esc([isRealValue(sample.kit_number) ? 'Kit: '+sample.kit_number : '', sample.yfull_id, YDNASync.labels[YDNASync.status(sample)]].filter(Boolean).join(' • '))}</div>` : ''}
                   ${showEthnic ? `<div class="tree-sample-ethnic">${esc(sample.ethnic_group)}</div>` : ``}
                 </div>
