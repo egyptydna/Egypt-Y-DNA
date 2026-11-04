@@ -128,24 +128,36 @@
     });
   }
   function compactSnpPath(sample) {
-    // The same visible path style for manually curated and imported profiles.
-    // Remove only shared prehistoric ancestors and repeated marker prefixes:
-    // no unobserved SNP, alias or intermediate branch may be added.
-    if(real(sample?.snp_path))return String(sample.snp_path).trim();
-    if(!real(sample?.full_snp_path))return real(sample?.y_dna)?String(sample.y_dna):'—';
-    const parts=String(sample.full_snp_path).split('>').map(x=>x.trim()).filter(real);
-    const root=String(sample.y_dna||'').trim().toUpperCase().charAt(0);
-    let from=parts.findIndex(x=>x.toUpperCase()===root);
-    if(root==='J'){
-      const j=parts.findIndex(x=>/^J[12]$/i.test(x));
-      if(j>=0)from=j;
+    // Display the actual ancestral SNP chain consistently:
+    // J-FGC1723>FGC1695>...>terminal (never Y-Adam>... or J1>...).
+    // A particular anchor (such as FGC1723) is used only when present in
+    // the published source ancestry; do not invent it for other samples.
+    const raw=real(sample?.snp_path) ? String(sample.snp_path) :
+      real(sample?.full_snp_path) ? String(sample.full_snp_path) : '';
+    if(!raw)return real(sample?.y_dna)?String(sample.y_dna).trim():'—';
+    const parts=raw.split('>').map(x=>x.trim()).filter(real);
+    if(!parts.length)return real(sample?.y_dna)?String(sample.y_dna).trim():'—';
+    const root=(String(sample?.y_dna||'').trim().match(/^[A-T]/i)||[])[0]?.toUpperCase()||
+      (parts.find(p=>/^[A-T]-[A-Z0-9]+/i.test(p))||'').charAt(0).toUpperCase();
+    if(!root)return parts.join('>');
+    // Hand-curated compact paths already begin with a real terminal-branch SNP.
+    // Never change the start marker or delete its explicit sequence.
+    const compactStart=parts.findIndex(p=>new RegExp('^'+root+'-[A-Z0-9]', 'i').test(p));
+    const upper=x=>String(x).toUpperCase();
+    const isTrunk=x=>['Y-ADAM','A0-T','A1','A1B','BT','CT','CF','DE','F',
+      'GHIJK','HIJK','IJK','IJ','JK','K','LT',root,root+'1',root+'2',
+      root+'1A',root+'1B'].includes(upper(x));
+    let first=0;
+    if(isTrunk(parts[0])){
+      // Prefer the first source-documented SNP after the broad trunk.
+      first=compactStart>=0?compactStart:parts.findIndex(p=>!isTrunk(p));
+      if(first<0)first=parts.length-1;
     }
-    if(from<0)from=Math.max(0,parts.length-12);
-    const display=parts.slice(from).map((segment,i)=>{
-      if(i===0)return segment;
-      return segment.replace(new RegExp('^'+root+'-','i'),'');
+    const shown=parts.slice(first).map((marker,i)=>{
+      const segment=marker.replace(new RegExp('^'+root+'-','i'),'');
+      return i===0?root+'-'+segment:segment;
     });
-    return display.join('>');
+    return shown.join('>');
   }
   function yFamily(sample, release, nodes, knownPaths) {
     const y=String(sample.y_dna||'').trim().toUpperCase();
