@@ -3865,6 +3865,25 @@
     let treeSearchResultPath = "";
     let collapsedNodes = new Set();
     let lastTreeRawRoot = null;
+    let cachedTreeSignature=null;
+    let cachedRawTree=null;
+    function resetRawTreeCache(){
+      cachedTreeSignature=null;
+      cachedRawTree=null;
+    }
+    function getCachedRawTree(samples){
+      const signature=JSON.stringify([
+        currentTreeType,treeShowModern,treeShowStudy,treeShowAncient,
+        treeShowRelated,treeHaploFilter,syncTreeTopology,
+        document.getElementById('treeTestStatus')?.value,
+        document.getElementById('treeGovernorate')?.value,
+        syncTextQuery,syncLatestStart
+      ]);
+      if(cachedRawTree && cachedTreeSignature===signature)return cachedRawTree;
+      cachedRawTree=buildRawTree(samples);
+      cachedTreeSignature=signature;
+      return cachedRawTree;
+    }
     let tooltipRAF = null;
     let currentSampleModal = null;
     let samplePathMode = "direct";
@@ -4096,7 +4115,9 @@
         if (params.has('q')) document.getElementById('ancientSearch').value = params.get('q') || '';
         renderAncientArchive();
       } else if (section === 'ytree' || section === 'mtree') {
-        showSection(section);
+        deferTreeRenderForSharedState=true;
+        try { showSection(section); }
+        finally { deferTreeRenderForSharedState=false; }
         treeMode = params.get('mode') === 'full' ? 'full' : 'direct';
         treeShowModern = params.get('modern') !== '0';
         treeShowStudy = params.get('study') !== '0';
@@ -4616,7 +4637,6 @@
         description: getDescriptionValue(s)
       }, "modern", index));
 
-      await loadSyncMetadata();
       document.getElementById("treeGovernorate").innerHTML = '<option value="">All governorates</option>' +
         GOV_LIST.map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join("");
       studySamples = (studyR.data || []).map((s, index) => normalizeStudySample(s, index));
@@ -5569,8 +5589,20 @@
       });
       return { pool, totals };
     }
+    let regionChartObserver = null;
     function renderDashboard() {
       const grid = document.getElementById("stats-grid");
+      if(regionChartObserver)regionChartObserver.disconnect();
+      // Offscreen regional canvases are rendered only when visible.
+      regionChartObserver=typeof IntersectionObserver==='function'
+        ? new IntersectionObserver(entries=>{
+            for(const entry of entries) {
+              if(!entry.isIntersecting)continue;
+              regionChartObserver?.unobserve(entry.target);
+              const chart=entry.target.__regionChart;
+              if(chart)makeMiniRegionChart(chart.id,chart.totals,chart.total,chart.onSliceClick);
+            }
+          },{rootMargin:'240px 0px',threshold:0.01}) : null;
       grid.innerHTML = "";
 
       GOV_LIST.forEach((gov, idx) => {
@@ -5607,9 +5639,15 @@
         `;
         grid.appendChild(card);
 
-        setTimeout(() => {
-          makeMiniRegionChart(cid, totals, pool.length, (hap) => openRegionModal(gov, hap));
-        }, 20);
+        const canvas=card.querySelector('canvas');
+        if(regionChartObserver&&canvas){
+          canvas.__regionChart={id:cid,totals,total:pool.length,
+            onSliceClick:(hap)=>openRegionModal(gov,hap)};
+          regionChartObserver.observe(canvas);
+        } else {
+          setTimeout(()=>makeMiniRegionChart(cid,totals,pool.length,
+            (hap)=>openRegionModal(gov,hap)),0);
+        }
       });
 
       updateModernSummary();
@@ -5718,11 +5756,23 @@
           <div style="font-size:9px;opacity:.75">Terminal branch reference, not individually published sequencing.</div></details>` : ''}`;
     }
 
-        function renderArchive() {
+        const ARCHIVE_PAGE_SIZE=100;
+    let archiveVisibleLimit=ARCHIVE_PAGE_SIZE;
+    let archiveFilterKey=null;
+    function loadMoreArchive() {
+      archiveVisibleLimit+=ARCHIVE_PAGE_SIZE;
+      renderArchive();
+    }
+    function renderArchive() {
       const tbody = document.getElementById("archive-body");
       const search = document.getElementById("archiveSearch").value.trim();
       const hF = document.getElementById("filterHaplo").value;
       const gF = document.getElementById("filterGov").value;
+      const filterKey=JSON.stringify([search,hF,gF]);
+      if(filterKey!==archiveFilterKey){
+        archiveVisibleLimit=ARCHIVE_PAGE_SIZE;
+        archiveFilterKey=filterKey;
+      }
       updateShareUrl({ section: 'archive' });
 
       const rows = allModernLikeSamples().filter(s =>
@@ -5731,7 +5781,7 @@
         (!gF || governorateMatch(s.governorate, gF))
       );
 
-      tbody.innerHTML = rows.map(s => {
+      tbody.innerHTML = rows.slice(0,archiveVisibleLimit).map(s => {
         const h = haplo(s.y_dna, s.snp_path, s.full_snp_path);
         const dotClass = h === "C" ? 'border border-gray-400' : '';
         return `
@@ -5755,7 +5805,11 @@
             <td class="px-4 py-6">${links(s,'mt')}</td>
           </tr>
         `;
-      }).join("");
+      }).join("")+(rows.length>archiveVisibleLimit
+        ? `<tr><td colspan="8" class="text-center px-4 py-6">
+          <button class="ctrl-btn" type="button" onclick="loadMoreArchive()">
+          Show next ${Math.min(ARCHIVE_PAGE_SIZE,rows.length-archiveVisibleLimit)} of ${rows.length} samples
+          </button></td></tr>` : "");
     }
 
     function renderAncientArchive() {
@@ -6006,9 +6060,12 @@
         nl.classList.remove("text-gray-400");
       }
       updateTreeTypeUI();
-      renderTree();
+      if(!deferTreeRenderForSharedState)renderTree();
     }
 
+    const sectionRendered={archive:false,ancient:false};
+    let deferTreeRenderForSharedState=false;
+    let dashboardMetaDirty=false;
     function showSection(id) {
       hideChartTooltip();
       document.querySelectorAll(".page-section").forEach(s => s.classList.remove("active"));
@@ -6030,6 +6087,19 @@
         }
       }
 
+      if(id==='home'&&dashboardMetaDirty) {
+        dashboardMetaDirty=false;
+        renderDashboard();
+      }
+      if(id==='archive'&&!sectionRendered.archive){
+        sectionRendered.archive=true;
+        renderArchive();
+      }
+      if(id==='ancient'&&!sectionRendered.ancient){
+        sectionRendered.ancient=true;
+        renderAncientArchive();
+        renderRelatedAncientArchive();
+      }
       updateTreeFloatingToggle();
       updateShareUrl({ section: id });
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -6240,7 +6310,7 @@
       }
 
       const samples = treeFilteredSamples();
-      const rawRoot = buildRawTree(samples);
+      const rawRoot = getCachedRawTree(samples);
       lastTreeRawRoot = rawRoot;
 
       const exact = syncTextQuery ? null : searchTreeExact(rawRoot, q);
@@ -6515,6 +6585,7 @@
     }
 
     function renderTree() {
+      resetSyncCountryFactsIndex();
       renderOfficialTreePanel();
       document.getElementById('ydna-sync-filters').classList.toggle('hidden', currentTreeType === 'mt');
       const samples = treeFilteredSamples();
@@ -6523,7 +6594,7 @@
       buildTreeSummary(samples);
 
       const activePath = treeFocusPath || treeSearchTargetPath || null;
-      const rawRoot = buildRawTree(samples);
+      const rawRoot = getCachedRawTree(samples);
       lastTreeRawRoot = rawRoot;
 
       let displayRoot;
@@ -6674,15 +6745,33 @@
         await loadAll();
         populateFilters();
         renderDashboard();
-        renderArchive();
-        renderAncientArchive();
-        renderRelatedAncientArchive();
-        updateModernSummary();
+        // Do not construct the hidden archive and the entire tree at boot.
+        // Their first render happens in showSection, including shared deep links.
         updateAncientSummary();
-        renderTree();
         updateTreeTypeUI();
         updateTreeFloatingToggle();
         applyInitialUrlState();
+        // First paint uses the public sample archive. Optional topology and
+        // country-count enrichment arrives separately, not on the critical path.
+        setTimeout(async()=>{
+          try {
+            await loadSyncMetadata();
+            resetSyncMetadataIndexes();
+            resetRawTreeCache();
+            syncLineagePathCache=syncKnownTerminalPaths();
+            if(document.getElementById('section-home')?.classList.contains('active'))
+              renderDashboard();
+            else {
+              dashboardMetaDirty=true;
+              updateModernSummary();
+            }
+            if(document.getElementById('section-tree')?.classList.contains('active'))
+              renderTree();
+            if(sectionRendered.archive)renderArchive();
+          } catch (error) {
+            console.warn('Optional DNA metadata refresh failed',error);
+          }
+        },0);
       } catch (err) {
         console.error('Dashboard failed to load:', err);
       }

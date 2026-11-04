@@ -344,3 +344,61 @@ test('ambiguous cross-linked kit cannot hide a second exact-ID duplicate',()=>{
   assert.deepEqual(result.map(x=>x.__linked_sample_ids),[[1,4],[2,3]]);
   assert.ok(result.every(x=>x.__duplicate_conflict));
 });
+
+test('subtree counts keep exact sample and Big Y totals after memoization',()=>{
+  const leaf={samples:[{__sourceType:'modern',test_type:'Big Y-700'},
+    {__sourceType:'ancient',test_type:'Big Y-700'}],children:[]};
+  const child={samples:[{__sourceType:'modern',test_type:'YFull sequencing'}],children:[leaf]};
+  const root={samples:[{__sourceType:'study'}],children:[child]};
+  assert.deepEqual(ui.nodeCounts(root),{direct:0,modern:2,bigY:1});
+  assert.deepEqual(ui.nodeCounts(child),{direct:1,modern:2,bigY:1});
+  assert.deepEqual(ui.nodeCounts(leaf),{direct:1,modern:1,bigY:1});
+  assert.deepEqual(ui.nodeCounts(root),{direct:0,modern:2,bigY:1});
+  // Distinct new trees must never inherit an obsolete count.
+  assert.deepEqual(ui.nodeCounts({samples:[],children:[]}),{direct:0,modern:0,bigY:0});
+});
+test('first page does not construct hidden archives or tree and charts are viewport lazy',()=>{
+  const html=fs.readFileSync('index.html','utf8');
+  const boot=html.slice(html.indexOf('(async function boot()'));
+  // Only assert the synchronous first-paint phase: optional metadata can
+  // legitimately refresh an active archive/tree after the async boundary.
+  const firstPaint=boot.slice(0,boot.indexOf('setTimeout(async()=>{'));
+  assert.ok(firstPaint.includes('renderDashboard()'));
+  assert.ok(!firstPaint.includes('renderArchive()'));
+  assert.ok(!firstPaint.includes('renderAncientArchive()'));
+  assert.ok(!firstPaint.includes('renderTree()'));
+  assert.match(html,/IntersectionObserver\(entries/);
+  assert.match(html,/regionChartObserver\.observe\(canvas\)/);
+  assert.match(html,/if\(id==='archive'&&!sectionRendered\.archive\)/);
+  assert.match(html,/if\(id==='ancient'&&!sectionRendered\.ancient\)/);
+});
+test('full archive is preserved under pagination and next batch is user controlled',()=>{
+  const html=fs.readFileSync('index.html','utf8');
+  assert.match(html,/const ARCHIVE_PAGE_SIZE=100/);
+  assert.match(html,/function loadMoreArchive\(\)/);
+  assert.match(html,/rows\.slice\(0,archiveVisibleLimit\)\.map/);
+  assert.match(html,/rows\.length>archiveVisibleLimit/);
+  assert.match(html,/if\(filterKey!==archiveFilterKey\)/);
+});
+test('optional reference metadata is loaded after base samples without blocking the first paint',()=>{
+  const html=fs.readFileSync('index.html','utf8');
+  const loader=html.slice(html.indexOf('async function loadAll()'),html.indexOf('function parsePath('));
+  assert.ok(!loader.includes('await loadSyncMetadata()'));
+  assert.match(html,/setTimeout\(async\(\)=>\{/);
+  assert.match(html,/await loadSyncMetadata\(\)/);
+  const details=fs.readFileSync('ydna-sync-details.js','utf8');
+  assert.match(details,/await Promise\.allSettled\(\[runTask,observationTask,aliasesTask,countsTask,loadOfficialTree\(\)\]\)/);
+  assert.match(details,/function resetSyncCountryFactsIndex\(\)/);
+});
+
+test('node focus and full/direct toggles reuse the filtered raw DNA tree',()=>{
+  const html=fs.readFileSync('index.html','utf8');
+  const start=html.indexOf('function renderTree()');
+  const end=html.indexOf('function renderTreeNode(',start);
+  const render=html.slice(start,end);
+  assert.match(render,/const rawRoot = getCachedRawTree\(samples\)/);
+  assert.ok(!render.includes('const rawRoot = buildRawTree(samples)'));
+  assert.match(html,/function resetRawTreeCache\(\)/);
+  assert.match(html,/resetRawTreeCache\(\);\s*syncLineagePathCache=syncKnownTerminalPaths\(\)/);
+  assert.match(html,/const signature=JSON\.stringify\(\[/);
+});
