@@ -21,28 +21,65 @@
       path.at(-1) === normalizedSnp(child.y_dna) && path.indexOf(prior) >= 0 &&
       path.indexOf(prior) < path.length - 1;
   }
+  const yfullCode = v => /^YF[0-9]+$/.test(String(v ?? '').trim().toUpperCase());
+  function identityKeys(sample) {
+    const keys=[];
+    const kit=String(sample.kit_number ?? '').trim().toUpperCase();
+    const yf=String(sample.yfull_id ?? '').trim().toUpperCase();
+    // Legacy archive stored YFull sample IDs in the generic kit_number field.
+    if (real(kit)) keys.push(yfullCode(kit) ? 'yfull:'+kit : 'ftdna:'+kit);
+    if (yfullCode(yf)) keys.push('yfull:'+yf);
+    return [...new Set(keys)];
+  }
+  function identitySummary(sample) {
+    const keys=Array.isArray(sample.__identity_keys) ? sample.__identity_keys : identityKeys(sample);
+    const kits=keys.filter(k=>k.startsWith('ftdna:')).map(k=>'FTDNA kit: '+k.slice(6));
+    const yf=keys.filter(k=>k.startsWith('yfull:')).map(k=>'YFull ID: '+k.slice(6));
+    return [...kits,...yf].join(' · ') || (real(sample.sample_id) ? String(sample.sample_id) : '—');
+  }
   function deduplicate(samples) {
-    const map = new Map();
-    const score = s => ['y_dna','full_snp_path','name','governorate','test_type'].filter(k=>real(s[k])).length;
-    for (const sample of samples) {
-      // Dash placeholders are not identities. Never deduplicate by a name or shared haplogroup.
-      const key = real(sample.kit_number) ? 'ftdna:'+sample.kit_number.trim().toUpperCase() :
-        real(sample.yfull_id) ? 'yfull:'+sample.yfull_id.trim().toUpperCase() : 'row:'+sample.id;
-      if (!map.has(key)) {map.set(key, sample); continue;}
-      const prior = map.get(key);
-      const newerDescendant = documentedDescendant(prior, sample);
-      const olderDescendant = documentedDescendant(sample, prior);
-      const sameCall = normalizedSnp(prior.y_dna) === normalizedSnp(sample.y_dna);
-      const conflict = real(prior.y_dna) && real(sample.y_dna) &&
-        !sameCall && !newerDescendant && !olderDescendant;
-      // Prefer a documented descendant over an older upstream call, not the first row.
-      const chooseNew = newerDescendant || (!olderDescendant && !conflict &&
-        (sameCall || !real(prior.y_dna)) && score(sample)>score(prior));
-      const chosen = chooseNew ? sample : prior;
-      map.set(key, {...chosen, __duplicate_count:(prior.__duplicate_count||1)+1,
-        __duplicate_conflict:Boolean(prior.__duplicate_conflict || conflict)});
-    }
-    return [...map.values()];
+    // A lineage label or shared /tree/ URL is not evidence of a shared individual.
+    // Only an exact FTDNA kit or YFull sample ID can join records.
+    const parent=samples.map((_,i)=>i);
+    const find=i=>{while(parent[i]!==i){parent[i]=parent[parent[i]];i=parent[i];}return i;};
+    const union=(a,b)=>{a=find(a);b=find(b);if(a!==b)parent[b]=a;};
+    const owners=new Map();
+    samples.forEach((sample,i)=>{
+      for(const key of identityKeys(sample)){
+        if(owners.has(key)) union(i,owners.get(key));
+        else owners.set(key,i);
+      }
+    });
+    const groups=new Map();
+    samples.forEach((sample,i)=>{
+      const root=find(i);
+      if(!groups.has(root)) groups.set(root,[]);
+      groups.get(root).push(sample);
+    });
+    const score=s=>['y_dna','full_snp_path','name','governorate','test_type'].filter(k=>real(s[k])).length;
+    return [...groups.values()].map(group=>{
+      let chosen=group[0], conflict=false;
+      for(const next of group.slice(1)){
+        const deeper=documentedDescendant(chosen,next);
+        const earlier=documentedDescendant(next,chosen);
+        const same=normalizedSnp(chosen.y_dna)===normalizedSnp(next.y_dna);
+        if(real(chosen.y_dna)&&real(next.y_dna)&&!same&&!deeper&&!earlier)conflict=true;
+        if(deeper || (!earlier&&!conflict&&(same||!real(chosen.y_dna))&&score(next)>score(chosen))) chosen=next;
+      }
+      const allKeys=[...new Set(group.flatMap(identityKeys))];
+      const yfull=allKeys.filter(k=>k.startsWith('yfull:')).map(k=>k.slice(6));
+      const ftdna=allKeys.filter(k=>k.startsWith('ftdna:')).map(k=>k.slice(6));
+      if(yfull.length>1 || ftdna.length>1)conflict=true;
+      const result={...chosen,__identity_keys:allKeys,
+        __linked_sample_ids:[...new Set(group.map(x=>x.id).filter(x=>x!=null))],
+        __duplicate_count:group.length,
+        __duplicate_conflict:Boolean(conflict||group.some(x=>x.__duplicate_conflict))};
+      if(yfull.length===1 && !yfullCode(result.yfull_id))result.yfull_id=yfull[0];
+      // A YFull identifier is NOT an FTDNA kit number.
+      if(ftdna.length===1 && (!real(result.kit_number)||yfullCode(result.kit_number)))
+        result.kit_number=ftdna[0];
+      return result;
+    });
   }
   function yFamily(sample, release, nodes, knownPaths) {
     const y=String(sample.y_dna||'').trim().toUpperCase();
@@ -186,12 +223,17 @@
     return officialPath(sample,release,nodes);
   }
   function displayName(sample) {
-    return [sample.name,sample.yfull_id,sample.kit_number,sample.sample_id].find(real)||'—';
+    return [sample.name,sample.yfull_id,
+      yfullCode(sample.kit_number) ? sample.kit_number : null,
+      sample.kit_number,sample.sample_id].find(real)||'—';
   }
   function publicId(sample) {
-    return [sample.kit_number,sample.yfull_id,sample.sample_id].find(real)||'—';
+    const keys=Array.isArray(sample.__identity_keys) ? sample.__identity_keys : identityKeys(sample);
+    const kit=keys.find(k=>k.startsWith('ftdna:'));
+    const yf=keys.find(k=>k.startsWith('yfull:'));
+    return kit?.slice(6) || yf?.slice(6) || (real(sample.sample_id)?sample.sample_id:'—');
   }
-  const api = {status,labels,deduplicate,yFamily,documentedDescendant,matches,nodeCounts,terminalPath,knownTerminalPaths,inCountScope,reconcileCountryCount,officialPath,officialPlacement,displayName,publicId};
+  const api = {status,labels,deduplicate,identityKeys,identitySummary,yFamily,documentedDescendant,matches,nodeCounts,terminalPath,knownTerminalPaths,inCountScope,reconcileCountryCount,officialPath,officialPlacement,displayName,publicId};
   if (typeof module === 'object') module.exports=api;
   else root.YDNASync=api;
 })(typeof window === 'object' ? window : globalThis);

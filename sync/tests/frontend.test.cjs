@@ -183,3 +183,58 @@ test('modern archive renders terminal IDs instead of dash placeholders and label
   assert.match(html,/Source-backed Reference SNP Path \(not a complete individual test\)/);
   assert.match(html,/archiveLineagePreview\(s\)/);
 });
+
+test('legacy YFull kit_number and new YFull yfull_id refer to one canonical sample',()=>{
+  const old={id:1,kit_number:'YF123456',yfull_id:null,y_dna:'J-M319',
+    name:'Archived profile',full_snp_path:'Y-Adam>J>J2>J-M319'};
+  const imported={id:2,kit_number:'—',yfull_id:'YF123456',y_dna:'J-M319',
+    name:'—',full_snp_path:'Y-Adam>J>J2>J-M319',test_type:'YFull sequencing'};
+  const rows=ui.deduplicate([old,imported]);
+  assert.equal(rows.length,1);
+  assert.equal(rows[0].__duplicate_count,2);
+  assert.deepEqual(rows[0].__linked_sample_ids,[1,2]);
+  assert.equal(rows[0].yfull_id,'YF123456');
+  assert.equal(ui.identitySummary(rows[0]),'YFull ID: YF123456');
+});
+test('different YFull IDs remain separate even under exactly the same tree branch and URL',()=>{
+  const shared='https://www.yfull.com/tree/J-M319/';
+  const rows=ui.deduplicate([{id:1,yfull_id:'YF123456',kit_number:'—',
+    y_dna:'J-M319',y_link_1:shared,full_snp_path:'Y-Adam>J>J2>J-M319'},
+    {id:2,yfull_id:'YF123457',kit_number:'—',
+    y_dna:'J-M319',y_link_1:shared,full_snp_path:'Y-Adam>J>J2>J-M319'}]);
+  assert.equal(rows.length,2);
+  assert.notEqual(ui.identitySummary(rows[0]),ui.identitySummary(rows[1]));
+});
+test('a documented cross-ID link allows safe FTDNA+YFull merging without losing either ID',()=>{
+  const linked={id:1,kit_number:'990099001',yfull_id:'YF123456',y_dna:'J-P58',
+    name:'Archived tester'};
+  const source={id:2,kit_number:'—',yfull_id:'YF123456',y_dna:'J-P58',name:'—',
+    full_snp_path:'Y-Adam>J>J1>J-P58'};
+  const all=ui.deduplicate([linked,source]);
+  assert.equal(all.length,1);
+  assert.match(ui.identitySummary(all[0]),/FTDNA kit: 990099001/);
+  assert.match(ui.identitySummary(all[0]),/YFull ID: YF123456/);
+  assert.equal(all[0].kit_number,'990099001');
+});
+test('conflicting linked sample identity claims are flagged instead of silently overwritten',()=>{
+  const rows=ui.deduplicate([{id:1,kit_number:'990099001',yfull_id:'YF123456',y_dna:'J-P58'},
+    {id:2,kit_number:'990099001',yfull_id:'YF123457',y_dna:'J-P58'}]);
+  assert.equal(rows.length,1);
+  assert.equal(rows[0].__duplicate_conflict,true);
+  assert.equal(rows[0].__identity_keys.filter(k=>k.startsWith('yfull:')).length,2);
+});
+test('YFull is never misrepresented as an FTDNA kit',()=>{
+  assert.deepEqual(ui.identityKeys({kit_number:'YF123456',yfull_id:'YF123456'}),['yfull:YF123456']);
+  assert.equal(ui.publicId({kit_number:'—',yfull_id:'YF123456'}),'YF123456');
+  assert.equal(ui.identitySummary({kit_number:'YF123456'}),'YFull ID: YF123456');
+  assert.equal(ui.deduplicate([{id:1,kit_number:'—'},{id:2,kit_number:'—'}]).length,2);
+});
+test('archive and modal expose existing YFull source SNP paths',()=>{
+  const html=fs.readFileSync('index.html','utf8');
+  assert.match(html,/Published YFull SNP tree path/);
+  assert.match(html,/isRealValue\(sample\.full_snp_path\)\?sample\.full_snp_path:null/);
+  assert.match(html,/samplePathMode = sample\.__sourceType === "modern"/);
+  assert.match(html,/YDNASync\.identitySummary\(sample\)/);
+  const details=fs.readFileSync('ydna-sync-details.js','utf8');
+  assert.match(details,/\.in\('sample_id',sample\.__linked_sample_ids\|\|\[sample\.id\]\)/);
+});

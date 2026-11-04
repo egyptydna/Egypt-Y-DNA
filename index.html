@@ -5683,7 +5683,7 @@
             </div>
           </div>
           <p class="font-black uppercase text-sm mb-1 text-center">${esc(YDNASync.displayName(s))}</p>
-          <p class="text-[10px] text-secondary font-mono text-center mb-2">${esc(YDNASync.publicId(s))}</p>
+          <p class="text-[10px] text-secondary font-mono text-center mb-2">${esc(YDNASync.identitySummary(s))}</p>
           ${ethnicLine}
           <div class="text-[9px] text-gray-400 font-mono snp-text mb-4 text-center block">${archiveLineagePreview(s)}</div>
           <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
@@ -5697,11 +5697,17 @@
     function archiveLineagePreview(sample) {
       const reported=isRealValue(sample.snp_path)?sample.snp_path:
         isRealValue(sample.y_dna)?sample.y_dna:'—';
-      const ref=sample.__sourceType==='modern' &&
-        !isRealValue(sample.full_snp_path) && !isRealValue(sample.snp_path)
+      const full=isRealValue(sample.full_snp_path)?sample.full_snp_path:null;
+      const ref=sample.__sourceType==='modern' && !full && !isRealValue(sample.snp_path)
         ? syncLineagePathCache?.get(String(sample.y_dna||'').toUpperCase()) : null;
-      return `<span>${esc(reported)}</span>${ref ?
-        `<details class="mt-1"><summary style="cursor:pointer;font-size:10px">Reference SNP path</summary>
+      const fullLabel=/^YF[0-9]+$/i.test(String(sample.yfull_id||sample.kit_number||'')) ||
+        sample.test_type==='YFull sequencing'
+        ? 'Published YFull SNP tree path' : 'Published SNP path';
+      return `<span>${esc(reported)}</span>
+        ${full ? `<details class="mt-1"><summary style="cursor:pointer;font-size:10px">${fullLabel}</summary>
+          <div class="snp-text" style="font-size:9px;opacity:.8">${esc(full.split('>').join(' > '))}</div>
+          <div style="font-size:9px;opacity:.75">Documented branch ancestry for this profile.</div></details>` : ''}
+        ${ref ? `<details class="mt-1"><summary style="cursor:pointer;font-size:10px">Reference SNP path</summary>
           <div class="snp-text" style="font-size:9px;opacity:.8">${esc(ref.split('>').join(' > '))}</div>
           <div style="font-size:9px;opacity:.75">Terminal branch reference, not individually published sequencing.</div></details>` : ''}`;
     }
@@ -5729,7 +5735,7 @@
               ${s.__sourceType !== "ancient" && isRealValue(s.ethnic_group) ? `<div class="text-[9px] font-black uppercase tracking-wide text-gray-400 mt-1">${esc(s.ethnic_group)}</div>` : ``}
               ${s.__sourceType === "study" ? `<div class="mt-2"><span class="tree-study-badge">STUDY</span></div>` : ``}
             </td>
-            <td class="px-2 py-6 font-mono text-[10px] text-gray-400">${esc(YDNASync.publicId(s))}</td>
+            <td class="px-2 py-6 font-mono text-[10px] text-gray-400">${esc(YDNASync.identitySummary(s))}</td>
             <td class="px-2 py-6 text-[10px] font-black text-gray-400 uppercase">${esc(s.governorate || '—')}</td>
             <td class="px-2 py-6 text-[10px] font-black uppercase text-gray-500">${esc(s.ethnic_group || '—')}</td>
             <td class="px-4 py-6 text-left">
@@ -5842,14 +5848,18 @@
       currentSampleModal = sample;
       loadSyncDetails(sample);
       renderOfficialSampleInfo(sample);
-      samplePathMode = "direct";
+      // YFull imports already contain source-backed tree paths. Show them by default
+      // rather than displaying the empty legacy snp_path field as an apparent gap.
+      samplePathMode = sample.__sourceType === "modern" &&
+        (sample.test_type === "YFull sequencing" || /^YF[0-9]+$/i.test(String(sample.yfull_id||''))) &&
+        isRealValue(sample.full_snp_path) ? "full" : "direct";
 
       document.getElementById("sample-modal-name").textContent = YDNASync.displayName(sample);
       const modalLocation = sample.__sourceType === "related"
         ? [sample.country, sample.region, sample.site].filter(isRealValue).join(" • ")
         : (sample.governorate || sample.site || "Unknown location");
       document.getElementById("sample-modal-subtitle").textContent = `${modalLocation || "Unknown location"} • ${typeLabel}`;
-      document.getElementById("sample-modal-kit").textContent = YDNASync.publicId(sample);
+      document.getElementById("sample-modal-kit").textContent = YDNASync.identitySummary(sample);
       document.getElementById("sample-modal-location").textContent = modalLocation || "—";
       document.getElementById("sample-modal-ydna").textContent = sample.y_dna || "—";
       document.getElementById("sample-modal-mtdna").textContent = sample.mt_dna || "—";
@@ -6599,7 +6609,7 @@
                   <div class="tree-sample-name">${esc(YDNASync.displayName(sample))}</div>
                   <div class="tree-sample-gov">${esc(treeSampleSubtitle(sample))}</div>
                   ${sample.__duplicate_conflict ? '<div class="tree-sample-gov" style="color:#9a6700">Conflicting terminal results for this kit — verification needed</div>' : ''}
-                  ${sample.__sourceType === 'modern' && currentTreeType !== 'mt' ? `<div class="tree-sample-gov">${esc([isRealValue(sample.kit_number) ? 'Kit: '+sample.kit_number : '', sample.yfull_id, YDNASync.labels[YDNASync.status(sample)]].filter(Boolean).join(' • '))}</div>` : ''}
+                  ${sample.__sourceType === 'modern' && currentTreeType !== 'mt' ? `<div class="tree-sample-gov">${esc([YDNASync.identitySummary(sample), YDNASync.labels[YDNASync.status(sample)]].filter(Boolean).join(' • '))}</div>` : ''}
                   ${showEthnic ? `<div class="tree-sample-ethnic">${esc(sample.ethnic_group)}</div>` : ``}
                 </div>
                 ${sample.__sourceType === "study" ? `<span class="tree-study-badge">Study</span>` : ``}

@@ -13,7 +13,7 @@ async function loadSyncMetadata() {
       const evidence = await _sb.from('ydna_sync_observations').select('sample_id,project:payload->>project').eq('is_current',true).range(offset,offset+999);
       if (evidence.error) break;
       for (const item of evidence.data) {
-        const sample=modernSamples.find(s=>s.id===item.sample_id);
+        const sample=modernSamples.find(s=>(s.__linked_sample_ids||[s.id]).includes(item.sample_id));
         if(sample && item.project) sample.__projects=[...new Set([...(sample.__projects||[]),item.project])];
       }
       if(evidence.data.length<1000) break;
@@ -126,11 +126,11 @@ async function loadSyncDetails(sample) {
   panel.innerHTML='';
   panel.__strProfile=null;
   if(sample.__sourceType!=='modern') return;
-  panel.innerHTML=`<div class="sample-detail-label">Test evidence</div><p>${esc(YDNASync.labels[YDNASync.status(sample)] || sample.test_status)} · ${esc(sample.test_type)} · ${esc(sample.yfull_id || '')}</p><p>${esc(sample.origin_raw || '')}</p><p>Updated: ${esc(sample.sync_updated_at || sample.created_at || '—')}</p><div id="sync-evidence-loading">Loading public source evidence…</div>`;
+  panel.innerHTML=`<div class="sample-detail-label">Test evidence</div><p>${esc(YDNASync.identitySummary(sample))}</p><p>${esc(YDNASync.labels[YDNASync.status(sample)] || sample.test_status)} · ${esc(sample.test_type)}</p><p>${esc(sample.origin_raw || '')}</p><p>Updated: ${esc(sample.sync_updated_at || sample.created_at || '—')}</p><div id="sync-evidence-loading">Loading public source evidence…</div>`;
   try {
     const observations=[];
     for(let offset=0; ; offset+=1000) {
-      const result=await _sb.from('ydna_sync_observations').select('*').eq('sample_id',sample.id).order('id',{ascending:false}).range(offset,offset+999);
+      const result=await _sb.from('ydna_sync_observations').select('*').in('sample_id',sample.__linked_sample_ids||[sample.id]).order('id',{ascending:false}).range(offset,offset+999);
       if(result.error) throw result.error;
       observations.push(...result.data);
       if(result.data.length<1000) break;
