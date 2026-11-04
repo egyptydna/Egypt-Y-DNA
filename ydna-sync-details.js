@@ -126,7 +126,14 @@ async function loadSyncDetails(sample) {
   panel.innerHTML='';
   panel.__strProfile=null;
   if(sample.__sourceType!=='modern') return;
-  panel.innerHTML=`<div class="sample-detail-label">Test evidence</div><p>${esc(YDNASync.identitySummary(sample))}</p><p>${esc(YDNASync.labels[YDNASync.status(sample)] || sample.test_status)} · ${esc(sample.test_type)}</p><p>${esc(sample.origin_raw || '')}</p><p>Updated: ${esc(sample.sync_updated_at || sample.created_at || '—')}</p><div id="sync-evidence-loading">Loading public source evidence…</div>`;
+  const sourcePaths=sample.__source_snp_paths||[];
+  const compareSourcePaths=sourcePaths.length>1
+    ? `<details class="mt-2"><summary>Compare documented source tree paths (${sourcePaths.length})</summary>
+      <p>Different releases and providers may report different intermediate branches. Original paths are preserved, not silently replaced.</p>
+      ${sourcePaths.map(row=>`<p><b>${esc(row.source)} · record ${esc(row.sample_id)}</b></p>
+        <p class="sample-detail-code">${esc(String(row.path).split('>').join(' > '))}</p>`).join('')}</details>`
+    : '';
+  panel.innerHTML=`<div class="sample-detail-label">Test evidence</div><p>${esc(YDNASync.identitySummary(sample))}</p><p>${esc(YDNASync.labels[YDNASync.status(sample)] || sample.test_status)} · ${esc(sample.test_type)}</p><p>${esc(sample.origin_raw || '')}</p><p>Updated: ${esc(sample.sync_updated_at || sample.created_at || '—')}</p>${compareSourcePaths}<div id="sync-evidence-loading">Loading public source evidence…</div>`;
   try {
     const observations=[];
     for(let offset=0; ; offset+=1000) {

@@ -179,7 +179,7 @@ test('conflicting sample path takes precedence over country aggregate reference'
 test('modern archive renders terminal IDs instead of dash placeholders and labels references',()=>{
   const html=fs.readFileSync('index.html','utf8');
   assert.match(html,/function archiveLineagePreview\(sample\)/);
-  assert.match(html,/isRealValue\(sample\.snp_path\)\?sample\.snp_path/);
+  assert.match(html,/YDNASync\.compactSnpPath\(sample\)/);
   assert.match(html,/Source-backed Reference SNP Path \(not a complete individual test\)/);
   assert.match(html,/archiveLineagePreview\(s\)/);
 });
@@ -237,4 +237,49 @@ test('archive and modal expose existing YFull source SNP paths',()=>{
   assert.match(html,/YDNASync\.identitySummary\(sample\)/);
   const details=fs.readFileSync('ydna-sync-details.js','utf8');
   assert.match(details,/\.in\('sample_id',sample\.__linked_sample_ids\|\|\[sample\.id\]\)/);
+});
+
+test('user-confirmed C-Y255870 duplicate keeps maternal U3b3d2a and canonical YF129136 ID',()=>{
+  const original={id:91,name:'—',kit_number:'—',yfull_id:'YF129136',
+    y_dna:'C-Y255870',governorate:'Sūhāj',sync_managed:false,
+    test_type:'YSEQ',snp_path:'C-M216>F3393>CTS11043>Y255870',
+    full_snp_path:'Y-Adam>BT>CT>CF>C>F3393>CTS11043>Y255870',
+    mt_dna:'U3b3d2a',full_mtDNA_path:'mt-Eve>U>U3>U3b3d2a',
+    mt_link_1:'https://www.yfull.com/mtree/U3b3d2a/'};
+  const imported={id:519,name:'—',kit_number:'—',yfull_id:'YF129136',
+    y_dna:'C-Y255870',governorate:'Sūhāj',sync_managed:true,
+    test_type:'YFull sequencing',snp_path:'—',
+    full_snp_path:'Y-Adam>BT>CT>CF>C>C-F3393>C-CTS11043>C-Y11591>C-Y255870',
+    mt_dna:'—',full_mtDNA_path:'—'};
+  const merged=ui.deduplicate([original,imported]);
+  assert.equal(merged.length,1);
+  assert.equal(merged[0].id,91);
+  assert.equal(merged[0].yfull_id,'YF129136');
+  assert.equal(merged[0].mt_dna,'U3b3d2a');
+  assert.equal(merged[0].full_mtDNA_path,original.full_mtDNA_path);
+  assert.equal(merged[0].mt_link_1,original.mt_link_1);
+  assert.equal(merged[0].__duplicate_count,2);
+  assert.deepEqual(merged[0].__linked_sample_ids,[91,519]);
+  assert.equal(merged[0].__source_snp_paths.length,2);
+  assert.equal(ui.compactSnpPath(merged[0]),original.snp_path);
+});
+test('automatically imported YFull SNP paths show meaningful lineage, not just J-terminal',()=>{
+  assert.equal(ui.compactSnpPath({snp_path:'—',y_dna:'J-Y8537',
+    full_snp_path:'Y-Adam>A0-T>BT>CT>F>J>J1>J-Z2215>J-Y8537'}),'J1>Z2215>Y8537');
+  assert.equal(ui.compactSnpPath({snp_path:'—',y_dna:'C-Y255870',
+    full_snp_path:'Y-Adam>BT>CT>CF>C>C-F3393>C-CTS11043>C-Y255870'}),'C>F3393>CTS11043>Y255870');
+  assert.equal(ui.compactSnpPath({snp_path:'—',y_dna:'C-Y255870',full_snp_path:'—'}),'C-Y255870');
+});
+test('different YFull sample IDs and identical haplogroups do not merge',()=>{
+  const rows=ui.deduplicate([{id:1,kit_number:'—',yfull_id:'YF000001',y_dna:'J-M319',governorate:'Sūhāj'},
+    {id:2,kit_number:'—',yfull_id:'YF000002',y_dna:'J-M319',governorate:'Sūhāj'}]);
+  assert.equal(rows.length,2);
+});
+test('source details disclose both reference paths on confirmed duplicate merge',()=>{
+  const details=fs.readFileSync('ydna-sync-details.js','utf8');
+  assert.match(details,/Compare documented source tree paths/);
+  assert.match(details,/__source_snp_paths/);
+  const html=fs.readFileSync('index.html','utf8');
+  assert.match(html,/YDNASync\.compactSnpPath\(sample\)/);
+  assert.match(html,/Verified linked records combined/);
 });
