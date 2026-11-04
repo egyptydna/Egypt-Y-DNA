@@ -3953,7 +3953,7 @@
     function renderNodeAliases(node) {
       if (currentTreeType === "mt" || !node || !Array.isArray(node.aliases) || !node.aliases.length) return "";
       return node.aliases
-        .map(alias => `<span class="tree-alias-snp" title="Search alias SNP ${esc(alias)}" onclick='return searchTreeAlias(${jsstr(alias)})'>${esc(alias)}</span>`)
+        .map(alias => `<span class="tree-alias-snp" title="Search alias SNP ${esc(alias)}" data-alias="${esc(alias)}" onclick="return searchTreeAlias(event.currentTarget.dataset.alias)">${esc(alias)}</span>`)
         .join("");
     }
 
