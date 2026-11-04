@@ -45,24 +45,40 @@
     return [...map.values()];
   }
   function yFamily(sample, release, nodes) {
-    const y = String(sample.y_dna || '').trim().toUpperCase();
-    if (y !== 'J' && !/^J(?:1|2|-)/.test(y)) return null;
-    const terminal = /^J2/.test(y) || ['J-M172','J-M410','J-L26','J-M319'].includes(y) ? 'J2' :
-      /^J1/.test(y) || ['J-M267','J-P58'].includes(y) ? 'J1' : null;
-    const classify = value => {
+    const y=String(sample.y_dna||'').trim().toUpperCase();
+    const root=y.charAt(0);
+    if (!['J','Q','R'].includes(root) || (y.length>1 && !/^([JQR])(?:[12]|-)/.test(y))) return null;
+    const terminal= root==='J' ?
+      (/^J2/.test(y)||['J-M172','J-M410','J-L26','J-M319'].includes(y)?'J2':
+        /^J1/.test(y)||['J-M267','J-P58'].includes(y)?'J1':null) :
+      root==='Q' ? (/^Q1/.test(y)?'Q1':/^Q2/.test(y)?'Q2':null) :
+      (/^R1A/.test(y)?'R1A':/^R1B/.test(y)?'R1B':/^R2/.test(y)?'R2':/^R1/.test(y)?'R1':null);
+    const classify=value=>{
       const steps=String(value||'').split('>').map(v=>v.trim().toUpperCase());
-      const j2=steps.some(v=>/^J2/.test(v) || ['J-M172','J-M410','J-L26','J-M319'].includes(v));
-      const j1=steps.some(v=>/^J1/.test(v) || ['J-M267','J-P58'].includes(v));
-      return j1 && j2 ? 'conflict' : j2 ? 'J2' : j1 ? 'J1' : null;
+      if (root==='J') {
+        const j2=steps.some(v=>/^J2/.test(v)||['J-M172','J-M410','J-L26','J-M319'].includes(v));
+        const j1=steps.some(v=>/^J1/.test(v)||['J-M267','J-P58'].includes(v));
+        return j1&&j2?'conflict':j2?'J2':j1?'J1':null;
+      }
+      if (root==='Q') {
+        const q1=steps.some(v=>/^Q1/.test(v)),q2=steps.some(v=>/^Q2/.test(v));
+        return q1&&q2?'conflict':q1?'Q1':q2?'Q2':null;
+      }
+      const a=steps.some(v=>/^R1A/.test(v)),b=steps.some(v=>/^R1B/.test(v));
+      const r1=steps.some(v=>v==='R1'),r2=steps.some(v=>/^R2/.test(v));
+      return (a&&b)||(r2&&(r1||a||b))?'conflict':a?'R1A':b?'R1B':r2?'R2':r1?'R1':null;
     };
-    const source = classify(real(sample.full_snp_path) ? sample.full_snp_path : sample.snp_path);
-    if (source === 'conflict' || (source && terminal && source !== terminal)) return 'J';
-    const verifiedReference=officialPath(sample,release,nodes);
-    const reference=verifiedReference ? classify(verifiedReference.path.join('>')) : null;
-    if (reference === 'conflict' || (reference && source && reference !== source) ||
-        (reference && terminal && reference !== terminal)) return 'J';
-    // If the label is J-... without a verifiable branch, J1 must NOT be guessed.
-    return source || reference || terminal || 'J';
+    const source=classify(real(sample.full_snp_path)?sample.full_snp_path:sample.snp_path);
+    const official=officialPath(sample,release,nodes);
+    const reference=official?classify(official.path.join('>')):null;
+    const labels=[source,reference,terminal].filter(Boolean);
+    if (labels.includes('conflict')) return root;
+    const incompatible=(a,b)=>a!==b && !(root==='R' &&
+      ((a==='R1'&&['R1A','R1B'].includes(b))||(b==='R1'&&['R1A','R1B'].includes(a))));
+    if (labels.some((a,i)=>labels.slice(i+1).some(b=>incompatible(a,b)))) return root;
+    // Prefer complete published / licensed phylogeny. A root-only J-, Q- or R-
+    // label must not be silently classified as J1, Q1 or R2.
+    return labels.find(v=>!['R1'].includes(v)) || labels[0] || root;
   }
   function matches(sample, kind, governorate, query, newAfter) {
     if (kind && (kind === 'new' ? !(sample.sync_managed && Date.parse(sample.created_at)>newAfter) :
