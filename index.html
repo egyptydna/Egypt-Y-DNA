@@ -4423,7 +4423,7 @@
 
       // J-Mxxx can belong to J1 OR J2. Resolve from a documented SNP path
       // or the versioned licensed reference; never assign unknown J branches to J1.
-      if (Y === "J" || /^J(?:1|2|-)/.test(Y))
+      if (['J','Q','R'].includes(Y) || /^(?:J|Q|R)(?:1|2|-)/.test(Y))
         return YDNASync.yFamily({y_dna:y,snp_path:snp,full_snp_path:fullPath},syncOfficialRelease,syncOfficialNodes);
       if (!isRealValue(y) && (S.startsWith("J1") || S.startsWith("J2"))) return S.slice(0,2);
 
@@ -4780,10 +4780,10 @@
       // Bare J-SNP without a documented parent has unknown J1/J2 membership.
       if (u.startsWith("J-")) return ['J1','J2'].includes(parentFamily) ? parentFamily : null;
 
-      if (d === "Q") return parentFamily || "Q1";
+      if (d === "Q") return parentFamily || null;
       if (d === "Q1") return "Q1";
       if (d === "Q2") return "Q2";
-      if (u.startsWith("Q-")) return parentFamily === "Q2" ? "Q2" : "Q1";
+      if (u.startsWith("Q-")) return ['Q1','Q2'].includes(parentFamily) ? parentFamily : null;
 
       if (d === "R") return "R";
       if (d === "R1") return "R1";
