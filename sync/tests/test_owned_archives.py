@@ -121,9 +121,18 @@ class OwnedArchiveTests(unittest.TestCase):
         self.assertEqual(decode_snapshot(gzip.compress(b'{"samples":[]}')),{'samples':[]})
         with self.assertRaises(ValueError):decode_snapshot(b'[]')
 
-    def test_owned_fetch_fallback_reports_actual_saved_date(self):
+    def test_owned_fetch_is_independent_of_vercel(self):
         with tempfile.TemporaryDirectory() as directory:
-            with patch('sync.fetch_owned_archives.read_snapshot',side_effect=[observed(),urllib.error.HTTPError('https://example.org',503,'unavailable',None,None),tracked()]):
+            with patch('sync.fetch_owned_archives.read_snapshot',return_value=observed()) as fetch:
                 result=fetch_owned({'owner_authorized':True,'observatory_token':'fixture-secret'},directory)
-        self.assertEqual(result['sources']['tracker']['status'],'saved_fallback')
-        self.assertEqual(result['sources']['tracker']['snapshot_at'],'2026-10-20T00:00:00Z')
+                fetch.assert_called_once()
+        self.assertNotIn('tracker',result['files'])
+        self.assertEqual(result['sources']['observatory']['status'],'ok')
+
+    def test_connection_closed_preserves_unavailable_status(self):
+        import http.client
+        with tempfile.TemporaryDirectory() as directory:
+            with patch('sync.fetch_owned_archives.read_snapshot',side_effect=http.client.RemoteDisconnected()):
+                with self.assertRaisesRegex(ValueError,'existing database data must be retained'):
+                    fetch_owned({'owner_authorized':True,'observatory_token':'fixture-secret'},directory)
+            self.assertEqual(json.loads((Path(directory)/'source-status.json').read_text())['observatory']['status'],'unavailable')

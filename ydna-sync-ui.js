@@ -171,8 +171,8 @@
     const classify=value=>{
       const steps=String(value||'').split('>').map(v=>v.trim().toUpperCase());
       if (root==='J') {
-        const j2=steps.some(v=>/^J2/.test(v)||['J-M172','J-M410','J-L26','J-M319'].includes(v));
-        const j1=steps.some(v=>/^J1/.test(v)||['J-M267','J-P58'].includes(v));
+        const j2=steps.some(v=>/^J2/.test(v)||['M172','M410','L26','M319'].includes(v.replace(/^J-/,'')));
+        const j1=steps.some(v=>/^J1/.test(v)||['M267','P58'].includes(v.replace(/^J-/,'')));
         return j1&&j2?'conflict':j2?'J2':j1?'J1':null;
       }
       if (root==='Q') {
@@ -237,6 +237,35 @@
     if (!real(sample.full_snp_path) && knownPaths?.has(String(sample.y_dna||'').toUpperCase())) return knownPaths.get(String(sample.y_dna||'').toUpperCase());
     // A terminal-only record remains visible; no intermediate branches are invented.
     return path || (real(sample.y_dna) ? 'Y-Adam>'+sample.y_dna : '');
+  }
+  function pathIssue(sample,path=terminalPath(sample)) {
+    const terminal=String(sample.y_dna||'').trim().toUpperCase();
+    if(!real(terminal)||!path)return '';
+    const parts=String(path).split('>').map(s=>s.trim().toUpperCase()).filter(Boolean);
+    const root=terminal[0];
+    if(parts.some(s=>/^[A-T]-/.test(s)&&s[0]!==root))return 'Incompatible source ancestry';
+    // Classify the path separately from the terminal, so a wrong J1 parent
+    // cannot make a known J2a terminal disappear into the generic J bucket.
+    if(root==='J'){
+      const j1=parts.some(s=>/^J1/.test(s)||['M267','P58'].includes(s.replace(/^J-/,'')));
+      const j2=parts.some(s=>/^J2/.test(s)||['M172','M410','L26','M319'].includes(s.replace(/^J-/,'')));
+      const family=yFamily({y_dna:terminal});
+      if((j1&&j2)||(j1&&family==='J2')||(j2&&family==='J1'))return 'Conflicting J1 / J2 ancestry';
+    }
+    if(parts.length>1&&normalizedSnp(parts.at(-1))!==normalizedSnp(terminal))return 'Source path does not end at the published terminal';
+    return '';
+  }
+  function safePlacement(sample,release,nodes,mode,knownPaths) {
+    const published=terminalPath(sample,knownPaths),issue=pathIssue(sample,published);
+    const official=officialPlacement(sample,release,nodes,mode,knownPaths);
+    if(official)return {...official,issue};
+    if(issue){
+      // Preserve the source text in the detail view. Only use proven reference
+      // ancestry for placement; otherwise keep the real tester terminal-only.
+      const fallback=mode!=='published'?officialPath(sample,release,nodes):null;
+      return fallback?{...fallback,issue}:{label:sample.y_dna,path:['Y-Adam',sample.y_dna].filter(real),issue};
+    }
+    return {label:sample.y_dna,path:String(published).split('>').map(s=>s.trim()).filter(Boolean),issue:''};
   }
   function knownTerminalPaths(samples) {
     const options=new Map();
@@ -324,7 +353,7 @@
     const yf=keys.find(k=>k.startsWith('yfull:'));
     return kit?.slice(6) || yf?.slice(6) || (real(sample.sample_id)?sample.sample_id:'—');
   }
-  const api = {status,labels,deduplicate,identityKeys,identitySummary,compactSnpPath,yFamily,documentedDescendant,matches,nodeCounts,terminalPath,knownTerminalPaths,inCountScope,reconcileCountryCount,officialPath,officialPlacement,displayName,publicId};
+  const api = {status,labels,deduplicate,identityKeys,identitySummary,compactSnpPath,yFamily,pathIssue,safePlacement,documentedDescendant,matches,nodeCounts,terminalPath,knownTerminalPaths,inCountScope,reconcileCountryCount,officialPath,officialPlacement,displayName,publicId};
   if (typeof module === 'object') module.exports=api;
   else root.YDNASync=api;
 })(typeof window === 'object' ? window : globalThis);

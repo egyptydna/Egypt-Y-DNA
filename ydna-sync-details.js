@@ -173,7 +173,7 @@ async function loadSyncDetails(sample) {
       ${sourcePaths.map(row=>`<p><b>${esc(row.source)} · record ${esc(row.sample_id)}</b></p>
         <p class="sample-detail-code">${esc(String(row.path).split('>').join(' > '))}</p>`).join('')}</details>`
     : '';
-  panel.innerHTML=`<div class="sample-detail-label">Test evidence</div><p>${esc(YDNASync.identitySummary(sample))}</p><p>${esc(YDNASync.labels[YDNASync.status(sample)] || sample.test_status)} · ${esc(sample.test_type)}</p><p>${esc(sample.origin_raw || '')}</p><p>Updated: ${esc(sample.sync_updated_at || sample.created_at || '—')}</p>${compareSourcePaths}<div id="sync-evidence-loading">Loading public source evidence…</div>`;
+  panel.innerHTML=`<div class="sample-detail-label">Test evidence</div><p>${esc(YDNASync.identitySummary(sample))}</p><p>${esc(YDNASync.labels[YDNASync.status(sample)] || sample.test_status)} · ${esc(sample.test_type)}</p><p>${esc(sample.origin_raw || '')}</p>${sample.sync_origin_conflict?'<p class="phylo-warning">Conflicting source governorates: pending review. Included in the Egyptian total, excluded from governorate statistics. Original records remain archived.</p>':''}<p>Updated: ${esc(sample.sync_updated_at || sample.created_at || '—')}</p>${compareSourcePaths}<div id="sync-evidence-loading">Loading public source evidence…</div>`;
   try {
     const observations=[];
     for(let offset=0; ; offset+=1000) {

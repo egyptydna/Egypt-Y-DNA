@@ -12,6 +12,8 @@
   <script src="ydna-sync-ui.js"></script>
   <script src="ydna-sync-details.js"></script>
   <script src="ydna-official-tree.js"></script>
+  <script src="dna-tree-view.js"></script>
+  <script src="dna-tree-integration.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
@@ -3196,6 +3198,7 @@
 }
 
 </style>
+  <link rel="stylesheet" href="dna-tree-view.css"/>
 </head>
 <body class="bg-background text-primary font-body antialiased">
 
@@ -4031,7 +4034,8 @@
     function scrollTreeIntoView() {
       const wrap = document.getElementById("tree-wrap");
       if (!wrap) return;
-      const y = wrap.getBoundingClientRect().top + window.scrollY - 24;
+      const navHeight = document.querySelector('nav')?.getBoundingClientRect().height || 0;
+      const y = wrap.getBoundingClientRect().top + window.scrollY - navHeight - 12;
       window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
     }
 
@@ -4326,8 +4330,8 @@
     function parseMtPath(fullPath, mtDna = "") {
       const raw = String(fullPath || "").trim();
       if (!raw || raw === "—") {
-        const mt = mtMajorLineFromLabel(mtDna);
-        return mt && mt !== "Other" ? ["mt-Eve", mt] : ["mt-Eve"];
+        const terminal = String(mtDna || '').trim();
+        return isRealValue(terminal) ? ["mt-Eve", terminal] : ["mt-Eve"];
       }
       const segs = raw.split(">").map(x => x.trim()).filter(Boolean).filter(x => x !== "—");
       if (!segs.length) return ["mt-Eve"];
@@ -4620,7 +4624,8 @@
         name: valueOrDash(s.name),
         kit_number: valueOrDash(s.kit_number),
         sample_id: valueOrDash(s.sample_id),
-        governorate: valueOrDash(s.governorate),
+        governorate: s.sync_origin_conflict ? '—' : valueOrDash(s.governorate),
+        __original_governorate: valueOrDash(s.governorate),
         site: valueOrDash(s.site),
         ethnic_group: getEthnicGroupValue(s),
         test_type: getTestTypeValue(s),
@@ -5032,8 +5037,9 @@
 
       const knownTerminalPaths = syncKnownTerminalPaths();
       samples.forEach(sample => {
-        const officialPlacement = YDNASync.officialPlacement(sample, syncOfficialRelease, syncOfficialNodes, syncTreeTopology, knownTerminalPaths);
-        const path = officialPlacement ? officialPlacement.path : parsePath(YDNASync.terminalPath(sample, knownTerminalPaths), sample.y_dna);
+        const placement = YDNASync.safePlacement(sample, syncOfficialRelease, syncOfficialNodes, syncTreeTopology, knownTerminalPaths);
+        const officialPlacement = placement.version ? placement : null;
+        const path = parsePath(placement.path.join('>'), sample.y_dna);
         let node = root;
         const ancestorChain = [{ display: "Y-Adam" }];
 
@@ -6555,33 +6561,8 @@
     }
 
         function renderFocusedRoot(root) {
-      const color = nodeBadgeColor(root);
-      const textColor = nodeBadgeTextColor(root);
-      const styleClass = treeBadgeStyle(root);
-      const nodeOpen = !collapsedNodes.has(root.pathKey);
-      const encPath = esc(encodePathArg(root.pathKey));
-
-      const header = `
-        <div class="tree-row">
-          <div class="${styleClass}" style="background:${color};color:${textColor};${root.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
-            <span class="tree-toggle" data-path="${encPath}" onclick="return handleTreeToggleClick(event)"><span>${root.children.length || root.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
-            <span data-path="${encPath}" onclick="return handleTreePathClick(event)" style="cursor:pointer;">${esc(root.display)}</span>
-            <span class="tree-count">${root.count}</span>${syncNodeCountHTML(root)}
-          </div>
-          ${renderNodeAliases(root)}
-        </div>
-        ${renderOfficialNodeInfo(root)}
-        ${renderSyncCountryEvidence(root)}
-      `;
-
-      let childrenHtml = "";
-      if (nodeOpen) {
-        const sampleItems = root.samples.map(renderTreeSample).join("");
-        const childItems = sortNodeChildren(root.children).map(renderTreeNode).join("");
-        if (sampleItems || childItems) childrenHtml = `<ul class="tree-ul focused-root-list">${sampleItems}${childItems}</ul>`;
-      }
-
-      return header + childrenHtml;
+      phyloNodeLookup.clear();
+      return DNATreeView.node(root, compactTreeOptions(), true);
     }
 
     function renderTree() {
@@ -6633,34 +6614,7 @@
     }
 
     function renderTreeNode(node) {
-      const color = nodeBadgeColor(node);
-      const textColor = nodeBadgeTextColor(node);
-      const styleClass = treeBadgeStyle(node);
-      const nodeOpen = !collapsedNodes.has(node.pathKey);
-      const encPath = esc(encodePathArg(node.pathKey));
-
-      const nodeHeader = `
-        <div class="tree-row">
-          <div class="${styleClass}" style="background:${color};color:${textColor};${node.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
-            <span class="tree-toggle" data-path="${encPath}" onclick="return handleTreeToggleClick(event)"><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
-            <span data-path="${encPath}" onclick="return handleTreePathClick(event)" style="cursor:pointer;">${esc(node.display)}</span>
-            <span class="tree-count">${node.count}</span>${syncNodeCountHTML(node)}
-          </div>
-          ${renderNodeAliases(node)}
-        </div>
-        ${renderOfficialNodeInfo(node)}
-        ${renderSyncCountryEvidence(node)}
-      `;
-
-      let inner = "";
-
-      if (nodeOpen) {
-        const sampleItems = node.samples.map(renderTreeSample).join("");
-        const childItems = sortNodeChildren(node.children).map(renderTreeNode).join("");
-        if (sampleItems || childItems) inner = `<ul>${sampleItems}${childItems}</ul>`;
-      }
-
-      return `<li>${nodeHeader}${inner}</li>`;
+      return DNATreeView.node(node, compactTreeOptions());
     }
 
     function treeSampleSubtitle(sample) {
@@ -6675,28 +6629,7 @@
     }
 
     function renderTreeSample(sample) {
-      const showEthnic = sample.__sourceType !== "ancient" && isRealValue(sample.ethnic_group);
-      return `
-        <li>
-          <div class="tree-row">
-            <div class="tree-sample-card ${sample.__sourceType === "related" ? 'related-ancient-card' : ''}" onclick='openSampleModalByUid("${esc(sample.__uid)}")'>
-              <div class="tree-sample-line">
-                <span class="tree-sample-dot"></span>
-                <div class="flex-1 min-w-0">
-                  <div class="tree-sample-name">${esc(YDNASync.displayName(sample))}</div>
-                  <div class="tree-sample-gov">${esc(treeSampleSubtitle(sample))}</div>
-                  ${sample.__duplicate_conflict ? '<div class="tree-sample-gov" style="color:#9a6700">Conflicting terminal results for this kit — verification needed</div>' : ''}
-                  ${sample.__sourceType === 'modern' && currentTreeType !== 'mt' ? `<div class="tree-sample-gov">${esc([YDNASync.identitySummary(sample), YDNASync.labels[YDNASync.status(sample)]].filter(Boolean).join(' • '))}</div>` : ''}
-                  ${showEthnic ? `<div class="tree-sample-ethnic">${esc(sample.ethnic_group)}</div>` : ``}
-                </div>
-                ${sample.__sourceType === "study" ? `<span class="tree-study-badge">Study</span>` : ``}
-                ${sample.__sourceType === "ancient" ? `<span class="tree-ancient-badge">Egyptian Ancient</span>` : ``}
-                ${sample.__sourceType === "related" ? `<span class="tree-related-badge">Related Ancient</span>` : ``}
-              </div>
-            </div>
-          </div>
-        </li>
-      `;
+      return DNATreeView.sample(sample, compactTreeOptions());
     }
 
     function openSampleModalByUid(uid) {

@@ -10,16 +10,16 @@ veröffentlichten Ergebnisse seiner beiden Archive ausdrücklich beauftragt:
   `appgprj_6a9b4a2a138c8191a9f0ba774037e58a`. Eine bereits vorhandene Aufgabe
   aktualisiert dieses Archiv alle sechs Stunden. Die Brücke liest dessen
   gespeicherten Stand mit legitimiertem Besitzerzugriff.
-- Tracker: `https://egypt-dna-tracker.vercel.app/`. Eine vorhandene stündliche
-  Aufgabe bearbeitet dieses Projekt. Beim aktuellen Test antwortete seine
-  Daten-API mit HTTP 503; der verfügbare gespeicherte Fallback stammt vom
-  **20. Oktober 2026**. Dies wird nicht als aktuelle Prüfung von FTDNA ausgegeben.
+- Der alte Tracker auf Vercel dient nur noch als historische Herkunft der bereits
+  übertragenen Daten. Seit dieser Änderung erfolgen keine Vercel-Netzwerkabrufe.
+  Seine stündliche Vercel-Neubauaufgabe wurde auf Betreiberwunsch pausiert.
+  Lokal vorhandene Exporte können weiterhin ausdrücklich mit `--tracker` gelesen
+  werden; dazu wird weder Vercel noch dessen Speicher benötigt.
 
-Der neue Abgleich ruft ausschließlich diese eigenen Archive per GET ab. Er startet
-keinen Quellen-Crawl, keine Projekt-Nachsuche, keinen Vercel-Rebuild und keinen
-Sync-POST. Vorhandene externe Aktualisierungsaufgaben werden nicht verändert.
-Die Übernahmeberechtigung für das eigene Archiv ist keine Behauptung einer neuen
-FTDNA-/YFull-Erlaubnis zum direkten Website-Crawling.
+Der Abgleich liest ausschließlich das gespeicherte eigene Observatory per GET.
+Er startet keinen Quellen-Crawl, keine Projekt-Nachsuche, keinen Vercel-Rebuild
+und keinen Sync-POST. Die Übernahmeberechtigung für das eigene Archiv behauptet
+keine neue Erlaubnis zum direkten Crawling fremder Anbieter-Webseiten.
 
 ## Welche Ergebnisse übernommen werden
 
@@ -90,15 +90,13 @@ es wird kein kurzlebiger Token als dauerhafter GitHub-Secret ausgegeben.
 3. `python -m sync.fetch_owned_archives --outdir /tmp/egypt-owned-archive-input`
    im PTY starten. Nach der verdeckten Eingabeaufforderung genau ein JSON-Objekt
    mit `owner_authorized: true` und `observatory_token: <frischer Token>` über
-   stdin eingeben. Der Prozess liest nur die bekannten eigenen GET-Endpunkte,
-   sendet das Sites-Zugangstoken ausschließlich an seine eigene Site und
-   protokolliert bei einem Tracker-Fallback dessen tatsächliches Datum.
+   stdin eingeben. Der Prozess liest nur den eigenen Observatory-GET-Endpunkt und sendet das Sites-Zugangstoken
+   ausschließlich an seine eigene Site. Vercel wird nicht kontaktiert.
 4. Aus den tatsächlich erfolgreich geladenen Dateien den Plan erstellen:
 
    ```sh
    python -m sync.owned_archives --owner-authorized --guarded-updates \
      --observatory /tmp/egypt-owned-archive-input/observatory.json \
-     --tracker /tmp/egypt-owned-archive-input/tracker.json \
      --outdir /tmp/egypt-owned-archive-sql
    ```
 

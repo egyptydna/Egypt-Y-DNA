@@ -3,6 +3,41 @@ const assert=require('node:assert/strict');
 const ui=require('../../ydna-sync-ui.js');
 const fs=require('node:fs');
 const vm=require('node:vm');
+const view=require('../../dna-tree-view.js');
+test('J-M319 source ancestry cannot place a J2a tester under J1',()=>{
+  const bad={y_dna:'J-M319',full_snp_path:'Y-Adam>J>J1>P58>M319'};
+  assert.equal(ui.pathIssue(bad),'Conflicting J1 / J2 ancestry');
+  assert.deepEqual(ui.safePlacement(bad,null,new Map(),'auto').path,['Y-Adam','J-M319']);
+  assert.equal(ui.yFamily({y_dna:'J-TEST1',full_snp_path:'Y-Adam>J>M172>M410>TEST1'}),'J2');
+  assert.equal(ui.pathIssue({y_dna:'J-M319',full_snp_path:'Y-Adam>J>J2>M172>M410>M319>'}),'');
+});
+test('wrong major ancestry and incomplete terminal paths are not silently used',()=>{
+  assert.equal(ui.pathIssue({y_dna:'J-M319',full_snp_path:'Y-Adam>E-M35>J-M319'}),'Incompatible source ancestry');
+  assert.equal(ui.pathIssue({y_dna:'J-TEST2',full_snp_path:'Y-Adam>J>J-TEST1'}),'Source path does not end at the published terminal');
+});
+test('compact view renders real samples for either tree, escapes content and respects collapse',()=>{
+  const sample={__uid:'id" onclick="bad()',name:'<script>bad()</script>',__sourceType:'modern'};
+  const node={display:'J-M319',pathKey:'Y-Adam>J-M319',samples:[sample],children:[],count:1};
+  const options={type:'y',collapsed:new Set(),names:n=>({primary:n.display,secondary:'YFull: J-M319'}),identity:()=> 'YF99001122',name:s=>s.name,location:()=> 'Egypt',test:()=> 'YFull sequencing',issue:()=>'',sort:xs=>xs,counts:()=>'',aliases:()=>'',age:()=>'',evidence:()=>''};
+  const html=view.node(node,options,true);
+  assert.ok(html.includes('YF99001122'));assert.ok(html.includes('&lt;script&gt;'));
+  assert.ok(!html.includes('<script>bad()'));
+  assert.ok(html.includes('aria-expanded="true"'));
+  options.collapsed.add(node.pathKey);
+  assert.ok(!view.node(node,options,true).includes('YF99001122'));
+  options.type='mt';options.collapsed.clear();node.display='U3b3d2a';
+  assert.ok(view.node(node,options,true).includes('data-tree="mt"'));
+});
+test('platform labels prefer an unambiguous FTDNA name without conflating split branches',()=>{
+  const source=fs.readFileSync('dna-tree-integration.js','utf8');
+  const context={YDNASync:ui,currentTreeType:'y',syncOfficialRelease:{version:'test',metadata:{matches:{'J-FT1':{status:'equivalent_snp',label:'J-Y1'},'J-FT2':{status:'equivalent_snp',label:'J-Y1'}}}},syncOfficialNodes:new Map([['Y-Adam',{parent_label:null}],['J-Y1',{parent_label:'Y-Adam'}]]),syncCountryCounts:[{namespace:'ftdna',node_label:'J-FT1'}]};
+  vm.createContext(context);vm.runInContext(source,context);
+  assert.equal(vm.runInContext("treePlatformNames({display:'J-Y1'}).primary",context),'J-FT1');
+  assert.match(vm.runInContext("treePlatformNames({display:'J-Y1'}).secondary",context),/YFull: J-Y1/);
+  context.syncCountryCounts=[...context.syncCountryCounts,{namespace:'ftdna',node_label:'J-FT2'}];
+  assert.equal(vm.runInContext("treePlatformNames({display:'J-Y1'}).primary",context),'J-Y1');
+  assert.match(vm.runInContext("treePlatformNames({display:'J-Y1'}).secondary",context),/distinct source branches retained/);
+});
 test('one kit in three projects counts once',()=>{
   assert.equal(ui.deduplicate([1,2,3].map(id=>({id,kit_number:'990099001'}))).length,1);
 });

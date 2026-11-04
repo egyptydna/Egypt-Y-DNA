@@ -6,6 +6,7 @@ through hidden stdin, never a command argument, file or GitHub secret.
 import argparse
 import getpass
 import gzip
+import http.client
 import io
 import json
 import sys
@@ -14,7 +15,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 from .http import NoRedirect
-from .owned_archives import OBSERVATORY,TRACKER
+from .owned_archives import OBSERVATORY
 
 LIMIT=32_000_000
 
@@ -28,8 +29,8 @@ def decode_snapshot(raw):
 
 
 def read_snapshot(url,token=None):
-    if url not in (OBSERVATORY+'api/data',TRACKER+'api/data',TRACKER+'data.json.gz'):
-        raise ValueError('Only the two explicitly owned archive read endpoints are permitted')
+    if url != OBSERVATORY+'api/data':
+        raise ValueError('Only the explicitly owned Observatory read endpoint is permitted')
     if token and not url.startswith(OBSERVATORY):raise ValueError('Site credential cannot leave its Site')
     headers={'User-Agent':'Egypt-Y-DNA owner archive transfer'}
     if token:headers['OAI-Sites-Authorization']='Bearer '+token
@@ -40,7 +41,7 @@ def read_snapshot(url,token=None):
             with opener.open(request,timeout=45) as response:return decode_snapshot(response.read(LIMIT+1))
         except urllib.error.HTTPError as error:
             if error.code not in (429,500,502,503,504) or attempt==2:raise
-        except (TimeoutError,urllib.error.URLError):
+        except (TimeoutError,urllib.error.URLError,http.client.HTTPException,ConnectionError):
             if attempt==2:raise
         time.sleep(2**attempt)
 
@@ -58,16 +59,8 @@ def fetch_owned(config,outdir):
         path=out/'observatory.json';path.write_text(json.dumps(data,ensure_ascii=False));files['observatory']=str(path)
         report['observatory']={'status':'ok','checked_at':data.get('checkedAt'),'upstream_sync':data.get('sync'),
             'coverage':data.get('coverage'),'records':len(data['records'])}
-    except (ValueError,TimeoutError,urllib.error.URLError):report['observatory']={'status':'unavailable'}
-    for endpoint in ('api/data','data.json.gz'):
-        try:
-            data=read_snapshot(TRACKER+endpoint)
-            if not isinstance(data.get('samples'),list):raise ValueError('Owner Tracker format changed')
-            path=out/'tracker.json';path.write_text(json.dumps(data,ensure_ascii=False));files['tracker']=str(path)
-            report['tracker']={'status':'ok' if endpoint=='api/data' else 'saved_fallback',
-                'snapshot_at':data.get('updated'),'endpoint':endpoint,'samples':len(data['samples'])}
-            break
-        except (ValueError,TimeoutError,urllib.error.URLError):report['tracker']={'status':'unavailable'}
+    except (ValueError,TimeoutError,urllib.error.URLError,http.client.HTTPException,ConnectionError):
+        report['observatory']={'status':'unavailable'}
     (out/'source-status.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
     if not files:raise ValueError('No owned archive snapshot could be read; existing database data must be retained')
     return {'files':files,'sources':report}
