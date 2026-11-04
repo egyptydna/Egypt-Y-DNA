@@ -390,3 +390,15 @@ test('optional reference metadata is loaded after base samples without blocking 
   assert.match(details,/await Promise\.allSettled\(\[runTask,observationTask,aliasesTask,countsTask,loadOfficialTree\(\)\]\)/);
   assert.match(details,/function resetSyncCountryFactsIndex\(\)/);
 });
+
+test('node focus and full/direct toggles reuse the filtered raw DNA tree',()=>{
+  const html=fs.readFileSync('index.html','utf8');
+  const start=html.indexOf('function renderTree()');
+  const end=html.indexOf('function renderTreeNode(',start);
+  const render=html.slice(start,end);
+  assert.match(render,/const rawRoot = getCachedRawTree\(samples\)/);
+  assert.ok(!render.includes('const rawRoot = buildRawTree(samples)'));
+  assert.match(html,/function resetRawTreeCache\(\)/);
+  assert.match(html,/resetRawTreeCache\(\);\s*syncLineagePathCache=syncKnownTerminalPaths\(\)/);
+  assert.match(html,/const signature=JSON\.stringify\(\[/);
+});
