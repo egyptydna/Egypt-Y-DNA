@@ -3,8 +3,9 @@
   'use strict';
   const real = v => v != null && !['', '—', '-'].includes(String(v).trim());
   function status(s) {
+    const explicitBigY=/^Big Y-(500|700)$/i.test(s.test_type || '');
+    if(explicitBigY && (!real(s.test_status)||s.sync_published?.test_status===s.test_status)) return 'confirmed_big_y';
     if (real(s.test_status)) return s.test_status;
-    if (/^Big Y-(500|700)$/i.test(s.test_type || '')) return 'confirmed_big_y';
     if (/^YFull sequencing$/i.test(s.test_type || '')) return 'yfull_sequencing';
     if (/^Y[- ]?(?:DNA)?\s*(12|25|37|67|111)$/i.test(s.test_type || '')) return 'str_only';
     return 'unknown';
@@ -115,7 +116,18 @@
     if(path.at(-1)!=='Y-Adam') return null;
     return {label,path:path.reverse(),version:release.version};
   }
-  const api = {status,labels,deduplicate,matches,nodeCounts,terminalPath,knownTerminalPaths,inCountScope,reconcileCountryCount,officialPath};
+  function officialPlacement(sample,release,nodes,mode,knownPaths) {
+    if(mode==='published') return null;
+    if(mode==='auto' && (real(sample.full_snp_path)||real(sample.snp_path)||knownPaths?.has(String(sample.y_dna||'').toUpperCase()))) return null;
+    return officialPath(sample,release,nodes);
+  }
+  function displayName(sample) {
+    return [sample.name,sample.yfull_id,sample.kit_number,sample.sample_id].find(real)||'—';
+  }
+  function publicId(sample) {
+    return [sample.kit_number,sample.yfull_id,sample.sample_id].find(real)||'—';
+  }
+  const api = {status,labels,deduplicate,matches,nodeCounts,terminalPath,knownTerminalPaths,inCountScope,reconcileCountryCount,officialPath,officialPlacement,displayName,publicId};
   if (typeof module === 'object') module.exports=api;
   else root.YDNASync=api;
 })(typeof window === 'object' ? window : globalThis);

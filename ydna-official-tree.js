@@ -1,6 +1,6 @@
 let syncOfficialRelease=null;
 let syncOfficialNodes=new Map();
-let syncTreeTopology='yfull';
+let syncTreeTopology='auto';
 
 async function loadOfficialTree() {
   try {
@@ -20,7 +20,7 @@ async function loadOfficialTree() {
 }
 
 function setOfficialTopology(value) {
-  syncTreeTopology=value==='yfull'?'yfull':'published';
+  syncTreeTopology=['yfull','published'].includes(value)?value:'auto';
   treeFocusPath=null;treeSearchTargetPath=null;treeSearchResultPath='';collapsedNodes.clear();renderTree();
 }
 
@@ -32,10 +32,11 @@ function renderOfficialTreePanel() {
   const r=syncOfficialRelease;
   panel.innerHTML=`<label for="official-topology-mode">Tree paths</label>
     <select id="official-topology-mode" class="ctrl-btn" onchange="setOfficialTopology(this.value)">
+      <option value="auto" ${syncTreeTopology==='auto'?'selected':''}>Published paths · YFull fallback for missing paths</option>
       <option value="published" ${syncTreeTopology==='published'?'selected':''}>Existing published paths</option>
       <option value="yfull" ${syncTreeTopology==='yfull'?'selected':''}>Official YFull paths · v${esc(r.version)}</option>
     </select>
-    <p>Unmatched or conflicting labels keep their existing published paths. Branch ages describe the lineage, not the individual tester.<br>
+    <p>The default view keeps verified source paths, including newer archive observations. The dated GitHub tree fills missing paths. Branch ages describe the lineage, not the individual tester.<br>
     YFull GitHub v${esc(r.version)} · source published ${esc(r.published_at.slice(0,10))} · checked ${esc(r.checked_at.slice(0,10))}<br>
     ${esc(r.node_count-1)} source branches indexed; ${esc(r.selected_node_count)} path nodes for this archive. This is the GitHub snapshot, not a claim about the current live YTree version.</p>
     <p>${esc(r.attribution)} · ${syncSourceLink(r.license_url,'License')} · ${syncSourceLink(r.source_url,'Original JSON')} · Relevant paths and metadata extracted.</p>`;

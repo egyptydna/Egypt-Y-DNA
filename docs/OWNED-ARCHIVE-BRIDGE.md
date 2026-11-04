@@ -1,0 +1,129 @@
+# Regelmäßiger Abgleich der bestehenden eigenen Archive
+
+Stand: 4. November 2026. Ziel bleibt ausschließlich das bestehende Projekt
+`lsfmpmfoqdtkgndtaxen` und die GitHub-Pages-Website Egypt-Y-DNA.
+
+Der Betreiber hat die Übernahme der gespeicherten, ursprünglich öffentlich
+veröffentlichten Ergebnisse seiner beiden Archive ausdrücklich beauftragt:
+
+- Observatory: `https://egypt-ydna-observatory.kimoeln.chatgpt.site/`, Sites-Projekt
+  `appgprj_6a9b4a2a138c8191a9f0ba774037e58a`. Eine bereits vorhandene Aufgabe
+  aktualisiert dieses Archiv alle sechs Stunden. Die Brücke liest dessen
+  gespeicherten Stand mit legitimiertem Besitzerzugriff.
+- Tracker: `https://egypt-dna-tracker.vercel.app/`. Eine vorhandene stündliche
+  Aufgabe bearbeitet dieses Projekt. Beim aktuellen Test antwortete seine
+  Daten-API mit HTTP 503; der verfügbare gespeicherte Fallback stammt vom
+  **20. Oktober 2026**. Dies wird nicht als aktuelle Prüfung von FTDNA ausgegeben.
+
+Der neue Abgleich ruft ausschließlich diese eigenen Archive per GET ab. Er startet
+keinen Quellen-Crawl, keine Projekt-Nachsuche, keinen Vercel-Rebuild und keinen
+Sync-POST. Vorhandene externe Aktualisierungsaufgaben werden nicht verändert.
+Die Übernahmeberechtigung für das eigene Archiv ist keine Behauptung einer neuen
+FTDNA-/YFull-Erlaubnis zum direkten Website-Crawling.
+
+## Welche Ergebnisse übernommen werden
+
+`sync/owned_archives.py` validiert die Daten und verwendet ausschließlich die
+vorhandenen transaktionalen Importfunktionen:
+
+- Observatory: moderne, ausdrücklich nicht antike `YF...`-Kundenprofile mit
+  veröffentlichtem Egypt-Herkunftsland, Terminalgruppe, veröffentlichtem Pfad,
+  Originalregion und ursprünglichem YFull-Link. Testart `YFull sequencing`.
+  Wissenschaftliche Kennungen, Ancient- und mtDNA-Proben bleiben getrennt.
+- Tracker: ausschließlich moderne Y-DNA-Projektzeilen mit einem tatsächlichen
+  öffentlichen **Country = Egypt**-Feld und gültiger Kitnummer. Ein im Tracker
+  zusammengeführter Ortsname genügt dafür nicht. Verwendet werden die originale
+  Haplogruppen- und Testspalte und exakt veröffentlichte STR-Spalten samt Position,
+  Originalmarker, Nullallelen, fehlenden Werten und Mehrfachallelen.
+- Jede FTDNA-Projektbeobachtung behält eine eigene Quellenidentität. Dasselbe Kit
+  in mehreren Projekten erweitert dasselbe Profil; der stärkste ausdrücklich
+  veröffentlichte Big-Y-Test wird bei neuen Profilen zuerst verarbeitet. Ein
+  Big-Y-Wort im Untergruppentitel genügt nicht als Testnachweis.
+- Ein ausdrücklich veröffentlichtes YFull-ID-Feld in derselben Kitzeile kann eine
+  Identitätsverknüpfung belegen. Namen oder gleiche Haplogruppen tun das nicht.
+- 393 FTDNA-Terminalzählungen des Observatory-Snapshots ergeben 622 anonyme
+  Länderzuordnungen. Diese Fakten gelangen separat in `ydna_sync_country_counts`;
+  aus ihnen entstehen keine Kitnummern oder Profile. Die Testpopulation bleibt
+  `unknown`, statt sämtliche Zuordnungen als Big Y zu bezeichnen.
+- Kumulative Länderzahlen werden ausschließlich durch Summieren dieser direkten
+  Werte entlang der tatsächlich gespeicherten Quellenpfade abgeleitet. Sie haben
+  eine eigene Quelle `owner-observatory-derived-counts`, sind als `inclusive`
+  getrennt gespeichert und werden nicht zu den direkten Zahlen addiert.
+
+Fehlende Daten werden nicht geschätzt. Nicht leere manuell gepflegte Bestandswerte
+werden nicht überschrieben; widersprüchliche Aussagen erzeugen private Prüffälle.
+Der Plan schreibt standardmäßig ausschließlich neue Profile. Der optionale Modus
+`--guarded-updates` erlaubt Aktualisierungen nur bei automatisch verwalteten
+Profilen aus genau ihrer ursprünglichen Quelle, wenn keine Prüffälle offen sind
+und keine automatisch verwalteten Felder manuell verändert wurden. Abweichende
+manuelle Werte und eine Abschwächung eines expliziten Big-Y-Tests sperren die
+Aktualisierung. Andere bestehende Profile bleiben erhalten und neue Angaben werden
+privat zur Prüfung vorgemerkt. Ältere Fallback-Snapshots dürfen einen bereits
+bekannten neueren Quellenstand nicht zurücksetzen.
+Opt-out-Tombstones und Sichtbarkeitssperren bleiben wirksam. Ein fehlender oder
+unzugänglicher Archivstand löst keine Löschung aus. Ursprünglicher Quellenlink,
+Archivherkunft und erster Archivfund bleiben als Belege erhalten. Das Prüfdatum
+des jeweiligen Archiv-Snapshots steht in der privaten Quellenkonfiguration.
+
+Die Observatory-Übernahme von **YF149485 / J-M319 / Al Iskandarīyah** wurde bereits
+produktiv geprüft: genau ein Profil, `YFull sequencing`, `EG-ALX`, kein erfundener
+FTDNA-Kit. Der Live-Browsercheck bestätigte die Position unter J-M319 und die
+Berücksichtigung in der Alexandria-Statistik.
+
+## Ausführung durch eine Hintergrundaufgabe
+
+Dieser Abschnitt ist die vollständige Betriebsanweisung für den autorisierten
+Kopierlauf. Der GitHub-Actions-Lauf bleibt unabhängig davon für die lizenzierte
+offizielle YFull-Topologie zuständig. Für die privaten eigenen Archivzugriffe
+beschafft die Hintergrundaufgabe bei jeder Ausführung einen frischen Sites-Zugang;
+es wird kein kurzlebiger Token als dauerhafter GitHub-Secret ausgegeben.
+
+1. Den aktuellen geprüften Code dieses Repositorys verwenden. Falls die Umgebung
+   neu ist, das öffentliche Repository `https://github.com/egyptydna/Egypt-Y-DNA`
+   schreibgeschützt klonen und `sync/requirements.txt` installieren. Keine fremden
+   Repositories oder neue Datenbanken anlegen.
+2. Mit Sites `get_site(project_id: appgprj_6a9b4a2a138c8191a9f0ba774037e58a)` den
+   aktuellen Besitzerzugriff lesen. Die zurückgegebene URL muss zur oben genannten
+   Observatory-Seite gehören. Den zurückgegebenen `siwc_bypass_bearer_token` nur
+   verdeckt im Arbeitsspeicher an den folgenden Prozess übergeben; niemals
+   ausgeben, in Dateien schreiben oder in den Aufgabenprompt aufnehmen.
+3. `python -m sync.fetch_owned_archives --outdir /tmp/egypt-owned-archive-input`
+   im PTY starten. Nach der verdeckten Eingabeaufforderung genau ein JSON-Objekt
+   mit `owner_authorized: true` und `observatory_token: <frischer Token>` über
+   stdin eingeben. Der Prozess liest nur die bekannten eigenen GET-Endpunkte,
+   sendet das Sites-Zugangstoken ausschließlich an seine eigene Site und
+   protokolliert bei einem Tracker-Fallback dessen tatsächliches Datum.
+4. Aus den tatsächlich erfolgreich geladenen Dateien den Plan erstellen:
+
+   ```sh
+   python -m sync.owned_archives --owner-authorized --guarded-updates \
+     --observatory /tmp/egypt-owned-archive-input/observatory.json \
+     --tracker /tmp/egypt-owned-archive-input/tracker.json \
+     --outdir /tmp/egypt-owned-archive-sql
+   ```
+
+   Eine nicht verfügbare Eingabedatei weglassen. Echte Datensnapshots und erzeugte
+   SQL-Dateien bleiben außerhalb des öffentlichen Repositorys und werden nicht
+   committed. Die Dateien enthalten keine Laufzeitzugangsdaten.
+5. `plan.json` lesen, die feste `project_id` prüfen und die angegebenen SQL-Dateien
+   **in der angegebenen Reihenfolge** über Supabase `execute_sql` ausschließlich
+   im Projekt `lsfmpmfoqdtkgndtaxen` ausführen. Große Dateien vollständig in
+   geordneten Abschnitten lesen, damit kein abgeschnittener Tool-Output als SQL
+   ausgeführt wird. Bei einem Fehler sofort stoppen; vorhandene Daten behalten.
+   Keine Schema-, RLS-, Grant- oder Quellenzugriffsänderungen vornehmen. Der Plan
+   verwendet die vorhandenen Importfunktionen und kleine Transaktionen.
+6. Den `ydna_sync_runs`-Bericht dieser `run_id` zurücklesen: importierte Profile,
+   unveränderte Beobachtungen, Konflikte und getrennte Zählfakten. Bei einem
+   abgebrochenen Lauf dessen Status als `failed` bzw. `partial` dokumentieren,
+   ohne SQL- oder personenbezogene Rohdaten in Fehlermeldungen auszugeben.
+   Relevante Quellenstatus und Datumsstände prüfen. Unverändert wiederholte
+   Datensätze müssen ohne zusätzliche Profile verarbeitet werden.
+7. Nur eine knappe Meldung mit Zählungen und konkreten Fehlern erstellen. Keine
+   Personennamen, vollständigen genetischen Profile, STR-Tabellen oder Tokens in
+   Benachrichtigungen ausgeben. Bei unverändertem normalem Lauf keine zusätzliche
+   Meldung senden.
+
+Ein erfolgreicher Kopierlauf bestätigt den Transfer der gespeicherten Daten. Er
+belegt nicht, dass alle öffentlichen FTDNA-Projekte oder die gesamte Live-YFull-
+Website aktuell geprüft wurden. Die separaten Quellaufgaben und ihre tatsächlichen
+Abdeckungsberichte bleiben dafür maßgeblich.

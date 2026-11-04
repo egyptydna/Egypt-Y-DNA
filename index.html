@@ -4998,7 +4998,7 @@
 
       const knownTerminalPaths = syncKnownTerminalPaths();
       samples.forEach(sample => {
-        const officialPlacement = syncTreeTopology === 'yfull' ? YDNASync.officialPath(sample, syncOfficialRelease, syncOfficialNodes) : null;
+        const officialPlacement = YDNASync.officialPlacement(sample, syncOfficialRelease, syncOfficialNodes, syncTreeTopology, knownTerminalPaths);
         const path = officialPlacement ? officialPlacement.path : parsePath(YDNASync.terminalPath(sample, knownTerminalPaths), sample.y_dna);
         let node = root;
         const ancestorChain = [{ display: "Y-Adam" }];
@@ -5667,8 +5667,8 @@
               <span class="text-gray-400 uppercase">${esc(s.governorate || s.site || '—')}</span>
             </div>
           </div>
-          <p class="font-black uppercase text-sm mb-1 text-center">${esc(s.name || '—')}</p>
-          <p class="text-[10px] text-secondary font-mono text-center mb-2">${esc(s.sample_id || s.kit_number || '')}</p>
+          <p class="font-black uppercase text-sm mb-1 text-center">${esc(YDNASync.displayName(s))}</p>
+          <p class="text-[10px] text-secondary font-mono text-center mb-2">${esc(YDNASync.publicId(s))}</p>
           ${ethnicLine}
           <span class="text-[9px] text-gray-400 font-mono snp-text mb-4 text-center block">${esc(s.snp_path || s.y_dna || '—')}</span>
           <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
@@ -5702,7 +5702,7 @@
               ${s.__sourceType !== "ancient" && isRealValue(s.ethnic_group) ? `<div class="text-[9px] font-black uppercase tracking-wide text-gray-400 mt-1">${esc(s.ethnic_group)}</div>` : ``}
               ${s.__sourceType === "study" ? `<div class="mt-2"><span class="tree-study-badge">STUDY</span></div>` : ``}
             </td>
-            <td class="px-2 py-6 font-mono text-[10px] text-gray-400">${esc(s.kit_number || s.sample_id || '—')}</td>
+            <td class="px-2 py-6 font-mono text-[10px] text-gray-400">${esc(YDNASync.publicId(s))}</td>
             <td class="px-2 py-6 text-[10px] font-black text-gray-400 uppercase">${esc(s.governorate || '—')}</td>
             <td class="px-2 py-6 text-[10px] font-black uppercase text-gray-500">${esc(s.ethnic_group || '—')}</td>
             <td class="px-4 py-6 text-left">
@@ -5817,12 +5817,12 @@
       renderOfficialSampleInfo(sample);
       samplePathMode = "direct";
 
-      document.getElementById("sample-modal-name").textContent = sample.name || sample.sample_id || sample.kit_number || "Sample";
+      document.getElementById("sample-modal-name").textContent = YDNASync.displayName(sample);
       const modalLocation = sample.__sourceType === "related"
         ? [sample.country, sample.region, sample.site].filter(isRealValue).join(" • ")
         : (sample.governorate || sample.site || "Unknown location");
       document.getElementById("sample-modal-subtitle").textContent = `${modalLocation || "Unknown location"} • ${typeLabel}`;
-      document.getElementById("sample-modal-kit").textContent = sample.kit_number || sample.sample_id || "—";
+      document.getElementById("sample-modal-kit").textContent = YDNASync.publicId(sample);
       document.getElementById("sample-modal-location").textContent = modalLocation || "—";
       document.getElementById("sample-modal-ydna").textContent = sample.y_dna || "—";
       document.getElementById("sample-modal-mtdna").textContent = sample.mt_dna || "—";
@@ -6569,7 +6569,7 @@
               <div class="tree-sample-line">
                 <span class="tree-sample-dot"></span>
                 <div class="flex-1 min-w-0">
-                  <div class="tree-sample-name">${esc(sample.name || "—")}</div>
+                  <div class="tree-sample-name">${esc(YDNASync.displayName(sample))}</div>
                   <div class="tree-sample-gov">${esc(treeSampleSubtitle(sample))}</div>
                   ${sample.__sourceType === 'modern' && currentTreeType !== 'mt' ? `<div class="tree-sample-gov">${esc([isRealValue(sample.kit_number) ? 'Kit: '+sample.kit_number : '', sample.yfull_id, YDNASync.labels[YDNASync.status(sample)]].filter(Boolean).join(' • '))}</div>` : ''}
                   ${showEthnic ? `<div class="tree-sample-ethnic">${esc(sample.ethnic_group)}</div>` : ``}

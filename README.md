@@ -6,8 +6,9 @@ Die Website liest das bestehende Supabase-Projekt `lsfmpmfoqdtkgndtaxen`.
 Der Importdienst läuft unabhängig von Websitebesuchen in GitHub Actions alle zwölf Stunden.
 Der neue offizielle YFull-GitHub-Adapter und genehmigte Testerfeeds sind unter
 [GitHub-Datenquellen](docs/GITHUB-DATENQUELLEN.md) dokumentiert. Der erste lizenzierte
-YFull-Teilbaum ist importiert; die neue automatische Quelle und Anzeige werden nach
-Merge dieser Erweiterung aktiv. Für neue einzelne Tester fehlt noch ein genehmigter Feed.
+YFull-Teilbaum ist importiert und der GitHub-Quellenlauf ist auf `main` aktiv. Ein zusätzlicher
+[Abgleich der eigenen Archive](docs/OWNED-ARCHIVE-BRIDGE.md) übernimmt bereits
+gespeicherte belegte Tester und getrennte FTDNA-Zählungen in dieselbe Datenbank.
 
 **Betrieb, tatsächliche Quellenbeschränkungen, Secrets, Migrationen und erster Importbericht:**
 [Synchronisierungsdokumentation](docs/SYNCHRONISIERUNG.md).
