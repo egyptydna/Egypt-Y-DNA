@@ -15,6 +15,10 @@ AGENT = 'EgyptYDNA-PublicSync/1.0 (+https://github.com/egyptydna/Egypt-Y-DNA)'
 class Unavailable(Exception): pass
 
 
+class SourceRestricted(Unavailable):
+    """A provider's explicit access restriction; no result request may be made."""
+
+
 def robots_rules(text, path):
     groups, agents, rules, delay = [], [], [], 5
     in_rules = False

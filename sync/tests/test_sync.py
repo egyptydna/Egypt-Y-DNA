@@ -4,9 +4,9 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
-from sync.adapters import parse_ftdna, collect_export, country_form, public_projects
-from sync.http import robots_rules, Unavailable
+from unittest.mock import patch, Mock
+from sync.adapters import parse_ftdna, collect_ftdna, collect_export, country_form, public_projects
+from sync.http import robots_rules, Unavailable, SourceRestricted
 from sync.normalize import Gazetteer, prepare, marker_name, str_value
 from sync.run import synchronize
 
@@ -30,6 +30,14 @@ class NormalizeTests(unittest.TestCase):
     def test_yfull_is_not_big_y(self):
         r=prepare(fixture(namespace='yfull',external_id='YF990099001',test_type='Big Y-700'),self.gaz)
         self.assertEqual(r['test_type'],'YFull sequencing');self.assertEqual(r['test_status'],'yfull_sequencing')
+
+    def test_yfull_new_flag_does_not_replace_id_or_sample_kind(self):
+        r=prepare(fixture(namespace='yfull',external_id='YF990099001',is_new=True,tree_version='synthetic-fixture'),self.gaz)
+        self.assertTrue(r['accepted']);self.assertTrue(r['is_new'])
+        self.assertEqual(r['external_id'],'YF990099001')
+        self.assertEqual(r['test_status'],'yfull_sequencing')
+        ancient=prepare(fixture(namespace='yfull',external_id='YF990099001',is_new=True,sample_kind='ancient'),self.gaz)
+        self.assertFalse(ancient['accepted'])
 
     def test_study_and_ancient_excluded(self):
         for kind in ['ancient','study','unknown']:
@@ -100,8 +108,36 @@ class AdapterTests(unittest.TestCase):
         self.assertEqual(robots_rules(robots,'/tree/J/'),(False,10))
         self.assertFalse(robots_rules('User-agent: *\nDisallow: /*kit=*','/public/J?kit=123')[0])
 
+    def test_no_ftdna_request_without_provider_permission(self):
+        http=Mock()
+        with self.assertRaises(SourceRestricted):
+            collect_ftdna({'url':'https://www.familytreedna.com/public/J-M267'},http)
+        http.get.assert_not_called()
+
+    def test_authorized_ftdna_source_uses_public_table(self):
+        http=Mock()
+        http.get.return_value=self.HTML.encode()
+        records,_=collect_ftdna({'id':'fixture','url':'https://example.org',
+            'automated_access_allowed':True,'access_permission_url':'https://example.org/permission'},http)
+        self.assertEqual(len(records),1)
+
+    def test_access_flag_alone_does_not_override_terms(self):
+        http=Mock()
+        with self.assertRaises(SourceRestricted):
+            collect_ftdna({'url':'https://www.familytreedna.com/public/J-M267','automated_access_allowed':True},http)
+        http.get.assert_not_called()
+
 
 class RunTests(unittest.TestCase):
+    def test_restricted_source_is_reported_without_result_request(self):
+        http=Mock()
+        report=synchronize([dict(id='restricted',url='https://www.familytreedna.com/public/J-M267',
+            adapter='ftdna_project',enabled=True)],http=http)
+        self.assertEqual(report['sources'][0]['status'],'restricted')
+        self.assertEqual(report['counts']['restricted_sources'],1)
+        self.assertEqual(report['sources_checked_successfully'],0)
+        http.get.assert_not_called()
+
     def test_three_projects_and_no_change_repeat(self):
         sources=[dict(id=str(i),adapter='fixture',enabled=True) for i in range(3)]
         with patch('sync.run.ADAPTERS',{'fixture':lambda s,h:([fixture(source_id=s['id'])],[]) }):
