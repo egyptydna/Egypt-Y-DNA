@@ -38,6 +38,7 @@ function syncSourceLink(url, label) {
 async function loadSyncDetails(sample) {
   const panel=document.getElementById('sample-sync-details');
   panel.innerHTML='';
+  panel.__strProfile=null;
   if(sample.__sourceType!=='modern') return;
   panel.innerHTML=`<div class="sample-detail-label">Test evidence</div><p>${esc(YDNASync.labels[YDNASync.status(sample)] || sample.test_status)} · ${esc(sample.test_type)} · ${esc(sample.yfull_id || '')}</p><p>${esc(sample.origin_raw || '')}</p><p>Updated: ${esc(sample.sync_updated_at || sample.created_at || '—')}</p><div id="sync-evidence-loading">Loading public source evidence…</div>`;
   try {

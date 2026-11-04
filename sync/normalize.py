@@ -124,7 +124,7 @@ def prepare(record, gazetteer):
     if haplo and not re.fullmatch(r'[A-T][A-Za-z0-9*.+_\-]*', haplo): reasons.append('invalid_haplogroup')
     if not haplo and not record.get('str_markers'): reasons.append('no_y_result')
     path = record.get('snp_path', [])
-    if path and (not record.get('path_source_url') or path[-1] != haplo):
+    if path and (not isinstance(path, list) or not str(record.get('path_source_url') or '').startswith('https://') or path[-1] != haplo):
         reasons.append('unverified_snp_path')
         record['snp_path'] = []
     for identity in record.get('verified_ids', []):
