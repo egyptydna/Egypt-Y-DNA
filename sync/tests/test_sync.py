@@ -83,6 +83,25 @@ class NormalizeTests(unittest.TestCase):
         r=prepare(fixture(snp_path=['Y-Adam','J-TEST1']),self.gaz)
         self.assertFalse(r['accepted']);self.assertEqual(r['snp_path'],[])
 
+    def test_contradictory_j_subtree_rejected_without_inventing_a_path(self):
+        bad=prepare(fixture(y_dna='J-M319',snp_path=['Y-Adam','J','J1','J-M319'],
+            path_source_url='https://example.org/source'),self.gaz)
+        self.assertFalse(bad['accepted'])
+        self.assertIn('contradictory_y_lineage',bad['review_reasons'])
+        self.assertEqual(bad['snp_path'],[])
+        good=prepare(fixture(y_dna='J-M319',snp_path=['Y-Adam','J','J2','J-M410','J-M319'],
+            path_source_url='https://example.org/source'),self.gaz)
+        self.assertTrue(good['accepted'])
+        self.assertEqual(good['snp_path'][-1],'J-M319')
+
+    def test_conflicting_q_and_r_path_quarantined(self):
+        for terminal,path in [('Q-TEST',['Y-Adam','Q1','Q2','Q-TEST']),
+                              ('R-TEST',['Y-Adam','R1','R2','R-TEST'])]:
+            imported=prepare(fixture(y_dna=terminal,snp_path=path,
+                path_source_url='https://example.org/source'),self.gaz)
+            self.assertFalse(imported['accepted'])
+            self.assertIn('contradictory_y_lineage',imported['review_reasons'])
+
     def test_permission_gate(self):
         self.assertFalse(prepare(fixture(publication_allowed=False),self.gaz)['accepted'])
 

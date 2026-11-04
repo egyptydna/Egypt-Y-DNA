@@ -70,12 +70,14 @@ function renderOfficialSampleInfo(sample) {
   if(!syncOfficialRelease || currentTreeType==='mt' || !isRealValue(sample.y_dna)) return;
   const placement=YDNASync.officialPath(sample,syncOfficialRelease,syncOfficialNodes);
   if(!placement) {
-    target.textContent=`Official YFull GitHub v${syncOfficialRelease.version}: no unambiguous placement for the published labels. Original source path retained.`;
+    target.textContent=`Official YFull GitHub v${syncOfficialRelease.version}: no unambiguous reference path for this tester's published terminal SNP. The sample remains terminal-only; no ancestors were invented.`;
     return;
   }
   const node=syncOfficialNodes.get(placement.label);
+  const sourceHasPath=isRealValue(sample.full_snp_path) || isRealValue(sample.snp_path);
   target.innerHTML=`<div class="sample-detail-label">Official YFull Y-DNA reference · v${esc(placement.version)}</div>
     <p>Published record: ${esc(sample.y_dna)} · YFull branch: ${esc(placement.label)}</p>
+    ${sourceHasPath?'':'<p><strong>Reference tree path (not submitted per-tester SNP sequence).</strong> The project source did not provide a complete path. Placement uses the independently documented terminal branch; it is not a claim of further individual testing.</p>'}
     <div class="sample-detail-code">${esc(placement.path.join(' > '))}</div>
     <p>Branch formed: ${esc(publishedAgeText(node.age_estimates?.formed))}<br>Branch TMRCA: ${esc(publishedAgeText(node.age_estimates?.tmrca))}</p>
     <details><summary>Published defining SNP blocks</summary><p class="sample-detail-code">${esc((node.snp_groups||[]).map(g=>g.join(' / ')).join(', '))}</p></details>
