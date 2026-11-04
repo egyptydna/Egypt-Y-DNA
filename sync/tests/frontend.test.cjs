@@ -216,12 +216,12 @@ test('a documented cross-ID link allows safe FTDNA+YFull merging without losing 
   assert.match(ui.identitySummary(all[0]),/YFull ID: YF123456/);
   assert.equal(all[0].kit_number,'990099001');
 });
-test('conflicting linked sample identity claims are flagged instead of silently overwritten',()=>{
+test('different YFull sample IDs never collapse through a shared FTDNA kit',()=>{
   const rows=ui.deduplicate([{id:1,kit_number:'990099001',yfull_id:'YF123456',y_dna:'J-P58'},
     {id:2,kit_number:'990099001',yfull_id:'YF123457',y_dna:'J-P58'}]);
-  assert.equal(rows.length,1);
-  assert.equal(rows[0].__duplicate_conflict,true);
-  assert.equal(rows[0].__identity_keys.filter(k=>k.startsWith('yfull:')).length,2);
+  assert.equal(rows.length,2);
+  assert.ok(rows.every(row=>row.__duplicate_conflict===true));
+  assert.deepEqual(rows.map(row=>row.yfull_id),['YF123456','YF123457']);
 });
 test('YFull is never misrepresented as an FTDNA kit',()=>{
   assert.deepEqual(ui.identityKeys({kit_number:'YF123456',yfull_id:'YF123456'}),['yfull:YF123456']);
@@ -289,4 +289,40 @@ test('YFull ID on unnamed imported cards is shown once, not repeated as name and
   assert.match(html,/const idIsTitle=primaryName!== '—'/);
   assert.match(html,/YFull sample · public ID shown above/);
   assert.match(html,/Sample ID not published/);
+});
+
+test('ten unique YFull sample IDs at one branch are ten separate testers',()=>{
+  const rows=Array.from({length:10},(_,i)=>({
+    id:i+1,yfull_id:'YF'+String(100001+i),kit_number:'—',
+    y_dna:'J-P58',governorate:'Sūhāj',y_link_1:'https://www.yfull.com/tree/J-P58/'
+  }));
+  assert.equal(ui.deduplicate(rows).length,10);
+});
+test('ten rows with one identical YFull ID count as one tester',()=>{
+  const rows=Array.from({length:10},(_,i)=>({
+    id:i+1,yfull_id:'YF100001',kit_number:'—',
+    y_dna:'J-P58',governorate:'Sūhāj',y_link_1:'https://www.yfull.com/tree/J-P58/'
+  }));
+  const result=ui.deduplicate(rows);
+  assert.equal(result.length,1);
+  assert.equal(result[0].__duplicate_count,10);
+  assert.equal(result[0].__linked_sample_ids.length,10);
+});
+test('ten rows with identical FTDNA kit number count as one tester',()=>{
+  const rows=Array.from({length:10},(_,i)=>({
+    id:i+1,kit_number:'990099001',yfull_id:'—',y_dna:'R-M269'
+  }));
+  assert.equal(ui.deduplicate(rows).length,1);
+});
+test('ambiguous cross-linked kit cannot hide a second exact-ID duplicate',()=>{
+  const rows=[
+    {id:1,kit_number:'990099001',yfull_id:'YF100001',y_dna:'J-P58'},
+    {id:2,kit_number:'990099001',yfull_id:'YF100002',y_dna:'J-P58'},
+    {id:3,kit_number:'—',yfull_id:'YF100002',y_dna:'J-P58'},
+    {id:4,kit_number:'—',yfull_id:'YF100001',y_dna:'J-P58'}
+  ];
+  const result=ui.deduplicate(rows);
+  assert.equal(result.length,2);
+  assert.deepEqual(result.map(x=>x.__linked_sample_ids),[[1,4],[2,3]]);
+  assert.ok(result.every(x=>x.__duplicate_conflict));
 });
