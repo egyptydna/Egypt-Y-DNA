@@ -5670,6 +5670,11 @@
         ? `<p class="text-[9px] text-gray-400 font-black uppercase tracking-wide text-center mb-1">Ethnic Group: ${esc(s.ethnic_group)}</p>`
         : "";
 
+      const primaryName=YDNASync.displayName(s);
+      const identity=YDNASync.identitySummary(s);
+      const idIsTitle=primaryName!== '—' &&
+        primaryName===YDNASync.publicId(s) &&
+        !isRealValue(s.name);
       return `
         <div class="p-6 border border-gray-100 rounded-[2.5rem] bg-white shadow-sm hover:border-secondary transition-all text-left font-bold">
           <div class="flex justify-between mb-4 text-[10px] items-center gap-3">
@@ -5681,8 +5686,10 @@
               <span class="text-gray-400 uppercase">${esc(s.governorate || s.site || '—')}</span>
             </div>
           </div>
-          <p class="font-black uppercase text-sm mb-1 text-center">${esc(YDNASync.displayName(s))}</p>
-          <p class="text-[10px] text-secondary font-mono text-center mb-2">${esc(YDNASync.identitySummary(s))}</p>
+          <p class="font-black uppercase text-sm mb-1 text-center">${esc(primaryName === '—' ? 'Unidentified published sample' : primaryName)}</p>
+          ${idIsTitle
+            ? '<p class="text-[10px] text-gray-400 text-center mb-2">YFull sample · public ID shown above</p>'
+            : `<p class="text-[10px] text-secondary font-mono text-center mb-2">${esc(identity === '—' ? 'Sample ID not published' : identity)}</p>`}
           ${s.__duplicate_count > 1 ? '<p class="text-[9px] text-secondary text-center mb-1">Verified linked records combined</p>' : ''}
           ${ethnicLine}
           <div class="text-[9px] text-gray-400 font-mono snp-text mb-4 text-center block">${archiveLineagePreview(s)}</div>
