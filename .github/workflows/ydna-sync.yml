@@ -1,0 +1,46 @@
+name: Public Y-DNA synchronization
+on:
+  schedule:
+    - cron: '23 */12 * * *'
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'Write accepted records to Supabase (default: dry run)'
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: public-ydna-sync
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: sync/requirements.txt
+      - run: python -m pip install -r sync/requirements.txt
+      - run: python -m unittest discover -s sync/tests -v
+      - name: Synchronize
+        env:
+          SUPABASE_URL: https://lsfmpmfoqdtkgndtaxen.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          APPLY: ${{ github.event_name == 'schedule' || inputs.apply }}
+        run: |
+          if [ "$APPLY" = "true" ]; then
+            test -n "$SUPABASE_SERVICE_ROLE_KEY" || { echo 'Missing SUPABASE_SERVICE_ROLE_KEY'; exit 1; }
+            python -m sync.run --apply
+          else
+            python -m sync.run
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ydna-sync-report
+          path: reports/
+          retention-days: 14

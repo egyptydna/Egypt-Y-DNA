@@ -1,0 +1,8 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+.sync-cache/
+reports/
+node_modules/
+supabase/.temp/

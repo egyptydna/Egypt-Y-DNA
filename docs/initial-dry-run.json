@@ -1,0 +1,61 @@
+{
+  "mode": "review_only",
+  "started_at": "2026-11-04T15:12:33.587817+00:00",
+  "sources": [
+    {
+      "id": "ftdna-egypt-str",
+      "url": "https://www.familytreedna.com/public/Egypt?iframe=ydna-results-overview",
+      "status": "unavailable",
+      "records": 0,
+      "reason": "Results visible to members only"
+    },
+    {
+      "id": "ftdna-j1-str",
+      "url": "https://www.familytreedna.com/public/J-M267?iframe=ydna-results-overview",
+      "status": "ok",
+      "records": 127
+    },
+    {
+      "id": "ftdna-em35-str",
+      "url": "https://www.familytreedna.com/public/E-M35?iframe=ydna-results-overview",
+      "status": "unavailable",
+      "records": 0,
+      "reason": "No supported public result table; no internal API used"
+    },
+    {
+      "id": "ftdna-r1b-str",
+      "url": "https://www.familytreedna.com/public/R1b?iframe=ydna-results-overview",
+      "status": "disabled",
+      "records": 0
+    },
+    {
+      "id": "ftdna-t-str",
+      "url": "https://www.familytreedna.com/public/T?iframe=ydna-results-overview",
+      "status": "disabled",
+      "records": 0
+    },
+    {
+      "id": "ftdna-g-str",
+      "url": "https://www.familytreedna.com/public/G?iframe=ydna-results-overview",
+      "status": "disabled",
+      "records": 0
+    },
+    {
+      "id": "yfull-ytree",
+      "url": "https://www.yfull.com/tree/",
+      "status": "disabled",
+      "records": 0
+    }
+  ],
+  "counts": {
+    "unavailable_sources": 2,
+    "review_candidates": 127,
+    "publication_permission_unverified": 127,
+    "inserted": 0,
+    "updated": 0
+  },
+  "discovered_projects": [],
+  "records": 127,
+  "unique_candidates": 127,
+  "status": "partial"
+}

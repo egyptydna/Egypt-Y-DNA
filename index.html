@@ -9,6 +9,8 @@
 
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="ydna-sync-ui.js"></script>
+  <script src="ydna-sync-details.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
@@ -3401,7 +3403,7 @@
         <div class="flex flex-wrap gap-2 items-start">
           <div>
             <div class="relative">
-              <input id="treeSearch" type="text" placeholder="Search SNP / node…" class="tree-search"/>
+              <input id="treeSearch" type="text" placeholder="Search SNP, kit, name, place, project…" class="tree-search"/>
               <span id="tree-search-icon" class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" style="font-size:18px">search</span>
             </div>
             <div class="search-note">Press Enter to search</div>
@@ -3420,6 +3422,15 @@
           <button id="btn-tree-back" class="ctrl-btn hidden" onclick="clearTreeFocus()">Back</button>
         </div>
 
+        <div id="ydna-sync-filters" class="flex flex-wrap gap-2">
+          <select id="treeTestStatus" class="ctrl-btn" aria-label="Y-DNA test evidence" onchange="resetSyncTreeFocus()">
+            <option value="">All samples</option><option value="modern">All modern Y-DNA testers</option>
+            <option value="confirmed_big_y">Confirmed Big Y</option><option value="yfull">YFull samples</option>
+            <option value="str_only">STR-only / predicted</option><option value="snp_tested">SNP-tested, no confirmed Big Y</option>
+            <option value="new">New in latest synchronization</option>
+          </select>
+          <select id="treeGovernorate" class="ctrl-btn" aria-label="Tree governorate" onchange="resetSyncTreeFocus()"><option value="">All governorates</option></select>
+        </div>
         <div id="tree-result-path" class="tree-result-path"></div>
         <div id="tree-pills" class="flex flex-wrap gap-2"></div>
       </div>
@@ -3648,6 +3659,7 @@
           <div id="sample-modal-path" class="sample-detail-code"></div>
         </div>
 
+        <div id="sample-sync-details" class="space-y-4" aria-live="polite"></div>
         <div id="sample-modal-description-wrap" class="hidden">
           <div class="sample-detail-label">Description</div>
           <div id="sample-modal-description" class="sample-detail-description"></div>
@@ -3767,7 +3779,7 @@
       "Al Bahr al Ahmar","Al Buhayrah","Ad Daqahlīyah","Al Fayyūm","Al Gharbīyah",
       "Al Iskandarīyah","Al Ismā`īlīyah","Al Minūfīyah","Al Minyā","Al Qalyūbīyah","As Suways",
       "Ash Sharqīyah","Aswān","Asyūt","Banī Suwayf","Cairo","Dumyāt","Al Jīzah","Janūb Sīnā'",
-      "Kafr ash Shaykh","Luxor","Matrouh","Qinā","Shamal Sīnā'","Sūhāj","—"
+      "Kafr ash Shaykh","Luxor","Matrouh","Qinā","Shamal Sīnā'","Sūhāj","Port Said","New Valley","—"
     ].sort();
 
     const FAMILY_ORDER = {
@@ -3792,7 +3804,7 @@
       "T": 19
     };
 
-    const HAPLO_ROOT_ORDER = ["A","B","C","E","G","H","I","J","L","Q","R","T"];
+    const HAPLO_ROOT_ORDER = "ABCDEFGHIJKLMNOPQRST".split("");
 
     function extractSortRoot(label) {
       const x = String(label || "").toUpperCase().trim();
@@ -4183,7 +4195,7 @@
 
     function hasYTreeValue(sample) {
       if (!sample) return false;
-      return isRealValue(sample.full_snp_path) || isRealValue(sample.snp_path) || isRealValue(sample.y_dna);
+      return isRealValue(sample.full_snp_path) || isRealValue(sample.snp_path) || isRealValue(sample.y_dna) || (sample.__sourceType === "modern" && sample.test_status === "str_only");
     }
 
     function hasMtTreeValue(sample) {
@@ -4298,7 +4310,7 @@
     }
 
     function getTreeSearchPlaceholder() {
-      return currentTreeType === "mt" ? "Search mtDNA node / lineage…" : "Search SNP / node…";
+      return currentTreeType === "mt" ? "Search mtDNA node / lineage…" : "Search SNP, kit, name, place, project…";
     }
 
     function getTreeTitleText() {
@@ -4452,7 +4464,7 @@
       if (!q) return true;
       const ql = sclean(q);
       const fields = [
-        s.name, s.kit_number, s.sample_id, s.governorate, s.country, s.region, s.site,
+        s.name, s.kit_number, s.yfull_id, s.origin_raw, (s.__projects || []).join(" "), s.sample_id, s.governorate, s.country, s.region, s.site,
         s.period, s.study_reference, s.study_link, s.cultural_group,
         s.y_dna, s.y_dna_alias, s.snp_path, s.full_snp_path,
         s.mt_dna, s.full_mtDNA_path, s.description, s.ethnic_group
@@ -4546,19 +4558,29 @@
       if (lastUpdatedEl) lastUpdatedEl.textContent = formatArchiveDate(latest);
     }
 
+    async function fetchArchiveRows(table) {
+      let rows = [];
+      for (let offset = 0; ; offset += 1000) {
+        const result = await _sb.from(table).select("*").order("id").range(offset, offset + 999);
+        if (result.error) return result;
+        rows.push(...result.data);
+        if (result.data.length < 1000) return { data: rows, error: null };
+      }
+    }
+
     async function loadAll() {
       const [modR, studyR, ancR, relatedR] = await Promise.all([
-        _sb.from("Modern_published_samples").select("*"),
-        _sb.from("Modern_study_samples").select("*"),
-        _sb.from("Ancient_published_samples").select("*"),
-        _sb.from("ancient_related_samples").select("*")
+        fetchArchiveRows("Modern_published_samples"),
+        fetchArchiveRows("Modern_study_samples"),
+        fetchArchiveRows("Ancient_published_samples"),
+        fetchArchiveRows("ancient_related_samples")
       ]);
 
       [modR, studyR, ancR, relatedR].forEach(result => {
         if (result.error) throw result.error;
       });
 
-      modernSamples = (modR.data || []).map((s, index) => addUid({
+      modernSamples = YDNASync.deduplicate((modR.data || []).filter(s => !s.sync_visibility || s.sync_visibility === "public")).map((s, index) => addUid({
         ...s,
         __sourceType: "modern",
         name: valueOrDash(s.name),
@@ -4581,6 +4603,9 @@
         description: getDescriptionValue(s)
       }, "modern", index));
 
+      await loadSyncMetadata();
+      document.getElementById("treeGovernorate").innerHTML = '<option value="">All governorates</option>' +
+        GOV_LIST.map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join("");
       studySamples = (studyR.data || []).map((s, index) => normalizeStudySample(s, index));
 
       ancientSamples = (ancR.data || []).map((s, index) => addUid({
@@ -4968,8 +4993,9 @@
         aliases: []
       };
 
+      const knownTerminalPaths = YDNASync.knownTerminalPaths(allTreeSamples());
       samples.forEach(sample => {
-        const path = parsePath(sample.full_snp_path, sample.y_dna);
+        const path = parsePath(YDNASync.terminalPath(sample, knownTerminalPaths), sample.y_dna);
         let node = root;
         const ancestorChain = [{ display: "Y-Adam" }];
 
@@ -5513,7 +5539,7 @@
     }
 
     function getRegionTotals(gov) {
-      const pool = allModernLikeSamples().filter(s => governorateMatch(s.governorate, gov));
+      const pool = allModernLikeSamples().filter(s => hasYTreeValue(s) && governorateMatch(s.governorate, gov));
       const totals = {};
       pool.forEach(s => {
         const h = haplo(s.y_dna, s.snp_path);
@@ -5779,6 +5805,7 @@
         "Modern sample";
 
       currentSampleModal = sample;
+      loadSyncDetails(sample);
       samplePathMode = "direct";
 
       document.getElementById("sample-modal-name").textContent = sample.name || sample.sample_id || sample.kit_number || "Sample";
@@ -6041,6 +6068,7 @@
       treeScale = 1;
       document.getElementById("tree-inner").style.transform = "";
       treeSearchQuery = "";
+      syncTextQuery = "";
       treeSearchTargetPath = null;
       treeSearchResultPath = "";
       treeFocusPath = null;
@@ -6096,6 +6124,11 @@
         samples = samples.filter(s => treeGroupForSample(s) === treeHaploFilter);
       }
 
+      if (currentTreeType === "y") {
+        samples = samples.filter(s => YDNASync.matches(s,
+          document.getElementById('treeTestStatus').value,
+          document.getElementById('treeGovernorate').value, syncTextQuery, syncLatestStart));
+      }
       return samples;
     }
 
@@ -6136,6 +6169,10 @@
 
     function runTreeSearch() {
       const q = document.getElementById("treeSearch").value.trim();
+      syncTextQuery = "";
+      if (currentTreeType === "y" && q && allTreeSamples().some(s => YDNASync.matches(s, "", "", q, Infinity))) {
+        syncTextQuery = q;
+      }
       treeSearchQuery = q;
       treeSearchTargetPath = null;
       treeSearchResultPath = "";
@@ -6154,7 +6191,8 @@
       const rawRoot = buildRawTree(samples);
       lastTreeRawRoot = rawRoot;
 
-      const exact = searchTreeExact(rawRoot, q);
+      const exact = syncTextQuery ? null : searchTreeExact(rawRoot, q);
+      if (syncTextQuery) { collapsedNodes.clear(); renderTree(); updateShareUrl({section:'ytree'}); requestAnimationFrame(() => scrollTreeIntoView()); return; }
 
       if (exact) {
         treeFocusPath = exact.node.pathKey;
@@ -6322,7 +6360,7 @@
           .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }));
         ordered = [...MT_PRIMARY_LINES, ...extras];
       } else {
-        ordered = ["A1","A1b","B","C","E","G","H","I","J1","J2","L","Q1","Q2","R1A","R1B","R2","T"].filter(h => counts[h]);
+        ordered = [...new Set(["A1","A1b","B","C","D","E","F","G","H","I","J1","J2","K","L","M","N","O","P","Q1","Q2","R1A","R1B","R2","S","T", ...Object.keys(counts)])].filter(h => counts[h]);
       }
 
       document.getElementById("tree-pills").innerHTML =
@@ -6406,7 +6444,7 @@
           <div class="${styleClass}" style="background:${color};color:${textColor};${root.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
             <span class="tree-toggle" data-path="${encPath}" onclick="return handleTreeToggleClick(event)"><span>${root.children.length || root.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
             <span data-path="${encPath}" onclick="return handleTreePathClick(event)" style="cursor:pointer;">${esc(root.display)}</span>
-            <span class="tree-count">${root.count}</span>
+            <span class="tree-count">${root.count}</span>${syncNodeCountHTML(root)}
           </div>
           ${renderNodeAliases(root)}
         </div>
@@ -6423,6 +6461,7 @@
     }
 
     function renderTree() {
+      document.getElementById('ydna-sync-filters').classList.toggle('hidden', currentTreeType === 'mt');
       const samples = treeFilteredSamples();
       buildPills(samples);
       buildTreeStats(samples);
@@ -6479,7 +6518,7 @@
           <div class="${styleClass}" style="background:${color};color:${textColor};${node.family === 'C' ? 'border:1px solid ' + MIN_C_BORDER + ';' : ''}">
             <span class="tree-toggle" data-path="${encPath}" onclick="return handleTreeToggleClick(event)"><span>${node.children.length || node.samples.length ? (nodeOpen ? '▼' : '▶') : '•'}</span></span>
             <span data-path="${encPath}" onclick="return handleTreePathClick(event)" style="cursor:pointer;">${esc(node.display)}</span>
-            <span class="tree-count">${node.count}</span>
+            <span class="tree-count">${node.count}</span>${syncNodeCountHTML(node)}
           </div>
           ${renderNodeAliases(node)}
         </div>
@@ -6518,6 +6557,7 @@
                 <div class="flex-1 min-w-0">
                   <div class="tree-sample-name">${esc(sample.name || "—")}</div>
                   <div class="tree-sample-gov">${esc(treeSampleSubtitle(sample))}</div>
+                  ${sample.__sourceType === 'modern' && currentTreeType !== 'mt' ? `<div class="tree-sample-gov">${esc([isRealValue(sample.kit_number) ? 'Kit: '+sample.kit_number : '', sample.yfull_id, YDNASync.labels[YDNASync.status(sample)]].filter(Boolean).join(' • '))}</div>` : ''}
                   ${showEthnic ? `<div class="tree-sample-ethnic">${esc(sample.ethnic_group)}</div>` : ``}
                 </div>
                 ${sample.__sourceType === "study" ? `<span class="tree-study-badge">Study</span>` : ``}
