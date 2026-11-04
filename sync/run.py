@@ -14,6 +14,7 @@ from .adapters import ADAPTERS
 from .http import PublicHTTP, Unavailable, SourceRestricted
 from .normalize import Gazetteer, prepare
 from .country_counts import prepare_country_count
+from .tree_store import sync_tree
 
 PROJECT_URL = 'https://lsfmpmfoqdtkgndtaxen.supabase.co'
 
@@ -62,21 +63,29 @@ def synchronize(sources, apply=False, http=None, db=None):
             db.request('ydna_sync_places?on_conflict=id', [dict(id=g['id'],name=g['name'],aliases=g['aliases'],
                 governorate_iso=g['iso'],district=g.get('district'),source_url=g['source_url'],
                 metadata={'feature':g.get('feature')}) for g in gaz.governorates])
-        for source in sources:
+        # Resolve paths after profile/count imports so newly accepted labels are included in the same run.
+        ordered=[s for s in sources if s.get('adapter')!='yfull_github']+[s for s in sources if s.get('adapter')=='yfull_github']
+        for source in ordered:
             entry = {'id': source['id'], 'url': source.get('url'), 'status': 'disabled', 'records': 0}
             if source.get('restriction'): entry['reason'] = source['restriction']
             report['sources'].append(entry)
             if not source.get('enabled'): continue
             if apply:
                 configuration = {k: source.get(k) for k in ('id', 'url', 'adapter', 'publication_allowed', 'permission_url')}
-                configuration['metadata'] = {k: source.get(k) for k in ('automated_access_allowed','access_permission_url','restriction')}
+                configuration['metadata'] = {k: source.get(k) for k in ('automated_access_allowed','access_permission_url','restriction','repo','branch','data_permission_url','expected_license_sha256')}
                 db.request('ydna_sync_sources?on_conflict=id', configuration)
             try:
                 if source.get('adapter') not in ADAPTERS: raise Unavailable('Unsupported adapter')
                 records, projects = ADAPTERS[source['adapter']](source, http)
                 report['discovered_projects'].extend(projects)
-                entry.update(status='ok', records=len(records))
+                entry.update(status='ok', records=sum(r.get('kind')!='licensed_tree' for r in records))
                 for raw in records:
+                    if raw.get('kind')=='licensed_tree':
+                        summary=sync_tree(raw,db=db,apply=apply,queries=source.get('reference_labels') if not apply else None)
+                        entry['topology']=summary
+                        counts['tree_sources_checked']+=1
+                        counts['tree_nodes_selected']+=summary['selected_nodes']
+                        continue
                     if raw.get('kind')=='country_count':
                         fact=prepare_country_count(raw)
                         if apply:

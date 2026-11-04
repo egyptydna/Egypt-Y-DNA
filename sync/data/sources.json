@@ -102,5 +102,34 @@
       "T"
     ],
     "restriction": "robots.txt disallows general crawling; authorized public exchange only"
+  },
+  {
+    "id": "ftdnastat-egypt-counts",
+    "adapter": "ftdnastat_github",
+    "repo": "ftdnastat/ftdnastat.github.io",
+    "branch": "master",
+    "url": "https://github.com/ftdnastat/ftdnastat.github.io/blob/master/data/egypt.y.json",
+    "enabled": true,
+    "publication_allowed": false,
+    "permission_url": null,
+    "data_permission_url": null,
+    "restriction": "Data reuse permission pending; repository software MIT license is not a data license"
+  },
+  {
+    "id": "yfull-github",
+    "adapter": "yfull_github",
+    "repo": "YFullTeam/YTree",
+    "branch": "master",
+    "url": "https://github.com/YFullTeam/YTree",
+    "enabled": true,
+    "publication_allowed": true,
+    "permission_url": "https://github.com/YFullTeam/YTree/blob/master/LICENSE.md",
+    "expected_license_sha256": "419896aea50c15d6e40c5b4baf4bd346f78223b9a354c7357ad00262afdc08ec",
+    "reference_labels": [
+      "J-FGC1",
+      "E-M35",
+      "R-M269"
+    ],
+    "restriction": null
   }
 ]

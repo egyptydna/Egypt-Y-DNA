@@ -70,3 +70,35 @@ test('YFull totals reconcile separately without inferring Big Y or merging ident
     [publicKit,{...publicKit,yfull_id:'YF990099001',test_type:'YFull sequencing'}]);
   assert.equal(r.known,1);assert.equal(r.unresolved,1);
 });
+const officialRelease={version:'14.06.0',metadata:{matches:{
+  'J-TEST1':{status:'exact',label:'J-TEST1'},
+  'J-ALIAS1':{status:'equivalent_snp',label:'J-TEST1'},
+  'E-M35':{status:'exact',label:'E-M35'},
+  'J-AMBIGUOUS1':{status:'ambiguous',candidates:['J-TEST1','E-M35']}
+}}};
+const officialNodes=new Map([
+  ['Y-Adam',{parent_label:null}],['J-M1',{parent_label:'Y-Adam'}],
+  ['J-TEST1',{parent_label:'J-M1'}],['E-M35',{parent_label:'Y-Adam'}]
+]);
+test('official paths use exact and source-proven equivalent branch names without altering profiles',()=>{
+  const sample={y_dna:'J-ALIAS1',full_snp_path:'Y-Adam>J-ALIAS1',kit_number:'990099001'};
+  const original=structuredClone(sample);
+  assert.deepEqual(ui.officialPath(sample,officialRelease,officialNodes),{
+    label:'J-TEST1',path:['Y-Adam','J-M1','J-TEST1'],version:'14.06.0'
+  });
+  assert.deepEqual(sample,original);
+});
+test('ambiguous, conflicting and missing official labels preserve existing placement',()=>{
+  for(const sample of [{y_dna:'J-AMBIGUOUS1'},{y_dna:'R-UNKNOWN1'},
+    {y_dna:'J-TEST1',y_dna_alias:'E-M35'}]) {
+    assert.equal(ui.officialPath(sample,officialRelease,officialNodes),null);
+  }
+});
+test('official paths reject missing ancestors, cycles and disconnected roots',()=>{
+  const nodes=new Map(officialNodes);nodes.delete('J-M1');
+  assert.equal(ui.officialPath({y_dna:'J-TEST1'},officialRelease,nodes),null);
+  nodes.set('J-M1',{parent_label:'J-TEST1'});
+  assert.equal(ui.officialPath({y_dna:'J-TEST1'},officialRelease,nodes),null);
+  nodes.set('J-M1',{parent_label:null});
+  assert.equal(ui.officialPath({y_dna:'J-TEST1'},officialRelease,nodes),null);
+});

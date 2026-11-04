@@ -98,7 +98,24 @@
       unresolved:comparable&&!conflict?reported-known:null,
       method:'cohort_comparison_only'};
   }
-  const api = {status,labels,deduplicate,matches,nodeCounts,terminalPath,knownTerminalPaths,inCountScope,reconcileCountryCount};
+  function officialPath(sample,release,nodes) {
+    if(!release || !nodes?.size) return null;
+    const queries=[sample.y_dna,...String(sample.y_dna_alias||'').split(/[,;/|\s]+/)].filter(real);
+    const found=new Set();
+    for(const query of queries) {
+      const match=release.metadata?.matches?.[String(query).toUpperCase()];
+      if(match && ['exact','equivalent_snp'].includes(match.status) && nodes.has(match.label)) found.add(match.label);
+    }
+    if(found.size!==1) return null;
+    const label=[...found][0],path=[],seen=new Set();let current=label;
+    while(current!=null) {
+      if(seen.has(current) || !nodes.has(current)) return null;
+      seen.add(current);path.push(current);current=nodes.get(current).parent_label;
+    }
+    if(path.at(-1)!=='Y-Adam') return null;
+    return {label,path:path.reverse(),version:release.version};
+  }
+  const api = {status,labels,deduplicate,matches,nodeCounts,terminalPath,knownTerminalPaths,inCountScope,reconcileCountryCount,officialPath};
   if (typeof module === 'object') module.exports=api;
   else root.YDNASync=api;
 })(typeof window === 'object' ? window : globalThis);

@@ -2,15 +2,22 @@
 
 Stand: 4. November 2026. Repository: https://github.com/egyptydna/Egypt-Y-DNA
 
+**Neu: Offizielle lizenzierte GitHub-Quelle:** Der YFull-GitHub-Baum v14.06.0 ist
+angebunden und ein erster relevanter Teilbaum mit 1.054 Knoten ist im bestehenden
+Supabase-Projekt importiert. Neue Testerprofile: 0. ftdnastat ist bis zur geklärten
+Datennutzung gesperrt; ein automatischer genehmigter CSV-/JSON-Testerkanal ist
+implementiert. Aktueller Befund und Aktivierung nach Merge:
+[GitHub-Datenquellen](GITHUB-DATENQUELLEN.md).
+
 **Aktualisierter Quellenbefund:** Die vollständigen FTDNA-Bedingungen untersagen auch automatisiertes Monitoring und systematische Datenbankübernahme ohne entsprechende Erlaubnis. Weitere Ergebnisabrufe werden deshalb bereits vor dem Netzwerkzugriff gesperrt. Siehe [Quellenbefund und vorbereitete Freigabeanfragen](QUELLENFREIGABE.md). Die ursprünglichen Abrufbefunde unten beschreiben nur die technische Erreichbarkeit im ersten Test, keine erlaubte Dauerüberwachung.
 
-Bereitgestellt in [Pull Request #1](https://github.com/egyptydna/Egypt-Y-DNA/pull/1). Die Live-Website und der geplante Actions-Lauf erhalten den neuen Code erst nach Freigabe und Merge. Die unten aufgeführten Supabase-Migrationen und privaten Prüffälle sind bereits eingerichtet.
+Die ursprüngliche Erweiterung aus [Pull Request #1](https://github.com/egyptydna/Egypt-Y-DNA/pull/1) und die Folgekorrekturen sind zusammengeführt. Der bestehende Hintergrundworkflow läuft; die neue GitHub-Quellenerweiterung erhält er nach deren Merge. Die unten aufgeführten Supabase-Migrationen und privaten Prüffälle sind bereits eingerichtet.
 
 ## Tatsächlicher Stand
 
 Die bestehende GitHub-Pages-Website und das Supabase-Projekt `lsfmpmfoqdtkgndtaxen` werden weiterverwendet. Es gibt keine zweite Website. Der Importdienst läuft als Python-Prozess in GitHub Actions, unabhängig von Websitebesuchen.
 
-Die Software und die Datenbankerweiterungen sind implementiert. **Ein vollständig freigeschalteter automatischer Datenzuwachs ist noch nicht gegeben:** Der Zugriff auf Actions-Secrets wurde mit HTTP 403 verweigert, und für die technisch auslesbaren FTDNA-Ergebnisse fehlt ein belegter Nachweis zur Weiterveröffentlichung. Dieser Nachweis wird ausdrücklich getrennt von öffentlicher Abrufbarkeit behandelt. YFull verbietet allgemeinen Crawlerzugriff laut robots.txt.
+Die Software und die Datenbankerweiterungen sind implementiert. Das erforderliche Actions-Secret wurde inzwischen eingerichtet und ein echter Hintergrundlauf bestätigt. **Automatischer individueller Datenzuwachs ist noch nicht gegeben:** Für die technisch auslesbaren FTDNA-Ergebnisse fehlen belegte Freigaben für automatisierten Zugriff und Weiterveröffentlichung. YFull verbietet allgemeinen Website-Crawlerzugriff laut robots.txt; die neue offizielle GitHub-Baumquelle benötigt diesen Zugriff nicht und liefert keine individuellen Tester.
 
 ## Ergebnis des ersten realen Laufs
 
@@ -77,7 +84,7 @@ Manuelle Bestandswerte werden nicht überschrieben. Bei automatisch angelegten P
 
 Der Tree zeigt vorhandene sowie künftig akzeptierte importierte Tester. Big Y wird nur aus einem expliziten Testnachweis abgeleitet; YFull bleibt `YFull sequencing`. STR-Vorhersagen sind gekennzeichnet. Tester ohne belegten vollständigen Pfad bleiben mit ihrer veröffentlichten Terminalbezeichnung sichtbar. Ein eindeutiger vorhandener veröffentlichter Pfad zur gleichen Terminalgruppe kann wiederverwendet werden; widersprüchliche Pfade werden nicht automatisch kombiniert. Die Wurzelansicht eines Terminal-only-Testers behauptet keine direkte phylogenetische Abstammung von der Navigationswurzel.
 
-Explizit belegte Pfade und Aliase können aus erlaubten Exporten importiert werden. Der Dienst erfindet keine Zwischenstufen, leitet keine Individuen aus Knotenzahlen ab und behauptet keine automatische FTDNA/YFull-Nomenklaturauflösung ohne Quellennachweis. Eine vollständige globale SNP-Topologie wird derzeit nicht automatisch geholt. FTDNA-Aggregatzahlen werden daher auch nicht als individuelle Tester angezeigt.
+Explizit belegte Pfade und Aliase können aus erlaubten Exporten importiert werden. Der neue offizielle YFull-GitHub-Adapter indexiert die gesamte veröffentlichte SNP-Topologie und speichert die für das Archiv benötigten belegten Pfade. Der Dienst erfindet keine Zwischenstufen, leitet keine Individuen aus Knotenzahlen ab und löst Bezeichnungsunterschiede nur bei eindeutigem Quellennachweis auf. FTDNA-Aggregatzahlen werden nicht als individuelle Tester angezeigt.
 
 Knoten zeigen direkte moderne Tester sowie kumulierte moderne und bestätigte Big-Y-Tester. Filter: moderne Tester, Big Y, YFull, STR-only, SNP-tested, Gouvernement, Haplogruppe und neue Profile im letzten Synchronisierungslauf. Kit-, Namens-, Orts-, Projekt- und SNP-Suche sind vorhanden. Im Testerfenster stehen öffentliche Quellenaussagen, Aktualisierungsdatum und eine durchsuchbare STR-Tabelle. Mehrere Tester lassen sich über „Add to STR comparison“ gegenüberstellen. Abweichende und frühere Werte bleiben sichtbar; es wird kein genetischer Abstand aus unsicheren Werten errechnet.
 
@@ -106,6 +113,7 @@ Durchgeführt:
 - `20261104151006_public_ydna_sync`: Backup-Schema, additive Haupttabellenspalten, neun ergänzende Tabellen, RLS, Grants, transaktionale Import- und Opt-out-Funktionen.
 - `20261104151505_ydna_visibility_and_private_metadata`: explizite Sperrregeln für private Metadaten, Opt-out auch für Altprofile, nachweisbare Sichtbarkeitsrücknahme und Prüffall für den vorhandenen Doppel-Kit-Eintrag.
 - `20261104170036_country_count_profile_reconciliation`: getrennte Quellen-Knotenzahlen, Beobachtungshistorie und kontrollierte Importfunktion; siehe [Knotenzahlen und Tester](KNOTENZAHLEN-UND-TESTER.md). Die Anzeige wird mit dem zugehörigen Frontend-PR veröffentlicht; bisher wurden keine Live-Knotenzahlen angelegt.
+- `20261104184412_licensed_github_tree_sources`: versionierte lizenzierte Baumstände, zugehörige relevante Knoten, RLS und transaktionale Veröffentlichung. 1.054 echte YFull-Knoten importiert, keine Tester geändert.
 
 Die Migrationsdateien entsprechen den tatsächlich gespeicherten Remote-Migrationsversionen. Die lokale CLI konnte in dieser Umgebung keine Migrationsdatei erzeugen; die finalen Dateien wurden deshalb aus den über die Supabase-Integration angewandten, zuvor transaktional geprüften Migrationen übernommen. Keine zweite Datenbank und keine destruktive Schemaänderung wurden angelegt.
 
