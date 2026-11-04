@@ -95,6 +95,30 @@ class Gazetteer:
         return result
 
 
+def incompatible_paternal_path(terminal, path):
+    """Reject mutually exclusive proven SNP ancestors; never invent a replacement."""
+    if not isinstance(path, list) or not terminal:
+        return False
+    labels = {str(step).strip().upper() for step in path}
+    terminal = str(terminal).strip().upper()
+    j1 = 'J1' in labels or bool(labels.intersection({'J-M267', 'J-P58'}))
+    j2 = 'J2' in labels or bool(labels.intersection({'J-M172', 'J-M410', 'J-L26', 'J-M319'}))
+    if terminal.startswith('J'):
+        known_j1 = terminal.startswith('J1') or terminal in {'J-M267', 'J-P58'}
+        known_j2 = terminal.startswith('J2') or terminal in {'J-M172', 'J-M410', 'J-L26', 'J-M319'}
+        if (j1 and j2) or (known_j1 and j2) or (known_j2 and j1):
+            return True
+    if terminal.startswith('Q'):
+        if ('Q1' in labels and 'Q2' in labels):
+            return True
+    if terminal.startswith('R'):
+        r1 = 'R1' in labels or bool(labels.intersection({'R1A', 'R1B'}))
+        r2 = 'R2' in labels
+        if r1 and r2 or ('R1A' in labels and 'R1B' in labels):
+            return True
+    return False
+
+
 def prepare(record, gazetteer):
     record = dict(record)
     record['external_id'] = external_id(record['namespace'], record['external_id'])
@@ -126,6 +150,9 @@ def prepare(record, gazetteer):
     path = record.get('snp_path', [])
     if path and (not isinstance(path, list) or not str(record.get('path_source_url') or '').startswith('https://') or path[-1] != haplo):
         reasons.append('unverified_snp_path')
+        record['snp_path'] = []
+    if path and incompatible_paternal_path(haplo, path):
+        reasons.append('contradictory_y_lineage')
         record['snp_path'] = []
     for identity in record.get('verified_ids', []):
         identity['external_id'] = external_id(identity['namespace'], identity['external_id'])
