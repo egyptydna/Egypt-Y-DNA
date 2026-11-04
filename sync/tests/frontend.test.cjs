@@ -283,3 +283,10 @@ test('source details disclose both reference paths on confirmed duplicate merge'
   assert.match(html,/YDNASync\.compactSnpPath\(sample\)/);
   assert.match(html,/Verified linked records combined/);
 });
+
+test('YFull ID on unnamed imported cards is shown once, not repeated as name and subtitle',()=>{
+  const html=fs.readFileSync('index.html','utf8');
+  assert.match(html,/const idIsTitle=primaryName!== '—'/);
+  assert.match(html,/YFull sample · public ID shown above/);
+  assert.match(html,/Sample ID not published/);
+});
