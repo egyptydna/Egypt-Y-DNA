@@ -11,6 +11,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="ydna-sync-ui.js"></script>
   <script src="ydna-sync-details.js"></script>
+  <script src="ydna-official-tree.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
@@ -3431,6 +3432,7 @@
           </select>
           <select id="treeGovernorate" class="ctrl-btn" aria-label="Tree governorate" onchange="resetSyncTreeFocus()"><option value="">All governorates</option></select>
         </div>
+        <div id="official-tree-panel" class="text-xs text-gray-500 space-y-2" aria-live="polite"></div>
         <div id="tree-result-path" class="tree-result-path"></div>
         <div id="tree-pills" class="flex flex-wrap gap-2"></div>
       </div>
@@ -3659,6 +3661,7 @@
           <div id="sample-modal-path" class="sample-detail-code"></div>
         </div>
 
+        <div id="sample-official-tree" class="space-y-3 text-sm"></div>
         <div id="sample-sync-details" class="space-y-4" aria-live="polite"></div>
         <div id="sample-modal-description-wrap" class="hidden">
           <div class="sample-detail-label">Description</div>
@@ -4995,13 +4998,14 @@
 
       const knownTerminalPaths = syncKnownTerminalPaths();
       samples.forEach(sample => {
-        const path = parsePath(YDNASync.terminalPath(sample, knownTerminalPaths), sample.y_dna);
+        const officialPlacement = syncTreeTopology === 'yfull' ? YDNASync.officialPath(sample, syncOfficialRelease, syncOfficialNodes) : null;
+        const path = officialPlacement ? officialPlacement.path : parsePath(YDNASync.terminalPath(sample, knownTerminalPaths), sample.y_dna);
         let node = root;
         const ancestorChain = [{ display: "Y-Adam" }];
 
         for (let i = 1; i < path.length; i++) {
           const rawSeg = path[i];
-          const disp = normalizeDisplay(rawSeg, ancestorChain);
+          const disp = officialPlacement ? canonicalHeadName(rawSeg) : normalizeDisplay(rawSeg, ancestorChain);
           const key = node.pathKey + ">" + disp;
 
           if (!node.childMap.has(disp)) {
@@ -5027,6 +5031,7 @@
         }
 
         node.samples.push(sample);
+        if (officialPlacement && sample.y_dna !== officialPlacement.label) addAliasToNode(node, sample.y_dna);
         addAliasToNode(node, sample.y_dna_alias);
       });
       ensureSyncCountryCountNodes(root, knownTerminalPaths);
@@ -5809,6 +5814,7 @@
 
       currentSampleModal = sample;
       loadSyncDetails(sample);
+      renderOfficialSampleInfo(sample);
       samplePathMode = "direct";
 
       document.getElementById("sample-modal-name").textContent = sample.name || sample.sample_id || sample.kit_number || "Sample";
@@ -6451,6 +6457,7 @@
           </div>
           ${renderNodeAliases(root)}
         </div>
+        ${renderOfficialNodeInfo(root)}
         ${renderSyncCountryEvidence(root)}
       `;
 
@@ -6465,6 +6472,7 @@
     }
 
     function renderTree() {
+      renderOfficialTreePanel();
       document.getElementById('ydna-sync-filters').classList.toggle('hidden', currentTreeType === 'mt');
       const samples = treeFilteredSamples();
       buildPills(samples);
@@ -6526,6 +6534,7 @@
           </div>
           ${renderNodeAliases(node)}
         </div>
+        ${renderOfficialNodeInfo(node)}
         ${renderSyncCountryEvidence(node)}
       `;
 

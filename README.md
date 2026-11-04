@@ -3,8 +3,11 @@
 Bestehende Website: https://egyptydna.github.io/Egypt-Y-DNA/
 
 Die Website liest das bestehende Supabase-Projekt `lsfmpmfoqdtkgndtaxen`.
-Der öffentliche Importdienst ist für einen unabhängigen Betrieb in GitHub Actions vorbereitet.
-Implementierung: [Pull Request #1](https://github.com/egyptydna/Egypt-Y-DNA/pull/1); Aktivierung nach Merge und Secret-Einrichtung.
+Der Importdienst läuft unabhängig von Websitebesuchen in GitHub Actions alle zwölf Stunden.
+Der neue offizielle YFull-GitHub-Adapter und genehmigte Testerfeeds sind unter
+[GitHub-Datenquellen](docs/GITHUB-DATENQUELLEN.md) dokumentiert. Der erste lizenzierte
+YFull-Teilbaum ist importiert; die neue automatische Quelle und Anzeige werden nach
+Merge dieser Erweiterung aktiv. Für neue einzelne Tester fehlt noch ein genehmigter Feed.
 
 **Betrieb, tatsächliche Quellenbeschränkungen, Secrets, Migrationen und erster Importbericht:**
 [Synchronisierungsdokumentation](docs/SYNCHRONISIERUNG.md).

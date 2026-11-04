@@ -22,6 +22,11 @@ Vorlage für eine Anfrage durch den Projektbetreiber; bisher nicht versendet:
 
 ## YFull
 
+**Ergänzung:** Die offizielle Quelle [YFullTeam/YTree](https://github.com/YFullTeam/YTree)
+stellt einen CC-BY-4.0-lizenzierten JSON-Baum bereit. Dafür ist jetzt ein separater
+GitHub-Adapter implementiert. Er umgeht keine Website-Sperre und liefert keine
+individuellen Proben. Details: [GitHub-Datenquellen](GITHUB-DATENQUELLEN.md).
+
 Aktuelle robots.txt: https://www.yfull.com/robots.txt
 
 ```text
@@ -38,10 +43,10 @@ Vorlage für eine Anfrage durch den Projektbetreiber; bisher nicht versendet:
 >
 > I maintain the non-commercial Egyptian Y-DNA archive at https://egyptydna.github.io/Egypt-Y-DNA/ . We would like to synchronize publicly shared Egyptian paternal-origin samples once every twelve hours, including YFull ID, current terminal branch, verified path/aliases, public region and the published New flag, with attribution and opt-out support. We distinguish modern customers, study samples and ancient samples, and do not infer Big Y from a YFull ID. Your robots.txt disallows general crawling; we will respect that. Is there an authorized API, public export or feed, and what are its automated-access and republication conditions?
 
-Der vorhandene erlaubte Exportweg erhält `is_new` und `tree_version`. Neue und geänderte Ergebnisse werden weiterhin anhand stabiler IDs und des Inhalts erkannt: Eine verschwundene `New`-Markierung darf kein Profil entfernen; ein verschobenes älteres Sample muss ebenfalls aktualisiert werden. Solange keine erlaubte Datenzuführung existiert, gibt es keine automatische YFull-Aktualisierung.
+Der vorhandene erlaubte Exportweg erhält `is_new` und `tree_version`. Neue und geänderte Ergebnisse werden weiterhin anhand stabiler IDs und des Inhalts erkannt: Eine verschwundene `New`-Markierung darf kein Profil entfernen; ein verschobenes älteres Sample muss ebenfalls aktualisiert werden. Ohne erlaubten individuellen Feed gibt es keine automatische Aktualisierung einzelner YFull-Proben. Die lizenzierte GitHub-Topologie wird unabhängig davon abgeglichen.
 
 ## Sofortstart und Zeitplan
 
 Der Workflow wird auf eine gezielte Änderung seiner Datei oder von `sync/**` im Standardbranch reagieren. Nach Freigabe und Merge dieser Korrektur wird damit ein erster Schreib-/Statuslauf eingereiht, ohne auf die nächste Cron-Zeit oder einen manuellen Start zu warten. Der Zeitplan bleibt **00:23 und 12:23 UTC**. Eine GitHub-Actions-/Pages-Störung kann auch den ersten Lauf und die Zeitpläne verzögern. Das ist kein garantierter Start zu einer festen Sekunde.
 
-Ein erfolgreicher technischer Lauf ohne freigegebene Datenquelle ist **kein erfolgreicher Datenimport**. Der Bericht unterscheidet `restricted`, `disabled` und `ok` und nennt `sources_checked_successfully`. Bei der aktuellen Konfiguration sind null erfolgreich geprüfte Ergebnisquellen zu erwarten. Bestehende Archivdaten bleiben erhalten.
+Ein erfolgreicher technischer Lauf ohne freigegebene Datenquelle ist **kein erfolgreicher Datenimport**. Der Bericht unterscheidet `restricted`, `disabled` und `ok` und nennt `sources_checked_successfully`. Nach Merge der GitHub-Erweiterung ist `yfull-github` eine aktivierte lizenzierte Baumquelle; neue individuelle Tester sind damit nicht verbunden. Bestehende Archivdaten bleiben erhalten.

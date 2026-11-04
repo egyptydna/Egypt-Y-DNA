@@ -34,6 +34,7 @@ async function loadSyncMetadata() {
       syncCountryCounts.push(...facts.data);
       if(facts.data.length<1000) break;
     }
+    await loadOfficialTree();
   } catch (error) { console.warn('Optional synchronization metadata unavailable'); }
 }
 
@@ -69,17 +70,21 @@ function syncKnownTerminalPaths() {
 }
 
 function syncCountryFacts(node) {
-  return visibleSyncCountryCounts().filter(f=>f.node_label.toUpperCase()===node.display.toUpperCase());
+  return visibleSyncCountryCounts().filter(f=>{
+    const placement=syncTreeTopology==='yfull'?YDNASync.officialPath({y_dna:f.node_label},syncOfficialRelease,syncOfficialNodes):null;
+    return (placement?.label||f.node_label).toUpperCase()===node.display.toUpperCase();
+  });
 }
 
 function ensureSyncCountryCountNodes(root,knownPaths) {
   for(const fact of visibleSyncCountryCounts()) {
+    const placement=syncTreeTopology==='yfull'?YDNASync.officialPath({y_dna:fact.node_label},syncOfficialRelease,syncOfficialNodes):null;
     const published=Array.isArray(fact.snp_path)&&fact.snp_path.length?fact.snp_path.join('>'):'';
-    const path=parsePath(published || knownPaths.get(fact.node_label) || '',fact.node_label);
+    const path=placement?.path||parsePath(published || knownPaths.get(fact.node_label) || '',fact.node_label);
     let node=root;
     const ancestors=[{display:'Y-Adam'}];
     for(const raw of path.slice(1)) {
-      const display=normalizeDisplay(raw,ancestors);
+      const display=placement?canonicalHeadName(raw):normalizeDisplay(raw,ancestors);
       if(!node.childMap.has(display)) {
         const child={raw,display,pathKey:node.pathKey+'>'+display,children:[],childMap:new Map(),samples:[],parent:node,count:0,
           family:inferFamilyFromDisplay(display,node.family),aliases:[]};
@@ -87,6 +92,7 @@ function ensureSyncCountryCountNodes(root,knownPaths) {
       }
       node=node.childMap.get(display);ancestors.push({display});
     }
+    if(placement && placement.label!==fact.node_label) addAliasToNode(node,fact.node_label);
   }
 }
 
