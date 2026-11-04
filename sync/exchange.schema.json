@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Authorized public Y-DNA exchange (never private administrator data)",
+  "type": "object",
+  "required": ["schema_version", "permission_url", "records"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "permission_url": {"type": "string", "pattern": "^https://"},
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["namespace", "external_id", "source_url"],
+        "properties": {
+          "namespace": {"enum": ["ftdna", "yfull"]},
+          "external_id": {"type": "string"},
+          "source_url": {"type": "string", "pattern": "^https://"},
+          "sample_kind": {"enum": ["modern", "study", "ancient", "unknown"]},
+          "origin_kind": {"enum": ["paternal", "residence", "unknown"]},
+          "country": {"type": "string"},
+          "origin_raw": {"type": "string"},
+          "test_type": {"type": "string"},
+          "haplogroup_status": {"enum": ["confirmed", "predicted", "unknown"]},
+          "y_dna": {"type": "string"},
+          "y_dna_alias": {"type": "string"},
+          "snp_path": {"type": "array", "items": {"type": "string"}},
+          "path_source_url": {"type": "string", "pattern": "^https://"},
+          "snp_aliases": {"type": "object", "additionalProperties": {"type": "array", "items": {"type": "string"}}},
+          "identity_evidence_url": {"type": "string", "pattern": "^https://"},
+          "verified_ids": {"type": "array", "items": {"type": "object", "required": ["namespace", "external_id"]}},
+          "str_markers": {"type": "array", "items": {
+            "type": "object", "required": ["position", "marker", "source_label", "value"],
+            "properties": {"position": {"type": "integer", "minimum": 0}, "marker": {"type": "string"}, "source_label": {"type": "string"}, "value": {"type": ["string", "null"]}}
+          }},
+          "visibility": {"enum": ["public", "withdrawn"]},
+          "withdrawal_evidence_url": {"type": "string", "pattern": "^https://"}
+        }
+      }
+    }
+  }
+}
