@@ -210,14 +210,27 @@
     }
     return true;
   }
+  // Tree nodes are rebuilt for each selection. Memoize subtree statistics
+  // on those transient node objects, instead of traversing every descendant
+  // again for every single node label (quadratic on deep Y-DNA trees).
+  const nodeCountMemo=new WeakMap();
   function nodeCounts(node) {
-    let modern = 0, bigY = 0;
-    const walk = n => {
-      for (const s of n.samples || []) if (s.__sourceType === 'modern') { modern++; if(status(s)==='confirmed_big_y') bigY++; }
-      for (const c of n.children || []) walk(c);
-    };
-    walk(node);
-    return {direct:(node.samples||[]).filter(s=>s.__sourceType==='modern').length,modern,bigY};
+    if(nodeCountMemo.has(node))return nodeCountMemo.get(node);
+    let direct=0,bigY=0;
+    for(const sample of node.samples||[]) {
+      if(sample.__sourceType!=='modern')continue;
+      direct++;
+      if(status(sample)==='confirmed_big_y')bigY++;
+    }
+    let modern=direct;
+    for(const child of node.children||[]) {
+      const counts=nodeCounts(child);
+      modern+=counts.modern;
+      bigY+=counts.bigY;
+    }
+    const result={direct,modern,bigY};
+    nodeCountMemo.set(node,result);
+    return result;
   }
   function terminalPath(sample, knownPaths) {
     const path = real(sample.full_snp_path) ? sample.full_snp_path : real(sample.snp_path) ? sample.snp_path : '';
