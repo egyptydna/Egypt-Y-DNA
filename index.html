@@ -6046,6 +6046,7 @@
 
     const sectionRendered={archive:false,ancient:false};
     let deferTreeRenderForSharedState=false;
+    let dashboardMetaDirty=false;
     function showSection(id) {
       hideChartTooltip();
       document.querySelectorAll(".page-section").forEach(s => s.classList.remove("active"));
@@ -6067,6 +6068,10 @@
         }
       }
 
+      if(id==='home'&&dashboardMetaDirty) {
+        dashboardMetaDirty=false;
+        renderDashboard();
+      }
       if(id==='archive'&&!sectionRendered.archive){
         sectionRendered.archive=true;
         renderArchive();
@@ -6736,7 +6741,10 @@
             syncLineagePathCache=syncKnownTerminalPaths();
             if(document.getElementById('section-home')?.classList.contains('active'))
               renderDashboard();
-            else updateModernSummary();
+            else {
+              dashboardMetaDirty=true;
+              updateModernSummary();
+            }
             if(document.getElementById('section-tree')?.classList.contains('active'))
               renderTree();
             if(sectionRendered.archive)renderArchive();
