@@ -3865,6 +3865,25 @@
     let treeSearchResultPath = "";
     let collapsedNodes = new Set();
     let lastTreeRawRoot = null;
+    let cachedTreeSignature=null;
+    let cachedRawTree=null;
+    function resetRawTreeCache(){
+      cachedTreeSignature=null;
+      cachedRawTree=null;
+    }
+    function getCachedRawTree(samples){
+      const signature=JSON.stringify([
+        currentTreeType,treeShowModern,treeShowStudy,treeShowAncient,
+        treeShowRelated,treeHaploFilter,syncTreeTopology,
+        document.getElementById('treeTestStatus')?.value,
+        document.getElementById('treeGovernorate')?.value,
+        syncTextQuery,syncLatestStart
+      ]);
+      if(cachedRawTree && cachedTreeSignature===signature)return cachedRawTree;
+      cachedRawTree=buildRawTree(samples);
+      cachedTreeSignature=signature;
+      return cachedRawTree;
+    }
     let tooltipRAF = null;
     let currentSampleModal = null;
     let samplePathMode = "direct";
@@ -6291,7 +6310,7 @@
       }
 
       const samples = treeFilteredSamples();
-      const rawRoot = buildRawTree(samples);
+      const rawRoot = getCachedRawTree(samples);
       lastTreeRawRoot = rawRoot;
 
       const exact = syncTextQuery ? null : searchTreeExact(rawRoot, q);
@@ -6575,7 +6594,7 @@
       buildTreeSummary(samples);
 
       const activePath = treeFocusPath || treeSearchTargetPath || null;
-      const rawRoot = buildRawTree(samples);
+      const rawRoot = getCachedRawTree(samples);
       lastTreeRawRoot = rawRoot;
 
       let displayRoot;
@@ -6738,6 +6757,7 @@
           try {
             await loadSyncMetadata();
             resetSyncMetadataIndexes();
+            resetRawTreeCache();
             syncLineagePathCache=syncKnownTerminalPaths();
             if(document.getElementById('section-home')?.classList.contains('active'))
               renderDashboard();
