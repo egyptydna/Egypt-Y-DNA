@@ -1,5 +1,10 @@
 name: Public Y-DNA synchronization
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ydna-sync.yml'
+      - 'sync/**'
   schedule:
     - cron: '23 */12 * * *'
   workflow_dispatch:
@@ -30,7 +35,7 @@ jobs:
         env:
           SUPABASE_URL: https://lsfmpmfoqdtkgndtaxen.supabase.co
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          APPLY: ${{ github.event_name == 'schedule' || inputs.apply }}
+          APPLY: ${{ github.event_name == 'schedule' || github.event_name == 'push' || inputs.apply }}
         run: |
           if [ "$APPLY" = "true" ]; then
             test -n "$SUPABASE_SERVICE_ROLE_KEY" || { echo 'Missing SUPABASE_SERVICE_ROLE_KEY'; exit 1; }

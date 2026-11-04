@@ -23,6 +23,8 @@
           "haplogroup_status": {"enum": ["confirmed", "predicted", "unknown"]},
           "y_dna": {"type": "string"},
           "y_dna_alias": {"type": "string"},
+          "is_new": {"type": "boolean", "description": "Preserve a provider's published New flag; never use it as identity or sole change detection."},
+          "tree_version": {"type": "string"},
           "snp_path": {"type": "array", "items": {"type": "string"}},
           "path_source_url": {"type": "string", "pattern": "^https://"},
           "snp_aliases": {"type": "object", "additionalProperties": {"type": "array", "items": {"type": "string"}}},

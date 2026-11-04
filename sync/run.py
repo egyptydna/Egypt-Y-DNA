@@ -11,7 +11,7 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 from .adapters import ADAPTERS
-from .http import PublicHTTP, Unavailable
+from .http import PublicHTTP, Unavailable, SourceRestricted
 from .normalize import Gazetteer, prepare
 
 PROJECT_URL = 'https://lsfmpmfoqdtkgndtaxen.supabase.co'
@@ -63,11 +63,13 @@ def synchronize(sources, apply=False, http=None, db=None):
                 metadata={'feature':g.get('feature')}) for g in gaz.governorates])
         for source in sources:
             entry = {'id': source['id'], 'url': source.get('url'), 'status': 'disabled', 'records': 0}
+            if source.get('restriction'): entry['reason'] = source['restriction']
             report['sources'].append(entry)
             if not source.get('enabled'): continue
             if apply:
-                db.request('ydna_sync_sources?on_conflict=id', {k: source.get(k) for k in
-                    ('id', 'url', 'adapter', 'publication_allowed', 'permission_url')})
+                configuration = {k: source.get(k) for k in ('id', 'url', 'adapter', 'publication_allowed', 'permission_url')}
+                configuration['metadata'] = {k: source.get(k) for k in ('automated_access_allowed','access_permission_url','restriction')}
+                db.request('ydna_sync_sources?on_conflict=id', configuration)
             try:
                 if source.get('adapter') not in ADAPTERS: raise Unavailable('Unsupported adapter')
                 records, projects = ADAPTERS[source['adapter']](source, http)
@@ -100,6 +102,11 @@ def synchronize(sources, apply=False, http=None, db=None):
                 if apply:
                     db.request('ydna_sync_sources?id=eq.'+urllib.parse.quote(source['id']),
                         {'last_success_at': datetime.now(timezone.utc).isoformat(), 'last_status': 'ok'}, 'PATCH')
+            except SourceRestricted as error:
+                entry.update(status='restricted', reason=str(error))
+                counts['restricted_sources'] += 1
+                if apply:
+                    db.request('ydna_sync_sources?id=eq.'+urllib.parse.quote(source['id']), {'last_status': entry['reason']}, 'PATCH')
             except (Unavailable, ValueError, KeyError) as error:
                 # Never remove known data on fetch, format, robots, or permission failures.
                 entry.update(status='unavailable', reason=str(error)[:180])
@@ -109,7 +116,8 @@ def synchronize(sources, apply=False, http=None, db=None):
         report['counts'] = dict(counts)
         report['unique_candidates'] = len(seen)
         report['discovered_projects'] = sorted(set(report['discovered_projects']))
-        report['status'] = 'partial' if counts['unavailable_sources'] else 'completed'
+        report['status'] = 'partial' if counts['unavailable_sources'] or counts['restricted_sources'] else 'completed'
+        report['sources_checked_successfully'] = sum(s['status']=='ok' for s in report['sources'])
         if apply:
             db.request('ydna_sync_runs?id=eq.'+run, {'finished_at': datetime.now(timezone.utc).isoformat(),
                 'status': report['status'], 'report': report}, 'PATCH')

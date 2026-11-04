@@ -3,7 +3,7 @@ import re
 import urllib.parse
 from pathlib import Path
 from bs4 import BeautifulSoup
-from .http import Unavailable
+from .http import Unavailable, SourceRestricted
 from .normalize import marker_name, str_value
 
 
@@ -82,6 +82,8 @@ def country_form(html):
 
 
 def collect_ftdna(source, http):
+    if not source.get('automated_access_allowed') or not str(source.get('access_permission_url') or '').startswith('https://'):
+        raise SourceRestricted('FTDNA terms prohibit automated monitoring/copying without permission; no result page requested')
     raw = http.get(source['url'], incremental=False)
     if raw is None: return [], []
     html = raw.decode('utf-8', 'replace')

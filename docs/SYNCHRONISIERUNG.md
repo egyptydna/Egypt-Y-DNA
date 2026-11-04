@@ -2,6 +2,8 @@
 
 Stand: 4. November 2026. Repository: https://github.com/egyptydna/Egypt-Y-DNA
 
+**Aktualisierter Quellenbefund:** Die vollständigen FTDNA-Bedingungen untersagen auch automatisiertes Monitoring und systematische Datenbankübernahme ohne entsprechende Erlaubnis. Weitere Ergebnisabrufe werden deshalb bereits vor dem Netzwerkzugriff gesperrt. Siehe [Quellenbefund und vorbereitete Freigabeanfragen](QUELLENFREIGABE.md). Die ursprünglichen Abrufbefunde unten beschreiben nur die technische Erreichbarkeit im ersten Test, keine erlaubte Dauerüberwachung.
+
 Bereitgestellt in [Pull Request #1](https://github.com/egyptydna/Egypt-Y-DNA/pull/1). Die Live-Website und der geplante Actions-Lauf erhalten den neuen Code erst nach Freigabe und Merge. Die unten aufgeführten Supabase-Migrationen und privaten Prüffälle sind bereits eingerichtet.
 
 ## Tatsächlicher Stand
@@ -43,14 +45,14 @@ Die kanonische FTDNA-URL ist `https://www.familytreedna.com/public/PROJECT?ifram
 
 Der Projektkatalog steht in `sync/data/sources.json`. Der Link-Entdecker sammelt weitere öffentliche Projektlinks in den Laufbericht; neue Projekte werden vor Aktivierung auf Sichtbarkeit, Bedingungen und Publikationsrechte geprüft. Es gibt keine unbeschränkte Suche über sämtliche FTDNA-Projekte. SNP-only-Seiten ohne unterstützte öffentliche Tabelle werden ebenfalls als nicht verfügbar behandelt.
 
-FTDNA-Abrufe beachten robots.txt und mindestens fünf Sekunden Abstand pro Host. Temporäre Fehler erhalten maximal drei Versuche mit Wartezeit; 401/403, Formatänderungen, private Seiten und robots-Ausschlüsse werden protokolliert. Die öffentlichen Formularseiten müssen erneut abgerufen werden. **Inkrementell sind die Datensatzänderungen:** unveränderte Beobachtungen werden anhand ihres Inhalts wiedererkannt, statt neue Profile oder Historienzeilen zu erzeugen. ETag-Unterstützung ist für geeignete statische Abrufe vorhanden; es wird keine nicht belegte serverseitige Delta-API behauptet.
+Genehmigte FTDNA-Abrufe beachten robots.txt und mindestens fünf Sekunden Abstand pro Host. Ohne Zugriffserlaubnis finden keine Ergebnisabrufe statt. Temporäre Fehler erhalten maximal drei Versuche mit Wartezeit; 401/403, Formatänderungen, private Seiten und robots-Ausschlüsse werden protokolliert. Die öffentlichen Formularseiten müssen erneut abgerufen werden. **Inkrementell sind die Datensatzänderungen:** unveränderte Beobachtungen werden anhand ihres Inhalts wiedererkannt, statt neue Profile oder Historienzeilen zu erzeugen. ETag-Unterstützung ist für geeignete statische Abrufe vorhanden; es wird keine nicht belegte serverseitige Delta-API behauptet.
 
 ## GitHub Actions einschalten und prüfen
 
 1. Unter [Actions-Secrets](https://github.com/egyptydna/Egypt-Y-DNA/settings/secrets/actions) das Secret `SUPABASE_SERVICE_ROLE_KEY` aus genau diesem Supabase-Projekt anlegen. Nicht in HTML, Repository, Issues oder Chat einfügen. Ein Publishable-/Anon-Key reicht zum Importieren nicht.
 2. GitHub Actions im Repository aktivieren. `Public Y-DNA synchronization` verwendet `.github/workflows/ydna-sync.yml` und läuft täglich um **00:23 und 12:23 UTC** auf dem Standardbranch. GitHub-Zeitpläne können sich verspäten und bei langer Repository-Inaktivität deaktiviert werden; den letzten erfolgreichen Lauf regelmäßig prüfen.
 3. Über **Run workflow** zunächst `apply=false` verwenden. Der Dry Run benötigt keinen Service-Key und verändert die Datenbank nicht. Bericht: Job Summary und Artifact `ydna-sync-report` (14 Tage Aufbewahrung).
-4. Erst nach dokumentierter externer Freigabe pro Quelle `publication_allowed=true` und `permission_url` mit dem überprüften Freigabenachweis im Katalog setzen. Die Zustimmung des Websitebetreibers allein ersetzt keine Rechte des Datenanbieters. Die Freigabefelder sind keine automatisierte rechtliche Bewertung.
+4. Erst nach dokumentierter externer Freigabe pro Quelle `automated_access_allowed=true` und `access_permission_url` für den automatisierten Zugriff sowie `publication_allowed=true` und `permission_url` für die Übernahme mit den überprüften Freigabenachweisen im Katalog setzen. Die Zustimmung des Websitebetreibers allein ersetzt keine Rechte des Datenanbieters. Die Freigabefelder sind keine automatisierte rechtliche Bewertung.
 5. `apply=true` führt den Import mit dem Secret aus. Planläufe verwenden den Schreibmodus. Nicht freigegebene Treffer bleiben privat zur Prüfung vorgemerkt. Der Prozess schlägt bei fehlendem Schlüssel ausdrücklich fehl.
 6. In Supabase `ydna_sync_runs`, `ydna_sync_sources` und `ydna_sync_reviews` kontrollieren. `partial` bedeutet, dass mindestens eine Quelle nicht verfügbar war; andere Quellen werden weiter verarbeitet. Ausfälle löschen keine Bestandsdaten.
 
