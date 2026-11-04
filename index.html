@@ -3847,6 +3847,7 @@
     let studySamples = [];
     let ancientSamples = [];
     let relatedAncientSamples = [];
+    let syncLineagePathCache = new Map();
     let charts = {};
 
     let treeScale = 1;
@@ -4424,7 +4425,7 @@
       // J-Mxxx can belong to J1 OR J2. Resolve from a documented SNP path
       // or the versioned licensed reference; never assign unknown J branches to J1.
       if (['J','Q','R'].includes(Y) || /^(?:J|Q|R)(?:1|2|-)/.test(Y))
-        return YDNASync.yFamily({y_dna:y,snp_path:snp,full_snp_path:fullPath},syncOfficialRelease,syncOfficialNodes);
+        return YDNASync.yFamily({y_dna:y,snp_path:snp,full_snp_path:fullPath},syncOfficialRelease,syncOfficialNodes,syncLineagePathCache);
       if (!isRealValue(y) && (S.startsWith("J1") || S.startsWith("J2"))) return S.slice(0,2);
 
       if (Y.startsWith("R1A") || S.startsWith("R1A")) return "R1A";
@@ -4677,6 +4678,9 @@
         }
       });
 
+      // Reuse unique, provenance-backed SNP paths from the country's published
+      // terminal counts for both the visible tree and J/Q/R statistics.
+      syncLineagePathCache = syncKnownTerminalPaths();
       updateDashboardActivity();
     }
 
