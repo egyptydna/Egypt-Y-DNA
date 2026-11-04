@@ -120,3 +120,45 @@ test('unnamed YFull and kit profiles display their actual public identifier',()=
   assert.equal(ui.displayName({name:'Published ancestor',yfull_id:'YF990099001'}),'Published ancestor');
   assert.equal(ui.publicId({kit_number:'—',yfull_id:'YF990099001'}),'YF990099001');
 });
+
+test('J-M319 belongs to J2a rather than J1, including the imported YF149485 path',()=>{
+  const sample={y_dna:'J-M319',full_snp_path:'Y-Adam>J>J2>J-M410>J-L26>J-M319'};
+  assert.equal(ui.yFamily(sample,null,null),'J2');
+  assert.equal(ui.yFamily({y_dna:'J-M319'},null,null),'J2');
+  assert.equal(ui.yFamily({y_dna:'J-M319',full_snp_path:'Y-Adam>J>J1>J-M319'},null,null),'J');
+});
+test('unknown J, Q and R SNPs are not guessed into J1, Q1 or R2',()=>{
+  assert.equal(ui.yFamily({y_dna:'J-UNKNOWN'},null,null),'J');
+  assert.equal(ui.yFamily({y_dna:'Q-UNKNOWN'},null,null),'Q');
+  assert.equal(ui.yFamily({y_dna:'R-UNKNOWN'},null,null),'R');
+  assert.equal(ui.yFamily({y_dna:'Q-TEST',full_snp_path:'Y-Adam>Q>Q2>Q-TEST'},null,null),'Q2');
+  assert.equal(ui.yFamily({y_dna:'R-TEST',full_snp_path:'Y-Adam>R>R1>R1b>R-TEST'},null,null),'R1B');
+  assert.equal(ui.yFamily({y_dna:'R-TEST',full_snp_path:'Y-Adam>R>R1>R2>R-TEST'},null,null),'R');
+});
+test('new FTDNA-only terminal uses a licensed exact SNP path even if not in old release mapping',()=>{
+  const release={version:'14.06.0',metadata:{matches:{}}};
+  const nodes=new Map([['Y-Adam',{parent_label:null}],['J',{parent_label:'Y-Adam'}],
+    ['J2',{parent_label:'J'}],['J-M410',{parent_label:'J2'}],['J-M319',{parent_label:'J-M410'}]]);
+  const kit={kit_number:'990099001',y_dna:'J-M319',full_snp_path:'—'};
+  assert.deepEqual(ui.officialPath(kit,release,nodes),{
+    label:'J-M319',path:['Y-Adam','J','J2','J-M410','J-M319'],version:'14.06.0'
+  });
+  assert.equal(ui.officialPlacement(kit,release,nodes,'auto').label,'J-M319');
+  assert.equal(ui.yFamily(kit,release,nodes),'J2');
+});
+test('same kit gets the verified deeper SNP and only one visible row, placeholders never merge',()=>{
+  const old={id:36,kit_number:'MI33015',y_dna:'J-FT121878',full_snp_path:'Y-Adam>J>J1>FT121878>'};
+  const newer={id:50,kit_number:'MI33015',y_dna:'J-FT120805',full_snp_path:'Y-Adam>J>J1>FT121878>FGC74170>FT120805'};
+  const merged=ui.deduplicate([old,newer]);
+  assert.equal(merged.length,1);
+  assert.equal(merged[0].id,50);
+  assert.equal(merged[0].__duplicate_count,2);
+  assert.equal(merged[0].__duplicate_conflict,false);
+  assert.equal(ui.deduplicate([{id:1,kit_number:'—'},{id:2,kit_number:'—'}]).length,2);
+});
+test('two contradictory terminal SNPs with the same kit are flagged for review',()=>{
+  const rows=ui.deduplicate([{id:1,kit_number:'990099001',y_dna:'J-TESTA'},
+    {id:2,kit_number:'990099001',y_dna:'J-TESTB'}]);
+  assert.equal(rows.length,1);
+  assert.equal(rows[0].__duplicate_conflict,true);
+});
