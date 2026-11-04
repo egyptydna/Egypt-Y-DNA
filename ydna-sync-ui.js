@@ -11,20 +11,58 @@
     return 'unknown';
   }
   const labels = {confirmed_big_y:'Confirmed Big Y',yfull_sequencing:'YFull sequencing',str_only:'STR-only / predicted',snp_tested:'SNP-tested',unknown:'Test evidence unspecified'};
+  const normalizedSnp = v => String(v ?? '').trim().toUpperCase().replace(/^[A-T]-/, '').replace(/\*$/, '');
+  function documentedDescendant(ancestor, child) {
+    if (!real(ancestor.y_dna) || !real(child.y_dna) || !real(child.full_snp_path)) return false;
+    const path = child.full_snp_path.split('>').map(normalizedSnp).filter(Boolean);
+    const prior = normalizedSnp(ancestor.y_dna);
+    // A longer source path must actually contain the earlier terminal SNP.
+    return prior !== normalizedSnp(child.y_dna) &&
+      path.at(-1) === normalizedSnp(child.y_dna) && path.indexOf(prior) >= 0 &&
+      path.indexOf(prior) < path.length - 1;
+  }
   function deduplicate(samples) {
     const map = new Map();
+    const score = s => ['y_dna','full_snp_path','name','governorate','test_type'].filter(k=>real(s[k])).length;
     for (const sample of samples) {
+      // Dash placeholders are not identities. Never deduplicate by a name or shared haplogroup.
       const key = real(sample.kit_number) ? 'ftdna:'+sample.kit_number.trim().toUpperCase() :
         real(sample.yfull_id) ? 'yfull:'+sample.yfull_id.trim().toUpperCase() : 'row:'+sample.id;
-      if (!map.has(key)) map.set(key, sample);
-      else {
-        const prior = map.get(key);
-        // Same published ID only. Keep the richer profile without combining conflicting values.
-        const score = s => ['y_dna','full_snp_path','name','governorate'].filter(k=>real(s[k])).length;
-        if (score(sample)>score(prior)) map.set(key,sample);
-      }
+      if (!map.has(key)) {map.set(key, sample); continue;}
+      const prior = map.get(key);
+      const newerDescendant = documentedDescendant(prior, sample);
+      const olderDescendant = documentedDescendant(sample, prior);
+      const sameCall = normalizedSnp(prior.y_dna) === normalizedSnp(sample.y_dna);
+      const conflict = real(prior.y_dna) && real(sample.y_dna) &&
+        !sameCall && !newerDescendant && !olderDescendant;
+      // Prefer a documented descendant over an older upstream call, not the first row.
+      const chooseNew = newerDescendant || (!olderDescendant && !conflict &&
+        (sameCall || !real(prior.y_dna)) && score(sample)>score(prior));
+      const chosen = chooseNew ? sample : prior;
+      map.set(key, {...chosen, __duplicate_count:(prior.__duplicate_count||1)+1,
+        __duplicate_conflict:Boolean(prior.__duplicate_conflict || conflict)});
     }
     return [...map.values()];
+  }
+  function yFamily(sample, release, nodes) {
+    const y = String(sample.y_dna || '').trim().toUpperCase();
+    if (y !== 'J' && !/^J(?:1|2|-)/.test(y)) return null;
+    const terminal = /^J2/.test(y) || ['J-M172','J-M410','J-L26','J-M319'].includes(y) ? 'J2' :
+      /^J1/.test(y) || ['J-M267','J-P58'].includes(y) ? 'J1' : null;
+    const classify = value => {
+      const steps=String(value||'').split('>').map(v=>v.trim().toUpperCase());
+      const j2=steps.some(v=>/^J2/.test(v) || ['J-M172','J-M410','J-L26','J-M319'].includes(v));
+      const j1=steps.some(v=>/^J1/.test(v) || ['J-M267','J-P58'].includes(v));
+      return j1 && j2 ? 'conflict' : j2 ? 'J2' : j1 ? 'J1' : null;
+    };
+    const source = classify(real(sample.full_snp_path) ? sample.full_snp_path : sample.snp_path);
+    if (source === 'conflict' || (source && terminal && source !== terminal)) return 'J';
+    const verifiedReference=officialPath(sample,release,nodes);
+    const reference=verifiedReference ? classify(verifiedReference.path.join('>')) : null;
+    if (reference === 'conflict' || (reference && source && reference !== source) ||
+        (reference && terminal && reference !== terminal)) return 'J';
+    // If the label is J-... without a verifiable branch, J1 must NOT be guessed.
+    return source || reference || terminal || 'J';
   }
   function matches(sample, kind, governorate, query, newAfter) {
     if (kind && (kind === 'new' ? !(sample.sync_managed && Date.parse(sample.created_at)>newAfter) :
@@ -104,8 +142,15 @@
     const queries=[sample.y_dna,...String(sample.y_dna_alias||'').split(/[,;/|\s]+/)].filter(real);
     const found=new Set();
     for(const query of queries) {
-      const match=release.metadata?.matches?.[String(query).toUpperCase()];
-      if(match && ['exact','equivalent_snp'].includes(match.status) && nodes.has(match.label)) found.add(match.label);
+      const label=String(query).toUpperCase();
+      const match=release.metadata?.matches?.[label];
+      if (match) {
+        if (['exact','equivalent_snp'].includes(match.status) && nodes.has(match.label)) found.add(match.label);
+      } else if (nodes.has(label)) {
+        // The licensed, versioned tree itself is evidence for an exact SNP label,
+        // including nodes that were not in the older archive when matches were built.
+        found.add(label);
+      }
     }
     if(found.size!==1) return null;
     const label=[...found][0],path=[],seen=new Set();let current=label;
@@ -127,7 +172,7 @@
   function publicId(sample) {
     return [sample.kit_number,sample.yfull_id,sample.sample_id].find(real)||'—';
   }
-  const api = {status,labels,deduplicate,matches,nodeCounts,terminalPath,knownTerminalPaths,inCountScope,reconcileCountryCount,officialPath,officialPlacement,displayName,publicId};
+  const api = {status,labels,deduplicate,yFamily,documentedDescendant,matches,nodeCounts,terminalPath,knownTerminalPaths,inCountScope,reconcileCountryCount,officialPath,officialPlacement,displayName,publicId};
   if (typeof module === 'object') module.exports=api;
   else root.YDNASync=api;
 })(typeof window === 'object' ? window : globalThis);
