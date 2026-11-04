@@ -56,7 +56,9 @@
       if(!groups.has(root)) groups.set(root,[]);
       groups.get(root).push(sample);
     });
-    const score=s=>['y_dna','full_snp_path','name','governorate','test_type'].filter(k=>real(s[k])).length;
+    const score=s=>['y_dna','full_snp_path','name','governorate','test_type',
+      'snp_path','mt_dna','full_mtDNA_path','mt_link_1','origin_raw'].filter(k=>real(s[k])).length
+      + (s.sync_managed===false ? 1 : 0);
     return [...groups.values()].map(group=>{
       let chosen=group[0], conflict=false;
       for(const next of group.slice(1)){
@@ -70,16 +72,55 @@
       const yfull=allKeys.filter(k=>k.startsWith('yfull:')).map(k=>k.slice(6));
       const ftdna=allKeys.filter(k=>k.startsWith('ftdna:')).map(k=>k.slice(6));
       if(yfull.length>1 || ftdna.length>1)conflict=true;
+      // Retain original manually documented mtDNA, aliases, STR-related labels
+      // and source links whenever a newer import is missing those values.
+      // Never overwrite conflicting public claims or fabricate an mtDNA result.
       const result={...chosen,__identity_keys:allKeys,
         __linked_sample_ids:[...new Set(group.map(x=>x.id).filter(x=>x!=null))],
         __duplicate_count:group.length,
         __duplicate_conflict:Boolean(conflict||group.some(x=>x.__duplicate_conflict))};
+      const preservable=['name','origin_raw','governorate','governorate_iso','ethnic_group',
+        'snp_path','full_snp_path','mt_dna','full_mtDNA_path','mt_link_1','mt_link_2',
+        'y_link_1','y_link_2','y_dna_alias','description'];
+      for(const field of preservable){
+        if(!real(result[field])){
+          const donor=group.find(row=>real(row[field]));
+          if(donor)result[field]=donor[field];
+        }
+      }
+      const mitochondrialCalls=[...new Set(group.map(row=>String(row.mt_dna||'').trim()).filter(real))];
+      if(mitochondrialCalls.length>1)result.__duplicate_conflict=true;
+      result.__source_snp_paths=group.filter(row=>real(row.full_snp_path))
+        .map(row=>({sample_id:row.id,source:row.sync_primary_source||
+          (row.sync_managed===false?'Original archive':'imported source'),
+          path:row.full_snp_path}))
+        .filter((row,i,all)=>all.findIndex(other=>other.path===row.path)===i);
       if(yfull.length===1 && !yfullCode(result.yfull_id))result.yfull_id=yfull[0];
       // A YFull identifier is NOT an FTDNA kit number.
       if(ftdna.length===1 && (!real(result.kit_number)||yfullCode(result.kit_number)))
         result.kit_number=ftdna[0];
       return result;
     });
+  }
+  function compactSnpPath(sample) {
+    // The same visible path style for manually curated and imported profiles.
+    // Remove only shared prehistoric ancestors and repeated marker prefixes:
+    // no unobserved SNP, alias or intermediate branch may be added.
+    if(real(sample?.snp_path))return String(sample.snp_path).trim();
+    if(!real(sample?.full_snp_path))return real(sample?.y_dna)?String(sample.y_dna):'—';
+    const parts=String(sample.full_snp_path).split('>').map(x=>x.trim()).filter(real);
+    const root=String(sample.y_dna||'').trim().toUpperCase().charAt(0);
+    let from=parts.findIndex(x=>x.toUpperCase()===root);
+    if(root==='J'){
+      const j=parts.findIndex(x=>/^J[12]$/i.test(x));
+      if(j>=0)from=j;
+    }
+    if(from<0)from=Math.max(0,parts.length-12);
+    const display=parts.slice(from).map((segment,i)=>{
+      if(i===0)return segment;
+      return segment.replace(new RegExp('^'+root+'-','i'),'');
+    });
+    return display.join('>');
   }
   function yFamily(sample, release, nodes, knownPaths) {
     const y=String(sample.y_dna||'').trim().toUpperCase();
@@ -233,7 +274,7 @@
     const yf=keys.find(k=>k.startsWith('yfull:'));
     return kit?.slice(6) || yf?.slice(6) || (real(sample.sample_id)?sample.sample_id:'—');
   }
-  const api = {status,labels,deduplicate,identityKeys,identitySummary,yFamily,documentedDescendant,matches,nodeCounts,terminalPath,knownTerminalPaths,inCountScope,reconcileCountryCount,officialPath,officialPlacement,displayName,publicId};
+  const api = {status,labels,deduplicate,identityKeys,identitySummary,compactSnpPath,yFamily,documentedDescendant,matches,nodeCounts,terminalPath,knownTerminalPaths,inCountScope,reconcileCountryCount,officialPath,officialPlacement,displayName,publicId};
   if (typeof module === 'object') module.exports=api;
   else root.YDNASync=api;
 })(typeof window === 'object' ? window : globalThis);
