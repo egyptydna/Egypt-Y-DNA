@@ -162,3 +162,16 @@ test('two contradictory terminal SNPs with the same kit are flagged for review',
   assert.equal(rows.length,1);
   assert.equal(rows[0].__duplicate_conflict,true);
 });
+
+test('FTDNA terminal count path restores classification without inventing tester SNP values',()=>{
+  const sample={kit_number:'990099001',y_dna:'J-NEWTERM',full_snp_path:'—',snp_path:'—'};
+  const references=new Map([['J-NEWTERM','Y-Adam>J>J2>J-M410>J-NEWTERM']]);
+  assert.equal(ui.yFamily(sample,null,null,references),'J2');
+  assert.equal(ui.yFamily({...sample,full_snp_path:'Y-Adam>J>J1>J-NEWTERM'},null,null,references),'J1');
+  assert.equal(sample.full_snp_path,'—');
+});
+test('conflicting sample path takes precedence over country aggregate reference',()=>{
+  const sample={y_dna:'J-NEWTERM',full_snp_path:'Y-Adam>J>J1>J-NEWTERM'};
+  const references=new Map([['J-NEWTERM','Y-Adam>J>J2>J-M410>J-NEWTERM']]);
+  assert.equal(ui.yFamily(sample,null,null,references),'J1');
+});

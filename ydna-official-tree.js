@@ -63,19 +63,37 @@ function renderOfficialNodeInfo(node) {
   return `<div class="tree-official-evidence" style="margin:.25rem 0;font-size:10px;color:#64748b">YFull v${esc(syncOfficialRelease.version)}${esc(alias)} · Branch TMRCA: ${esc(publishedAgeText(info.age_estimates?.tmrca))}</div>`;
 }
 
+function publishedTerminalReferenceHTML(sample) {
+  if(isRealValue(sample.full_snp_path) || isRealValue(sample.snp_path)) return '';
+  const label=String(sample.y_dna||'').toUpperCase();
+  const path=syncLineagePathCache?.get(label);
+  if(!path) return '';
+  const fact=syncCountryCounts.find(c=>c.count_scope==='direct' && 
+    String(c.node_label||'').toUpperCase()===label && Array.isArray(c.snp_path) &&
+    c.snp_path.join('>')===path && String(c.path_source_url||'').startsWith('https://'));
+  if(!fact) return '';
+  return `<div class="sample-detail-label">Source-backed FTDNA terminal reference path</div>
+    <div class="sample-detail-code">${esc(path.split('>').join(' > '))}</div>
+    <p>Published reference ancestry for this terminal SNP, not a complete per-tester SNP result. An individual test path was not provided by the project.</p>
+    <p>${syncSourceLink(fact.path_source_url,'Published SNP-path source')}</p>`;
+}
+
 function renderOfficialSampleInfo(sample) {
   const target=document.getElementById('sample-official-tree');
   if(!target) return;
   target.innerHTML='';
-  if(!syncOfficialRelease || currentTreeType==='mt' || !isRealValue(sample.y_dna)) return;
+  if(currentTreeType==='mt' || !isRealValue(sample.y_dna)) return;
+  const terminalReference=publishedTerminalReferenceHTML(sample);
+  target.innerHTML=terminalReference;
+  if(!syncOfficialRelease) return;
   const placement=YDNASync.officialPath(sample,syncOfficialRelease,syncOfficialNodes);
   if(!placement) {
-    target.textContent=`Official YFull GitHub v${syncOfficialRelease.version}: no unambiguous reference path for this tester's published terminal SNP. The sample remains terminal-only; no ancestors were invented.`;
+    if(!terminalReference) target.textContent=`Official YFull GitHub v${syncOfficialRelease.version}: no unambiguous reference path for this tester's published terminal SNP. The sample remains terminal-only; no ancestors were invented.`;
     return;
   }
   const node=syncOfficialNodes.get(placement.label);
   const sourceHasPath=isRealValue(sample.full_snp_path) || isRealValue(sample.snp_path);
-  target.innerHTML=`<div class="sample-detail-label">Official YFull Y-DNA reference · v${esc(placement.version)}</div>
+  target.innerHTML=terminalReference+`<div class="sample-detail-label">Official YFull Y-DNA reference · v${esc(placement.version)}</div>
     <p>Published record: ${esc(sample.y_dna)} · YFull branch: ${esc(placement.label)}</p>
     ${sourceHasPath?'':'<p><strong>Reference tree path (not submitted per-tester SNP sequence).</strong> The project source did not provide a complete path. Placement uses the independently documented terminal branch; it is not a claim of further individual testing.</p>'}
     <div class="sample-detail-code">${esc(placement.path.join(' > '))}</div>
