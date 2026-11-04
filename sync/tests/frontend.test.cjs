@@ -263,12 +263,30 @@ test('user-confirmed C-Y255870 duplicate keeps maternal U3b3d2a and canonical YF
   assert.equal(merged[0].__source_snp_paths.length,2);
   assert.equal(ui.compactSnpPath(merged[0]),original.snp_path);
 });
-test('automatically imported YFull SNP paths show meaningful lineage, not just J-terminal',()=>{
+test('automatically imported paths start with the first documented SNP not J1 or Y-Adam',()=>{
   assert.equal(ui.compactSnpPath({snp_path:'—',y_dna:'J-Y8537',
-    full_snp_path:'Y-Adam>A0-T>BT>CT>F>J>J1>J-Z2215>J-Y8537'}),'J1>Z2215>Y8537');
+    full_snp_path:'Y-Adam>A0-T>BT>CT>F>J>J1>J-Z2215>J-Y8537'}),'J-Z2215>Y8537');
   assert.equal(ui.compactSnpPath({snp_path:'—',y_dna:'C-Y255870',
-    full_snp_path:'Y-Adam>BT>CT>CF>C>C-F3393>C-CTS11043>C-Y255870'}),'C>F3393>CTS11043>Y255870');
+    full_snp_path:'Y-Adam>BT>CT>CF>C>C-F3393>C-CTS11043>C-Y255870'}),'C-F3393>CTS11043>Y255870');
   assert.equal(ui.compactSnpPath({snp_path:'—',y_dna:'C-Y255870',full_snp_path:'—'}),'C-Y255870');
+});
+test('requested J-FGC1723>step>step>terminal style is preserved exactly',()=>{
+  const path='J-FGC1723>FGC1695>FGC1707>FGC1705>FGC1721>FGC1696>FGC23310>FGC5>FGC1>FGC43128';
+  assert.equal(ui.compactSnpPath({y_dna:'J-FGC43128',snp_path:path,full_snp_path:'Y-Adam>J>J1>J-FGC1723>J-FGC1695>J-FGC43128'}),path);
+});
+test('imported full chain anchored at real FGC1723 is compact and not truncated',()=>{
+  const path='Y-Adam>A0-T>BT>CT>F>J>J1>J-FGC1723>J-FGC1695>J-FGC1707>J-FGC43128';
+  assert.equal(ui.compactSnpPath({y_dna:'J-FGC43128',snp_path:'—',full_snp_path:path}),
+    'J-FGC1723>FGC1695>FGC1707>FGC43128');
+});
+test('other J subbranches must not be mislabeled as FGC1723',()=>{
+  assert.equal(ui.compactSnpPath({y_dna:'J-M319',snp_path:'—',
+    full_snp_path:'Y-Adam>BT>CT>F>J>J2>J-M410>J-L26>J-M319'}),'J-M410>L26>M319');
+});
+test('E imported profile card shows every sourced SNP between start and terminal',()=>{
+  const path='Y-Adam>BT>CT>DE>E>E-M5479>E-P147>E-P177>E-M35>E-L539>E-M78>E-Z1902>E-V12>E-Y2863>E-CTS693>E-A40481';
+  assert.equal(ui.compactSnpPath({y_dna:'E-A40481',snp_path:'—',full_snp_path:path}),
+    'E-M5479>P147>P177>M35>L539>M78>Z1902>V12>Y2863>CTS693>A40481');
 });
 test('different YFull sample IDs and identical haplogroups do not merge',()=>{
   const rows=ui.deduplicate([{id:1,kit_number:'—',yfull_id:'YF000001',y_dna:'J-M319',governorate:'Sūhāj'},
