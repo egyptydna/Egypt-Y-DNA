@@ -44,7 +44,7 @@
     }
     return [...map.values()];
   }
-  function yFamily(sample, release, nodes) {
+  function yFamily(sample, release, nodes, knownPaths) {
     const y=String(sample.y_dna||'').trim().toUpperCase();
     const root=y.charAt(0);
     if (!['J','Q','R'].includes(root) || (y.length>1 && !/^([JQR])(?:[12]|-)/.test(y))) return null;
@@ -68,7 +68,10 @@
       const r1=steps.some(v=>v==='R1'),r2=steps.some(v=>/^R2/.test(v));
       return (a&&b)||(r2&&(r1||a||b))?'conflict':a?'R1A':b?'R1B':r2?'R2':r1?'R1':null;
     };
-    const source=classify(real(sample.full_snp_path)?sample.full_snp_path:sample.snp_path);
+    const publishedPath=real(sample.full_snp_path)?sample.full_snp_path:
+      real(sample.snp_path)?sample.snp_path:
+      knownPaths?.get(y) || '';
+    const source=classify(publishedPath);
     const official=officialPath(sample,release,nodes);
     const reference=official?classify(official.path.join('>')):null;
     const labels=[source,reference,terminal].filter(Boolean);
