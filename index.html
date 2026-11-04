@@ -5023,6 +5023,7 @@
 
           node = node.childMap.get(disp);
           ancestorChain.push({ display: disp });
+          for (const alias of syncTreeAliases.get(disp.toUpperCase()) || syncTreeAliases.get(rawSeg.toUpperCase()) || []) addAliasToNode(node, alias);
         }
 
         node.samples.push(sample);

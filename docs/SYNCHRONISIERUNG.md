@@ -2,6 +2,8 @@
 
 Stand: 4. November 2026. Repository: https://github.com/egyptydna/Egypt-Y-DNA
 
+Bereitgestellt in [Pull Request #1](https://github.com/egyptydna/Egypt-Y-DNA/pull/1). Die Live-Website und der geplante Actions-Lauf erhalten den neuen Code erst nach Freigabe und Merge. Die unten aufgeführten Supabase-Migrationen und privaten Prüffälle sind bereits eingerichtet.
+
 ## Tatsächlicher Stand
 
 Die bestehende GitHub-Pages-Website und das Supabase-Projekt `lsfmpmfoqdtkgndtaxen` werden weiterverwendet. Es gibt keine zweite Website. Der Importdienst läuft als Python-Prozess in GitHub Actions, unabhängig von Websitebesuchen.
@@ -104,7 +106,7 @@ Durchgeführt:
 
 Die Migrationsdateien entsprechen den tatsächlich gespeicherten Remote-Migrationsversionen. Die lokale CLI konnte in dieser Umgebung keine Migrationsdatei erzeugen; die finalen Dateien wurden deshalb aus den über die Supabase-Integration angewandten, zuvor transaktional geprüften Migrationen übernommen. Keine zweite Datenbank und keine destruktive Schemaänderung wurden angelegt.
 
-Vor den Erweiterungen wurden `ydna_backup.modern_before_sync`, `ancient_before_sync`, `study_before_sync` und `related_before_sync` angelegt. Der Zugriff ist für öffentliche Rollen gesperrt. Das ist eine projektninterne Sicherung, kein Ersatz für unabhängige Backups oder PITR. Vor weiteren produktiven Migrationen zusätzlich einen verschlüsselten externen Daten-/Schemaexport oder ein verfügbares Supabase-Backup sichern. Bestehende RLS-Regeln, Trigger und übrige Anwendungstabellen wurden erhalten.
+Vor den Erweiterungen wurden `ydna_backup.modern_before_sync`, `ancient_before_sync`, `study_before_sync` und `related_before_sync` angelegt. Der Zugriff ist für öffentliche Rollen gesperrt. Das ist eine projektinterne Sicherung, kein Ersatz für unabhängige Backups oder PITR. Vor weiteren produktiven Migrationen zusätzlich einen verschlüsselten externen Daten-/Schemaexport oder ein verfügbares Supabase-Backup sichern. Bestehende RLS-Regeln, Trigger und übrige Anwendungstabellen wurden erhalten.
 
 Alle neuen öffentlichen Tabellen haben RLS. Nur bestätigte veröffentlichte Beobachtungen, ihre STR-Belege, Tree-Knoten und bereinigte Laufberichte sind lesbar; Identitätenregister, Quellenkonfiguration, Opt-out-Tombstones und Prüfliste sind für Browserrollen gesperrt. Schreibfunktionen sind `SECURITY INVOKER` und nur `service_role` zugänglich. Die Sicherheitsprüfung meldete keine neue Warnung für die Importfunktionen. Bereits vorhandene Warnungen zu `rls_auto_enable`, veränderlichen Suchpfaden bestehender Hilfsfunktionen und deaktivierter Passwort-Leak-Prüfung betreffen den Altbestand und wurden nicht außerhalb dieses Auftrags geändert.
 

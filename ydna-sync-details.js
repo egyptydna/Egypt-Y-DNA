@@ -1,6 +1,7 @@
 let syncTextQuery = '';
 let syncLatestStart = Infinity;
 const syncComparisons = new Map();
+const syncTreeAliases = new Map();
 
 async function loadSyncMetadata() {
   // Optional enrichment must never break the existing archive if a migration is unavailable.
@@ -15,6 +16,15 @@ async function loadSyncMetadata() {
         if(sample && item.project) sample.__projects=[...new Set([...(sample.__projects||[]),item.project])];
       }
       if(evidence.data.length<1000) break;
+    }
+    for (let offset=0; ; offset+=1000) {
+      const nodes=await _sb.from('ydna_sync_tree_nodes').select('label,aliases').order('source_id').order('label').range(offset,offset+999);
+      if(nodes.error) break;
+      for(const node of nodes.data) {
+        const key=node.label.toUpperCase();
+        syncTreeAliases.set(key,[...new Set([...(syncTreeAliases.get(key)||[]),...(Array.isArray(node.aliases)?node.aliases:[]).filter(a=>typeof a==='string')])]);
+      }
+      if(nodes.data.length<1000) break;
     }
   } catch (error) { console.warn('Optional synchronization metadata unavailable'); }
 }

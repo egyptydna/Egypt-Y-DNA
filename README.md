@@ -3,7 +3,8 @@
 Bestehende Website: https://egyptydna.github.io/Egypt-Y-DNA/
 
 Die Website liest das bestehende Supabase-Projekt `lsfmpmfoqdtkgndtaxen`.
-Der öffentliche Importdienst läuft unabhängig davon in GitHub Actions.
+Der öffentliche Importdienst ist für einen unabhängigen Betrieb in GitHub Actions vorbereitet.
+Implementierung: [Pull Request #1](https://github.com/egyptydna/Egypt-Y-DNA/pull/1); Aktivierung nach Merge und Secret-Einrichtung.
 
 **Betrieb, tatsächliche Quellenbeschränkungen, Secrets, Migrationen und erster Importbericht:**
 [Synchronisierungsdokumentation](docs/SYNCHRONISIERUNG.md).
