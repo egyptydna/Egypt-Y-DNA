@@ -48,7 +48,7 @@
   }
   function terminalPath(sample, knownPaths) {
     const path = real(sample.full_snp_path) ? sample.full_snp_path : real(sample.snp_path) ? sample.snp_path : '';
-    if (!real(sample.full_snp_path) && knownPaths?.has(sample.y_dna)) return knownPaths.get(sample.y_dna);
+    if (!real(sample.full_snp_path) && knownPaths?.has(String(sample.y_dna||'').toUpperCase())) return knownPaths.get(String(sample.y_dna||'').toUpperCase());
     // A terminal-only record remains visible; no intermediate branches are invented.
     return path || (real(sample.y_dna) ? 'Y-Adam>'+sample.y_dna : '');
   }
@@ -59,12 +59,46 @@
       const last=path.split('>').at(-1).trim().toUpperCase().replace(/^[A-T]-/,'');
       const terminal=s.y_dna.trim().toUpperCase().replace(/^[A-T]-/,'');
       if(last!==terminal) continue;
-      if(!options.has(s.y_dna)) options.set(s.y_dna,new Set());
-      options.get(s.y_dna).add(path);
+      const key=s.y_dna.toUpperCase();
+      if(!options.has(key)) options.set(key,new Set());
+      options.get(key).add(path);
     }
     return new Map([...options].filter(([,paths])=>paths.size===1).map(([label,paths])=>[label,[...paths][0]]));
   }
-  const api = {status,labels,deduplicate,matches,nodeCounts,terminalPath,knownTerminalPaths};
+  function inCountScope(sample, fact, knownPaths) {
+    const target=String(fact.node_label||'').toUpperCase();
+    const terminal=String(sample.y_dna||'').toUpperCase();
+    if(terminal===target) return true;
+    if(fact.count_scope!=='inclusive') return false;
+    // Only a published path (or an unambiguous previously published path) establishes descent.
+    const path=terminalPath(sample,knownPaths).toUpperCase().split('>').map(s=>s.trim());
+    const head=target.split('-')[0];
+    if(target.includes('-') && terminal.split('-')[0]!==head) return false;
+    return path.some(s=>s===target || (target.includes('-') && s===target.slice(target.indexOf('-')+1)));
+  }
+  function reconcileCountryCount(fact, samples, knownPaths) {
+    const comparable=(fact.namespace==='ftdna' && fact.population==='ftdna_big_y') ||
+      (fact.namespace==='yfull' && fact.population==='yfull_modern');
+    const ids=new Set();
+    for(const sample of samples) {
+      if(sample.__sourceType!=='modern' || !inCountScope(sample,fact,knownPaths)) continue;
+      if(fact.namespace==='ftdna' && status(sample)==='confirmed_big_y' &&
+        /^[A-Z]{0,3}\d+$/i.test(sample.kit_number||'') && !/^YF\d+$/i.test(sample.kit_number)) {
+        ids.add(String(sample.kit_number).toUpperCase());
+      }
+      if(fact.namespace==='yfull') {
+        const id=/^YF\d+$/i.test(sample.yfull_id||'')?sample.yfull_id:
+          /^YF\d+$/i.test(sample.kit_number||'')?sample.kit_number:null;
+        if(id) ids.add(String(id).toUpperCase());
+      }
+    }
+    const known=ids.size, reported=Number(fact.reported_count);
+    const conflict=comparable && known>reported;
+    return {reported,known,comparable,conflict,
+      unresolved:comparable&&!conflict?reported-known:null,
+      method:'cohort_comparison_only'};
+  }
+  const api = {status,labels,deduplicate,matches,nodeCounts,terminalPath,knownTerminalPaths,inCountScope,reconcileCountryCount};
   if (typeof module === 'object') module.exports=api;
   else root.YDNASync=api;
 })(typeof window === 'object' ? window : globalThis);

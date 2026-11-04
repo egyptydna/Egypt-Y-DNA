@@ -57,6 +57,12 @@ with sync_playwright() as p:
  assert page.evaluate("buildRawTree(treeFilteredSamples()).count>0")
  page.evaluate("modernSamples=modernSamples.filter(s=>s.id!==-990099001)")
  print('Synthetic STR search, comparison, terminal-only tree and regional statistics: passed')
+ page.evaluate("modernSamples.push({id:-990099002,__uid:'synthetic-count-test',__sourceType:'modern',name:'SYNTHETIC COUNT TEST ONLY',kit_number:'990099002',governorate:'Port Said',y_dna:'J-TEST1',test_type:'Big Y-700',test_status:'confirmed_big_y'});syncCountryCounts=[{id:-1,namespace:'ftdna',node_label:'J-TEST1',country_code:'EG',reported_count:9,count_scope:'inclusive',population:'ftdna_big_y',observed_at:'2026-11-04T00:00:00Z',source_url:'https://example.org/synthetic-count',snp_path:[]}];renderTree()")
+ text=page.locator('.tree-country-evidence').inner_text()
+ assert '9 reported' in text and '1 matching public ID(s)' in text and '8 arithmetically unidentified' in text
+ assert page.evaluate("modernSamples.filter(s=>s.id===-990099002).length") == 1
+ page.evaluate("modernSamples=modernSamples.filter(s=>s.id!==-990099002);syncCountryCounts=[];renderTree()")
+ print('Nine source counts + one identified kit: no fake tester rows, arithmetic remainder eight')
  print('Errors',errors)
  print('API',api)
  assert not errors

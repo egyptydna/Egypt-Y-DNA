@@ -105,6 +105,7 @@ Durchgeführt:
 
 - `20261104151006_public_ydna_sync`: Backup-Schema, additive Haupttabellenspalten, neun ergänzende Tabellen, RLS, Grants, transaktionale Import- und Opt-out-Funktionen.
 - `20261104151505_ydna_visibility_and_private_metadata`: explizite Sperrregeln für private Metadaten, Opt-out auch für Altprofile, nachweisbare Sichtbarkeitsrücknahme und Prüffall für den vorhandenen Doppel-Kit-Eintrag.
+- `20261104170036_country_count_profile_reconciliation`: getrennte Quellen-Knotenzahlen, Beobachtungshistorie und kontrollierte Importfunktion; siehe [Knotenzahlen und Tester](KNOTENZAHLEN-UND-TESTER.md). Die Anzeige wird mit dem zugehörigen Frontend-PR veröffentlicht; bisher wurden keine Live-Knotenzahlen angelegt.
 
 Die Migrationsdateien entsprechen den tatsächlich gespeicherten Remote-Migrationsversionen. Die lokale CLI konnte in dieser Umgebung keine Migrationsdatei erzeugen; die finalen Dateien wurden deshalb aus den über die Supabase-Integration angewandten, zuvor transaktional geprüften Migrationen übernommen. Keine zweite Datenbank und keine destruktive Schemaänderung wurden angelegt.
 
