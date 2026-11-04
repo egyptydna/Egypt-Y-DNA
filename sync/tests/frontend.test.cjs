@@ -360,10 +360,13 @@ test('subtree counts keep exact sample and Big Y totals after memoization',()=>{
 test('first page does not construct hidden archives or tree and charts are viewport lazy',()=>{
   const html=fs.readFileSync('index.html','utf8');
   const boot=html.slice(html.indexOf('(async function boot()'));
-  assert.ok(boot.includes('renderDashboard()'));
-  assert.ok(!boot.includes('renderArchive()'));
-  assert.ok(!boot.includes('renderAncientArchive()'));
-  assert.ok(!boot.includes('renderTree()'));
+  // Only assert the synchronous first-paint phase: optional metadata can
+  // legitimately refresh an active archive/tree after the async boundary.
+  const firstPaint=boot.slice(0,boot.indexOf('setTimeout(async()=>{'));
+  assert.ok(firstPaint.includes('renderDashboard()'));
+  assert.ok(!firstPaint.includes('renderArchive()'));
+  assert.ok(!firstPaint.includes('renderAncientArchive()'));
+  assert.ok(!firstPaint.includes('renderTree()'));
   assert.match(html,/IntersectionObserver\(entries/);
   assert.match(html,/regionChartObserver\.observe\(canvas\)/);
   assert.match(html,/if\(id==='archive'&&!sectionRendered\.archive\)/);
