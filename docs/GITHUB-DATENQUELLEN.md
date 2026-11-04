@@ -149,6 +149,16 @@ individuellen Datenzuwachs erzeugen.
 
 ## Betrieb und Prüfung
 
+Der erste echte manuelle [GitHub-Actions-Lauf mit der neuen Quelle](https://github.com/egyptydna/Egypt-Y-DNA/actions/runs/41893012953)
+auf dem Feature-Branch wurde am 4. November 2026 um 19:02 UTC erfolgreich beendet.
+Der Bericht in Supabase bestätigt `yfull-github: ok`, Version 14.06.0,
+1.054 ausgewählte Knoten, 237 passende und 75 nicht passende Bezeichnungen sowie
+`status: unchanged` ohne neue Profile oder doppelte Baumstände. Die Lauf-ID lautet
+`31dfce57-2427-4590-826b-f01a34f235d4`. Der Gesamtbericht ist wegen sieben weiterhin
+gesperrter Quellen `partial`; der GitHub-Job selbst ist erfolgreich. Damit ist
+dieser serverseitige Abruf geprüft; die regelmäßige Ausführung des neuen Adapters
+auf dem Standardbranch wird erst nach Merge aktiv.
+
 Nach Merge startet eine Änderung an `sync/**` sofort einen Actions-Lauf;
 anschließend gilt weiterhin **00:23 und 12:23 UTC**. Manuelle Starts über
 `Public Y-DNA synchronization` sind möglich; `apply=false` ist ein Dry Run.
