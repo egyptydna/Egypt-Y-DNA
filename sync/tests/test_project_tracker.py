@@ -10,7 +10,7 @@ class ProjectTrackerTests(unittest.TestCase):
         self.assertFalse(result['writes'])
         db.request.assert_not_called()
 
-    @patch('sync.track_projects.seed_directory')
+    @patch('sync.track_projects.seed_directory', return_value=False)
     def test_budget_and_skip_are_preserved(self, seed):
         db = Mock()
         db.request.return_value = {'status': 'recent_skip', 'lastSavedAt': 'saved'}
@@ -20,7 +20,7 @@ class ProjectTrackerTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             track(True, db, budget=0)
 
-    @patch('sync.track_projects.seed_directory')
+    @patch('sync.track_projects.seed_directory', return_value=False)
     def test_failure_retains_previous_save_and_logs_no_response(self, seed):
         db = Mock()
         db.request.side_effect = [RuntimeError('secret payload must not escape'), None]
@@ -28,6 +28,12 @@ class ProjectTrackerTests(unittest.TestCase):
             track(True, db)
         self.assertNotIn('secret payload', str(result.exception))
         self.assertEqual(db.request.call_args.args, ('rpc/ydna_project_tracker_failed', {}))
+
+    @patch('sync.track_projects.seed_directory', return_value=True)
+    def test_new_directory_is_reconciled_even_after_a_recent_check(self, seed):
+        db=Mock();db.request.return_value={'status':'partial'}
+        track(True,db)
+        self.assertTrue(db.request.call_args.args[1]['p_force'])
 
     def test_directory_is_metadata_only_bounded_and_not_reseeded_on_every_poll(self):
         db=Mock();db.request.return_value=[]

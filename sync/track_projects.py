@@ -17,13 +17,14 @@ def seed_directory(db):
     version = hashlib.sha256(raw).hexdigest()
     saved = db.request('ydna_project_tracking_status?id=eq.true&select=seeded_directory_key', method='GET')
     if saved and saved[0].get('seeded_directory_key') == version:
-        return
+        return False
     data = json.loads(gzip.decompress(raw))
     projects = data['projects']
     for offset in range(0, len(projects), 500):
         db.request('rpc/ydna_project_catalog_seed',
                    {'p_projects': projects[offset:offset+500], 'p_version': version,
                     'p_final': offset+500 >= len(projects)})
+    return True
 
 
 def track(apply=False, db=None, budget=128, force=False):
@@ -34,9 +35,9 @@ def track(apply=False, db=None, budget=128, force=False):
                 'scope': 'Saved public project evidence; no direct provider access'}
     db = db or Database()
     try:
-        seed_directory(db)
+        directory_seeded = seed_directory(db)
         return db.request('rpc/ydna_project_tracker_refresh',
-                          {'p_budget': budget, 'p_force': force})
+                          {'p_budget': budget, 'p_force': bool(force or directory_seeded)})
     except Exception:
         # Keep the last good summary and its saved timestamp when a run fails.
         try:
