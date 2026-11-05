@@ -73,6 +73,9 @@ def parse_observatory(data):
     coverage=next((c for c in data.get('coverage',[]) if c.get('provider')=='ftdna'),None)
     if coverage and coverage.get('aggregateCount')!=sum(c['reported_count'] for c in counts):
         raise ValueError('Archived FTDNA direct counts disagree with its coverage total')
+    if coverage:
+        source['metadata'].update(country_total=coverage['aggregateCount'],country_terminal_rows=len(counts),
+            country_coverage_note=coverage.get('note'),reported_other_total=coverage.get('expectedCount'))
     return records,counts,[source],dict(stats)
 
 
