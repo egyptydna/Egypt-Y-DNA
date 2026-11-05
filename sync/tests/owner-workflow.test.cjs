@@ -27,3 +27,7 @@ test('mtDNA links retain case and never invent a Discover mtDNA endpoint',()=>{
  const r=lineage.links({mt_dna:'H1a1'},'mt');assert.equal(r.length,1);assert.equal(r[0].url,'https://www.yfull.com/mtree/H1a1/');
  const y=lineage.links({y_dna:'E-FIXTURE',y_link_1:'javascript:alert(1)'});assert.ok(y.every(x=>x.url.startsWith('https://')));
 });
+
+test('legacy YFull IDs move to the typed YFull field without mutating or discarding conflicting identities',()=>{
+ const source={kit_number:'YF990001',yfull_id:'—'};assert.deepEqual(tools.formValues(source),{kit_number:'',yfull_id:'YF990001'});assert.equal(source.kit_number,'YF990001');assert.equal(tools.formValues({kit_number:'990001'}).kit_number,'990001');assert.equal(tools.formValues({kit_number:'YF990001',yfull_id:'YF990002'}).kit_number,'YF990001');
+});

@@ -23,5 +23,10 @@
   return {rows:patches,ignored:headers.filter((h,i)=>!fields[i]||!allowed.has(fields[i]))};
  }
  function template(kind='modern'){return (kind==='collected'?['name','ancestor_name','origin_raw','y_dna','governorate']:['kit_number','name','y_dna','mt_dna','governorate','test_type','yfull_id']).join(';')+'\r\n';}
- const api={parse,template};if(typeof module==='object')module.exports=api;else root.YDNAOwnerTools=api;
+ function formValues(row,kind='modern'){
+  const values={...(row||{})},legacy=String(values.kit_number||'').trim().toUpperCase(),yf=String(values.yfull_id||'').trim().toUpperCase();
+  if(kind==='modern'&&/^YF\d+$/.test(legacy)&&(['','—','-'].includes(yf)||yf===legacy)){values.kit_number='';values.yfull_id=legacy;}
+  return values;
+ }
+ const api={parse,template,formValues};if(typeof module==='object')module.exports=api;else root.YDNAOwnerTools=api;
 })(typeof window==='object'?window:globalThis);

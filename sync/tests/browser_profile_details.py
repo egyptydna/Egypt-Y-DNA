@@ -161,8 +161,9 @@ with sync_playwright() as p:
  ft_info.click();page.wait_for_function("document.querySelector('#tree-inner .phylo-evidence[open]')?.textContent.includes('FTDNA')")
  group=page.locator('.country-known-profiles details').first
  assert group.evaluate('(e)=>e.open')
+ group.evaluate("(e)=>{e.__closedEvent=new Promise(resolve=>e.addEventListener('toggle',resolve,{once:true}));}")
  group.locator('summary').click()
- page.wait_for_function("!document.querySelector('.country-known-profiles details').open")
+ assert group.evaluate("(e)=>e.__closedEvent.then(()=>!e.open)")
  page.evaluate('renderTree()')
  assert not page.locator('.country-known-profiles details').first.evaluate('(e)=>e.open')
  page.locator('#btn-show-all-profiles').click()
