@@ -222,7 +222,7 @@
     return labels.find(v=>!['R1'].includes(v)) || labels[0] || root;
   }
   function matches(sample, kind, governorate, query, newAfter) {
-    if (kind && (kind === 'new' ? !(sample.sync_managed && Date.parse(sample.created_at)>newAfter) :
+    if (kind && (kind === 'new' ? !isNew(sample) :
       kind === 'modern' ? sample.__sourceType !== 'modern' :
       kind === 'yfull' ? !real(sample.yfull_id) && status(sample)!=='yfull_sequencing' : status(sample)!==kind)) return false;
     if (governorate && sample.governorate !== governorate) return false;
@@ -232,6 +232,10 @@
       if (!text.includes(query.toLocaleLowerCase())) return false;
     }
     return true;
+  }
+  function isNew(sample, now=Date.now()) {
+    // Stored once by the tracker; repeated checks never renew the 30-day window.
+    return Number.isFinite(Date.parse(sample.__new_until)) && Date.parse(sample.__new_until)>now;
   }
   // Tree nodes are rebuilt for each selection. Memoize subtree statistics
   // on those transient node objects, instead of traversing every descendant
@@ -403,7 +407,7 @@
     const yf=keys.find(k=>k.startsWith('yfull:'));
     return kit?.slice(6) || yf?.slice(6) || (real(sample.sample_id)?sample.sample_id:'—');
   }
-  const api = {status,addObservation,preferredTest,sampleFocusPath,labels,deduplicate,identityKeys,identitySummary,compactSnpPath,yFamily,pathIssue,safePlacement,documentedDescendant,matches,nodeCounts,terminalPath,knownTerminalPaths,inCountScope,reconcileCountryCount,officialPath,officialPlacement,displayName,publicId};
+  const api = {status,addObservation,preferredTest,sampleFocusPath,labels,deduplicate,identityKeys,identitySummary,compactSnpPath,yFamily,pathIssue,safePlacement,documentedDescendant,matches,isNew,nodeCounts,terminalPath,knownTerminalPaths,inCountScope,reconcileCountryCount,officialPath,officialPlacement,displayName,publicId};
   if (typeof module === 'object') module.exports=api;
   else root.YDNASync=api;
 })(typeof window === 'object' ? window : globalThis);

@@ -10,6 +10,7 @@
       ${identity&&name!==identity&&name!=='—'?`<span class="phylo-sample-person">${escape(name)}</span>`:''}
       <span class="phylo-sample-origin">${escape(options.location(row))}</span>
       <span class="phylo-sample-test">${escape(options.test(row))}</span>
+      ${options.isNew?.(row)?'<span class="project-new-badge">NEW · 30 days</span>':''}
       ${kind!=='modern'?`<span class="phylo-kind phylo-kind-${escape(kind)}">${escape({related:'Related ancient',ancient:'Egyptian ancient',study:'Study'}[kind]||kind)}</span>`:''}
       ${row.__duplicate_conflict?'<span class="phylo-warning">Conflicting results · review</span>':''}
       ${options.issue(row)?`<span class="phylo-warning">${escape(options.issue(row))}</span>`:''}

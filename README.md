@@ -3,7 +3,9 @@
 Bestehende Website: https://egyptydna.github.io/Egypt-Y-DNA/
 
 Die Website liest das bestehende Supabase-Projekt `lsfmpmfoqdtkgndtaxen`.
-Der Importdienst läuft unabhängig von Websitebesuchen in GitHub Actions alle zwölf Stunden.
+Der Importdienst läuft unabhängig von Websitebesuchen in GitHub Actions stündlich.
+Die [Projektverfolgung](docs/PROJECT-TRACKING.md) speichert fortsetzbare Nachsuchen,
+exakte Kit-Mitgliedschaften, getrennte anonyme Linienkandidaten und den Prüfstatus.
 Der neue offizielle YFull-GitHub-Adapter und genehmigte Testerfeeds sind unter
 [GitHub-Datenquellen](docs/GITHUB-DATENQUELLEN.md) dokumentiert. Der erste lizenzierte
 YFull-Teilbaum ist importiert und der GitHub-Quellenlauf ist auf `main` aktiv. Ein zusätzlicher
@@ -17,6 +19,8 @@ gespeicherte belegte Tester und getrennte FTDNA-Zählungen in dieselbe Datenbank
 python -m pip install -r sync/requirements.txt
 python -m unittest discover -s sync/tests -v
 node --test sync/tests/frontend.test.cjs
+npm ci --ignore-scripts
+npm run build:styles
 python -m sync.run
 ```
 

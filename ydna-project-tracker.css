@@ -1,0 +1,13 @@
+.project-tracker{border:1px solid #d5dfdd;border-radius:16px;padding:18px;background:#f7faf8;color:#183e35;font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+.project-tracker h2{font-size:18px;font-weight:700;margin:0}.project-tracker p{margin:8px 0}
+.project-tracker-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.project-tracker-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px;margin:14px 0}
+.project-tracker-metrics>div{padding:12px;background:white;border:1px solid #e1e7e4;border-radius:10px}
+.project-tracker-metrics strong{display:block;font-size:23px;line-height:1.3}.project-tracker-metrics span{font-size:12px;color:#51685f}
+.project-tracker details{margin-top:10px}.project-tracker summary{cursor:pointer;font-weight:600}
+.project-tracker-scroll{overflow-x:auto;margin:10px 0}.project-tracker table{width:100%;text-align:left;border-collapse:collapse;min-width:470px}
+.project-tracker td,.project-tracker th{padding:7px 10px;border-bottom:1px solid #dfe6e2;vertical-align:top}
+.project-tracker a{text-decoration:underline;text-underline-offset:2px}.project-tracker .project-error{color:#934b1d}
+.project-new-badge{display:inline-block;border-radius:5px;background:#e5f2cf;color:#34531f;font-size:10px;font-weight:800;padding:2px 5px;white-space:nowrap}
+.project-tracker button{min-height:38px}.project-tracker-filter{padding:7px 10px;border:1px solid #becfc6;border-radius:8px;max-width:100%;background:#fff;color:#183e35}
+@media(max-width:480px){.project-tracker{padding:13px}.project-tracker-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}

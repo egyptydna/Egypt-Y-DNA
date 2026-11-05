@@ -7,9 +7,11 @@
   <meta name="google-site-verification" content="Uaawg80AzlTHbqfR-OfSFSJdBAtg9OIjpOVgCRrWXHY"/>
   <meta name="description" content="Independent genomic archive documenting Egyptian Y-DNA and mtDNA lineages, with a current focus on Y-DNA results across Egypt."/>
 
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link rel="stylesheet" href="styles/tailwind.generated.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="ydna-sync-ui.js"></script>
+  <script src="ydna-project-tracker.js"></script>
+  <link rel="stylesheet" href="ydna-project-tracker.css">
   <script src="ydna-sync-details.js"></script>
   <script src="ydna-official-tree.js"></script>
   <script src="dna-tree-view.js"></script>
@@ -22,24 +24,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: "#001736",
-            secondary: "#775a19",
-            background: "#f8f9fa"
-          },
-          fontFamily: {
-            headline: ["Manrope"],
-            body: ["Manrope"],
-            mono: ["JetBrains Mono"]
-          }
-        }
-      }
-    };
-  </script>
+
 
   <style>
     * { box-sizing: border-box; }
@@ -3434,7 +3419,7 @@
             <option value="">All samples</option><option value="modern">All modern Y-DNA testers</option>
             <option value="confirmed_big_y">Confirmed Big Y</option><option value="yfull">YFull samples</option>
             <option value="str_only">STR-only / predicted</option><option value="snp_tested">SNP-tested, no confirmed Big Y</option>
-            <option value="new">New in latest synchronization</option>
+            <option value="new">New in the last 30 days</option>
           </select>
           <select id="treeGovernorate" class="ctrl-btn" aria-label="Tree governorate" onchange="resetSyncTreeFocus()"><option value="">All governorates</option></select>
         </div>
@@ -3445,6 +3430,7 @@
             <option value="uploaded">Uploaded source profiles</option>
           </select>
         </label>
+        <div id="project-tracker-panel" class="project-tracker" aria-live="polite"><p>Loading project tracking status…</p></div>
         <div id="country-tracker-panel" class="country-tracker-panel" aria-live="polite"></div>
         <div id="official-tree-panel" class="text-xs text-gray-500 space-y-2" aria-live="polite"></div>
         <div id="tree-result-path" class="tree-result-path"></div>
@@ -6714,7 +6700,9 @@
         // country-count enrichment arrives separately, not on the critical path.
         setTimeout(async()=>{
           try {
+            const projectTrackingTask=loadProjectTrackingMetadata().catch(()=>{});
             await loadSyncMetadata();
+            await projectTrackingTask;
             resetSyncMetadataIndexes();
             resetRawTreeCache();
             syncLineagePathCache=syncKnownTerminalPaths();

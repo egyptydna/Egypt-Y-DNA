@@ -6,7 +6,7 @@ on:
       - '.github/workflows/ydna-sync.yml'
       - 'sync/**'
   schedule:
-    - cron: '23 */12 * * *'
+    - cron: '23 * * * *'
   workflow_dispatch:
     inputs:
       apply:
@@ -47,6 +47,17 @@ jobs:
             python -m sync.run --apply
           else
             python -m sync.run
+          fi
+      - name: Save resumable project searches and exact memberships
+        env:
+          SUPABASE_URL: https://lsfmpmfoqdtkgndtaxen.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          APPLY: ${{ github.event_name == 'schedule' || github.event_name == 'push' || inputs.apply }}
+        run: |
+          if [ "$APPLY" = "true" ]; then
+            python -m sync.track_projects --apply
+          else
+            python -m sync.track_projects
           fi
       - uses: actions/upload-artifact@v4
         if: always()

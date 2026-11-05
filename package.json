@@ -1,0 +1,13 @@
+{
+  "name": "egypt-y-dna-site",
+  "private": true,
+  "scripts": {
+    "build:styles": "tailwindcss -c tailwind.config.cjs -i styles/tailwind.css -o styles/tailwind.generated.css --minify",
+    "test": "node sync/tests/frontend.test.cjs && node sync/tests/project-tracker.test.cjs"
+  },
+  "devDependencies": {
+    "@tailwindcss/container-queries": "0.1.1",
+    "@tailwindcss/forms": "0.5.10",
+    "tailwindcss": "3.4.17"
+  }
+}

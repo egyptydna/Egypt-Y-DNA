@@ -58,7 +58,7 @@ function treePlatformNames(node) {
 }
 function compactTreeOptions() {
   return {
-    type:currentTreeType,collapsed:collapsedNodes,names:treePlatformNames,
+    type:currentTreeType,collapsed:collapsedNodes,names:treePlatformNames,isNew:YDNASync.isNew,
     identity:s=>YDNASync.publicId(s)==='—'?'':YDNASync.publicId(s),
     name:s=>YDNASync.displayName(s),
     location:s=>[s.governorate||s.site,s.__sourceType==='related'?s.country:null].filter(isRealValue).join(' · ')||'Origin unknown',
