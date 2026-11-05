@@ -25,7 +25,7 @@
     const header=`<div class="tree-row phylo-node-row">
       <button type="button" class="phylo-toggle" aria-label="${open?'Collapse':'Expand'} ${escape(names.primary)}" aria-expanded="${!!open}" ${expandable?'':'disabled'} data-path="${encoded}" onclick="return handleTreeToggleClick(event)">${expandable?(open?'−':'+'):'·'}</button>
       <button type="button" class="phylo-node-name" data-path="${encoded}" onclick="return handleTreePathClick(event)">${escape(names.primary)}</button>
-      ${names.secondary?`<span class="phylo-platform-names">${escape(names.secondary)}</span>`:''}
+      ${names.secondary?`<span class="phylo-platform-names" title="${escape(names.note||'Published source branch names')}">${escape(names.secondary)}</span>`:''}
       <span class="phylo-count" title="Profiles in the displayed subtree, including this node">${row.count} profiles</span>
       ${options.counts(row)}
       ${options.country?options.country(row):''}

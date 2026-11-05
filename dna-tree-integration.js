@@ -52,8 +52,9 @@ function treePlatformNames(node) {
   const primary=platformNamesMemo.ftdnaLabels.has(label.toUpperCase().replace(/\*+$/,''))?label:ft.length===1?ft[0]+basal:label;
   const secondary=[];
   if(reference&&reference.label+basal!==primary)secondary.push(`YFull: ${reference.label}${basal} (v${reference.version})`);
-  if(ft.length>1)secondary.push(`FTDNA reference matches: ${ft.join(', ')} · distinct source branches retained`);
-  return {primary,secondary:secondary.join(' · ')};
+  const ambiguous=ft.length>1&&!platformNamesMemo.ftdnaLabels.has(label.toUpperCase().replace(/\*+$/,''));
+  if(ambiguous)secondary.push(`FTDNA: ${ft.join(' / ')}`);
+  return {primary,secondary:secondary.join(' · '),note:ambiguous?'An older reference groups these labels; their distinct source branches are retained.':''};
 }
 function compactTreeOptions() {
   return {

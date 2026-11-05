@@ -64,7 +64,8 @@ test('platform labels prefer an unambiguous FTDNA name without conflating split 
   assert.match(vm.runInContext("treePlatformNames({display:'J-Y1'}).secondary",context),/YFull: J-Y1/);
   context.syncCountryCounts=[...context.syncCountryCounts,{namespace:'ftdna',node_label:'J-FT2'}];
   assert.equal(vm.runInContext("treePlatformNames({display:'J-Y1'}).primary",context),'J-Y1');
-  assert.match(vm.runInContext("treePlatformNames({display:'J-Y1'}).secondary",context),/distinct source branches retained/);
+  assert.match(vm.runInContext("treePlatformNames({display:'J-Y1'}).secondary",context),/J-FT1 \/ J-FT2/);
+  assert.match(vm.runInContext("treePlatformNames({display:'J-Y1'}).note",context),/distinct source branches/);
 });
 test('a published FTDNA parent link is not an alternative terminal branch name',()=>{
   const source=fs.readFileSync('dna-tree-integration.js','utf8');
