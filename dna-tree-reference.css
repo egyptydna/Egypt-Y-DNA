@@ -1,0 +1,51 @@
+/* Classic scientific tree presentation, using the archive's own data and identity rules. */
+#tree-wrap{background:#f2f2f2;border:12px solid #e2e3e5;border-radius:0;box-shadow:none}
+#section-tree .tree-floating-toggle{display:none!important}
+#section-tree #tree-inner{padding:0 0 40px!important;background:#f2f2f2;font-family:Arial,Helvetica,sans-serif;color:#777;font-size:14px}
+.phylo-reference-bar{display:flex;align-items:center;gap:6px;background:#f0ce2d;border-bottom:1px solid #c6b13d;padding:5px 18px;min-width:100%;width:max-content;color:#69644e;font:14px Arial,Helvetica,sans-serif}
+.phylo-reference-bar strong{font-size:16px;font-weight:400;color:#526687;margin-right:16px}.phylo-reference-bar button{border:1px solid #d2b53b;border-radius:1px;padding:1px 7px;background:#f4d848;color:#7a6b43;font:14px Arial,Helvetica,sans-serif}.phylo-reference-bar button:hover{background:#fff0a3}.phylo-reference-credit{font-size:11px;margin-left:20px}
+#section-tree .tree-result-path.active{background:#e2e3e5;border:0;border-radius:0;padding:5px 12px;gap:3px;font:13px Arial,Helvetica,sans-serif}
+#section-tree .tree-path-link{border:0;border-radius:0;padding:1px 5px;background:#fff;color:#666;font-weight:400}#section-tree .tree-path-sep{display:none}
+#tree-inner .phylo-root{padding:16px 20px;min-width:100%;width:max-content;background:#f2f2f2}
+#tree-inner .phylo-node-row{gap:5px;min-height:26px;padding:1px 10px 1px 0;border:0;min-width:0;font-size:14px;line-height:20px;flex-wrap:nowrap}
+#tree-inner .phylo-toggle{width:12px;height:16px;border:0;background:transparent;color:#aaa;font-size:13px;line-height:14px}
+#tree-inner .phylo-node-name{color:#fff;background:#428e20;border:1px solid #b4c99b;padding:0 4px;font-size:15px;font-weight:400;line-height:21px;border-radius:0;white-space:nowrap;text-decoration:none}
+#tree-inner .phylo-node-name:hover{background:#327516;text-decoration:underline}
+#tree-inner .phylo-root>.phylo-node-row>.phylo-node-name{background:#f0cc29;color:#454b43;border-color:#e3c52f}
+#tree-inner .phylo-snps{display:inline;margin:0 2px;max-width:480px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;line-height:20px;color:#808080}
+#tree-inner .tree-alias-snp{font:13px Arial,Helvetica,sans-serif;color:#818181;padding:0 3px;cursor:pointer}
+#tree-inner .phylo-platform-names{font-size:11px;color:#8a8a8a;max-width:240px}
+#tree-inner .phylo-age{font:13px Arial,Helvetica,sans-serif;background:#dde6eb;color:#8294a0;padding:0 5px}
+#tree-inner .phylo-count,#tree-inner .tree-count{font:10px Arial,Helvetica,sans-serif;color:#8a9985;background:transparent;border:0;padding:0 2px}
+#tree-inner .phylo-evidence{margin-left:0;font:12px Arial,Helvetica,sans-serif;color:#999;background:white;padding:0 5px;line-height:18px}
+#tree-inner .phylo-evidence[open]{z-index:2;max-width:500px;white-space:normal}
+#tree-inner .phylo-evidence summary{list-style:none}#tree-inner .phylo-evidence summary::-webkit-details-marker{display:none}
+#tree-inner .tree-ul,#tree-inner .tree-ul ul{margin-left:9px;padding-left:0}
+#tree-inner .tree-ul>li,#tree-inner .tree-ul ul>li{padding:0 0 0 18px;border-left-color:#c9c9c9}
+#tree-inner .tree-ul>li::before,#tree-inner .tree-ul ul>li::before{width:18px;top:13px;background:#c9c9c9}
+#tree-inner .tree-ul>li:last-child::after,#tree-inner .tree-ul ul>li:last-child::after{height:13px;background:#c9c9c9}
+#tree-inner .tree-sample-card{font:13px Arial,Helvetica,sans-serif;min-width:0;min-height:24px;gap:5px;line-height:20px;padding:1px 6px;background:transparent;border:0;box-shadow:none;width:max-content;color:#838383}
+#tree-inner .tree-sample-card:hover{background:#e7e7e7}
+#tree-inner .phylo-person-icon{width:12px;height:12px;fill:currentColor;color:#bfc1be;flex-shrink:0}
+#tree-inner .phylo-sample-id{font-size:13px;font-weight:400;color:#398224;background:#e9eae7;min-width:0;padding:0 4px}
+#tree-inner .phylo-sample-person{display:none}
+#tree-inner .phylo-sample-origin{font-size:12px;min-width:0;color:#888}
+#tree-inner .phylo-sample-country{font:12px Arial,Helvetica,sans-serif;color:#888;white-space:nowrap}
+#tree-inner .phylo-sample-test{font-size:10px;color:#999;background:#fff;padding:0 4px}
+#tree-inner .phylo-detail-hint{margin-left:6px;color:#999;font-size:10px}
+#tree-inner .project-new-badge{background:#fff;color:#ee5b45;font:12px Arial,Helvetica,sans-serif;font-weight:400;padding:0 4px;border-radius:0}
+#tree-inner .country-result-button{font-size:12px;min-height:24px;padding:1px 4px;color:#8c7950}
+#tree-inner .country-result-dot{width:5px;height:5px;background:#b39c69}
+#tree-inner .country-result-dots{gap:3px;max-width:140px}
+#tree-inner .country-known-profiles summary{font-size:10px;color:#999;padding:1px 4px}
+.profile-open-card{cursor:pointer}.profile-open-card:focus-visible,.profile-name-link:focus-visible{outline:2px solid #237ba9;outline-offset:3px}
+.profile-open-details{display:block;margin:8px auto;color:#286a95;font:12px Arial,Helvetica,sans-serif;text-decoration:underline;min-height:30px}
+.profile-name-link:hover{color:#286a95;text-decoration:underline}
+#sample-detail-modal{z-index:10000}#sample-detail-modal .sample-modal-content{max-height:90vh;overflow-y:auto;width:min(900px,calc(100vw - 24px));max-width:900px}
+.tracked-results{max-width:1280px;margin:auto;padding:40px 24px;color:#1b3541}.tracked-results h2{font:700 30px Arial,Helvetica,sans-serif;margin:6px 0 14px}.tracked-results header>p{max-width:800px;line-height:1.6}.tracked-kicker{font-size:11px;color:#6d8479;text-transform:uppercase;letter-spacing:.15em}
+.tracked-controls{display:flex;gap:18px;flex-wrap:wrap;margin:24px 0}.tracked-controls label{display:flex;flex-direction:column;gap:6px;font-size:12px}.tracked-controls input,.tracked-controls select{border:1px solid #b6c7c3;border-radius:4px;padding:9px 12px;background:#fff;max-width:100%}.tracked-controls input{width:320px}
+.tracked-results-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:20px 0}
+.tracked-profile{padding:18px;border:1px solid #d5dfda;border-radius:8px;background:#fff;font:13px/1.6 Arial,Helvetica,sans-serif}.tracked-profile-heading{display:flex;gap:12px;justify-content:space-between}.tracked-profile p{margin:7px 0;overflow-wrap:anywhere}.tracked-empty{grid-column:1/-1;line-height:1.7;padding:24px;background:#f4f7f5;border:1px solid #d8e3dd;border-radius:6px}
+.tracked-anonymous{padding:20px;background:#f8f6ef;border-left:3px solid #ad965c;line-height:1.7;margin-top:35px;font-size:13px}.tracked-anonymous h3{font-size:18px;font-weight:600}.tracked-anonymous ul{list-style:disc;margin:12px 20px}.tracked-source-note{font-size:12px;line-height:1.7;color:#687870;margin:20px 0}
+@media(max-width:700px){#tree-wrap{border-width:5px}#tree-inner .phylo-root{padding:12px 8px}.phylo-reference-bar{padding:5px 8px}.phylo-reference-credit{display:none}.tracked-results{padding:25px 14px}.tracked-controls input{width:260px}nav[aria-label="Primary navigation"]>div{gap:10px}nav[aria-label="Primary navigation"]>div>div:last-child{overflow-x:auto;gap:12px;max-width:66vw;scrollbar-width:thin;min-width:0}.tracked-results-grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:700px){nav[aria-label="Primary navigation"]>div>div:first-child{flex:0 1 128px;min-width:94px}nav[aria-label="Primary navigation"]>div>div:last-child{flex:1 1 0;max-width:none}}

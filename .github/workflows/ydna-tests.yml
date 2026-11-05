@@ -20,6 +20,7 @@ jobs:
       - run: git diff --exit-code -- styles/tailwind.generated.css
       - run: node sync/tests/frontend.test.cjs
       - run: node sync/tests/project-tracker.test.cjs
+      - run: node sync/tests/profile-tools.test.cjs
   database:
     runs-on: ubuntu-latest
     services:

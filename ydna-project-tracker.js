@@ -81,11 +81,11 @@
       const results=await Promise.allSettled([
         loadCatalog(),
         paginate('ydna_project_memberships','sample_id,project_key'),
-        paginate('ydna_project_profile_activity','sample_id,new_until')]);
+        paginate('ydna_project_profile_activity','sample_id,new_until,first_detected_at')]);
       if(results[1].status==='fulfilled'){memberships=results[1].value;membershipsAvailable=true;}
       if(results[2].status==='fulfilled'){
-        const dates=new Map(results[2].value.map(a=>[a.sample_id,a.new_until]));
-        for(const s of modernSamples){const times=(s.__linked_sample_ids||[s.id]).map(id=>dates.get(id)).filter(Boolean).sort();s.__new_until=times.at(-1)||null;}
+        const dates=new Map(results[2].value.map(a=>[a.sample_id,a]));
+        for(const s of modernSamples){const rows=(s.__linked_sample_ids||[s.id]).map(id=>dates.get(id)).filter(Boolean);const times=rows.map(a=>a.new_until).filter(Boolean).sort();s.__new_until=times.at(-1)||null;s.__tracked_at=rows.map(a=>a.first_detected_at).filter(Boolean).sort()[0]||null;}
       }
       render();await load();
     })();return metadataPromise;

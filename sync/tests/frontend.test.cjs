@@ -313,7 +313,7 @@ test('conflicting sample path takes precedence over country aggregate reference'
 test('modern archive renders terminal IDs instead of dash placeholders and labels references',()=>{
   const html=fs.readFileSync('index.html','utf8');
   assert.match(html,/function archiveLineagePreview\(sample\)/);
-  assert.match(html,/YDNASync\.compactSnpPath\(sample\)/);
+  assert.match(html,/YDNAProfiles\.terminalPath\(sample/);
   assert.match(html,/Source-backed Reference SNP Path \(not a complete individual test\)/);
   assert.match(html,/archiveLineagePreview\(s\)/);
 });
@@ -363,11 +363,13 @@ test('YFull is never misrepresented as an FTDNA kit',()=>{
   assert.equal(ui.identitySummary({kit_number:'YF123456'}),'YFull ID: YF123456');
   assert.equal(ui.deduplicate([{id:1,kit_number:'—'},{id:2,kit_number:'—'}]).length,2);
 });
-test('archive and modal expose existing YFull source SNP paths',()=>{
+test('cards show compact terminal ancestry and the popup retains full source SNP paths',()=>{
   const html=fs.readFileSync('index.html','utf8');
-  assert.match(html,/Published YFull SNP tree path/);
-  assert.match(html,/isRealValue\(sample\.full_snp_path\)\?sample\.full_snp_path:null/);
-  assert.match(html,/samplePathMode = sample\.__sourceType === "modern"/);
+  const preview=html.slice(html.indexOf('function archiveLineagePreview(sample)'),html.indexOf('const ARCHIVE_PAGE_SIZE'));
+  assert.ok(!preview.includes('<details'));
+  assert.match(html,/Terminal SNP path/);
+  assert.match(html,/if \(isRealValue\(sample\.full_snp_path\)\) return sample\.full_snp_path/);
+  assert.match(html,/samplePathMode = "direct"/);
   assert.match(html,/YDNASync\.identitySummary\(sample\)/);
   const details=fs.readFileSync('ydna-sync-details.js','utf8');
   assert.match(details,/\.in\('sample_id',sample\.__linked_sample_ids\|\|\[sample\.id\]\)/);
@@ -432,7 +434,7 @@ test('source details disclose both reference paths on confirmed duplicate merge'
   assert.match(details,/Compare documented source tree paths/);
   assert.match(details,/__source_snp_paths/);
   const html=fs.readFileSync('index.html','utf8');
-  assert.match(html,/YDNASync\.compactSnpPath\(sample\)/);
+  assert.match(html,/YDNAProfiles\.terminalPath\(sample/);
   assert.match(html,/Verified linked records combined/);
 });
 

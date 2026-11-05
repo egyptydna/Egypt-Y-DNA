@@ -18,7 +18,7 @@ async function loadSyncMetadata() {
   const observationTask=(async()=>{
     for(let offset=0;;offset+=1000){
       const evidence=await _sb.from('ydna_sync_observations')
-        .select('sample_id,namespace,is_current,published,project:payload->>project,test_type:payload->>test_type').eq('is_current',true).eq('published',true).order('id')
+        .select('sample_id,namespace,is_current,published,project:payload->>project,test_type:payload->>test_type,country:payload->>country').eq('is_current',true).eq('published',true).order('id')
         .range(offset,offset+999);
       if(evidence.error)break;
       for(const item of evidence.data){
@@ -186,14 +186,15 @@ async function loadSyncDetails(sample) {
     if(currentSampleModal?.__uid!==sample.__uid) return;
     const loading=document.getElementById('sync-evidence-loading');
     if(!observations.length) { loading.textContent='No synchronized STR evidence available for this profile.'; return; }
-    const markers=observations.flatMap(o=>(o.payload.str_markers||[]).map(m=>({...m,source:o.payload.source_url,date:o.last_seen_at,current:o.is_current})));
+    const markers=YDNAProfiles.strRows(observations);
     panel.__strProfile={sample,markers};
     const sources=observations.map(o=>`<li>${syncSourceLink(o.payload.source_url,o.payload.project||o.source_id)} · ${esc(o.namespace)}: ${esc(o.external_id)} · ${esc(o.payload.y_dna || '—')} ${esc(o.payload.y_dna_alias || '')} · ${esc(o.payload.test_type || 'Unspecified')} · Imported: ${esc(o.last_seen_at)}${o.is_current?'':' (previous observation)'}${o.payload.snp_path?.length?`<p>${esc(o.payload.snp_path.join(' > '))}</p>`:''}</li>`).join('');
     loading.outerHTML=`<div><div class="sample-detail-label">Public source claims (differences retained for review)</div><ul class="space-y-2 text-sm">${sources}</ul></div>
       <div><label for="sync-str-search" class="sample-detail-label">Search STR markers or alleles</label><input id="sync-str-search" class="tree-search" type="search" oninput="filterSyncSTR(this.value)">
-      <p class="text-xs">Original marker order and alleles; unknown values are shown as —. Earlier observations remain labelled.</p>
+      <p class="text-xs">${new Set(markers.filter(m=>m.current).map(m=>m.marker)).size} current STR markers with source evidence. Original marker order and alleles are retained; unknown values are shown as —. Earlier observations remain labelled.</p>
+      ${markers.length?'':'<p>No STR values have been published for this profile in the available sources. No alleles are inferred from its branch.</p>'}
       <div style="overflow:auto;max-height:360px"><table class="w-full text-left text-sm"><thead><tr><th>Marker</th><th>Source label</th><th>Alleles</th><th>Evidence</th></tr></thead><tbody id="sync-str-body"></tbody></table></div>
-      <button class="ctrl-btn" onclick="addSyncComparison()">Add to STR comparison</button><div id="sync-str-comparison" style="overflow:auto"></div></div>`;
+      <button class="ctrl-btn" onclick="addSyncComparison()" ${markers.length?'':'disabled'}>Add to STR comparison</button> <button class="ctrl-btn" type="button" onclick="exportProfileSTRs()" ${markers.length?'':'disabled'}>Download STRs & evidence (CSV)</button><div id="sync-str-comparison" style="overflow:auto"></div></div>`;
     filterSyncSTR('');
   } catch(error) {
     if(currentSampleModal?.__uid===sample.__uid) {

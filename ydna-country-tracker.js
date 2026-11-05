@@ -97,7 +97,7 @@ function renderCountryTree(){
     const known=profiles.get(n.display.toUpperCase())||[];
     const fromFile=uploads.get(n.display.toUpperCase())||[];
     return (n.directCount?`<li class="country-result-group"><button class="country-result-button" data-branch="${esc(n.display)}" onclick="openCountryResult(this.dataset.branch)"><span class="country-result-dots" aria-hidden="true">${'<i class="country-result-dot"></i>'.repeat(n.directCount)}</span><span>Egypt · ${n.directCount} reported ${n.directCount===1?'result':'results'}</span><span class="phylo-detail-hint">Count details ›</span></button></li>`:'')+
-      (known.length?`<li class="country-known-profiles"><details><summary>${known.length} public archive ${known.length===1?'profile':'profiles'} at this branch · overlap unverified</summary><ul>${known.map(s=>DNATreeView.sample(s,sampleOptions)).join('')}</ul></details></li>`:'')+
+      (known.length?`<li class="country-known-profiles"><details open><summary>${known.length} public archive ${known.length===1?'profile':'profiles'} at this branch · overlap unverified</summary><ul>${known.map(s=>DNATreeView.sample(s,sampleOptions)).join('')}</ul></details></li>`:'')+
       (fromFile.length?`<li class="country-known-profiles uploaded-branch-profiles"><details><summary>${fromFile.length} uploaded source ${fromFile.length===1?'record':'records'} · identity unlinked</summary><ul>${fromFile.map(uploadedProfileRow).join('')}</ul></details></li>`:'');
   }};
   inner.innerHTML=DNATreeView.node(display,options,true);

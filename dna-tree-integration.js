@@ -60,12 +60,13 @@ function compactTreeOptions() {
   return {
     type:currentTreeType,collapsed:collapsedNodes,names:treePlatformNames,isNew:YDNASync.isNew,
     identity:s=>YDNASync.publicId(s)==='—'?'':YDNASync.publicId(s),
+    countryLabel:s=>{const country=currentTreeType==='mt'?s.mt_country:s.__public_country||s.country;return /^(Egypt|EG|مصر)$/i.test(country||'')?'🇪🇬 EGY':'';},
     name:s=>YDNASync.displayName(s),
     location:s=>[s.governorate||s.site,s.__sourceType==='related'?s.country:null].filter(isRealValue).join(' · ')||'Origin unknown',
     test:s=>currentTreeType==='mt'?(s.mt_dna||''):s.__sourceType==='modern'?[YDNASync.preferredTest(s),YDNASync.labels[YDNASync.status(s)]].filter(isRealValue).filter((v,i,a)=>a.indexOf(v)===i).join(' · '):s.y_dna,
     issue:s=>currentTreeType==='mt'?'':YDNASync.pathIssue(s,undefined,syncOfficialRelease,syncOfficialNodes),
     sort:sortNodeChildren,aliases:renderNodeAliases,counts:syncNodeCountHTML,country:treeCountryCountBadge,
-    age:n=>{if(currentTreeType==='mt')return '';const info=officialInfoForNode(n);return info?.age_estimates?.tmrca?.estimate!=null?`TMRCA ${info.age_estimates.tmrca.estimate} ybp`:'';},
+    age:n=>{if(currentTreeType==='mt')return '';const info=officialInfoForNode(n),age=info?.age_estimates;if(!age)return '';return [age.formed?.estimate!=null?`formed ${age.formed.estimate} ybp`:null,age.tmrca?.estimate!=null?`TMRCA ${age.tmrca.estimate} ybp`:null].filter(Boolean).join(', ');},
     hasEvidence:n=>{
       phyloNodeLookup.set(n.pathKey,n);
       return currentTreeType!=='mt'&&(officialInfoForNode(n)||syncCountryFacts(n).length);

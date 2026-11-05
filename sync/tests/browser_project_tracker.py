@@ -61,7 +61,7 @@ with sync_playwright() as p:
  assert page.locator('[data-project-table] tbody tr').count()==1
  page.evaluate("setCountryTreeMode('profiles')")
  page.select_option('#treeTestStatus','new')
- assert page.locator('.project-new-badge').count()==1
+ assert page.locator('#tree-inner .project-new-badge').count()==1
  assert page.locator('.tree-sample-card').count()==1
  status_failed=True
  page.locator('[data-project-refresh]').click()

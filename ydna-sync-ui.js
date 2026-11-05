@@ -14,6 +14,9 @@
   }
   function addObservation(sample,evidence) {
     if(evidence.is_current!==true||evidence.published!==true)return;
+    if(['ftdna','yfull'].includes(evidence.namespace))sample.__providers=[...new Set([...(sample.__providers||[]),evidence.namespace])];
+    const country=evidence.country??evidence.payload?.country;
+    if(typeof country==='string'&&country.trim())sample.__public_country=country.trim();
     const project=evidence.project??evidence.payload?.project;
     if(real(project))sample.__projects=[...new Set([...(sample.__projects||[]),project])];
     const test=evidence.test_type??evidence.payload?.test_type;
