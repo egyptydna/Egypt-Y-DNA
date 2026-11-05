@@ -16,6 +16,7 @@
   <script src="dna-tree-integration.js"></script>
   <script src="ydna-country-tree.js"></script>
   <script src="ydna-country-tracker.js"></script>
+  <script src="ydna-uploaded-profiles.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
@@ -3441,6 +3442,7 @@
           <select id="treeDataset" class="ctrl-btn" onchange="setCountryTreeMode(this.value)">
             <option value="ftdna">FTDNA reported results</option>
             <option value="profiles">Tester profiles · FTDNA / YFull / studies</option>
+            <option value="uploaded">Uploaded source profiles</option>
           </select>
         </label>
         <div id="country-tracker-panel" class="country-tracker-panel" aria-live="polite"></div>
@@ -4129,7 +4131,7 @@
         if (params.has('q')) document.getElementById('ancientSearch').value = params.get('q') || '';
         renderAncientArchive();
       } else if (section === 'ytree' || section === 'mtree') {
-        countryTreeMode=params.get('dataset')==='ftdna'?'ftdna':'profiles';
+        countryTreeMode=['ftdna','uploaded'].includes(params.get('dataset'))?params.get('dataset'):'profiles';
         deferTreeRenderForSharedState=true;
         try { showSection(section); }
         finally { deferTreeRenderForSharedState=false; }
@@ -4143,6 +4145,7 @@
         treeFocusPath = params.get('path') || null;
         const q = params.get('q') || '';
         document.getElementById('treeSearch').value = q;
+        if(isUploadedTree())uploadedQuery=q;
         document.getElementById('btn-direct').classList.toggle('on', treeMode === 'direct');
         document.getElementById('btn-full').classList.toggle('on', treeMode === 'full');
         updateTreeSourceButtons();
@@ -6204,6 +6207,7 @@
     }
 
     function treeReset() {
+      uploadedQuery='';
       countryTreeFamily=null;
       treeScale = 1;
       document.getElementById("tree-inner").style.transform = "";
@@ -6586,6 +6590,7 @@
 
     function renderTree() {
       updateCountryTreeControls();
+      if(isUploadedTree()){renderUploadedTree();return;}
       if(isCountryTree()){renderCountryTree();return;}
       resetSyncCountryFactsIndex();
       renderOfficialTreePanel();
