@@ -28,6 +28,7 @@
       ${names.secondary?`<span class="phylo-platform-names">${escape(names.secondary)}</span>`:''}
       <span class="phylo-count" title="Profiles in the displayed subtree, including this node">${row.count} profiles</span>
       ${options.counts(row)}
+      ${options.country?options.country(row):''}
       ${age?`<span class="phylo-age">${escape(age)}</span>`:''}
       ${evidence?`<details class="phylo-evidence" data-node-path="${encoded}" data-node-label="${escape(row.display)}" ${lazy?'ontoggle="loadPhyloEvidence(this)"':''}><summary>Sources</summary><div class="phylo-evidence-body">${lazy?'Open to load source details.':evidence}</div></details>`:''}
     </div>`;

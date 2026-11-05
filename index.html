@@ -6320,7 +6320,13 @@
       lastTreeRawRoot = rawRoot;
 
       const exact = syncTextQuery ? null : searchTreeExact(rawRoot, q);
-      if (syncTextQuery) { collapsedNodes.clear(); renderTree(); updateShareUrl({section:'ytree'}); requestAnimationFrame(() => scrollTreeIntoView()); return; }
+      if (syncTextQuery) {
+        treeFocusPath=YDNASync.sampleFocusPath(rawRoot);
+        collapsedNodes.clear();
+        if(treeFocusPath)renderClickableTreePath(treeFocusPath);
+        renderTree();updateShareUrl({section:'ytree'});
+        requestAnimationFrame(() => scrollTreeIntoView());return;
+      }
 
       if (exact) {
         treeFocusPath = exact.node.pathKey;

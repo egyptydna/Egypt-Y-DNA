@@ -62,6 +62,31 @@ observations point to the canonical row, so repeated imports reuse that row.
 
 ## Verification and source limits
 
+On 5 November the owner snapshot was read again. It still carries the
+4 November 15:25 UTC Y-DNA source timestamp; an upstream mtDNA timeout had not
+produced a newer stored snapshot. An exact-ID comparison found all 397 eligible
+Egyptian FTDNA project kits and all 278 YFull source samples already in the archive.
+The latter comprise 259 modern customers, 18 existing study samples and one
+existing ancient sample. These groups remain in their proper categories.
+
+The comparison found 260 missing project observations across 102 existing profiles.
+Migration `20261105003042_attach_public_archive_evidence` adds a service-only
+evidence attachment function. Repair run `95daca17-167e-47a6-babe-2082b23fec23`
+attached all 260 observations and 26,520 source STR cells: 19,642 known allele
+values and 6,878 explicitly unknown cells. Stored observations rose from 966 to
+1,226; stored STR cells from 72,012 to 98,532. No tester was invented or added:
+the complete profile-table fingerprint remained identical before and after.
+
+Future transfers attach source evidence to protected existing profiles, retaining
+earlier alleles and source history. Withdrawn observations and opt-outs cannot be
+republished by replaying an archive. Evidence-only repair mode cannot create an
+unknown identity. An explicit public FTDNA Big Y-500/700 test can extend displayed
+test evidence while preserving the original archive field; neither a project name
+nor a YFull sample establishes Big Y.
+
+FTDNA country totals appear as short inline source counts. Their details remain
+collapsed and the totals are not added to identified profile counts.
+
 Run `python -m unittest discover -s sync/tests -v`,
 `node sync/tests/frontend.test.cjs`, and the disposable PostgreSQL checks from
 `.github/workflows/ydna-tests.yml`. `scripts/check_browser.py` reads production

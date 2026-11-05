@@ -55,10 +55,15 @@ with sync_playwright() as p:
  print('Official licensed topology, attribution, ages and fallback mode: same tester count',before)
  # Exercise the compact tree through real controls, with the new Egyptian J2a sample.
  page.select_option('#official-topology-mode','auto')
+ page.wait_for_timeout(200)
+ page.evaluate("window.scrollTo({top:document.getElementById('tree-wrap').getBoundingClientRect().top+scrollY-88,behavior:'instant'})")
+ overview=root.parent/'artifacts';overview.mkdir(exist_ok=True)
+ page.screenshot(path=str(overview/'ydna-tree-overview.png'))
  page.evaluate("document.getElementById('treeSearch').value='YF149485';runTreeSearch()")
  assert page.locator('.phylo-sample-id').get_by_text('YF149485',exact=True).count()==1
  assert page.evaluate("YDNASync.yFamily(modernSamples.find(s=>s.yfull_id==='YF149485'),syncOfficialRelease,syncOfficialNodes,syncLineagePathCache)==='J2'")
  assert page.locator('.phylo-root').get_attribute('data-tree')=='y'
+ assert page.locator('.phylo-root > .phylo-node-row .phylo-node-name').inner_text()=='J-M319'
  page.locator('.phylo-sample-row').filter(has=page.get_by_text('YF149485',exact=True)).click()
  assert page.locator('#sample-detail-modal').is_visible()
  page.evaluate('closeSampleModal(null)')

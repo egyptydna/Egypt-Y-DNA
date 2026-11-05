@@ -52,13 +52,21 @@ vorhandenen transaktionalen Importfunktionen:
 
 Fehlende Daten werden nicht geschätzt. Nicht leere manuell gepflegte Bestandswerte
 werden nicht überschrieben; widersprüchliche Aussagen erzeugen private Prüffälle.
-Der Plan schreibt standardmäßig ausschließlich neue Profile. Der optionale Modus
+Der Plan schreibt standardmäßig ausschließlich neue Testerprofile. Zusätzliche
+belegte Projektbeobachtungen und STR-Werte werden auch an bestehende, anhand
+exakter IDs zugeordnete Profile angehängt, ohne deren gepflegte Felder zu ändern.
+Ein abweichender Quellterminal wird getrennt zur Prüfung protokolliert.
+`--evidence-only` beschränkt Reparaturläufe vollständig auf vorhandene Profile:
+keine neuen Tester und keine Änderung ihrer Felder. Auch dieser Modus respektiert
+Opt-outs und ausdrücklich zurückgezogene Quellenbelege. Der optionale Modus
 `--guarded-updates` erlaubt Aktualisierungen nur bei automatisch verwalteten
 Profilen aus genau ihrer ursprünglichen Quelle, wenn keine Prüffälle offen sind
 und keine automatisch verwalteten Felder manuell verändert wurden. Abweichende
 manuelle Werte und eine Abschwächung eines expliziten Big-Y-Tests sperren die
-Aktualisierung. Andere bestehende Profile bleiben erhalten und neue Angaben werden
-privat zur Prüfung vorgemerkt. Ältere Fallback-Snapshots dürfen einen bereits
+Aktualisierung. Andere bestehende Profile bleiben erhalten; neue Quellaussagen
+werden gesondert gespeichert. Ein ausdrücklich veröffentlichter Big-Y-Test kann
+den angezeigten Nachweis ergänzen, während die ursprüngliche Archivangabe erhalten
+bleibt. Ältere Fallback-Snapshots dürfen einen bereits
 bekannten neueren Quellenstand nicht zurücksetzen.
 Opt-out-Tombstones und Sichtbarkeitssperren bleiben wirksam. Ein fehlender oder
 unzugänglicher Archivstand löst keine Löschung aus. Ursprünglicher Quellenlink,

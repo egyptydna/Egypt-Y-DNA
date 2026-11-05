@@ -1,5 +1,16 @@
 let platformNamesMemo=null;
 const phyloNodeLookup=new Map();
+function treeCountryCountBadge(node) {
+  if(currentTreeType==='mt')return '';
+  const facts=syncCountryFacts(node).filter(f=>f.namespace==='ftdna');
+  if(!facts.length)return '';
+  const inclusive=facts.filter(f=>f.count_scope==='inclusive'),shown=inclusive.length?inclusive:facts.filter(f=>f.count_scope==='direct');
+  const values=new Set(shown.map(f=>f.reported_count));
+  if(values.size!==1)return '<span class="phylo-country-count">FTDNA: differing source counts</span>';
+  const count=[...values][0],scope=inclusive.length?'including subbranches':'directly at this branch';
+  const dates=[...new Set(shown.map(f=>String(f.observed_at||'').slice(0,10)))].join(', ');
+  return `<span class="phylo-country-count" title="${esc(`FTDNA Egyptian country entries ${scope}; source snapshot ${dates}. May overlap with identified profiles; these counts do not supply kit identities.`)}">FTDNA: ${esc(count)} ${inclusive.length?'incl.':'direct'}</span>`;
+}
 function loadPhyloEvidence(details) {
   if(!details.open||details.dataset.loaded)return;
   const node=phyloNodeLookup.get(decodePathArg(details.dataset.nodePath));
@@ -50,9 +61,9 @@ function compactTreeOptions() {
     identity:s=>YDNASync.publicId(s)==='—'?'':YDNASync.publicId(s),
     name:s=>YDNASync.displayName(s),
     location:s=>[s.governorate||s.site,s.__sourceType==='related'?s.country:null].filter(isRealValue).join(' · ')||'Origin unknown',
-    test:s=>currentTreeType==='mt'?(s.mt_dna||''):s.__sourceType==='modern'?[s.test_type,YDNASync.labels[YDNASync.status(s)]].filter(isRealValue).filter((v,i,a)=>a.indexOf(v)===i).join(' · '):s.y_dna,
+    test:s=>currentTreeType==='mt'?(s.mt_dna||''):s.__sourceType==='modern'?[YDNASync.preferredTest(s),YDNASync.labels[YDNASync.status(s)]].filter(isRealValue).filter((v,i,a)=>a.indexOf(v)===i).join(' · '):s.y_dna,
     issue:s=>currentTreeType==='mt'?'':YDNASync.pathIssue(s,undefined,syncOfficialRelease,syncOfficialNodes),
-    sort:sortNodeChildren,aliases:renderNodeAliases,counts:syncNodeCountHTML,
+    sort:sortNodeChildren,aliases:renderNodeAliases,counts:syncNodeCountHTML,country:treeCountryCountBadge,
     age:n=>{if(currentTreeType==='mt')return '';const info=officialInfoForNode(n);return info?.age_estimates?.tmrca?.estimate!=null?`TMRCA ${info.age_estimates.tmrca.estimate} ybp`:'';},
     hasEvidence:n=>{
       phyloNodeLookup.set(n.pathKey,n);

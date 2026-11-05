@@ -5,10 +5,33 @@
   function status(s) {
     const explicitBigY=/^Big Y-(500|700)$/i.test(s.test_type || '');
     if(explicitBigY && (!real(s.test_status)||s.sync_published?.test_status===s.test_status)) return 'confirmed_big_y';
+    if(real(s.test_status)&&s.sync_published?.test_status!==s.test_status)return s.test_status;
+    if(s.__public_big_y_test)return 'confirmed_big_y';
     if (real(s.test_status)) return s.test_status;
     if (/^YFull sequencing$/i.test(s.test_type || '')) return 'yfull_sequencing';
     if (/^Y[- ]?(?:DNA)?\s*(12|25|37|67|111)$/i.test(s.test_type || '')) return 'str_only';
     return 'unknown';
+  }
+  function addObservation(sample,evidence) {
+    if(evidence.is_current!==true||evidence.published!==true)return;
+    const project=evidence.project??evidence.payload?.project;
+    if(real(project))sample.__projects=[...new Set([...(sample.__projects||[]),project])];
+    const test=evidence.test_type??evidence.payload?.test_type;
+    if(evidence.namespace==='ftdna'&&/^Big Y-(500|700)$/i.test(test||'')){
+      const value=/700$/i.test(test)?'Big Y-700':'Big Y-500';
+      if(!sample.__public_big_y_test||value==='Big Y-700')sample.__public_big_y_test=value;
+    }
+  }
+  function preferredTest(sample) {
+    return status(sample)==='confirmed_big_y'&&sample.__public_big_y_test?sample.__public_big_y_test:sample.test_type;
+  }
+  function sampleFocusPath(root) {
+    let found=null,multiple=false;
+    function visit(node){
+      if(node.samples?.length){if(found&&found!==node.pathKey)multiple=true;else found=node.pathKey;}
+      if(!multiple)for(const child of node.children||[])visit(child);
+    }
+    visit(root);return multiple?null:found;
   }
   const labels = {confirmed_big_y:'Confirmed Big Y',yfull_sequencing:'YFull sequencing',str_only:'STR-only / predicted',snp_tested:'SNP-tested',unknown:'Test evidence unspecified'};
   const normalizedSnp = v => String(v ?? '').trim().toUpperCase().replace(/^[A-T]-/, '').replace(/\*$/, '');
@@ -380,7 +403,7 @@
     const yf=keys.find(k=>k.startsWith('yfull:'));
     return kit?.slice(6) || yf?.slice(6) || (real(sample.sample_id)?sample.sample_id:'—');
   }
-  const api = {status,labels,deduplicate,identityKeys,identitySummary,compactSnpPath,yFamily,pathIssue,safePlacement,documentedDescendant,matches,nodeCounts,terminalPath,knownTerminalPaths,inCountScope,reconcileCountryCount,officialPath,officialPlacement,displayName,publicId};
+  const api = {status,addObservation,preferredTest,sampleFocusPath,labels,deduplicate,identityKeys,identitySummary,compactSnpPath,yFamily,pathIssue,safePlacement,documentedDescendant,matches,nodeCounts,terminalPath,knownTerminalPaths,inCountScope,reconcileCountryCount,officialPath,officialPlacement,displayName,publicId};
   if (typeof module === 'object') module.exports=api;
   else root.YDNASync=api;
 })(typeof window === 'object' ? window : globalThis);

@@ -31,6 +31,7 @@ nav[aria-label="Primary navigation"] .nav-link { letter-spacing:.02em; text-tran
 #tree-inner button:focus-visible,#tree-inner summary:focus-visible { outline:2px solid #176bb0; outline-offset:3px; }
 #tree-inner .phylo-platform-names { color:#385e87; font-size:11px; max-width:360px; }
 #tree-inner .phylo-count { color:#496847; white-space:nowrap; font-size:11px; }
+#tree-inner .phylo-country-count { color:#4b6784; font-size:10px; white-space:nowrap; padding:1px 4px; border:1px solid #dce5ef; background:#f7faff; border-radius:2px; }
 #tree-inner .tree-count { border:0; background:transparent; color:#687787; font-size:10px; font-weight:400; padding:0; }
 #tree-inner .phylo-age { color:#77818b; font-size:10px; white-space:nowrap; }
 #tree-inner .tree-ul,#tree-inner .tree-ul ul { padding-left:22px; margin-top:0; }
