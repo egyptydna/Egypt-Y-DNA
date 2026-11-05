@@ -63,6 +63,33 @@ with sync_playwright() as p:
  page.evaluate("window.scrollTo({top:document.getElementById('country-tracker-panel').getBoundingClientRect().top+scrollY-80,behavior:'instant'})")
  page.screenshot(path=str(overview/'ftdna-country-tracker-desktop.png'))
  print('Anonymous FTDNA country census',census)
+ # The owner-supplied workbook remains a distinct, unlinked source cohort.
+ page.evaluate('loadUploadedProfiles()')
+ if page.evaluate('uploadedProfiles.length'):
+  upload_total=page.evaluate('uploadedProfiles.length')
+  archive_total=page.evaluate('modernSamples.length')
+  page.evaluate("setCountryTreeMode('uploaded')")
+  assert page.locator('.uploaded-profile-row').count()==upload_total
+  assert page.evaluate('lastTreeRawRoot.count')==upload_total
+  page.locator('.uploaded-profile-row').first.click()
+  assert page.locator('#uploaded-profile-dialog').is_visible()
+  assert 'Kit number: not supplied' in page.locator('#uploaded-profile-dialog').inner_text()
+  assert 'Reference SNP path:' in page.locator('#uploaded-profile-dialog').inner_text()
+  assert 'Source: Egypt Kits.xlsx' in page.locator('#uploaded-profile-dialog').inner_text()
+  page.locator('#uploaded-profile-dialog .country-close').click()
+  page.evaluate("document.getElementById('treeSearch').value=uploadedProfiles.find(s=>s.governorate_iso).name;runTreeSearch()")
+  assert page.locator('.uploaded-profile-row').count()>=1
+  assert page.locator('.uploaded-profile-row').count()<upload_total
+  page.evaluate('treeReset()')
+  assert page.locator('.uploaded-profile-row').count()==upload_total
+  assert page.evaluate('modernSamples.length')==archive_total
+  page.set_viewport_size({'width':390,'height':844})
+  assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
+  page.screenshot(path=str(overview/'uploaded-egypt-profiles-mobile.png'))
+  page.set_viewport_size({'width':1440,'height':1000})
+  page.screenshot(path=str(overview/'uploaded-egypt-profiles-desktop.png'))
+  print('Uploaded source tree, source details, name/place search and preserved archive count:',upload_total)
+  page.evaluate("setCountryTreeMode('ftdna')")
  page.evaluate("document.getElementById('treeSearch').value='YF149485';runTreeSearch()")
  assert page.evaluate("countryTreeMode==='profiles'")
  page.evaluate("setCountryTreeMode('profiles');currentTreeType='y';treeShowModern=true;treeShowStudy=false;treeShowAncient=false;treeShowRelated=false;renderTree()")

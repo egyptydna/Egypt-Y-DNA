@@ -31,7 +31,7 @@ async function loadCountryTracker(){
 }
 
 function setCountryTreeMode(mode){
-  countryTreeMode=mode==='profiles'?'profiles':'ftdna';
+  countryTreeMode=['profiles','uploaded'].includes(mode)?mode:'ftdna';uploadedQuery='';
   countryTreeFamily=null;
   treeFocusPath=null;treeSearchTargetPath=null;treeSearchResultPath='';syncTextQuery='';treeHaploFilter=null;
   collapsedNodes.clear();resetRawTreeCache();
@@ -44,6 +44,7 @@ function setCountryTreeMode(mode){
 }
 
 function renderCountryTrackerPanel(){
+  if(isUploadedTree()){renderUploadedPanel();return;}
   const panel=document.getElementById('country-tracker-panel');
   panel.hidden=currentTreeType!=='y';if(panel.hidden)return;
   if(!countryTracker){panel.innerHTML=`<p>${esc(countryTrackerError||'Loading the Egyptian FTDNA result tracker…')}</p><button class="ctrl-btn" onclick="setCountryTreeMode('profiles')">Open tester profiles</button>`;loadCountryTracker();return;}
@@ -60,7 +61,8 @@ function renderCountryTrackerPanel(){
 }
 
 function updateCountryTreeControls(){
-  const country=isCountryTree(),select=document.getElementById('treeDataset');
+  const country=isCountryTree()||isUploadedTree(),select=document.getElementById('treeDataset');
+  if(currentTreeType==='y')loadUploadedProfiles();
   document.getElementById('tree-dataset-control').hidden=currentTreeType!=='y';select.value=countryTreeMode;
   for(const id of ['btn-source-all','btn-modern','btn-study','btn-ancient','btn-related'])document.getElementById(id).hidden=country;
   document.getElementById('ydna-sync-filters').classList.toggle('hidden',country||currentTreeType==='mt');
@@ -79,7 +81,8 @@ function renderCountryTree(){
   lastTreeRawRoot=root;
   const focused=YDNACountryTree.find(root,treeFocusPath)||root;
   const profiles=YDNACountryTree.profilesByBranch(modernSamples),sampleOptions=compactTreeOptions();
-  const display=YDNACountryTree.compact(focused,treeMode==='full',new Set(profiles.keys()));
+  const uploads=YDNACountryTree.profilesByBranch(uploadedProfiles);
+  const display=YDNACountryTree.compact(focused,treeMode==='full',new Set([...profiles.keys(),...uploads.keys()]));
   document.getElementById('btn-tree-back').classList.toggle('hidden',focused===root);
   const families=[...new Set(countryTracker.nodes.map(n=>n.label[0]))].sort();
   sampleOptions.location=s=>[s.origin_raw,s.governorate].filter(isRealValue).filter((v,i,a)=>a.indexOf(v)===i).join(' · ')||'Paternal origin unknown';
@@ -89,11 +92,13 @@ function renderCountryTree(){
     return {primary:n.display,secondary:reference&&reference.label!==n.display?`YFull: ${reference.label} (v${reference.version} reference)`:''};
   },countLabel:n=>`${n.count} results`,counts:n=>n.directCount?`<span class="tree-count">${n.directCount} direct</span>`:'',
   aliases:()=>'',country:()=>'',age:()=>'',hasEvidence:()=>false,evidence:()=>'',
-  hasGroup:n=>profiles.has(n.display.toUpperCase()),
+  hasGroup:n=>profiles.has(n.display.toUpperCase())||uploads.has(n.display.toUpperCase()),
   group:n=>{
     const known=profiles.get(n.display.toUpperCase())||[];
+    const fromFile=uploads.get(n.display.toUpperCase())||[];
     return (n.directCount?`<li class="country-result-group"><button class="country-result-button" data-branch="${esc(n.display)}" onclick="openCountryResult(this.dataset.branch)"><span class="country-result-dots" aria-hidden="true">${'<i class="country-result-dot"></i>'.repeat(n.directCount)}</span><span>Egypt · ${n.directCount} reported ${n.directCount===1?'result':'results'}</span><span class="phylo-detail-hint">Count details ›</span></button></li>`:'')+
-      (known.length?`<li class="country-known-profiles"><details><summary>${known.length} public archive ${known.length===1?'profile':'profiles'} at this branch · overlap unverified</summary><ul>${known.map(s=>DNATreeView.sample(s,sampleOptions)).join('')}</ul></details></li>`:'');
+      (known.length?`<li class="country-known-profiles"><details><summary>${known.length} public archive ${known.length===1?'profile':'profiles'} at this branch · overlap unverified</summary><ul>${known.map(s=>DNATreeView.sample(s,sampleOptions)).join('')}</ul></details></li>`:'')+
+      (fromFile.length?`<li class="country-known-profiles uploaded-branch-profiles"><details><summary>${fromFile.length} uploaded source ${fromFile.length===1?'record':'records'} · identity unlinked</summary><ul>${fromFile.map(uploadedProfileRow).join('')}</ul></details></li>`:'');
   }};
   inner.innerHTML=DNATreeView.node(display,options,true);
   if(!treeFocusPath&&!treeSearchResultPath){document.getElementById('tree-result-path').classList.remove('active');document.getElementById('tree-result-path').innerHTML='';}
@@ -110,6 +115,7 @@ function focusCountryFamily(family){
 }
 
 function searchCountryTree(query){
+  if(isUploadedTree())return searchUploadedTree(query);
   if(!isCountryTree())return false;
   if(!countryTracker)return true;
   countryTreeFamily=null;
@@ -118,6 +124,7 @@ function searchCountryTree(query){
   const found=nodes.find(n=>n.display.toUpperCase()===q)||nodes.find(n=>n.display.toUpperCase().replace(/^[A-T]-/,'')===q);
   if(found){treeSearchResultPath='';treeFocusPath=found.pathKey;collapsedNodes.clear();renderClickableTreePath(treeFocusPath);renderTree();updateShareUrl({section:'ytree'});requestAnimationFrame(()=>scrollTreeIntoView());return true;}
   if(q&&allTreeSamples().some(s=>YDNASync.matches(s,'','',query,Infinity))){countryTreeMode='profiles';return false;}
+  if(q&&uploadedProfiles.some(s=>uploadedMatches(s,query))){countryTreeMode='uploaded';return searchUploadedTree(query);}
   treeFocusPath=null;treeSearchResultPath=q?`No published FTDNA branch found for ${query}`:'';
   renderTree();const bar=document.getElementById('tree-result-path');bar.textContent=treeSearchResultPath;bar.classList.toggle('active',!!q);return true;
 }

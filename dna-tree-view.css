@@ -83,6 +83,11 @@ nav[aria-label="Primary navigation"] .nav-link { letter-spacing:.02em; text-tran
 #country-result-dialog h4 { font-weight:bold; margin-top:15px; }
 #country-result-dialog p { margin:8px 0; overflow-wrap:anywhere; }
 .country-close { float:right; }
+.uploaded-profile-dialog { margin:auto; padding:24px; max-width:min(640px,calc(100vw - 24px)); max-height:85vh; border:1px solid #c6d4e3; border-radius:4px; color:#43586c; font:13px/1.7 Arial,Helvetica,sans-serif; overflow:auto; }
+.uploaded-profile-dialog::backdrop { background:rgba(15,30,50,.4); }
+.uploaded-profile-dialog h3 { color:#244c80; font-size:20px; font-weight:bold; margin-bottom:12px; }
+.uploaded-profile-dialog p { margin:8px 0; overflow-wrap:anywhere; }
+.uploaded-profile-dialog a { color:#1266aa; text-decoration:underline; }
 [hidden] { display:none !important; }
 @media(max-width:700px) {
   #section-tree { padding-left:10px; padding-right:10px; }

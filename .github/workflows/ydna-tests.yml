@@ -43,6 +43,7 @@ jobs:
       - run: psql -v ON_ERROR_STOP=1 -f sync/tests/database-identity-merges.sql
       - run: psql -v ON_ERROR_STOP=1 -f sync/tests/database-archive-evidence.sql
       - run: psql -v ON_ERROR_STOP=1 -f sync/tests/database-country-tracker.sql
+      - run: psql -v ON_ERROR_STOP=1 -f sync/tests/database-uploaded-profiles.sql
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'

@@ -5,6 +5,14 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 const view=require('../../dna-tree-view.js');
 const census=require('../../ydna-country-tree.js');
+test('uploaded source records build a separate count tree and search paternal fields without inventing identities',()=>{
+  const context=vm.createContext({});
+  vm.runInContext(fs.readFileSync(require.resolve('../../ydna-uploaded-profiles.js'),'utf8'),context);
+  const result=vm.runInContext(`(()=>{const rows=[{name:'SYNTHETIC A',y_dna:'J-M319',tree_path:['J-M304','J-M172','J-M319'],origin_raw:'Mit Ghamr'},{name:'SYNTHETIC B',y_dna:'J-M319',tree_path:['J-M304','J-M172','J-M319']}];return {snapshot:uploadedSnapshot(rows),match:uploadedMatches(rows[0],'ghamr')};})()`,context);
+  assert.equal(result.snapshot.total_count,2);assert.equal(result.snapshot.nodes[0].count,2);assert(result.match);
+  assert.equal(census.build(JSON.parse(JSON.stringify(result.snapshot))).count,2);
+  assert(!JSON.stringify(result.snapshot).includes('kit_number'));
+});
 test('public project profiles attach only to exact preserved terminals, including profiles without kit IDs',()=>{
   const first={id:1,y_dna:'J-M319',kit_number:'123456',origin_raw:'المنصورة'},second={id:2,y_dna:'J-M319',name:'Published ancestor'},other={id:3,y_dna:'J-OTHER',y_dna_alias:'J-M319'};
   const groups=census.profilesByBranch([first,second,other]);
