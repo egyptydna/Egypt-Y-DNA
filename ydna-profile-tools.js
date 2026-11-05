@@ -57,7 +57,34 @@
       ...rows.map(r=>[r.marker,r.source_label,r.value??'',r.source,r.date,r.current?'current':'earlier'])]
       .map(row=>row.map(cell).join(',')).join('\r\n');
   }
-  const api={terminalPath,providers,newResults,strRows,csv,escape:esc};
+  function strText(rows){
+    // Copy one current source panel. Do not interleave repeat project panels or
+    // mix old values with current alleles. CSV retains all conflicting claims.
+    const current=rows.filter(r=>r.current&&r.value!=null);
+    if(!current.length)return '';
+    const panels=new Map();
+    for(const r of current){if(!panels.has(r.source))panels.set(r.source,[]);panels.get(r.source).push(r);}
+    const panel=[...panels.values()].sort((a,b)=>b.length-a.length)[0];
+    return panel.map(r=>`${r.source_label||r.marker}\t${r.value}`).join('\n');
+  }
+  const natural=(a,b)=>String(a||'').localeCompare(String(b||''),undefined,{numeric:true,sensitivity:'base'});
+  const MAIN_GROUPS=['A','B','C','D','E','F','G','H','I','J1','J2','J','K','L','M','N','O','P','Q1','Q2','Q','R1A','R1B','R1','R2','R','S','T'];
+  const groupLabel=value=>value==='R1A'?'R1a':value==='R1B'?'R1b':value;
+  function groupCompare(a,b){
+    const group=v=>{v=String(v||'').toUpperCase();return /^A(?:1B?|[0-9])?(?:-|$)/.test(v)?'A':v.split('-')[0];};
+    const rank=v=>{const i=MAIN_GROUPS.indexOf(group(v));return i<0?MAIN_GROUPS.length:i;};
+    return rank(a)-rank(b)||natural(a,b);
+  }
+  function sortProfiles(rows,order='lineage',group=s=>s.y_dna||''){
+    const title=s=>real(s.name)?s.name:s.sample_id||s.yfull_id||s.kit_number||'';
+    return [...rows].sort((a,b)=>{
+      if(order==='newest'){const delta=(Date.parse(b.__tracked_at||b.created_at)||0)-(Date.parse(a.__tracked_at||a.created_at)||0);if(delta)return delta;}
+      if(order==='name'){const n=natural(title(a),title(b));if(n)return n;}
+      else {const g=groupCompare(group(a),group(b))||natural(a.y_dna||a.mt_dna,b.y_dna||b.mt_dna);if(g)return g;}
+      return natural(title(a),title(b))||natural(a.__uid||a.id,b.__uid||b.id);
+    });
+  }
+  const api={terminalPath,providers,newResults,strRows,strText,sortProfiles,MAIN_GROUPS,groupLabel,groupCompare,csv,escape:esc};
   if(typeof module==='object'){module.exports=api;return;}
   root.YDNAProfiles=api;
   let visibleLimit=50;
@@ -78,6 +105,18 @@
     const profile=document.getElementById('sample-sync-details')?.__strProfile;if(!profile)return;
     const url=URL.createObjectURL(new Blob(['\uFEFF'+csv(profile.markers)],{type:'text/csv;charset=utf-8'}));
     const a=document.createElement('a');a.href=url;a.download='public-profile-STR-evidence.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  };
+  root.copyProfileSTRs=async function(){
+    const profile=document.getElementById('sample-sync-details')?.__strProfile,text=strText(profile?.markers||[]);
+    const status=document.getElementById('sync-str-copy-status');if(!text||!status)return;
+    try{
+      if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(text);
+      else {
+        const area=document.createElement('textarea');area.value=text;area.style.position='fixed';area.style.opacity='0';document.body.append(area);area.select();
+        const copied=document.execCommand('copy');area.remove();if(!copied)throw Error('Clipboard unavailable');
+      }
+      status.textContent='STR markers and alleles copied.';
+    }catch{status.textContent='Clipboard unavailable. Download the STR CSV instead.';}
   };
   document.addEventListener('DOMContentLoaded',()=>{
     const nav=document.getElementById('nav-archive');

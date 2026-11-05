@@ -31,3 +31,15 @@ test('STR evidence keeps zeroes, microvariants, multicopy alleles, positions and
  const csv=ui.csv(rows);assert(csv.includes('"0"'));assert(csv.includes('https://example.org/b'));
  assert(ui.csv([{marker:'=1+1'}]).includes("'=1+1"));
 });
+test('copy STRs preserves one current panel order, zeroes and multicopy alleles',()=>{
+ const rows=[{source:'a',source_label:'DYS425',position:0,value:'0',current:true},{source:'b',source_label:'DYS425',position:0,value:'1',current:true},{source:'a',source_label:'DYS464',position:1,value:'14-16',current:true},{source:'a',source_label:'DYS458',position:2,value:'18.2',current:false}];
+ assert.equal(ui.strText(rows),'DYS425\t0\nDYS464\t14-16');
+ assert.equal(ui.strText(rows.filter(r=>!r.current)),'');
+});
+test('archive sorting is stable and supports main group, name and newest',()=>{
+ const rows=[{id:1,name:'Zeta',y_dna:'R-B',created_at:'2026-01-01'},{id:2,name:'Alpha',y_dna:'E-X',created_at:'2026-02-01'},{id:3,name:'Beta',y_dna:'J-X',created_at:'2026-03-01'}];
+ assert.deepEqual(ui.sortProfiles(rows,'name').map(s=>s.id),[2,3,1]);
+ assert.deepEqual(ui.sortProfiles(rows,'newest').map(s=>s.id),[3,2,1]);
+ assert.deepEqual(['R2','R1B','J2','E','Q2','R1A','J1','Q1','A'].sort(ui.groupCompare),['A','E','J1','J2','Q1','Q2','R1A','R1B','R2']);
+ assert.deepEqual(rows.map(s=>s.id),[1,2,3]);
+});

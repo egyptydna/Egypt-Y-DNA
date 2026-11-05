@@ -31,8 +31,35 @@
   }
   function compact(node,full=false,keepLabels=new Set()){
     const children=node.children.map(c=>compact(c,full,keepLabels));
-    if(!full&&node.display!=='Y-Adam'&&!node.directCount&&!keepLabels.has(key(node.display))&&children.length===1)return children[0];
+    if(!full&&node.display!=='Y-Adam'&&!node.directCount&&!node.samples.length&&!keepLabels.has(key(node.display))&&children.length===1)return children[0];
     return {...node,parent:null,children};
+  }
+  // Overlay source-backed profiles without adding them to anonymous totals.
+  // Connect only at an exact, unique label in the published ancestry. A shared
+  // terminal never establishes an identity or replaces a country-count dot.
+  function overlay(tree,entries){
+    const copy=(n,parent=null)=>{const out={...n,parent,samples:[],children:[]};out.children=n.children.map(c=>copy(c,out));return out;};
+    const root=copy(tree),index=new Map(),seen=new Set();
+    const add=n=>{const label=key(n.display);if(!index.has(label))index.set(label,[]);index.get(label).push(n);};
+    flatten(root).forEach(add);
+    for(const {sample,path} of entries){
+      if(seen.has(sample.__uid))continue;seen.add(sample.__uid);
+      const labels=(path||[]).map(String).map(x=>x.trim()).filter(x=>x&&key(x)!=='Y-ADAM');
+      if(!labels.length||new Set(labels.map(key)).size!==labels.length)continue;
+      let node=root,start=0;
+      for(let i=labels.length-1;i>=0;i--){
+        const matches=index.get(key(labels[i]))||[];
+        if(matches.length===1){node=matches[0];start=i+1;break;}
+      }
+      for(const label of labels.slice(start)){
+        let child=node.children.find(n=>key(n.display)===key(label));
+        if(!child){child={raw:label,display:label,pathKey:node.pathKey+'>'+label,parent:node,children:[],samples:[],count:0,directCount:0,aliases:[]};node.children.push(child);add(child);}
+        node=child;
+      }
+      node.samples.push(sample);
+    }
+    const sum=n=>{n.profileCount=n.samples.length+n.children.reduce((s,c)=>s+sum(c),0);return n.profileCount;};sum(root);
+    return root;
   }
   function find(node,path){return node.pathKey===path?node:node.children.map(c=>find(c,path)).find(Boolean);}
   function flatten(node){return [node,...node.children.flatMap(flatten)];}
@@ -56,6 +83,6 @@
     if(change.kind==='reference_update')return 'Reference / source update · country total unchanged';
     return `${change.branch_label}: ${change.before_count} → ${change.after_count} · branch count change`;
   }
-  const api={build,compact,find,flatten,changeLabel,profilesByBranch};
+  const api={build,overlay,compact,find,flatten,changeLabel,profilesByBranch};
   if(typeof module==='object')module.exports=api;else root.YDNACountryTree=api;
 })(typeof window==='object'?window:globalThis);

@@ -190,11 +190,11 @@ async function loadSyncDetails(sample) {
     panel.__strProfile={sample,markers};
     const sources=observations.map(o=>`<li>${syncSourceLink(o.payload.source_url,o.payload.project||o.source_id)} · ${esc(o.namespace)}: ${esc(o.external_id)} · ${esc(o.payload.y_dna || '—')} ${esc(o.payload.y_dna_alias || '')} · ${esc(o.payload.test_type || 'Unspecified')} · Imported: ${esc(o.last_seen_at)}${o.is_current?'':' (previous observation)'}${o.payload.snp_path?.length?`<p>${esc(o.payload.snp_path.join(' > '))}</p>`:''}</li>`).join('');
     loading.outerHTML=`<div><div class="sample-detail-label">Public source claims (differences retained for review)</div><ul class="space-y-2 text-sm">${sources}</ul></div>
-      <div><label for="sync-str-search" class="sample-detail-label">Search STR markers or alleles</label><input id="sync-str-search" class="tree-search" type="search" oninput="filterSyncSTR(this.value)">
+      <div><div class="sample-detail-label">Published STRs</div>
       <p class="text-xs">${new Set(markers.filter(m=>m.current).map(m=>m.marker)).size} current STR markers with source evidence. Original marker order and alleles are retained; unknown values are shown as —. Earlier observations remain labelled.</p>
       ${markers.length?'':'<p>No STR values have been published for this profile in the available sources. No alleles are inferred from its branch.</p>'}
       <div style="overflow:auto;max-height:360px"><table class="w-full text-left text-sm"><thead><tr><th>Marker</th><th>Source label</th><th>Alleles</th><th>Evidence</th></tr></thead><tbody id="sync-str-body"></tbody></table></div>
-      <button class="ctrl-btn" onclick="addSyncComparison()" ${markers.length?'':'disabled'}>Add to STR comparison</button> <button class="ctrl-btn" type="button" onclick="exportProfileSTRs()" ${markers.length?'':'disabled'}>Download STRs & evidence (CSV)</button><div id="sync-str-comparison" style="overflow:auto"></div></div>`;
+      <button class="ctrl-btn" type="button" onclick="copyProfileSTRs()" ${YDNAProfiles.strText(markers)?'':'disabled'}>Copy STRs</button> <button class="ctrl-btn" type="button" onclick="exportProfileSTRs()" ${markers.length?'':'disabled'}>Download STRs & evidence (CSV)</button><p class="text-xs">Copy uses the largest current source panel in its original order. All source panels, earlier values and differences remain in the table and CSV.</p><p id="sync-str-copy-status" role="status"></p><div id="sync-str-comparison" style="overflow:auto"></div></div>`;
     filterSyncSTR('');
   } catch(error) {
     if(currentSampleModal?.__uid===sample.__uid) {

@@ -192,8 +192,8 @@
     const terminal= root==='J' ?
       (/^J2/.test(y)||['J-M172','J-M410','J-L26','J-M319'].includes(y)?'J2':
         /^J1/.test(y)||['J-M267','J-P58'].includes(y)?'J1':null) :
-      root==='Q' ? (/^Q1/.test(y)?'Q1':/^Q2/.test(y)?'Q2':null) :
-      (/^R1A/.test(y)?'R1A':/^R1B/.test(y)?'R1B':/^R2/.test(y)?'R2':/^R1/.test(y)?'R1':null);
+      root==='Q' ? (/^Q1/.test(y)||['Q-L472','Q-MEH2','Q-M346','Q-L54','Q-M120','Q-M25'].includes(y)?'Q1':/^Q2/.test(y)||['Q-L275','Q-M378'].includes(y)?'Q2':null) :
+      (/^R1A/.test(y)||['R-M420','R-M459','R-M198','R-M417'].includes(y)?'R1A':/^R1B/.test(y)||['R-M343','R-M269','R-M73'].includes(y)?'R1B':/^R2/.test(y)||['R-M479','R-M124'].includes(y)?'R2':/^R1/.test(y)?'R1':null);
     const classify=value=>{
       const steps=String(value||'').split('>').map(v=>v.trim().toUpperCase());
       if (root==='J') {
@@ -202,11 +202,11 @@
         return j1&&j2?'conflict':j2?'J2':j1?'J1':null;
       }
       if (root==='Q') {
-        const q1=steps.some(v=>/^Q1/.test(v)),q2=steps.some(v=>/^Q2/.test(v));
+        const q1=steps.some(v=>/^Q1/.test(v)||['L472','MEH2','M346','L54','M120','M25'].includes(v.replace(/^Q-/,''))),q2=steps.some(v=>/^Q2/.test(v)||['L275','M378'].includes(v.replace(/^Q-/,'')));
         return q1&&q2?'conflict':q1?'Q1':q2?'Q2':null;
       }
-      const a=steps.some(v=>/^R1A/.test(v)),b=steps.some(v=>/^R1B/.test(v));
-      const r1=steps.some(v=>v==='R1'),r2=steps.some(v=>/^R2/.test(v));
+      const a=steps.some(v=>/^R1A/.test(v)||['M420','M459','M198','M417'].includes(v.replace(/^R-/,''))),b=steps.some(v=>/^R1B/.test(v)||['M343','M269','M73'].includes(v.replace(/^R-/,'')));
+      const r1=steps.some(v=>v==='R1'),r2=steps.some(v=>/^R2/.test(v)||['M479','M124'].includes(v.replace(/^R-/,'')));
       return (a&&b)||(r2&&(r1||a||b))?'conflict':a?'R1A':b?'R1B':r2?'R2':r1?'R1':null;
     };
     const publishedPath=real(sample.full_snp_path)?sample.full_snp_path:

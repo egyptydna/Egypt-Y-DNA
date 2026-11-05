@@ -19,6 +19,8 @@ def route_handler(route):
   table=unquote(u.path.rsplit('/',1)[-1]);q=parse_qs(u.query)
   data=[]
   if table=='Modern_published_samples':data=samples
+  elif table=='Ancient_published_samples':data=[{'id':91,'name':'Synthetic ancient','sample_id':'ANCIENT91','y_dna':'E-CTS1','full_snp_path':'Y-Adam>E-M35>E-M78>E-V13>E-CTS1','mt_dna':'U3','full_mtDNA_path':'mt-Eve>L>L3>N>R>U>U3','site':'Fixture site','period':'Published date range','study_reference':'Fixture publication','Description':'Published archaeological context'}]
+  elif table=='ancient_related_samples':data=[{'id':92,'name':'Synthetic related','sample_id':'RELATED92','y_dna':'E-ANCIENT','full_snp_path':'Y-Adam>E-M35>E-M78>E-V13>E-CTS1>E-ANCIENT','country':'Fixture country','period':'Fixture period','study_reference':'Fixture publication'}]
   elif table=='ydna_project_tracking_status':
    if status_failed:route.fulfill(status=503,content_type='application/json',body='{"message":"fixture unavailable"}');return
    data=status
@@ -37,7 +39,7 @@ def route_handler(route):
   elif table=='ydna_sync_runs':data=[{'started_at':now}]
   elif table=='ydna_tracker_status':data={'provider':'ftdna','snapshot_id':'synthetic','checked_at':now,'primary_status':'ok'}
   elif table=='ydna_tracker_snapshots':
-   record={'id':'synthetic','source_id':'fixture','observed_at':now,'total_count':5,'nodes':[{'label':'E-TEST1','count':3,'path':['E-M35','E-M78','E-V13','E-CTS1','E-TEST1'],'path_source_url':'https://example.org/path'},{'label':'J-TEST2','count':2,'path':['J-M267','J-TEST2'],'path_source_url':'https://example.org/path'}],'source_url':'https://example.org/counts','details':{}}
+   record={'id':'synthetic','source_id':'fixture','observed_at':now,'total_count':5,'nodes':[{'label':'E-TEST1','count':3,'path':['E-M35','E-M78','E-V13','E-CTS1','E-TEST1'],'path_source_url':'https://example.org/path'},{'label':'J-COUNT2','count':2,'path':['J-M267','J-COUNT2'],'path_source_url':'https://example.org/path'}],'source_url':'https://example.org/counts','details':{}}
    data=record if 'id' in q else [record]
   elif table=='ydna_tracker_changes':data=[]
   route.fulfill(status=200,content_type='application/json',body=json.dumps(data));return
@@ -46,7 +48,7 @@ def route_handler(route):
   if path.is_file():route.fulfill(path=str(path));return
   route.fulfill(status=404,body='');return
  if '.vercel.app' in u.netloc:errors.append('Unexpected Vercel request');route.abort();return
- if u.netloc in ('fonts.googleapis.com','fonts.gstatic.com'):route.abort();return
+ if u.netloc!='cdn.jsdelivr.net':route.abort();return
  try:
   if url not in cache:
    with urllib.request.urlopen(url,timeout=30) as r:cache[url]=(r.read(),r.headers.get('Content-Type','application/javascript'))
@@ -56,6 +58,7 @@ def route_handler(route):
 with sync_playwright() as p:
  browser=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
  page=browser.new_page(viewport={'width':1440,'height':1000})
+ page.add_init_script("Object.defineProperty(navigator,'clipboard',{value:{writeText:async(value)=>{window.fixtureClipboard=value}}})")
  page.route('**/*',route_handler);page.on('pageerror',lambda e:errors.append(str(e)))
  page.goto('https://egyptydna.github.io/Egypt-Y-DNA/',wait_until='networkidle',timeout=120000)
  page.wait_for_function('modernSamples.length===2 && modernSamples[0].__new_until',timeout=30000)
@@ -80,6 +83,11 @@ with sync_playwright() as p:
  assert 'Y-Adam' not in page.locator('#kits-container').inner_text()
  assert page.locator('#sync-str-body tr').count()==2
  assert '0' in page.locator('#sync-str-body').inner_text()
+ assert page.locator('#sync-str-search').count()==0
+ page.get_by_role('button',name='Copy STRs',exact=True).click()
+ page.wait_for_function("window.fixtureClipboard")
+ assert page.evaluate("window.fixtureClipboard")=="DYS425\t0\nDYS464\t14-16-17-17"
+ assert 'copied' in page.locator('#sync-str-copy-status').inner_text()
  with page.expect_download() as download:
   page.get_by_role('button',name='Download STRs & evidence (CSV)').click()
  assert download.value.suggested_filename=='public-profile-STR-evidence.csv'
@@ -121,7 +129,35 @@ with sync_playwright() as p:
  page.evaluate("showSection('ytree');setCountryTreeMode('ftdna')")
  assert page.locator('.country-result-dot').count()==5
  assert 'overlap unverified' in page.locator('.country-known-profiles').first.inner_text()
- assert page.locator('.country-known-profiles .tree-sample-card').count()==2
+ assert page.locator('.country-known-profiles .tree-sample-card').count()==4
+ assert page.locator('#tree-inner .phylo-provider').filter(has_text='YFull').count()==1
+ assert page.locator('#tree-inner .phylo-sample-test').first.evaluate('(e)=>getComputedStyle(e).backgroundColor')=='rgba(0, 0, 0, 0)'
+ assert page.locator('#tree-pills [data-family=J1]').count()==1
+ page.locator('#tree-pills [data-family=J1]').click()
+ assert page.locator('#tree-inner .tree-sample-card').count()==1
+ assert 'YF990002' in page.locator('#tree-inner').inner_text()
+ assert page.locator('.country-result-dot').count()==2
+ page.evaluate('treeReset()')
+ assert page.locator('.country-result-dot').count()==5
+ assert page.locator('#tree-inner .tree-sample-card').count()==4
+ page.locator('#treeSearch').fill('TEST2');page.locator('#treeSearch').press('Enter')
+ assert 'YF990002' in page.locator('#tree-inner').inner_text()
+ page.evaluate("treeReset();setCountryTreeMode('profiles');treeSetHaplo('J1')")
+ assert page.locator('#tree-pills').inner_text().find('E (')>=0
+ page.evaluate("treeSetHaplo(null);showSection('archive')")
+ page.select_option('#archiveSort','name')
+ assert 'Synthetic baseline' in page.locator('#archive-body tr').first.text_content()
+ page.locator('#archive-body .profile-name-link').first.click();page.wait_for_selector('#sample-detail-modal.active')
+ page.evaluate("closeSampleModal(null);showSection('ancient')")
+ page.locator('#ancient-body .profile-name-link').first.click();page.wait_for_selector('#sample-detail-modal.active')
+ assert 'Published date range' in page.locator('#sample-modal-historical').inner_text()
+ assert 'Fixture publication' in page.locator('#sample-modal-historical').inner_text()
+ assert 'Published archaeological context' in page.locator('#sample-modal-description').inner_text()
+ page.evaluate('closeSampleModal(null)')
+ page.locator('#related-ancient-body .profile-name-link').first.click();page.wait_for_selector('#sample-detail-modal.active')
+ assert 'Fixture country' in page.locator('#sample-modal-historical').inner_text()
+ page.evaluate("closeSampleModal(null);showSection('ytree')")
+ print('Combined tree includes uncounted YFull and intermediate ancient profiles; clade/SNP filters, archive sorting and both ancient popups passed',flush=True)
  page.evaluate("setCountryTreeMode('profiles')")
  status_failed=True
  page.locator('[data-project-refresh]').click()

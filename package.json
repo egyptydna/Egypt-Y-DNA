@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build:styles": "tailwindcss -c tailwind.config.cjs -i styles/tailwind.css -o styles/tailwind.generated.css --minify",
-    "test": "node sync/tests/frontend.test.cjs && node sync/tests/project-tracker.test.cjs && node sync/tests/profile-tools.test.cjs"
+    "test": "node sync/tests/frontend.test.cjs && node sync/tests/project-tracker.test.cjs && node sync/tests/profile-tools.test.cjs && node sync/tests/combined-tree.test.cjs"
   },
   "devDependencies": {
     "@tailwindcss/container-queries": "0.1.1",

@@ -7,18 +7,18 @@
   <meta name="google-site-verification" content="Uaawg80AzlTHbqfR-OfSFSJdBAtg9OIjpOVgCRrWXHY"/>
   <meta name="description" content="Independent genomic archive documenting Egyptian Y-DNA and mtDNA lineages, with a current focus on Y-DNA results across Egypt."/>
 
-  <link rel="stylesheet" href="styles/tailwind.generated.css?v=20261105-profiles1">
+  <link rel="stylesheet" href="styles/tailwind.generated.css?v=20261105-refined2">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="ydna-sync-ui.js?v=20261105-profiles1"></script>
-  <script src="ydna-profile-tools.js?v=20261105-profiles1"></script>
-  <script src="ydna-project-tracker.js?v=20261105-profiles1"></script>
+  <script src="ydna-sync-ui.js?v=20261105-refined2"></script>
+  <script src="ydna-profile-tools.js?v=20261105-refined2"></script>
+  <script src="ydna-project-tracker.js?v=20261105-refined2"></script>
   <link rel="stylesheet" href="ydna-project-tracker.css">
-  <script src="ydna-sync-details.js?v=20261105-profiles1"></script>
+  <script src="ydna-sync-details.js?v=20261105-refined2"></script>
   <script src="ydna-official-tree.js"></script>
-  <script src="dna-tree-view.js?v=20261105-profiles1"></script>
-  <script src="dna-tree-integration.js?v=20261105-profiles1"></script>
-  <script src="ydna-country-tree.js"></script>
-  <script src="ydna-country-tracker.js?v=20261105-profiles1"></script>
+  <script src="dna-tree-view.js?v=20261105-refined2"></script>
+  <script src="dna-tree-integration.js?v=20261105-refined2"></script>
+  <script src="ydna-country-tree.js?v=20261105-refined2"></script>
+  <script src="ydna-country-tracker.js?v=20261105-refined2"></script>
   <script src="ydna-uploaded-profiles.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -3188,7 +3188,7 @@
 
 </style>
   <link rel="stylesheet" href="dna-tree-view.css"/>
-  <link rel="stylesheet" href="dna-tree-reference.css?v=20261105-profiles1"/>
+  <link rel="stylesheet" href="dna-tree-reference.css?v=20261105-refined2"/>
 </head>
 <body class="bg-background text-primary font-body antialiased">
 
@@ -3361,6 +3361,7 @@
         <select id="filterHaplo" onchange="renderArchive()" class="p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold outline-none w-full md:w-48">
           <option value="">All Haplogroups</option>
         </select>
+        <label class="archive-sort-label">Sort archive <select id="archiveSort" onchange="renderArchive()" class="ctrl-btn"><option value="lineage">Main group / SNP A–Z</option><option value="name">Name A–Z</option><option value="newest">Newest first</option></select></label>
         <select id="filterGov" onchange="renderArchive()" class="p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold outline-none w-full md:w-48">
           <option value="">All Governorates</option>
         </select>
@@ -3397,10 +3398,10 @@
         <div class="flex flex-wrap gap-2 items-start">
           <div>
             <div class="relative">
-              <input id="treeSearch" type="text" placeholder="Search SNP, kit, name, place, project…" class="tree-search"/>
+              <input id="treeSearch" type="text" placeholder="Search SNP (e.g. V13), sample ID or project…" class="tree-search"/>
               <span id="tree-search-icon" class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" style="font-size:18px">search</span>
             </div>
-            <div class="search-note">Press Enter to search</div>
+            <div class="search-note">SNP finder · Enter a full branch or mutation name, then press Enter</div>
           </div>
 
           <button id="btn-source-all" class="ctrl-btn on" onclick="treeSetSources('all')">Show All</button>
@@ -3408,6 +3409,7 @@
           <button id="btn-study" class="ctrl-btn on" onclick="treeToggleSource('study')">Study</button>
           <button id="btn-ancient" class="ctrl-btn on" onclick="treeToggleSource('ancient')">Egyptian Ancient</button>
           <button id="btn-related" class="ctrl-btn on" onclick="treeToggleSource('related')">Related Ancient</button>
+          <label class="tree-sort-label">Sort branches / profiles <select id="treeSort" class="ctrl-btn" onchange="renderTree()"><option value="lineage">Main group / SNP A–Z</option><option value="name">Profile name A–Z</option><option value="newest">Newest profiles first</option></select></label>
           <button id="btn-direct" class="ctrl-btn on" onclick="setTreeMode('direct')">Direct Ancestors</button>
           <button id="btn-full" class="ctrl-btn" onclick="setTreeMode('full')">Full SNP Path</button>
           <button class="ctrl-btn" onclick="treeZoom(1.18)"><span class="material-symbols-outlined" style="font-size:16px">zoom_in</span></button>
@@ -3427,7 +3429,7 @@
         </div>
         <label id="tree-dataset-control" class="country-dataset">Tree dataset
           <select id="treeDataset" class="ctrl-btn" onchange="setCountryTreeMode(this.value)">
-            <option value="ftdna">FTDNA reported results</option>
+            <option value="ftdna">Combined · FTDNA counts / YFull / archive</option>
             <option value="profiles">Tester profiles · FTDNA / YFull / studies</option>
             <option value="uploaded">Uploaded source profiles</option>
           </select>
@@ -3517,6 +3519,7 @@
     <div class="flex flex-col md:flex-row justify-between items-end gap-6">
       <h2 class="text-3xl md:text-5xl font-black font-headline uppercase tracking-tighter">Ancient Egyptian Catalog</h2>
       <div class="relative w-full md:w-72">
+        <label class="archive-sort-label">Sort ancient archives <select id="ancientSort" class="ctrl-btn" onchange="renderAncientArchive();renderRelatedAncientArchive()"><option value="lineage">Main group / SNP A–Z</option><option value="name">Name / sample ID A–Z</option></select></label>
         <input type="text" id="ancientSearch" onkeydown="if(event.key==='Enter') renderAncientArchive()" placeholder="Search Ancient ID / site (Enter)…" class="w-full pr-12 p-4 bg-white border border-gray-100 rounded-2xl shadow-lg text-xs font-bold focus:ring-2 focus:ring-secondary outline-none">
         <span class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-secondary">search</span>
       </div>
@@ -4345,17 +4348,22 @@
     }
 
     function getTreeSearchPlaceholder() {
-      return currentTreeType === "mt" ? "Search mtDNA node / lineage…" : "Search SNP, kit, name, place, project…";
+      return currentTreeType === "mt" ? "Search mtDNA node / lineage…" : "Search SNP (e.g. V13), sample ID or project…";
     }
 
     function getTreeTitleText() {
       return currentTreeType === "mt" ? "mtDNA Tree" : "Y-DNA Tree";
     }
 
+    function treeMajorGroup(sample) {
+      const family=haplo(sample.y_dna,sample.snp_path,sample.full_snp_path);
+      return /^A(?:1|1b)?$/i.test(family)?'A':family;
+    }
     function treeGroupForSample(sample) {
-      return currentTreeType === "mt"
-        ? mtPrimaryLineFromPath(sample.full_mtDNA_path, sample.mt_dna)
-        : haplo(sample.y_dna, sample.snp_path, sample.full_snp_path);
+      return currentTreeType === 'mt'?mtPrimaryLineFromPath(sample.full_mtDNA_path,sample.mt_dna):treeMajorGroup(sample);
+    }
+    function sortTreeProfiles(samples){
+      return YDNAProfiles.sortProfiles(samples,document.getElementById('treeSort')?.value||'lineage',treeGroupForSample);
     }
 
     function breakdownGroupForSample(sample, type = modalBreakdownTreeType) {
@@ -4883,84 +4891,8 @@
     }
 
     function sortNodeChildren(children) {
-      const parentDisplay = children?.[0]?.parent?.display || "";
-
-      function explicitSiblingOrder(node) {
-        const d = node.display;
-
-        if (parentDisplay === "CT") {
-          if (d === "DE") return 10;
-          if (d === "CF") return 20;
-        }
-
-        if (parentDisplay === "DE") {
-          if (d === "E") return 10;
-        }
-
-        if (parentDisplay === "CF") {
-          if (d === "C") return 10;
-          if (d === "F") return 20;
-        }
-
-        if (parentDisplay === "HIJK") {
-          if (d === "H") return 10;
-          if (d === "IJK") return 20;
-        }
-
-        if (parentDisplay === "IJK") {
-          if (d === "IJ") return 10;
-          if (d === "K") return 20;
-        }
-
-        if (parentDisplay === "IJ") {
-          if (d === "I") return 10;
-          if (d === "J") return 20;
-        }
-
-        if (parentDisplay === "Q") {
-          if (d === "Q1") return 10;
-          if (d === "Q2") return 20;
-        }
-
-        if (parentDisplay === "R") {
-          if (d === "R1") return 10;
-          if (d === "R2") return 20;
-        }
-
-        if (parentDisplay === "R1") {
-          if (d === "R1a") return 10;
-          if (d === "R1b") return 20;
-        }
-
-        return null;
-      }
-
-      return children.sort((a, b) => {
-        const ea = explicitSiblingOrder(a);
-        const eb = explicitSiblingOrder(b);
-        if (ea !== null && eb !== null && ea !== eb) return ea - eb;
-        if (ea !== null && eb === null) return -1;
-        if (ea === null && eb !== null) return 1;
-
-        const va = nodeVisibleSortValue(a);
-        const vb = nodeVisibleSortValue(b);
-        if (va !== vb) return va - vb;
-
-        const fa = groupOrderFromFamily(a.family, a.display);
-        const fb = groupOrderFromFamily(b.family, b.display);
-        if (fa !== fb) return fa - fb;
-
-        if (a.display === "R1" && b.display === "R2") return -1;
-        if (a.display === "R2" && b.display === "R1") return 1;
-        if (a.display === "R1a" && b.display === "R1b") return -1;
-        if (a.display === "R1b" && b.display === "R1a") return 1;
-        if (a.display === "Q1" && b.display === "Q2") return -1;
-        if (a.display === "Q2" && b.display === "Q1") return 1;
-
-        return a.display.localeCompare(b.display, undefined, { numeric: true, sensitivity: "base" });
-      });
+      return [...children].sort((a,b)=>YDNAProfiles.groupCompare(a.family||a.display,b.family||b.display)||a.display.localeCompare(b.display,undefined,{numeric:true,sensitivity:'base'}));
     }
-
     function buildRawTree(samples) {
       if (currentTreeType === "mt") {
         const root = {
@@ -5077,7 +5009,7 @@
       ensureSyncCountryCountNodes(root, knownTerminalPaths);
 
       function finalize(node) {
-        sortNodeChildren(node.children);
+        node.children=sortNodeChildren(node.children);
         let c = node.samples.length;
         node.children.forEach(ch => {
           finalize(ch);
@@ -5192,7 +5124,7 @@
       function sortCompressedTree(node) {
         if (!node.children || !node.children.length) return;
         node.children.forEach(sortCompressedTree);
-        sortNodeChildren(node.children);
+        node.children=sortNodeChildren(node.children);
       }
 
       const out = {
@@ -5761,18 +5693,19 @@
       const search = document.getElementById("archiveSearch").value.trim();
       const hF = document.getElementById("filterHaplo").value;
       const gF = document.getElementById("filterGov").value;
-      const filterKey=JSON.stringify([search,hF,gF]);
+      const filterKey=JSON.stringify([search,hF,gF,document.getElementById('archiveSort').value]);
       if(filterKey!==archiveFilterKey){
         archiveVisibleLimit=ARCHIVE_PAGE_SIZE;
         archiveFilterKey=filterKey;
       }
       updateShareUrl({ section: 'archive' });
 
-      const rows = allModernLikeSamples().filter(s =>
+      const order=document.getElementById('archiveSort').value;
+      const rows = YDNAProfiles.sortProfiles(allModernLikeSamples().filter(s =>
         matchSearchRow(s, search) &&
         (!hF || haplo(s.y_dna, s.snp_path, s.full_snp_path) === hF) &&
         (!gF || governorateMatch(s.governorate, gF))
-      );
+      ),order,treeMajorGroup);
 
       tbody.innerHTML = rows.slice(0,archiveVisibleLimit).map(s => {
         const h = haplo(s.y_dna, s.snp_path, s.full_snp_path);
@@ -5810,7 +5743,7 @@
       const search = document.getElementById("ancientSearch").value.trim();
       updateShareUrl({ section: 'ancient' });
 
-      const rows = ancientSamples.filter(s => matchSearchRow(s, search));
+      const rows = YDNAProfiles.sortProfiles(ancientSamples.filter(s => matchSearchRow(s, search)),document.getElementById('ancientSort').value,treeMajorGroup);
 
       tbody.innerHTML = rows.map(s => {
         const h = haplo(s.y_dna, s.snp_path, s.full_snp_path);
@@ -5819,7 +5752,7 @@
         return `
           <tr class="hover:bg-gray-50/80 transition-colors text-center font-bold">
             <td class="px-4 py-6 text-left">
-              <div class="font-black uppercase text-sm">${esc(s.name || '—')}</div>
+              <button type="button" class="font-black uppercase text-sm profile-name-link" data-uid="${esc(s.__uid)}" onclick="openSampleModalByUid(this.dataset.uid,'y')">${esc(isRealValue(s.name)?s.name:s.sample_id || 'Sample details')}</button>
               <div class="text-[10px] text-secondary font-mono">${esc(s.sample_id || '—')}</div>
               <div class="text-[9px] text-gray-400 font-bold uppercase mt-1">${esc(s.cultural_group || '—')}</div>
             </td>
@@ -5838,7 +5771,7 @@
               </div>
             </td>
             <td class="px-2 py-6">${links(s, 'y')}</td>
-            <td class="px-2 py-6"><div class="text-[11px] font-black text-secondary">${esc(s.mt_dna || '—')}</div></td>
+            <td class="px-2 py-6"><button type="button" class="text-[11px] font-black text-secondary profile-name-link" data-uid="${esc(s.__uid)}" onclick="openSampleModalByUid(this.dataset.uid,'mt')">${esc(s.mt_dna || 'Details')}</button></td>
             <td class="px-4 py-6">${links(s, 'mt')}</td>
           </tr>
         `;
@@ -5852,14 +5785,14 @@
       const totalEl = document.getElementById("total-related-ancient-samples");
       if (totalEl) totalEl.textContent = relatedAncientSamples.length;
 
-      tbody.innerHTML = relatedAncientSamples.map(s => {
+      tbody.innerHTML = YDNAProfiles.sortProfiles(relatedAncientSamples,document.getElementById('ancientSort').value,treeMajorGroup).map(s => {
         const h = haplo(s.y_dna, s.snp_path, s.full_snp_path);
         const dotClass = h === "C" ? 'border border-gray-400' : '';
         const location = [s.country, s.region, s.site].filter(isRealValue).join(" • ") || "—";
         return `
           <tr class="related-catalog-row transition-colors text-center font-bold">
             <td class="px-4 py-6 text-left">
-              <div class="flex items-center gap-2 flex-wrap"><span class="tree-related-badge">RELATED ANCIENT</span><div class="font-black uppercase text-sm">${esc(s.name || '—')}</div></div>
+              <div class="flex items-center gap-2 flex-wrap"><span class="tree-related-badge">RELATED ANCIENT</span><button type="button" class="font-black uppercase text-sm profile-name-link" data-uid="${esc(s.__uid)}" onclick="openSampleModalByUid(this.dataset.uid,'y')">${esc(isRealValue(s.name)?s.name:s.sample_id || 'Sample details')}</button></div>
               <div class="text-[10px] text-teal-700 font-mono mt-1">${esc(s.sample_id || '—')}</div>
               <div class="text-[9px] text-gray-400 font-bold uppercase mt-1">${esc(s.cultural_group || '—')}</div>
             </td>
@@ -5871,7 +5804,7 @@
               </div>
             </td>
             <td class="px-2 py-6">${links(s, 'y')}</td>
-            <td class="px-2 py-6"><div class="text-[11px] font-black text-secondary">${esc(s.mt_dna || '—')}</div></td>
+            <td class="px-2 py-6"><button type="button" class="text-[11px] font-black text-secondary profile-name-link" data-uid="${esc(s.__uid)}" onclick="openSampleModalByUid(this.dataset.uid,'mt')">${esc(s.mt_dna || 'Details')}</button></td>
             <td class="px-4 py-6">${links(s, 'mt')}</td>
           </tr>`;
       }).join("");
@@ -5944,8 +5877,11 @@
       document.getElementById("sample-modal-mt-links").innerHTML =
         buildModalLinkButtons([sample.mt_link_1, sample.mt_link_2]);
 
-      document.getElementById("sample-modal-study-link-wrap").innerHTML =
-        sample.__sourceType === "study" ? buildStudyLinkButton(sample) : "";
+      document.getElementById('sample-modal-study-link-wrap').innerHTML = sample.__sourceType==='study'?buildStudyLinkButton(sample):'';
+      let historical=document.getElementById('sample-modal-historical');
+      if(!historical){historical=document.createElement('div');historical.id='sample-modal-historical';historical.className='sample-historical';document.getElementById('sample-modal-study-link-wrap').before(historical);}
+      historical.hidden=!['ancient','related','study'].includes(sample.__sourceType);
+      historical.innerHTML=historical.hidden?'':`<dl>${[['Sample / study ID',sample.sample_id],['Period / date',sample.period],['Site',sample.site],['Country',sample.country|| (sample.__sourceType==='ancient'?'Egypt':'')],['Cultural group',sample.cultural_group],['Study / publication',sample.study_reference]].map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(isRealValue(v)?v:'Not published in the available source')}</dd></div>`).join('')}</dl>`;
 
       document.getElementById("sample-modal-study").classList.toggle("hidden", sample.__sourceType !== "study");
       document.getElementById("sample-modal-ancient").classList.toggle("hidden", sample.__sourceType !== "ancient");
@@ -6177,6 +6113,7 @@
     }
 
     function treeReset() {
+      treeHaploFilter=null;treeHaploFilterByType[currentTreeType]=null;
       uploadedQuery='';
       countryTreeFamily=null;
       treeScale = 1;
@@ -6221,7 +6158,7 @@
       requestAnimationFrame(() => scrollTreeIntoView());
     }
 
-    function treeFilteredSamples() {
+    function treeFilteredSamples(ignoreFamily=false) {
       let samples = [];
       if (treeShowModern) samples = samples.concat(modernSamples);
       if (treeShowStudy) samples = samples.concat(studySamples);
@@ -6234,7 +6171,7 @@
         samples = samples.filter(hasYTreeValue);
       }
 
-      if (treeHaploFilter) {
+      if (treeHaploFilter&&!ignoreFamily) {
         samples = samples.filter(s => treeGroupForSample(s) === treeHaploFilter);
       }
 
@@ -6481,7 +6418,7 @@
           .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }));
         ordered = [...MT_PRIMARY_LINES, ...extras];
       } else {
-        ordered = [...new Set(["A1","A1b","B","C","D","E","F","G","H","I","J1","J2","K","L","M","N","O","P","Q1","Q2","R1A","R1B","R2","S","T", ...Object.keys(counts)])].filter(h => counts[h]);
+        ordered = [...new Set([...YDNAProfiles.MAIN_GROUPS, ...Object.keys(counts)])].filter(h => counts[h]);
       }
 
       document.getElementById("tree-pills").innerHTML =
@@ -6566,7 +6503,7 @@
       renderOfficialTreePanel();
       document.getElementById('ydna-sync-filters').classList.toggle('hidden', currentTreeType === 'mt');
       const samples = treeFilteredSamples();
-      buildPills(samples);
+      buildPills(treeFilteredSamples(true));
       buildTreeStats(samples);
       buildTreeSummary(samples);
 

@@ -21,6 +21,7 @@ jobs:
       - run: node sync/tests/frontend.test.cjs
       - run: node sync/tests/project-tracker.test.cjs
       - run: node sync/tests/profile-tools.test.cjs
+      - run: node sync/tests/combined-tree.test.cjs
   database:
     runs-on: ubuntu-latest
     services:

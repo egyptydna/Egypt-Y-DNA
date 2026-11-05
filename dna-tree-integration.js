@@ -59,6 +59,7 @@ function treePlatformNames(node) {
 function compactTreeOptions() {
   return {
     type:currentTreeType,collapsed:collapsedNodes,names:treePlatformNames,isNew:YDNASync.isNew,
+    providers:s=>s.__sourceType==='modern'?YDNAProfiles.providers(s):[],sortSamples:sortTreeProfiles,
     identity:s=>YDNASync.publicId(s)==='—'?'':YDNASync.publicId(s),
     countryLabel:s=>{const country=currentTreeType==='mt'?s.mt_country:s.__public_country||s.country;return /^(Egypt|EG|مصر)$/i.test(country||'')?'🇪🇬 EGY':'';},
     name:s=>YDNASync.displayName(s),

@@ -56,3 +56,48 @@ checks wiring and retained archive behavior. The synthetic browser checks cover
 both chart-to-profile flows, both tree styles, keyboard access, STR downloads,
 provider filters, anonymous separation and mobile layout. They never download
 production individual genetic records.
+
+## Combined tree and archive controls
+
+The default tree overlays every enabled public archive cohort on the saved
+FTDNA count topology. Missing YFull/study/ancient terminals are included using
+only their validated source or licensed reference path. An exact unique
+published ancestor may connect a new branch. Anonymous counts remain unchanged;
+profile totals are displayed separately and can overlap them. Ancient records
+at intermediate nodes remain visible in compact view. Related ancient references
+retain their own category and remain excluded from Egyptian percentages.
+
+Main-group buttons include A, B, E, J1/J2, Q1/Q2 and R1a/R1b/R2 when evidence
+supports those assignments. Unresolved J, Q and R records stay in their broad
+group. Selecting a group retains the other available filter buttons. SNP search
+accepts a full branch or mutation name across the combined saved tree. Archive
+and tree profile sorting support alphabetical names, main groups/SNPs and newest
+records; sorting never changes tree parentage.
+
+The STR search field has been removed. **Copy STRs** copies marker labels and
+alleles from the largest current source panel, in source order, retaining zero,
+decimal and multicopy alleles. It does not interleave conflicting project panels
+or copy earlier observations as current. The table and CSV retain all evidence.
+
+Both ancient archive tables now open the profile window, including a maternal
+path action. Saved dates, site, country, cultural context, description and study
+reference appear there. Missing study metadata stays explicitly unavailable;
+this presentation change does not invent dates or impute ancient genetic calls.
+The existing hourly importer uses bounded batches (32 saved-evidence targets by
+default); direct project sources still require their documented permission.
+
+## Owner-confirmed Alexandria correction
+
+On 5 November 2026 the owner explicitly confirmed that the unique ID-less
+Al-Iskandariya E entry and its identified YFull entry represent one person.
+The specific pair was checked for the same published terminal and governorate,
+compatible maternal data and absence of an external identity or synchronized
+observations on the older row. The identified profile remains canonical. The
+older row is retained as merged, and both complete originals remain in the
+private identity-merge audit, along with the source links and correction basis.
+The guarded correction was checked in a disposable database for preservation
+of originals, idempotency and refusal of changed evidence before application.
+No further exact public kit/YFull identity duplicate groups remained in the
+aggregate check. Unidentified records still require individual evidence.
+This owner confirmation applies only to that pair. It does not introduce
+name-, governorate- or haplogroup-based automatic identity merging.

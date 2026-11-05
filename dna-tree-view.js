@@ -10,6 +10,7 @@
       ${identity&&name!==identity&&name!=='—'?`<span class="phylo-sample-person">${escape(name)}</span>`:''}
       ${options.countryLabel?.(row)?`<span class="phylo-sample-country">${escape(options.countryLabel(row))}</span>`:''}<span class="phylo-sample-origin">${escape(options.location(row))}</span>
       <span class="phylo-sample-test">${escape(options.test(row))}</span>
+      ${options.providers?.(row)?.map(p=>`<span class="phylo-provider">${escape(p==='yfull'?'YFull':'FTDNA')}</span>`).join('')||''}
       ${options.isNew?.(row)?'<span class="project-new-badge">NEW · 30 days</span>':''}
       ${kind!=='modern'?`<span class="phylo-kind phylo-kind-${escape(kind)}">${escape({related:'Related ancient',ancient:'Egyptian ancient',study:'Study'}[kind]||kind)}</span>`:''}
       ${row.__duplicate_conflict?'<span class="phylo-warning">Conflicting results · review</span>':''}
@@ -23,7 +24,7 @@
     const lazy=typeof options.hasEvidence==='function';
     const evidence=lazy?options.hasEvidence(row):options.evidence(row),age=options.age(row);
     const aliases=options.aliases(row);
-    const body=open?(options.group?options.group(row):'')+row.samples.map(s=>sample(s,options)).join('')+options.sort(row.children).map(n=>node(n,options)).join(''):'';
+    const body=open?(options.group?options.group(row):'')+(options.sampleGroup?options.sampleGroup(row):(options.sortSamples?options.sortSamples(row.samples):row.samples).map(s=>sample(s,options)).join(''))+options.sort(row.children).map(n=>node(n,options)).join(''):'';
     const header=`<div class="tree-row phylo-node-row">
       <button type="button" class="phylo-toggle" aria-label="${open?'Collapse':'Expand'} ${escape(names.primary)}" aria-expanded="${!!open}" ${expandable?'':'disabled'} data-path="${encoded}" onclick="return handleTreeToggleClick(event)">${expandable?(open?'−':'+'):'·'}</button>
       <button type="button" class="phylo-node-name" data-path="${encoded}" onclick="return handleTreePathClick(event)">${escape(names.primary)}</button>
