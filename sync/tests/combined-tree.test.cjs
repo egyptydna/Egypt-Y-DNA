@@ -22,3 +22,25 @@ test('J/R/Q subgroups use documented defining ancestry and preserve uncertain ro
  assert.equal(ui.yFamily({y_dna:'Q-UNKNOWN'}),'Q');
  assert.equal(ui.yFamily({y_dna:'R-M269',full_snp_path:'Y-Adam>R-M417>R-M269'}),'R');
 });
+const profiles=require('../../ydna-profile-tools.js');
+const treeView=require('../../dna-tree-view.js');
+test('Egyptian archive cohorts carry Egypt flags in both DNA trees without requiring a country field',()=>{
+ for(const kind of ['modern','study','ancient','uploaded']){
+  const country=profiles.sampleCountry({__sourceType:kind});
+  assert.equal(country.code,'EG');assert.equal(country.flag,'🇪🇬');
+  for(const type of ['y','mt']){
+   const options={type,identity:()=>'',name:()=> 'Synthetic sample',countryLabel:s=>profiles.sampleCountry(s).flag,location:()=>'',test:()=>'',issue:()=>''};
+   const html=treeView.sample({__uid:'fixture',__sourceType:kind},options);
+   assert(html.includes('🇪🇬'));assert(html.includes(`data-kind="${kind}"`));assert(html.includes(`data-dna="${type}"`));
+   assert(html.includes('this.dataset.uid,this.dataset.dna'));
+  }
+ }
+});
+test('related ancient flags use only the published find country, with no Egyptian fallback',()=>{
+ for(const [country,wanted] of [['Austria','AT'],['Syrian Arab Republic','SY'],['Tunisia','TN'],['Georgia','GE'],['Spanien','ES'],['إيطاليا','IT'],['MN','MN']]){
+  assert.equal(profiles.sampleCountry({__sourceType:'related',country}).code,wanted);
+ }
+ for(const country of [null,'—','Fixture unknown country','Egypt','Unknown site near Georgia']){
+  const result=profiles.sampleCountry({__sourceType:'related',country,site:'Egypt'});assert.equal(result.flag,'');
+ }
+});

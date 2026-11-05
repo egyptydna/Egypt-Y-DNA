@@ -101,3 +101,28 @@ No further exact public kit/YFull identity duplicate groups remained in the
 aggregate check. Unidentified records still require individual evidence.
 This owner confirmation applies only to that pair. It does not introduce
 name-, governorate- or haplogroup-based automatic identity merging.
+
+## Flags, separate DNA trees and expanded samples
+
+Y-DNA and mtDNA remain separate navigation views and open their own path in the
+profile window. All samples in the Egyptian modern, study, ancient and uploaded
+cohorts display an Egyptian flag in either applicable tree. This is an archive
+cohort label, not a genetic inference of nationality. Related ancient references
+use only their explicit archaeological country: a recognized country gets its
+own flag, and missing/unknown countries get no invented flag. Site text and shared
+ancestry never supply a country flag.
+
+Study, Egyptian ancient and related ancient rows have distinct colored frames
+and text labels. Profile groups, including uploaded source records, start open.
+A user can close a branch or profile group; manual group hiding persists during
+rerenders in the same view. **Expand all samples** restores open groups and all
+sample cohorts for the active DNA type. It does not clear explicit searches or
+lineage filters.
+
+FTDNA as a sequencing provider / upload source does not by itself link a YFull
+ID to an exact FTDNA kit, either for Y-DNA or mtDNA. The available saved evidence
+currently contains no verified cross-provider identity pairs. The existing
+approved-export importer accepts exact typed `verified_ids` only with an HTTPS
+`identity_evidence_url` and source publication approval. Private account pages
+and passwords are not part of the public website or repository. New links need
+specific permitted evidence naming both IDs, rather than similar haplogroups.

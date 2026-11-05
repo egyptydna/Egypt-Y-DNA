@@ -19,8 +19,10 @@ def route_handler(route):
   table=unquote(u.path.rsplit('/',1)[-1]);q=parse_qs(u.query)
   data=[]
   if table=='Modern_published_samples':data=samples
+  elif table=='Modern_study_samples':data=[{'id':93,'name':'Synthetic study','sample_id':'STUDY93','y_dna':'E-STUDY','full_snp_path':'Y-Adam>E-M35>E-M78>E-V13>E-STUDY','mt_dna':'U3','full_mtDNA_path':'mt-Eve>L>L3>N>R>U>U3','study_reference':'Synthetic permitted publication'}]
+  elif table=='ydna_uploaded_profiles':data=[{'record_key':'a'*64,'name':'Synthetic upload','y_dna':'E-TEST1','governorate':'Fixture governorate','country_code':'EG','tree_path':['E-M35','E-M78','E-V13','E-CTS1','E-TEST1'],'snp_path':['E-V13','E-CTS1','E-TEST1'],'sheet_name':'Synthetic fixture','row_number':2}]
   elif table=='Ancient_published_samples':data=[{'id':91,'name':'Synthetic ancient','sample_id':'ANCIENT91','y_dna':'E-CTS1','full_snp_path':'Y-Adam>E-M35>E-M78>E-V13>E-CTS1','mt_dna':'U3','full_mtDNA_path':'mt-Eve>L>L3>N>R>U>U3','site':'Fixture site','period':'Published date range','study_reference':'Fixture publication','Description':'Published archaeological context'}]
-  elif table=='ancient_related_samples':data=[{'id':92,'name':'Synthetic related','sample_id':'RELATED92','y_dna':'E-ANCIENT','full_snp_path':'Y-Adam>E-M35>E-M78>E-V13>E-CTS1>E-ANCIENT','country':'Fixture country','period':'Fixture period','study_reference':'Fixture publication'}]
+  elif table=='ancient_related_samples':data=[{'id':92,'name':'Synthetic related','sample_id':'RELATED92','y_dna':'E-ANCIENT','full_snp_path':'Y-Adam>E-M35>E-M78>E-V13>E-CTS1>E-ANCIENT','country':'Austria','mt_dna':'H2','full_mtdna_path':'mt-Eve>L>L3>N>R>H>H2','period':'Fixture period','study_reference':'Fixture publication'}]
   elif table=='ydna_project_tracking_status':
    if status_failed:route.fulfill(status=503,content_type='application/json',body='{"message":"fixture unavailable"}');return
    data=status
@@ -121,6 +123,17 @@ with sync_playwright() as p:
  assert color=='rgb(66, 142, 32)',color
  for tree in ['y','mt']:
   page.evaluate("showSection('"+('ytree' if tree=='y' else 'mtree')+"');"+("setCountryTreeMode('profiles')" if tree=='y' else ''))
+  assert page.locator('#tree-inner .phylo-root').get_attribute('data-tree')==tree
+  assert page.locator('#tree-inner .phylo-sample').count()==5
+  assert page.locator('#tree-inner .phylo-sample-country').filter(has_text='🇪🇬').count()==4
+  assert page.locator('#tree-inner .phylo-sample[data-kind=related] .phylo-sample-country').inner_text()=='🇦🇹 AT'
+  for kind in ['study','ancient','related']:
+   row=page.locator(f'#tree-inner .phylo-sample[data-kind={kind}] > .tree-sample-card').first
+   assert row.evaluate('(e)=>getComputedStyle(e).borderLeftWidth')=='4px'
+   assert row.is_visible()
+  page.locator('#tree-inner .tree-sample-card').first.click()
+  assert page.evaluate('sampleModalTreeType')==tree
+  page.evaluate('closeSampleModal(null)')
   for width,height in [(1440,1000),(390,844)]:
    page.set_viewport_size({'width':width,'height':height});page.locator('#tree-wrap').scroll_into_view_if_needed()
    assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
@@ -128,8 +141,17 @@ with sync_playwright() as p:
  # Anonymous counts still total five; known profile rows carry no dot identity.
  page.evaluate("showSection('ytree');setCountryTreeMode('ftdna')")
  assert page.locator('.country-result-dot').count()==5
- assert 'overlap unverified' in page.locator('.country-known-profiles').first.inner_text()
- assert page.locator('.country-known-profiles .tree-sample-card').count()==4
+ assert page.locator('.uploaded-branch-profiles details').first.evaluate('(e)=>e.open')
+ assert page.locator('.uploaded-branch-profiles .phylo-sample-country').first.inner_text()=='🇪🇬 EGY'
+ page.locator('.uploaded-branch-profiles summary').first.click()
+ page.wait_for_function("!document.querySelector('.uploaded-branch-profiles details').open")
+ page.evaluate('renderTree()')
+ assert not page.locator('.uploaded-branch-profiles details').first.evaluate('(e)=>e.open')
+ page.locator('#btn-show-all-profiles').click()
+ assert page.locator('.uploaded-branch-profiles details').first.evaluate('(e)=>e.open')
+ assert page.locator('#tree-inner .tree-sample-card:visible').count()==6
+ assert 'overlap unverified'  in page.locator('.country-known-profiles').first.inner_text()
+ assert page.locator('.country-known-profiles .tree-sample-card').count()==6
  assert page.locator('#tree-inner .phylo-provider').filter(has_text='YFull').count()==1
  assert page.locator('#tree-inner .phylo-sample-test').first.evaluate('(e)=>getComputedStyle(e).backgroundColor')=='rgba(0, 0, 0, 0)'
  assert page.locator('#tree-pills [data-family=J1]').count()==1
@@ -139,7 +161,7 @@ with sync_playwright() as p:
  assert page.locator('.country-result-dot').count()==2
  page.evaluate('treeReset()')
  assert page.locator('.country-result-dot').count()==5
- assert page.locator('#tree-inner .tree-sample-card').count()==4
+ assert page.locator('#tree-inner .tree-sample-card').count()==6
  page.locator('#treeSearch').fill('TEST2');page.locator('#treeSearch').press('Enter')
  assert 'YF990002' in page.locator('#tree-inner').inner_text()
  page.evaluate("treeReset();setCountryTreeMode('profiles');treeSetHaplo('J1')")
@@ -155,7 +177,7 @@ with sync_playwright() as p:
  assert 'Published archaeological context' in page.locator('#sample-modal-description').inner_text()
  page.evaluate('closeSampleModal(null)')
  page.locator('#related-ancient-body .profile-name-link').first.click();page.wait_for_selector('#sample-detail-modal.active')
- assert 'Fixture country' in page.locator('#sample-modal-historical').inner_text()
+ assert 'Austria' in page.locator('#sample-modal-historical').inner_text()
  page.evaluate("closeSampleModal(null);showSection('ytree')")
  print('Combined tree includes uncounted YFull and intermediate ancient profiles; clade/SNP filters, archive sorting and both ancient popups passed',flush=True)
  page.evaluate("setCountryTreeMode('profiles')")
@@ -169,5 +191,5 @@ with sync_playwright() as p:
   assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
   out=root/'reports';out.mkdir(exist_ok=True);page.screenshot(path=str(out/f'project-tracker-{width}.png'))
  assert not errors,errors
- print(json.dumps({'syntheticBrowser':'passed','desktopAndMobile':True,'pagedCatalogRequests':catalog_requests,'profileDetailsAndSTRs':True,'maternalPopupContext':True,'providerFilters':True,'anonymousSeparation':True,'statusFailureRetainsSummary':True,'pageErrors':len(errors)}))
+ print(json.dumps({'syntheticBrowser':'passed','desktopAndMobile':True,'pagedCatalogRequests':catalog_requests,'profileDetailsAndSTRs':True,'cohortFlagsAndFrames':True,'manualGroupHiding':True,'separateDNATrees':True,'maternalPopupContext':True,'providerFilters':True,'anonymousSeparation':True,'statusFailureRetainsSummary':True,'pageErrors':len(errors)}))
  browser.close()

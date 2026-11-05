@@ -61,7 +61,7 @@ function compactTreeOptions() {
     type:currentTreeType,collapsed:collapsedNodes,names:treePlatformNames,isNew:YDNASync.isNew,
     providers:s=>s.__sourceType==='modern'?YDNAProfiles.providers(s):[],sortSamples:sortTreeProfiles,
     identity:s=>YDNASync.publicId(s)==='—'?'':YDNASync.publicId(s),
-    countryLabel:s=>{const country=currentTreeType==='mt'?s.mt_country:s.__public_country||s.country;return /^(Egypt|EG|مصر)$/i.test(country||'')?'🇪🇬 EGY':'';},
+    countryLabel:s=>{const country=YDNAProfiles.sampleCountry(s);return [country.flag,country.code||country.label].filter(Boolean).join(' ');},
     name:s=>YDNASync.displayName(s),
     location:s=>[s.governorate||s.site,s.__sourceType==='related'?s.country:null].filter(isRealValue).join(' · ')||'Origin unknown',
     test:s=>currentTreeType==='mt'?(s.mt_dna||''):s.__sourceType==='modern'?[YDNASync.preferredTest(s),YDNASync.labels[YDNASync.status(s)]].filter(isRealValue).filter((v,i,a)=>a.indexOf(v)===i).join(' · '):s.y_dna,

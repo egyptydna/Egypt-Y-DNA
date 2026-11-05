@@ -34,6 +34,33 @@
     else if(/^[A-Z]{0,3}\d+$/i.test(sample.kit_number||''))result.add('ftdna');
     return [...result].filter(x=>['ftdna','yfull'].includes(x));
   }
+  const COUNTRY_ALIASES={egypt:'EG',eg:'EG',egy:'EG','مصر':'EG',austria:'AT',bulgaria:'BG',georgia:'GE',italy:'IT',mongolia:'MN',spain:'ES',tunisia:'TN',syria:'SY','syrian arab republic':'SY',turkey:'TR','turkiye':'TR',iran:'IR','iran islamic republic of':'IR',russia:'RU','russian federation':'RU',uk:'GB','united kingdom':'GB',usa:'US','united states':'US'};
+  const COUNTRY_CODES='AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW'.split(' ');
+  const countryKey=value=>String(value||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[.,()]/g,' ').replace(/\s+/g,' ').trim();
+  let countryNames;
+  function countryCode(value){
+    const key=countryKey(value);if(!key)return '';
+    const upper=String(value).trim().toUpperCase();if(COUNTRY_CODES.includes(upper))return upper;
+    if(COUNTRY_ALIASES[key])return COUNTRY_ALIASES[key];
+    if(!countryNames){
+      countryNames=new Map();
+      if(typeof Intl.DisplayNames==='function')for(const language of ['en','de','ar','fr']){
+        const names=new Intl.DisplayNames([language],{type:'region'});
+        for(const code of COUNTRY_CODES)countryNames.set(countryKey(names.of(code)),code);
+      }
+    }
+    return countryNames.get(key)||'';
+  }
+  const countryFlag=code=>/^[A-Z]{2}$/.test(code)?String.fromCodePoint(...[...code].map(c=>127397+c.charCodeAt(0))):'';
+  function sampleCountry(sample){
+    // The Egyptian archive cohorts are an editorial display category, not an
+    // inference about citizenship or identity from genetic results.
+    if(sample.__sourceType!=='related')return {code:'EG',flag:countryFlag('EG'),label:'Egypt',basis:'Egyptian archive cohort'};
+    const raw=real(sample.country)?String(sample.country).trim():'',code=countryCode(raw);
+    // Related references are explicitly outside the Egyptian cohorts. Do not
+    // infer their excavation country from shared ancestry, names or a site.
+    return {code:code==='EG'?'':code,flag:code&&code!=='EG'?countryFlag(code):'',label:raw||'Find country not published',basis:'Published archaeological country'};
+  }
   function newResults(samples,provider='',query='',now=Date.now()){
     return samples.filter(s=>!s.anonymous&&s.identityStatus!=='anonymous'&&Date.parse(s.__new_until)>now&&providers(s).length>0&&(!provider||providers(s).includes(provider))&&
       (!query||[s.name,s.kit_number,s.yfull_id,s.y_dna,s.mt_dna,s.governorate,...(s.__projects||[])].join(' ').toLowerCase().includes(query.toLowerCase())))
@@ -84,9 +111,22 @@
       return natural(title(a),title(b))||natural(a.__uid||a.id,b.__uid||b.id);
     });
   }
-  const api={terminalPath,providers,newResults,strRows,strText,sortProfiles,MAIN_GROUPS,groupLabel,groupCompare,csv,escape:esc};
+  const api={sampleCountry,countryCode,countryFlag,terminalPath,providers,newResults,strRows,strText,sortProfiles,MAIN_GROUPS,groupLabel,groupCompare,csv,escape:esc};
   if(typeof module==='object'){module.exports=api;return;}
   root.YDNAProfiles=api;
+  const hiddenProfileGroups=new Set();
+  root.treeProfileGroupKey=key=>String(currentTreeType)+'|'+String(countryTreeMode)+'|'+key;
+  root.treeProfileGroupOpen=key=>!hiddenProfileGroups.has(root.treeProfileGroupKey(key));
+  root.rememberTreeProfileGroup=details=>{
+    if(!details.isConnected)return;
+    if(details.open)hiddenProfileGroups.delete(details.dataset.profileGroup);else hiddenProfileGroups.add(details.dataset.profileGroup);
+  };
+  root.showAllTreeProfiles=function(){
+    const prefix=String(currentTreeType)+'|';
+    for(const key of hiddenProfileGroups)if(key.startsWith(prefix))hiddenProfileGroups.delete(key);
+    collapsedNodes.clear();treeShowModern=true;treeShowStudy=true;treeShowAncient=true;treeShowRelated=true;
+    updateTreeSourceButtons();renderTree();updateShareUrl({section:currentTreeType==='mt'?'mtree':'ytree'});
+  };
   let visibleLimit=50;
   root.renderTrackedResults=function(){
     const target=document.getElementById('tracked-results-list');if(!target)return;

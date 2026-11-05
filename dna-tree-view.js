@@ -5,7 +5,7 @@
   function sample(row,options) {
     const identity=options.identity(row),name=options.name(row);
     const kind=row.__sourceType||'modern';
-    return `<li class="phylo-sample"><button type="button" class="tree-sample-card phylo-sample-row" data-uid="${escape(row.__uid)}" onclick="openSampleModalByUid(this.dataset.uid)">
+    return `<li class="phylo-sample" data-kind="${escape(kind)}"><button type="button" class="tree-sample-card phylo-sample-row" data-uid="${escape(row.__uid)}" data-dna="${escape(options.type)}" onclick="openSampleModalByUid(this.dataset.uid,this.dataset.dna)">
       <svg class="phylo-person-icon" aria-hidden="true" viewBox="0 0 12 12"><circle cx="6" cy="3" r="2"/><path d="M2 11V9a4 4 0 0 1 8 0v2z"/></svg><span class="phylo-sample-id">${escape(identity||name)}</span>
       ${identity&&name!==identity&&name!=='—'?`<span class="phylo-sample-person">${escape(name)}</span>`:''}
       ${options.countryLabel?.(row)?`<span class="phylo-sample-country">${escape(options.countryLabel(row))}</span>`:''}<span class="phylo-sample-origin">${escape(options.location(row))}</span>

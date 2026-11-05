@@ -7,19 +7,19 @@
   <meta name="google-site-verification" content="Uaawg80AzlTHbqfR-OfSFSJdBAtg9OIjpOVgCRrWXHY"/>
   <meta name="description" content="Independent genomic archive documenting Egyptian Y-DNA and mtDNA lineages, with a current focus on Y-DNA results across Egypt."/>
 
-  <link rel="stylesheet" href="styles/tailwind.generated.css?v=20261105-refined2">
+  <link rel="stylesheet" href="styles/tailwind.generated.css?v=20261105-flags3">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="ydna-sync-ui.js?v=20261105-refined2"></script>
-  <script src="ydna-profile-tools.js?v=20261105-refined2"></script>
-  <script src="ydna-project-tracker.js?v=20261105-refined2"></script>
+  <script src="ydna-sync-ui.js?v=20261105-flags3"></script>
+  <script src="ydna-profile-tools.js?v=20261105-flags3"></script>
+  <script src="ydna-project-tracker.js?v=20261105-flags3"></script>
   <link rel="stylesheet" href="ydna-project-tracker.css">
-  <script src="ydna-sync-details.js?v=20261105-refined2"></script>
+  <script src="ydna-sync-details.js?v=20261105-flags3"></script>
   <script src="ydna-official-tree.js"></script>
-  <script src="dna-tree-view.js?v=20261105-refined2"></script>
-  <script src="dna-tree-integration.js?v=20261105-refined2"></script>
-  <script src="ydna-country-tree.js?v=20261105-refined2"></script>
-  <script src="ydna-country-tracker.js?v=20261105-refined2"></script>
-  <script src="ydna-uploaded-profiles.js"></script>
+  <script src="dna-tree-view.js?v=20261105-flags3"></script>
+  <script src="dna-tree-integration.js?v=20261105-flags3"></script>
+  <script src="ydna-country-tree.js?v=20261105-flags3"></script>
+  <script src="ydna-country-tracker.js?v=20261105-flags3"></script>
+  <script src="ydna-uploaded-profiles.js?v=20261105-flags3"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
@@ -3188,7 +3188,7 @@
 
 </style>
   <link rel="stylesheet" href="dna-tree-view.css"/>
-  <link rel="stylesheet" href="dna-tree-reference.css?v=20261105-refined2"/>
+  <link rel="stylesheet" href="dna-tree-reference.css?v=20261105-flags3"/>
 </head>
 <body class="bg-background text-primary font-body antialiased">
 
@@ -3410,6 +3410,7 @@
           <button id="btn-ancient" class="ctrl-btn on" onclick="treeToggleSource('ancient')">Egyptian Ancient</button>
           <button id="btn-related" class="ctrl-btn on" onclick="treeToggleSource('related')">Related Ancient</button>
           <label class="tree-sort-label">Sort branches / profiles <select id="treeSort" class="ctrl-btn" onchange="renderTree()"><option value="lineage">Main group / SNP A–Z</option><option value="name">Profile name A–Z</option><option value="newest">Newest profiles first</option></select></label>
+          <button type="button" id="btn-show-all-profiles" class="ctrl-btn" onclick="showAllTreeProfiles()">Expand all samples</button>
           <button id="btn-direct" class="ctrl-btn on" onclick="setTreeMode('direct')">Direct Ancestors</button>
           <button id="btn-full" class="ctrl-btn" onclick="setTreeMode('full')">Full SNP Path</button>
           <button class="ctrl-btn" onclick="treeZoom(1.18)"><span class="material-symbols-outlined" style="font-size:16px">zoom_in</span></button>
@@ -3427,6 +3428,7 @@
           </select>
           <select id="treeGovernorate" class="ctrl-btn" aria-label="Tree governorate" onchange="resetSyncTreeFocus()"><option value="">All governorates</option></select>
         </div>
+        <p class="tree-separate-note">Y-DNA and mtDNA are separate trees. Use the navigation above to switch; each profile opens the path for the selected DNA type.</p>
         <label id="tree-dataset-control" class="country-dataset">Tree dataset
           <select id="treeDataset" class="ctrl-btn" onchange="setCountryTreeMode(this.value)">
             <option value="ftdna">Combined · FTDNA counts / YFull / archive</option>

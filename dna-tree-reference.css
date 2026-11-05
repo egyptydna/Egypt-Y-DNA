@@ -73,3 +73,13 @@
 #section-tree .haplo-pill.on{background:#477f31!important;border-color:#477f31!important;color:#fff!important}
 .sample-historical{font:13px/1.6 Arial,sans-serif;margin-top:20px;border-top:1px solid #d7dfd1;padding-top:16px}.sample-historical dl{display:grid;grid-template-columns:1fr 1fr;gap:14px}.sample-historical dt{color:#728269;font-size:11px;text-transform:uppercase}.sample-historical dd{color:#34482c;overflow-wrap:anywhere}
 @media(max-width:700px){#tree-inner .phylo-root{padding:14px 10px 28px}.sample-historical dl{grid-template-columns:1fr}.tree-sort-label{width:100%}}
+/* Archive cohorts have a clear border; flags describe the archive / find country. */
+#tree-inner .phylo-sample-country{display:inline-flex;align-items:center;gap:4px;flex-shrink:0;font-size:12px;color:#43563c;white-space:nowrap}
+#tree-inner .phylo-sample[data-kind="study"]>.tree-sample-card{border:1px solid #a98cbd;border-left:4px solid #8c68a7;background:#ece5f1;padding:3px 8px;margin:2px 0}
+#tree-inner .phylo-sample[data-kind="ancient"]>.tree-sample-card{border:1px solid #c69b72;border-left:4px solid #a66b35;background:#f0e5d9;padding:3px 8px;margin:2px 0}
+#tree-inner .phylo-sample[data-kind="related"]>.tree-sample-card{border:1px solid #77a99e;border-left:4px solid #387e70;background:#dfede7;padding:3px 8px;margin:2px 0}
+#tree-inner .phylo-sample[data-kind="study"] .phylo-kind{font-weight:700;color:#6f448e}
+#tree-inner .phylo-sample[data-kind="ancient"] .phylo-kind{font-weight:700;color:#8e5729}
+#tree-inner .phylo-sample[data-kind="related"] .phylo-kind{font-weight:700;color:#286b5d}
+#tree-inner .phylo-sample[data-kind]>.tree-sample-card:hover{filter:brightness(.97)}
+.tree-separate-note{font:12px/1.6 Arial,sans-serif;color:#63745a;margin:4px 0 12px}

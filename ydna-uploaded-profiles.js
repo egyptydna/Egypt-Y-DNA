@@ -31,7 +31,7 @@ function uploadedSnapshot(rows){
   return {total_count:rows.length,nodes:[...groups.values()]};
 }
 function uploadedProfileRow(s){
-  return `<li class="phylo-sample"><button class="tree-sample-card phylo-sample-row uploaded-profile-row" data-record="${esc(s.record_key)}" onclick="openUploadedProfile(this.dataset.record)"><span class="phylo-sample-id">${esc(s.name)}</span><span class="phylo-sample-origin">${esc(s.governorate||'Governorate unknown')}</span><span class="phylo-sample-test">Uploaded source · identity unlinked</span><span class="phylo-detail-hint">Details ›</span></button></li>`;
+  return `<li class="phylo-sample"><button class="tree-sample-card phylo-sample-row uploaded-profile-row" data-record="${esc(s.record_key)}" onclick="openUploadedProfile(this.dataset.record)"><span class="phylo-sample-id">${esc(s.name)}</span><span class="phylo-sample-country">🇪🇬 EGY</span><span class="phylo-sample-origin">${esc(s.governorate||'Governorate unknown')}</span><span class="phylo-sample-test">Uploaded source · identity unlinked</span><span class="phylo-detail-hint">Details ›</span></button></li>`;
 }
 function renderUploadedPanel(){
   const p=document.getElementById('country-tracker-panel');p.hidden=false;
