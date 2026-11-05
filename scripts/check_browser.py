@@ -55,7 +55,7 @@ with sync_playwright() as p:
  page.locator('#tree-pills button').first.click()
  assert page.locator('.country-result-dot').count()==census['total']
  page.set_viewport_size({'width':390,'height':844})
- assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
+ assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1'),page.evaluate('({width:document.documentElement.scrollWidth,elements:[...document.querySelectorAll("body *")].filter(e=>e.getBoundingClientRect().right>innerWidth+1&&e.getBoundingClientRect().width>0).slice(0,8).map(e=>({tag:e.tagName,id:e.id,width:e.getBoundingClientRect().width}))})')
  overview=root.parent/'artifacts';overview.mkdir(exist_ok=True)
  page.evaluate("window.scrollTo({top:document.getElementById('country-tracker-panel').getBoundingClientRect().top+scrollY-80,behavior:'instant'})")
  page.screenshot(path=str(overview/'ftdna-country-tracker-mobile.png'))
