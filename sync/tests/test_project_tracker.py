@@ -34,6 +34,7 @@ class ProjectTrackerTests(unittest.TestCase):
         db=Mock();db.request.return_value={'status':'partial'}
         track(True,db)
         self.assertTrue(db.request.call_args.args[1]['p_force'])
+        self.assertEqual(db.request.call_args.args[1]['p_budget'],32)
 
     def test_directory_is_metadata_only_bounded_and_not_reseeded_on_every_poll(self):
         db=Mock();db.request.return_value=[]

@@ -30,7 +30,8 @@ and source credentials remain private.
 
 An exact public FTDNA kit identity creates a persistent project-search target.
 The first documented project is the origin. Other projects are checked against
-saved published evidence in bounded batches of 128 targets. Checks resume with
+saved published evidence in bounded batches of 32 targets, verified within the
+database API time limit. Checks resume with
 unprocessed targets, repeat after 24 hours, and repeat when new project evidence
 or catalog entries arrive. Names, shared branches and YFull IDs in a generic kit
 field cannot confirm an FTDNA membership. The same typed kit can have several

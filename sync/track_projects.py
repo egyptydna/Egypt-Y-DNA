@@ -27,7 +27,7 @@ def seed_directory(db):
     return True
 
 
-def track(apply=False, db=None, budget=128, force=False):
+def track(apply=False, db=None, budget=32, force=False):
     if not 1 <= budget <= 512:
         raise ValueError('Budget must be between 1 and 512 targets')
     if not apply:
@@ -50,7 +50,7 @@ def track(apply=False, db=None, budget=128, force=False):
 def main():
     parser = argparse.ArgumentParser(__doc__)
     parser.add_argument('--apply', action='store_true')
-    parser.add_argument('--budget', type=int, default=128)
+    parser.add_argument('--budget', type=int, default=32)
     args = parser.parse_args()
     report = track(args.apply, budget=args.budget)
     out = Path('reports'); out.mkdir(exist_ok=True)
