@@ -14,6 +14,8 @@
   <script src="ydna-official-tree.js"></script>
   <script src="dna-tree-view.js"></script>
   <script src="dna-tree-integration.js"></script>
+  <script src="ydna-country-tree.js"></script>
+  <script src="ydna-country-tracker.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
@@ -3435,6 +3437,13 @@
           </select>
           <select id="treeGovernorate" class="ctrl-btn" aria-label="Tree governorate" onchange="resetSyncTreeFocus()"><option value="">All governorates</option></select>
         </div>
+        <label id="tree-dataset-control" class="country-dataset">Tree dataset
+          <select id="treeDataset" class="ctrl-btn" onchange="setCountryTreeMode(this.value)">
+            <option value="ftdna">FTDNA reported results</option>
+            <option value="profiles">Tester profiles · FTDNA / YFull / studies</option>
+          </select>
+        </label>
+        <div id="country-tracker-panel" class="country-tracker-panel" aria-live="polite"></div>
         <div id="official-tree-panel" class="text-xs text-gray-500 space-y-2" aria-live="polite"></div>
         <div id="tree-result-path" class="tree-result-path"></div>
         <div id="tree-pills" class="flex flex-wrap gap-2"></div>
@@ -4073,6 +4082,7 @@
       if (section === 'ytree' || section === 'mtree') {
         params.set('tree', section === 'mtree' ? 'mt' : 'y');
         params.set('mode', treeMode);
+        if(section==='ytree')params.set('dataset',countryTreeMode);
         params.set('modern', treeShowModern ? '1' : '0');
         params.set('study', treeShowStudy ? '1' : '0');
         params.set('ancient', treeShowAncient ? '1' : '0');
@@ -4085,7 +4095,7 @@
 
       const hasMeaningfulState =
         (section === 'archive' && (params.has('q') || params.has('haplo') || params.has('gov'))) ||
-        ((section === 'ytree' || section === 'mtree') && (params.has('q') || params.has('haplo') || params.has('path') || params.get('mode') === 'full' || params.get('modern') === '0' || params.get('study') === '0' || params.get('ancient') === '0' || params.get('related') === '0')) ||
+        ((section === 'ytree' || section === 'mtree') && (section==='ytree' || params.has('q') || params.has('haplo') || params.has('path') || params.get('mode') === 'full' || params.get('modern') === '0' || params.get('study') === '0' || params.get('ancient') === '0' || params.get('related') === '0')) ||
         (section === 'ancient' && params.has('q'));
 
       if (hasMeaningfulState) params.set('state', '1');
@@ -4119,6 +4129,7 @@
         if (params.has('q')) document.getElementById('ancientSearch').value = params.get('q') || '';
         renderAncientArchive();
       } else if (section === 'ytree' || section === 'mtree') {
+        countryTreeMode=params.get('dataset')==='ftdna'?'ftdna':'profiles';
         deferTreeRenderForSharedState=true;
         try { showSection(section); }
         finally { deferTreeRenderForSharedState=false; }
@@ -6193,6 +6204,7 @@
     }
 
     function treeReset() {
+      countryTreeFamily=null;
       treeScale = 1;
       document.getElementById("tree-inner").style.transform = "";
       treeSearchQuery = "";
@@ -6297,6 +6309,7 @@
 
     function runTreeSearch() {
       const q = document.getElementById("treeSearch").value.trim();
+      if(searchCountryTree(q))return;
       syncTextQuery = "";
       if (currentTreeType === "y" && q && allTreeSamples().some(s => YDNASync.matches(s, "", "", q, Infinity))) {
         syncTextQuery = q;
@@ -6572,6 +6585,8 @@
     }
 
     function renderTree() {
+      updateCountryTreeControls();
+      if(isCountryTree()){renderCountryTree();return;}
       resetSyncCountryFactsIndex();
       renderOfficialTreePanel();
       document.getElementById('ydna-sync-filters').classList.toggle('hidden', currentTreeType === 'mt');

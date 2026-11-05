@@ -4,6 +4,36 @@ const ui=require('../../ydna-sync-ui.js');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const view=require('../../dna-tree-view.js');
+const census=require('../../ydna-country-tree.js');
+test('public project profiles attach only to exact preserved terminals, including profiles without kit IDs',()=>{
+  const first={id:1,y_dna:'J-M319',kit_number:'123456',origin_raw:'المنصورة'},second={id:2,y_dna:'J-M319',name:'Published ancestor'},other={id:3,y_dna:'J-OTHER',y_dna_alias:'J-M319'};
+  const groups=census.profilesByBranch([first,second,other]);
+  assert.deepEqual(groups.get('J-M319'),[first,second]);assert.deepEqual(groups.get('J-OTHER'),[other]);
+  assert.equal(first.origin_raw,'المنصورة');assert.equal(second.kit_number,undefined);
+});
+test('anonymous country tree includes every counted result once and keeps direct / cumulative counts separate',()=>{
+  const root=census.build({total_count:622,nodes:[{label:'J-M267',count:9,path:['J-M304','J-M267']},{label:'J-TEST1',count:600,path:['J-M304','J-M267','J-TEST1']},{label:'J-M319',count:13,path:['J-M304','J-M172','J-M410','J-M319']}]});
+  const nodes=census.flatten(root);assert.equal(root.count,622);
+  assert.equal(nodes.reduce((sum,n)=>sum+n.directCount,0),622);
+  const j1=nodes.find(n=>n.display==='J-M267'),j2=nodes.find(n=>n.display==='J-M319');
+  assert.equal(j1.count,609);assert.equal(j1.directCount,9);assert(!j2.pathKey.includes('J-M267'));
+  assert.equal(census.flatten(census.compact(root)).reduce((sum,n)=>sum+n.directCount,0),622);
+  assert.equal(root.samples.length,0);assert.equal(nodes.flatMap(n=>n.samples).length,0);
+});
+test('anonymous branch moves and baseline are not presented as newly found people',()=>{
+  assert.match(census.changeLabel({kind:'baseline',after_count:622}),/Baseline/);
+  assert.match(census.changeLabel({kind:'branch_change',branch_label:'J-TEST1',before_count:9,after_count:10}),/branch count change/);
+  assert.match(census.changeLabel({kind:'total_increase',before_count:622,after_count:623}),/\+1 newly reported/);
+});
+test('country tree refuses incomplete totals and conflicting ancestry',()=>{
+  assert.throws(()=>census.build({total_count:2,nodes:[{label:'J-TEST1',count:1}]}));
+  assert.throws(()=>census.build({total_count:2,nodes:[{label:'J-TEST1',count:1,path:['J-M267','J-TEST1']},{label:'J-TEST2',count:1,path:['J-M172','J-TEST1','J-TEST2']}]}));
+});
+test('count groups render without fabricated profile identities',()=>{
+  const row={display:'J-TEST1',pathKey:'Y-Adam>J-TEST1',children:[],samples:[],count:9,directCount:9};
+  const options={type:'y',collapsed:new Set(),names:n=>({primary:n.display}),sort:xs=>xs,countLabel:n=>n.count+' results',counts:()=>'',aliases:()=>'',age:()=>'',evidence:()=>'',group:n=>`<li>Egypt · ${n.directCount} reported results</li>`};
+  const html=view.node(row,options,true);assert.match(html,/9 results/);assert.match(html,/9 reported results/);assert(!html.includes('9 profiles'));assert(!html.includes('tree-sample-card'));
+});
 test('a unique tester search opens its branch; results across branches remain a tree',()=>{
   const leaf={pathKey:'Y-Adam>J>J-M319',samples:[{id:1}],children:[]};
   const root={pathKey:'Y-Adam',samples:[],children:[{pathKey:'Y-Adam>J',samples:[],children:[leaf]}]};

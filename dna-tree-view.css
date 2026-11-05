@@ -59,6 +59,30 @@ nav[aria-label="Primary navigation"] .nav-link { letter-spacing:.02em; text-tran
 #tree-inner .phylo-evidence[open] { max-width:540px; padding:6px; background:#f7faff; border:1px solid #d6e1ee; }
 #tree-inner .phylo-evidence[open] .tree-country-evidence > div { font-size:10px !important; }
 #section-tree .tree-floating-toggle { z-index:5; }
+.country-dataset { display:flex; align-items:center; gap:10px; font-size:12px; }
+.country-tracker-panel { padding:12px 14px; border:1px solid #cddceb; border-left:3px solid #49769d; border-radius:3px; background:#f6f9fc; font-size:12px; line-height:1.6; color:#4c6177; }
+.country-tracker-heading { display:flex; flex-wrap:wrap; justify-content:space-between; gap:5px 20px; }
+.country-tracker-heading strong { font-size:15px; color:#244c80; }
+.country-tracker-dates { font-size:11px; color:#64778a; }
+.country-tracker-panel summary { cursor:pointer; color:#25669b; }
+.country-tracker-panel p { margin:5px 0; }
+.country-tracker-panel a,#country-result-dialog a { color:#1266aa; text-decoration:underline; }
+.country-history { padding-left:18px; margin-top:8px; }
+.country-history > li { margin:8px 0; }
+.country-history ul { padding-left:15px; font-size:11px; }
+#tree-inner .country-result-button { display:flex; align-items:center; flex-wrap:wrap; gap:8px; padding:5px 8px; color:#6d5b39; font-size:11px; min-height:28px; text-align:left; }
+#tree-inner .country-result-button:hover { background:#faf5e9; }
+.country-result-dots { display:flex; flex-wrap:wrap; gap:4px; max-width:200px; }
+.country-result-dot { width:7px; height:7px; border-radius:50%; background:#b78d42; display:inline-block; }
+.country-known-profiles { font-size:11px; color:#526b59; }
+.country-known-profiles summary { cursor:pointer; padding:5px 8px; }
+#country-result-dialog { margin:auto; padding:24px; max-width:min(640px,calc(100vw - 24px)); max-height:85vh; border:1px solid #c6d4e3; border-radius:4px; color:#43586c; font:13px/1.7 Arial,Helvetica,sans-serif; overflow:auto; }
+#country-result-dialog::backdrop { background:rgba(15,30,50,.4); }
+#country-result-dialog h3 { color:#244c80; font-size:20px; font-weight:bold; margin-bottom:12px; }
+#country-result-dialog h4 { font-weight:bold; margin-top:15px; }
+#country-result-dialog p { margin:8px 0; overflow-wrap:anywhere; }
+.country-close { float:right; }
+[hidden] { display:none !important; }
 @media(max-width:700px) {
   #section-tree { padding-left:10px; padding-right:10px; }
   #section-tree #tree-main-title { font-size:27px; }

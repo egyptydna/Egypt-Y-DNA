@@ -57,6 +57,7 @@ async function loadSyncMetadata() {
 }
 
 function resetSyncTreeFocus() {
+  if(currentTreeType==='y')countryTreeMode='profiles';
   treeFocusPath=null; treeSearchTargetPath=null; treeSearchResultPath='';
   renderTree();
 }

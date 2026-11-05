@@ -1,0 +1,50 @@
+name: FTDNA country result tracker
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/ydna-tracker.yml', 'sync/track_country.py']
+  schedule:
+    - cron: '11 * * * *'
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'Save verified aggregate snapshots (no individual profile writes)'
+        type: boolean
+        default: true
+permissions:
+  contents: read
+concurrency:
+  group: ydna-country-tracker
+  cancel-in-progress: false
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/cache@v4
+        with:
+          path: .sync-cache/github
+          key: ydna-country-tracker-${{ github.run_id }}
+          restore-keys: ydna-country-tracker-
+      - name: Check public aggregate feed and saved Observatory backup
+        env:
+          SUPABASE_URL: https://lsfmpmfoqdtkgndtaxen.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          APPLY: ${{ github.event_name != 'workflow_dispatch' || inputs.apply }}
+        run: |
+          if [ "$APPLY" = "true" ]; then
+            test -n "$SUPABASE_SERVICE_ROLE_KEY" || { echo 'Missing server-side database secret'; exit 1; }
+            python -m sync.track_country --apply
+          else
+            python -m sync.track_country
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: country-tracker-report
+          path: reports/country-tracker.json
+          retention-days: 14

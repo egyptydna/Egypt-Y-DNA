@@ -17,16 +17,16 @@
     </button></li>`;
   }
   function node(row,options,isRoot=false) {
-    const open=!options.collapsed.has(row.pathKey),expandable=row.children.length||row.samples.length;
+    const open=!options.collapsed.has(row.pathKey),expandable=row.children.length||row.samples.length||row.directCount||options.hasGroup?.(row);
     const names=options.names(row),encoded=escape(encodeURIComponent(row.pathKey));
     const lazy=typeof options.hasEvidence==='function';
     const evidence=lazy?options.hasEvidence(row):options.evidence(row),age=options.age(row);
-    const body=open?row.samples.map(s=>sample(s,options)).join('')+options.sort(row.children).map(n=>node(n,options)).join(''):'';
+    const body=open?(options.group?options.group(row):'')+row.samples.map(s=>sample(s,options)).join('')+options.sort(row.children).map(n=>node(n,options)).join(''):'';
     const header=`<div class="tree-row phylo-node-row">
       <button type="button" class="phylo-toggle" aria-label="${open?'Collapse':'Expand'} ${escape(names.primary)}" aria-expanded="${!!open}" ${expandable?'':'disabled'} data-path="${encoded}" onclick="return handleTreeToggleClick(event)">${expandable?(open?'−':'+'):'·'}</button>
       <button type="button" class="phylo-node-name" data-path="${encoded}" onclick="return handleTreePathClick(event)">${escape(names.primary)}</button>
       ${names.secondary?`<span class="phylo-platform-names" title="${escape(names.note||'Published source branch names')}">${escape(names.secondary)}</span>`:''}
-      <span class="phylo-count" title="Profiles in the displayed subtree, including this node">${row.count} profiles</span>
+      <span class="phylo-count" title="${options.countLabel?'Source-reported results including descendants':'Profiles in the displayed subtree, including this node'}">${options.countLabel?escape(options.countLabel(row)):row.count+' profiles'}</span>
       ${options.counts(row)}
       ${options.country?options.country(row):''}
       ${age?`<span class="phylo-age">${escape(age)}</span>`:''}
