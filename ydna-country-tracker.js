@@ -98,7 +98,7 @@ function renderCountryTree(){
   if(!countryTracker){pills.innerHTML='';inner.innerHTML=`<p>${esc(countryTrackerError||'Loading verified country results…')}</p>`;return;}
   const root=combinedCountryTree();lastTreeRawRoot=root;
   const focused=YDNACountryTree.find(root,treeFocusPath)||root;
-  const uploads=YDNACountryTree.profilesByBranch(treeShowModern?uploadedProfiles:[]);
+  const uploads=new Map();
   const sampleOptions=compactTreeOptions();
   const display=YDNACountryTree.compact(focused,treeMode==='full',new Set(uploads.keys()));
   document.getElementById('btn-tree-back').classList.toggle('hidden',focused===root);
@@ -107,17 +107,17 @@ function renderCountryTree(){
   const options={...sampleOptions,collapsed:collapsedNodes,names:n=>{
     const reference=YDNASync.officialPath({y_dna:n.display},syncOfficialRelease,syncOfficialNodes);
     return {primary:n.display,secondary:reference&&reference.label!==n.display?`YFull: ${reference.label} (v${reference.version} reference)`:''};
-  },countLabel:n=>[n.count?`${n.count} reported FTDNA results`:null,n.profileCount?`${n.profileCount} archive profiles`:null].filter(Boolean).join(' · '),
+  },countLabel:n=>[n.count?`${n.count} reported FTDNA results`:null,n.profileCount?`${n.profileCount} samples`:null].filter(Boolean).join(' · '),
   counts:()=>'',aliases:()=>'',country:()=>'',age:treeBranchAgeText,ageTitle:treeBranchAgeTitle,
   hasEvidence:n=>{phyloNodeLookup.set(n.pathKey,n);return !!publishedBranchAge(n);},evidence:renderOfficialNodeInfo,
-  sampleGroup:n=>n.samples.length?`<li class="country-known-profiles"><details ${treeProfileGroupOpen(n.pathKey+'|archive')?'open':''} data-profile-group="${esc(treeProfileGroupKey(n.pathKey+'|archive'))}" ontoggle="rememberTreeProfileGroup(this)"><summary>${n.samples.length} archive ${n.samples.length===1?'profile':'profiles'} · overlap unverified</summary><ul>${sortTreeProfiles(n.samples).map(s=>DNATreeView.sample(s,sampleOptions)).join('')}</ul></details></li>`:'',
+  sampleGroup:n=>n.samples.length?`<li class="country-known-profiles"><details ${treeProfileGroupOpen(n.pathKey+'|archive')?'open':''} data-profile-group="${esc(treeProfileGroupKey(n.pathKey+'|archive'))}" ontoggle="rememberTreeProfileGroup(this)"><summary>${n.samples.length} ${n.samples.length===1?'profile':'profiles'} · overlap unverified</summary><ul>${sortTreeProfiles(n.samples).map(s=>DNATreeView.sample(s,sampleOptions)).join('')}</ul></details></li>`:'',
   hasGroup:n=>uploads.has(n.display.toUpperCase()),
   group:n=>{
     const fromFile=uploads.get(n.display.toUpperCase())||[];
     return (n.directCount?`<li class="country-result-group"><button class="country-result-button" data-branch="${esc(n.display)}" onclick="openCountryResult(this.dataset.branch)"><span class="country-result-dots" aria-hidden="true">${'<i class="country-result-dot"></i>'.repeat(n.directCount)}</span><span>🇪🇬 Egypt · ${n.directCount} reported ${n.directCount===1?'result':'results'}</span><span class="phylo-detail-hint">Count details ›</span></button></li>`:'')+
-      (fromFile.length?`<li class="country-known-profiles uploaded-branch-profiles"><details ${treeProfileGroupOpen(n.pathKey+'|uploaded')?'open':''} data-profile-group="${esc(treeProfileGroupKey(n.pathKey+'|uploaded'))}" ontoggle="rememberTreeProfileGroup(this)"><summary>${fromFile.length} uploaded source ${fromFile.length===1?'record':'records'} · identity unlinked</summary><ul>${fromFile.map(uploadedProfileRow).join('')}</ul></details></li>`:'');
+      (fromFile.length?`<li class="country-known-profiles uploaded-branch-profiles"><details ${treeProfileGroupOpen(n.pathKey+'|uploaded')?'open':''} data-profile-group="${esc(treeProfileGroupKey(n.pathKey+'|uploaded'))}" ontoggle="rememberTreeProfileGroup(this)"><summary>${fromFile.length} collected ${fromFile.length===1?'record':'records'}</summary><ul>${fromFile.map(uploadedProfileRow).join('')}</ul></details></li>`:'');
   }};
-  inner.innerHTML=`<p class="combined-tree-note">${root.count} reported FTDNA results · ${root.profileCount} archive profiles in this selection. Includes saved YFull, study and ancient profiles. These totals can overlap and are never added together.</p>`+DNATreeView.node(display,options,true);
+  inner.innerHTML=`<p class="combined-tree-note">${root.count} reported FTDNA results · ${root.profileCount} samples in this selection. Includes saved YFull, owner-collected, study and ancient samples. These totals can overlap and are never added together.</p>`+DNATreeView.node(display,options,true);
   if(!treeFocusPath&&!treeSearchResultPath){document.getElementById('tree-result-path').classList.remove('active');document.getElementById('tree-result-path').innerHTML='';}
   updateTreeSourceButtons();updateTreeFloatingToggle();
 }
@@ -151,6 +151,6 @@ function openCountryResult(label){
     <p>Published SNP path: ${esc(fact.path?.join(' → ')||'Terminal branch only; ancestry not published in this feed.')}</p>
     <p>Snapshot: ${esc(countryDate(countryTracker.observed_at))}</p>
     <p>${countryLink(countryTracker.source_url,'Count source')} · ${countryLink(fact.path_source_url,'Published path source')}</p>
-    ${profiles.length?`<h4>Public archive profiles at this branch</h4><p>Shown for reference. Their overlap with the source count is not established; they are not added to or subtracted from the total.</p><ul>${profiles.map(s=>`<li><button class="ctrl-btn" data-uid="${esc(s.__uid)}" onclick="document.getElementById('country-result-dialog').close();openSampleModalByUid(this.dataset.uid)">${esc(YDNASync.publicId(s)==='—'?YDNASync.displayName(s):YDNASync.publicId(s))}</button></li>`).join('')}</ul>`:''}`;
+    ${profiles.length?`<h4>Public samples at this branch</h4><p>Shown for reference. Their overlap with the source count is not established; they are not added to or subtracted from the total.</p><ul>${profiles.map(s=>`<li><button class="ctrl-btn" data-uid="${esc(s.__uid)}" onclick="document.getElementById('country-result-dialog').close();openSampleModalByUid(this.dataset.uid)">${esc(YDNASync.publicId(s)==='—'?YDNASync.displayName(s):YDNASync.publicId(s))}</button></li>`).join('')}</ul>`:''}`;
   dialog.showModal();
 }

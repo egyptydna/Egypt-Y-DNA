@@ -6,21 +6,37 @@
   <title>Egyptian Y-DNA Project | National Genomic Archive</title>
   <meta name="google-site-verification" content="Uaawg80AzlTHbqfR-OfSFSJdBAtg9OIjpOVgCRrWXHY"/>
   <meta name="description" content="Independent genomic archive documenting Egyptian Y-DNA and mtDNA lineages, with a current focus on Y-DNA results across Egypt."/>
+  <link rel="canonical" href="https://egyptydna.github.io/Egypt-Y-DNA/">
+  <link rel="icon" type="image/svg+xml" href="assets/egypt-dna-icon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/egypt-dna-icon-180.png">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Egyptian Y-DNA Project | DNA Archive & Trees">
+  <meta property="og:description" content="Egyptian Y-DNA and mtDNA samples, collected profiles, source-backed trees and regional DNA archives.">
+  <meta property="og:url" content="https://egyptydna.github.io/Egypt-Y-DNA/">
+  <meta property="og:image" content="https://egyptydna.github.io/Egypt-Y-DNA/assets/giza-hero.jpg">
+  <meta property="og:image:alt" content="The pyramids of Giza, Egypt">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Egyptian Y-DNA Project">
+  <meta name="twitter:image" content="https://egyptydna.github.io/Egypt-Y-DNA/assets/giza-hero.jpg">
+  <meta name="theme-color" content="#001736">
 
-  <link rel="stylesheet" href="styles/tailwind.generated.css?v=20261105-clean4">
+
+  <link rel="stylesheet" href="styles/tailwind.generated.css?v=20261105-admin5">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="ydna-sync-ui.js?v=20261105-clean4"></script>
-  <script src="ydna-profile-tools.js?v=20261105-clean4"></script>
-  <script src="ydna-project-tracker.js?v=20261105-clean4"></script>
+  <script src="ydna-sync-ui.js?v=20261105-admin5"></script>
+  <script src="ydna-profile-tools.js?v=20261105-admin5"></script>
+  <script src="ydna-project-tracker.js?v=20261105-admin5"></script>
   <link rel="stylesheet" href="ydna-project-tracker.css">
-  <script src="ydna-sync-details.js?v=20261105-clean4"></script>
-  <script src="ydna-official-tree.js?v=20261105-clean4"></script>
-  <script src="dna-tree-view.js?v=20261105-clean4"></script>
-  <script src="dna-tree-integration.js?v=20261105-clean4"></script>
-  <script src="ydna-country-tree.js?v=20261105-clean4"></script>
-  <script src="ydna-country-tracker.js?v=20261105-clean4"></script>
-  <script src="ydna-uploaded-profiles.js?v=20261105-clean4"></script>
-  <script src="dna-tree-workbench.js?v=20261105-clean4"></script>
+  <script src="ydna-sync-details.js?v=20261105-admin5"></script>
+  <script src="ydna-official-tree.js?v=20261105-admin5"></script>
+  <script src="dna-tree-view.js?v=20261105-admin5"></script>
+  <script src="dna-tree-integration.js?v=20261105-admin5"></script>
+  <script src="ydna-country-tree.js?v=20261105-admin5"></script>
+  <script src="ydna-country-tracker.js?v=20261105-admin5"></script>
+  <script src="ydna-uploaded-profiles.js?v=20261105-admin5"></script>
+  <script src="dna-tree-workbench.js?v=20261105-admin5"></script>
+  <script src="ydna-owner-admin.js?v=20261105-admin5"></script>
+  <link rel="stylesheet" href="ydna-owner-admin.css?v=20261105-admin5">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
@@ -3189,7 +3205,7 @@
 
 </style>
   <link rel="stylesheet" href="dna-tree-view.css"/>
-  <link rel="stylesheet" href="dna-tree-reference.css?v=20261105-clean4"/>
+  <link rel="stylesheet" href="dna-tree-reference.css?v=20261105-admin5"/>
 </head>
 <body class="bg-background text-primary font-body antialiased">
 
@@ -4067,6 +4083,7 @@
 
     function currentSectionId() {
       if (document.getElementById('section-tree')?.classList.contains('active')) return currentTreeType === 'mt' ? 'mtree' : 'ytree';
+      if (document.getElementById('section-admin')?.classList.contains('active')) return 'admin';
       if (document.getElementById('section-new')?.classList.contains('active')) return 'new';
       if (document.getElementById('section-archive')?.classList.contains('active')) return 'archive';
       if (document.getElementById('section-ancient')?.classList.contains('active')) return 'ancient';
@@ -4109,7 +4126,7 @@
       }
 
       const hasMeaningfulState =
-        section === 'new' ||
+        section === 'admin' || section === 'new' ||
         (section === 'archive' && (params.has('q') || params.has('haplo') || params.has('gov'))) ||
         ((section === 'ytree' || section === 'mtree') && (section==='ytree' || params.has('q') || params.has('haplo') || params.has('path') || params.get('mode') === 'full' || params.get('modern') === '0' || params.get('study') === '0' || params.get('ancient') === '0' || params.get('related') === '0')) ||
         (section === 'ancient' && params.has('q'));
@@ -4134,7 +4151,9 @@
 
       suppressUrlUpdate = true;
 
-      if (section === 'new') {
+      if (section === 'admin') {
+        showSection('admin');
+      } else if (section === 'new') {
         showSection('new');renderTrackedResults();loadCountryTracker().then(renderTrackedResults);
       } else if (section === 'archive') {
         showSection('archive');
@@ -4519,11 +4538,11 @@
     }
 
     function allModernLikeSamples() {
-      return modernSamples.concat(studySamples);
+      return modernSamples.concat(studySamples,collectedSamples);
     }
 
     function allTreeSamples() {
-      return modernSamples.concat(studySamples).concat(ancientSamples).concat(relatedAncientSamples);
+      return modernSamples.concat(studySamples,ancientSamples,relatedAncientSamples,collectedSamples);
     }
 
     function matchSearchRow(s, q) {
@@ -4549,7 +4568,7 @@
         name: valueOrDash((s.name && s.name !== "—") ? s.name : (s.sample_id || s.id)),
         kit_number: valueOrDash(s.kit_number || s.sample_id || s.id),
         sample_id: valueOrDash(s.sample_id || s.id),
-        governorate: "—",
+        governorate: valueOrDash(s.governorate),
         site: "—",
         period: "—",
         cultural_group: "—",
@@ -4737,6 +4756,7 @@
         }
       });
 
+      await loadUploadedProfiles();
       // Reuse unique, provenance-backed SNP paths from the country's published
       // terminal counts for both the visible tree and J/Q/R statistics.
       syncLineagePathCache = syncKnownTerminalPaths();
@@ -5565,7 +5585,7 @@
 
       GOV_LIST.forEach((gov, idx) => {
         const { pool, totals } = getRegionTotals(gov);
-        if (!pool.length && gov !== "—") return;
+
 
         const topEntry = Object.entries(totals).sort((a,b)=>b[1]-a[1])[0] || ["—", 0];
         const topHap = topEntry[0];
@@ -5596,6 +5616,10 @@
           </div>
         `;
         grid.appendChild(card);
+        if(typeof ownerCanManage==='function'&&ownerCanManage()){
+          const add=document.createElement('button');add.type='button';add.className='ctrl-btn';add.textContent='+ Probe hinzufügen';
+          add.onclick=e=>{e.stopPropagation();addOwnerSampleAtGovernorate(gov);};card.append(add);
+        }
 
         const canvas=card.querySelector('canvas');
         if(regionChartObserver&&canvas){
@@ -5845,6 +5869,7 @@
     }
 
     function openSampleModal(sample,dnaType=currentTreeType) {
+      if(sample.__sourceType==='collected'){openUploadedProfile(sample.__record_key||sample.record_key);return;}
       const typeLabel =
         sample.__sourceType === "ancient" ? "Ancient Egyptian sample" :
         sample.__sourceType === "related" ? "Non-Egyptian related ancient reference" :
@@ -5907,6 +5932,7 @@
       document.getElementById("sample-modal-ancient").classList.toggle("hidden", sample.__sourceType !== "ancient");
       document.getElementById("sample-modal-related").classList.toggle("hidden", sample.__sourceType !== "related");
       document.getElementById("sample-detail-modal").classList.add("active");
+      if(typeof addOwnerEditAction==='function')addOwnerEditAction(sample,document.getElementById('sample-modal-study-link-wrap'));
     }
 
     function closeSampleModal(e) {
@@ -6180,7 +6206,7 @@
 
     function treeFilteredSamples(ignoreFamily=false) {
       let samples = [];
-      if (treeShowModern) samples = samples.concat(modernSamples);
+      if (treeShowModern) samples = samples.concat(modernSamples,collectedSamples);
       if (treeShowStudy) samples = samples.concat(studySamples);
       if (treeShowAncient) samples = samples.concat(ancientSamples);
       if (treeShowRelated) samples = samples.concat(relatedAncientSamples);
@@ -6480,7 +6506,7 @@
 
         function buildTreeSummary(samples) {
       const total = samples.filter(s => s.__sourceType !== "related").length;
-      const modernCount = samples.filter(s => s.__sourceType === "modern").length;
+      const modernCount = samples.filter(s => ["modern","collected"].includes(s.__sourceType)).length;
       const studyCount = samples.filter(s => s.__sourceType === "study").length;
       const ancientCount = samples.filter(s => s.__sourceType === "ancient").length;
       const relatedCount = samples.filter(s => s.__sourceType === "related").length;
@@ -6589,7 +6615,8 @@
     function openSampleModalByUid(uid,dnaType=currentTreeType) {
       const pool = allTreeSamples();
       const sample = pool.find(s => s.__uid === uid);
-      if (sample) openSampleModal(sample,dnaType);
+      if(sample?.__sourceType==='collected')openUploadedProfile(sample.__record_key);
+      else if (sample) openSampleModal(sample,dnaType);
     }
 
 

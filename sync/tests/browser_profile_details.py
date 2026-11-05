@@ -136,8 +136,8 @@ with sync_playwright() as p:
   else:assert page.locator('#tree-inner .phylo-age').count()==0
   alignment=page.locator('#tree-inner .phylo-root').evaluate("e=>{const n=e.querySelector(':scope > .phylo-node-row > .phylo-node-name'),u=e.querySelector(':scope > ul');return Math.abs(n.getBoundingClientRect().left-u.getBoundingClientRect().left)}")
   assert alignment<=1,alignment
-  assert page.locator('#tree-inner .phylo-sample').count()==5
-  assert page.locator('#tree-inner .phylo-sample-country').filter(has_text='🇪🇬').count()==4
+  assert page.locator('#tree-inner .phylo-sample').count()==(6 if tree=='y' else 5)
+  assert page.locator('#tree-inner .phylo-sample-country').filter(has_text='🇪🇬').count()==(5 if tree=='y' else 4)
   assert page.locator('#tree-inner .phylo-sample[data-kind=related] .phylo-sample-country').inner_text()=='🇦🇹 AT'
   for kind in ['study','ancient','related']:
    row=page.locator(f'#tree-inner .phylo-sample[data-kind={kind}] > .tree-sample-card').first
@@ -157,14 +157,14 @@ with sync_playwright() as p:
  assert 'formed 6500 ybp, TMRCA 4200 ybp' in page.locator('#tree-inner').inner_text()
  ft_info=page.locator('#tree-inner .phylo-node-row').filter(has=page.locator('.phylo-node-name',has_text='J-COUNT2')).locator('summary').first
  ft_info.click();assert 'FTDNA' in page.locator('#tree-inner .phylo-evidence[open]').inner_text()
- assert page.locator('.uploaded-branch-profiles details').first.evaluate('(e)=>e.open')
- assert page.locator('.uploaded-branch-profiles .phylo-sample-country').first.inner_text()=='🇪🇬 EGY'
- page.locator('.uploaded-branch-profiles summary').first.click()
- page.wait_for_function("!document.querySelector('.uploaded-branch-profiles details').open")
+ group=page.locator('.country-known-profiles details').first
+ assert group.evaluate('(e)=>e.open')
+ group.locator('summary').click()
+ page.wait_for_function("!document.querySelector('.country-known-profiles details').open")
  page.evaluate('renderTree()')
- assert not page.locator('.uploaded-branch-profiles details').first.evaluate('(e)=>e.open')
+ assert not page.locator('.country-known-profiles details').first.evaluate('(e)=>e.open')
  page.locator('#btn-show-all-profiles').click()
- assert page.locator('.uploaded-branch-profiles details').first.evaluate('(e)=>e.open')
+ assert page.locator('.country-known-profiles details').first.evaluate('(e)=>e.open')
  assert page.locator('#tree-inner .tree-sample-card:visible').count()==6
  assert 'overlap unverified'  in page.locator('.country-known-profiles').first.inner_text()
  assert page.locator('.country-known-profiles .tree-sample-card').count()==6

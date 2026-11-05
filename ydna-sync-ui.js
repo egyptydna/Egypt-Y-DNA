@@ -226,7 +226,7 @@
   }
   function matches(sample, kind, governorate, query, newAfter) {
     if (kind && (kind === 'new' ? !isNew(sample) :
-      kind === 'modern' ? sample.__sourceType !== 'modern' :
+      kind === 'modern' ? !['modern','collected'].includes(sample.__sourceType) :
       kind === 'yfull' ? !real(sample.yfull_id) && status(sample)!=='yfull_sequencing' : status(sample)!==kind)) return false;
     if (governorate && sample.governorate !== governorate) return false;
     if (query) {

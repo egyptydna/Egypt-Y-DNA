@@ -6,13 +6,13 @@
     const identity=options.identity(row),name=options.name(row);
     const kind=row.__sourceType||'modern';
     return `<li class="phylo-sample" data-kind="${escape(kind)}"><button type="button" class="tree-sample-card phylo-sample-row" data-uid="${escape(row.__uid)}" data-dna="${escape(options.type)}" onclick="openSampleModalByUid(this.dataset.uid,this.dataset.dna)">
-      ${kind==='modern'?'<svg class="phylo-person-icon" aria-hidden="true" viewBox="0 0 12 12"><circle cx="6" cy="3" r="2"/><path d="M2 11V9a4 4 0 0 1 8 0v2z"/></svg>':`<span class="phylo-cohort-symbol phylo-cohort-${escape(kind)}" role="img" aria-label="${escape({study:'Study sample',ancient:'Ancient Egyptian sample',related:'Related ancient reference'}[kind]||'Source record')}">${{study:'▤',ancient:'†',related:'◇'}[kind]||'·'}</span>`}<span class="phylo-sample-id">${escape(identity||name)}</span>
+      ${['modern','collected'].includes(kind)?'<svg class="phylo-person-icon" aria-hidden="true" viewBox="0 0 12 12"><circle cx="6" cy="3" r="2"/><path d="M2 11V9a4 4 0 0 1 8 0v2z"/></svg>':`<span class="phylo-cohort-symbol phylo-cohort-${escape(kind)}" role="img" aria-label="${escape({study:'Study sample',ancient:'Ancient Egyptian sample',related:'Related ancient reference'}[kind]||'Source record')}">${{study:'▤',ancient:'†',related:'◇'}[kind]||'·'}</span>`}<span class="phylo-sample-id">${escape(identity||name)}</span>
       ${identity&&name!==identity&&name!=='—'?`<span class="phylo-sample-person">${escape(name)}</span>`:''}
       ${options.countryLabel?.(row)?`<span class="phylo-sample-country">${escape(options.countryLabel(row))}</span>`:''}<span class="phylo-sample-origin">${escape(options.location(row))}</span>
       <span class="phylo-sample-test">${escape(options.test(row))}</span>
       ${options.providers?.(row)?.map(p=>`<span class="phylo-provider">${escape(p==='yfull'?'YFull':'FTDNA')}</span>`).join('')||''}
       ${options.isNew?.(row)?'<span class="project-new-badge">NEW · 30 days</span>':''}
-      ${kind!=='modern'?`<span class="phylo-kind phylo-kind-${escape(kind)}">${escape({related:'Related ancient',ancient:'Egyptian ancient',study:'Study'}[kind]||kind)}</span>`:''}
+      ${kind!=='modern'?`<span class="phylo-kind phylo-kind-${escape(kind)}">${escape({related:'Related ancient',ancient:'Egyptian ancient',study:'Study',collected:'Collected'}[kind]||kind)}</span>`:''}
       ${row.__duplicate_conflict?'<span class="phylo-warning">Conflicting results · review</span>':''}
       ${options.issue(row)?`<span class="phylo-warning">${escape(options.issue(row))}</span>`:''}
       <span class="phylo-detail-hint">Details ›</span>

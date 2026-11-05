@@ -6,9 +6,11 @@ from .topology import reference_labels,release_key
 
 def read_references(db):
     refs=[]
-    for table in ['Modern_published_samples','Modern_study_samples','Ancient_published_samples','ancient_related_samples']:
+    for table in ['Modern_published_samples','Modern_study_samples','Ancient_published_samples','ancient_related_samples','ydna_uploaded_profiles']:
         for offset in range(0,1_000_000,1000):
-            resource=table+'?select=y_dna,y_dna_alias&order=id&offset='+str(offset)+'&limit=1000'
+            resource=table+'?select=y_dna,y_dna_alias&order='+('record_key' if table=='ydna_uploaded_profiles' else 'id')+'&offset='+str(offset)+'&limit=1000'
+            resource+='&owner_active=eq.true'
+            if table=='ydna_uploaded_profiles':resource+='&published=eq.true'
             if table=='Modern_published_samples': resource+='&sync_visibility=eq.public'
             rows=db.request(resource,method='GET')
             refs.extend(rows)
