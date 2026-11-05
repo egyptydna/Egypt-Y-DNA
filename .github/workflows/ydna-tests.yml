@@ -75,3 +75,6 @@ jobs:
       - run: python -m playwright install --with-deps chromium
       - run: python sync/tests/browser_profile_details.py
       - run: python sync/tests/browser_owner_admin.py
+      - name: Verify production with metadata and HEAD counts only
+        if: github.ref == 'refs/heads/main'
+        run: python sync/tests/browser_live_owner.py

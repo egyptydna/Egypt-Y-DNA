@@ -158,7 +158,7 @@ with sync_playwright() as p:
  assert page.locator('.country-result-dot').count()==5
  assert 'formed 6500 ybp, TMRCA 4200 ybp' in page.locator('#tree-inner').inner_text()
  ft_info=page.locator('#tree-inner .phylo-node-row').filter(has=page.locator('.phylo-node-name',has_text='J-COUNT2')).locator('summary').first
- ft_info.click();assert 'FTDNA' in page.locator('#tree-inner .phylo-evidence[open]').inner_text()
+ ft_info.click();page.wait_for_function("document.querySelector('#tree-inner .phylo-evidence[open]')?.textContent.includes('FTDNA')")
  group=page.locator('.country-known-profiles details').first
  assert group.evaluate('(e)=>e.open')
  group.locator('summary').click()
