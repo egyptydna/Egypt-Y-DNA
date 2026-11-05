@@ -9,8 +9,8 @@ out=Path('/tmp/owned-archive-guard-ci');out.mkdir(exist_ok=True)
 statements=[];gaz=Gazetteer()
 
 
-def plan_case(name,record,source,guarded=False):
-    plan=sql_plan([record],[],[source],{'synthetic_ci_case':name},out/name,guarded_updates=guarded)
+def plan_case(name,record,source,guarded=False,evidence_only=False):
+    plan=sql_plan([record],[],[source],{'synthetic_ci_case':name},out/name,guarded_updates=guarded,evidence_only=evidence_only)
     statements.extend(Path(f).read_text() for f in plan['files'])
 
 
@@ -57,6 +57,10 @@ stale=dict(copy.deepcopy(auto),external_id='YF990099005')
 oldsource=copy.deepcopy(source);oldsource['metadata']['snapshot_checked_at']='2026-11-04T14:25:30Z'
 plan_case('older-fallback-is-ignored',stale,oldsource,True)
 expect("not exists(select 1 from public.\"Modern_published_samples\" where yfull_id='YF990099005')",'Older fallback was treated as a current snapshot')
+
+unknown=dict(copy.deepcopy(auto),external_id='YF990099006')
+plan_case('evidence-only-never-creates-unknown-tester',unknown,newsource,evidence_only=True)
+expect("not exists(select 1 from public.\"Modern_published_samples\" where yfull_id='YF990099006')",'Evidence-only mode inserted an unexpected tester')
 
 Path('/tmp/owned-archive-guard-scenarios.sql').write_text('\n'.join(statements))
 print('Generated synthetic guard scenarios for the disposable CI database.')

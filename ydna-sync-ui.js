@@ -5,10 +5,33 @@
   function status(s) {
     const explicitBigY=/^Big Y-(500|700)$/i.test(s.test_type || '');
     if(explicitBigY && (!real(s.test_status)||s.sync_published?.test_status===s.test_status)) return 'confirmed_big_y';
+    if(real(s.test_status)&&s.sync_published?.test_status!==s.test_status)return s.test_status;
+    if(s.__public_big_y_test)return 'confirmed_big_y';
     if (real(s.test_status)) return s.test_status;
     if (/^YFull sequencing$/i.test(s.test_type || '')) return 'yfull_sequencing';
     if (/^Y[- ]?(?:DNA)?\s*(12|25|37|67|111)$/i.test(s.test_type || '')) return 'str_only';
     return 'unknown';
+  }
+  function addObservation(sample,evidence) {
+    if(evidence.is_current!==true||evidence.published!==true)return;
+    const project=evidence.project??evidence.payload?.project;
+    if(real(project))sample.__projects=[...new Set([...(sample.__projects||[]),project])];
+    const test=evidence.test_type??evidence.payload?.test_type;
+    if(evidence.namespace==='ftdna'&&/^Big Y-(500|700)$/i.test(test||'')){
+      const value=/700$/i.test(test)?'Big Y-700':'Big Y-500';
+      if(!sample.__public_big_y_test||value==='Big Y-700')sample.__public_big_y_test=value;
+    }
+  }
+  function preferredTest(sample) {
+    return status(sample)==='confirmed_big_y'&&sample.__public_big_y_test?sample.__public_big_y_test:sample.test_type;
+  }
+  function sampleFocusPath(root) {
+    let found=null,multiple=false;
+    function visit(node){
+      if(node.samples?.length){if(found&&found!==node.pathKey)multiple=true;else found=node.pathKey;}
+      if(!multiple)for(const child of node.children||[])visit(child);
+    }
+    visit(root);return multiple?null:found;
   }
   const labels = {confirmed_big_y:'Confirmed Big Y',yfull_sequencing:'YFull sequencing',str_only:'STR-only / predicted',snp_tested:'SNP-tested',unknown:'Test evidence unspecified'};
   const normalizedSnp = v => String(v ?? '').trim().toUpperCase().replace(/^[A-T]-/, '').replace(/\*$/, '');
@@ -171,8 +194,8 @@
     const classify=value=>{
       const steps=String(value||'').split('>').map(v=>v.trim().toUpperCase());
       if (root==='J') {
-        const j2=steps.some(v=>/^J2/.test(v)||['J-M172','J-M410','J-L26','J-M319'].includes(v));
-        const j1=steps.some(v=>/^J1/.test(v)||['J-M267','J-P58'].includes(v));
+        const j2=steps.some(v=>/^J2/.test(v)||['M172','M410','L26','M319'].includes(v.replace(/^J-/,'')));
+        const j1=steps.some(v=>/^J1/.test(v)||['M267','P58'].includes(v.replace(/^J-/,'')));
         return j1&&j2?'conflict':j2?'J2':j1?'J1':null;
       }
       if (root==='Q') {
@@ -238,6 +261,43 @@
     // A terminal-only record remains visible; no intermediate branches are invented.
     return path || (real(sample.y_dna) ? 'Y-Adam>'+sample.y_dna : '');
   }
+  function pathIssue(sample,path=terminalPath(sample),release,nodes) {
+    const terminal=String(sample.y_dna||'').trim().toUpperCase();
+    if(!real(terminal)||!path)return '';
+    const parts=String(path).split('>').map(s=>s.trim().toUpperCase()).filter(Boolean);
+    const root=terminal[0];
+    // Broad source prefixes can be genuine ancestors: R/Q descend from P,
+    // P from K, and G–T from F. A simple prefix mismatch would reject valid paths.
+    const broadAncestors={A:'A',B:'AB',C:'AC',D:'AD',E:'AE',F:'AF',G:'AFG',H:'AFH',I:'AFI',J:'AFJ',K:'AFK',L:'AFKL',M:'AFKM',N:'AFKN',O:'AFKO',P:'AFKP',Q:'AFKPQ',R:'AFKPR',S:'AFKS',T:'AFKT'};
+    if(parts.some(s=>/^[A-T]-/.test(s)&&!String(broadAncestors[root]||root).includes(s[0])))return 'Incompatible source ancestry';
+    // Classify the path separately from the terminal, so a wrong J1 parent
+    // cannot make a known J2a terminal disappear into the generic J bucket.
+    if(root==='J'){
+      const j1=parts.some(s=>/^J1/.test(s)||['M267','P58'].includes(s.replace(/^J-/,'')));
+      const j2=parts.some(s=>/^J2/.test(s)||['M172','M410','L26','M319'].includes(s.replace(/^J-/,'')));
+      const family=yFamily({y_dna:terminal});
+      if((j1&&j2)||(j1&&family==='J2')||(j2&&family==='J1'))return 'Conflicting J1 / J2 ancestry';
+    }
+    if(parts.length>1&&normalizedSnp(parts.at(-1))!==normalizedSnp(terminal)){
+      const target=officialPath(sample,release,nodes);
+      const last=parts.at(-1),scoped=/^[A-T]-/.test(last)?last:root+'-'+last;
+      const endpoint=officialPath({y_dna:scoped},release,nodes);
+      if(!target||!endpoint||target.label!==endpoint.label)return 'Source path does not end at the published terminal';
+    }
+    return '';
+  }
+  function safePlacement(sample,release,nodes,mode,knownPaths) {
+    const published=terminalPath(sample,knownPaths),issue=pathIssue(sample,published,release,nodes);
+    const official=officialPlacement(sample,release,nodes,mode,knownPaths);
+    if(official)return {...official,issue};
+    if(issue){
+      // Preserve the source text in the detail view. Only use proven reference
+      // ancestry for placement; otherwise keep the real tester terminal-only.
+      const fallback=mode!=='published'?officialPath(sample,release,nodes):null;
+      return fallback?{...fallback,issue}:{label:sample.y_dna,path:['Y-Adam',sample.y_dna].filter(real),issue};
+    }
+    return {label:sample.y_dna,path:String(published).split('>').map(s=>s.trim()).filter(Boolean),issue:''};
+  }
   function knownTerminalPaths(samples) {
     const options=new Map();
     for(const s of samples) if(real(s.full_snp_path) && real(s.y_dna)) {
@@ -284,12 +344,27 @@
       unresolved:comparable&&!conflict?reported-known:null,
       method:'cohort_comparison_only'};
   }
+  const officialSnpMemo=new WeakMap();
+  function officialSnpLabels(nodes) {
+    if(officialSnpMemo.get(nodes)?.size===nodes.size)return officialSnpMemo.get(nodes).index;
+    const index=new Map();
+    for(const [label,node] of nodes){
+      const prefix=/^(?:BT|CT|CF|DE|IJ|LT|GHIJK|HIJK|IJK)$/.test(label)?label:/^[A-T]/.test(label)?label[0]:null;
+      if(!prefix)continue;
+      for(const marker of (node.snp_groups||[]).flat()){
+        const key=prefix+'-'+String(marker).toUpperCase();
+        if(!index.has(key))index.set(key,new Set());
+        index.get(key).add(label);
+      }
+    }
+    officialSnpMemo.set(nodes,{size:nodes.size,index});return index;
+  }
   function officialPath(sample,release,nodes) {
     if(!release || !nodes?.size) return null;
     const queries=[sample.y_dna,...String(sample.y_dna_alias||'').split(/[,;/|\s]+/)].filter(real);
     const found=new Set();
     for(const query of queries) {
-      const label=String(query).toUpperCase();
+      const label=String(query).toUpperCase().replace(/\*+$/,'');
       const match=release.metadata?.matches?.[label];
       if (match) {
         if (['exact','equivalent_snp'].includes(match.status) && nodes.has(match.label)) found.add(match.label);
@@ -297,6 +372,10 @@
         // The licensed, versioned tree itself is evidence for an exact SNP label,
         // including nodes that were not in the older archive when matches were built.
         found.add(label);
+      } else {
+        const labels=officialSnpLabels(nodes).get(label);
+        if(labels?.size>1)return null;
+        if(labels?.size===1)found.add([...labels][0]);
       }
     }
     if(found.size!==1) return null;
@@ -324,7 +403,7 @@
     const yf=keys.find(k=>k.startsWith('yfull:'));
     return kit?.slice(6) || yf?.slice(6) || (real(sample.sample_id)?sample.sample_id:'—');
   }
-  const api = {status,labels,deduplicate,identityKeys,identitySummary,compactSnpPath,yFamily,documentedDescendant,matches,nodeCounts,terminalPath,knownTerminalPaths,inCountScope,reconcileCountryCount,officialPath,officialPlacement,displayName,publicId};
+  const api = {status,addObservation,preferredTest,sampleFocusPath,labels,deduplicate,identityKeys,identitySummary,compactSnpPath,yFamily,pathIssue,safePlacement,documentedDescendant,matches,nodeCounts,terminalPath,knownTerminalPaths,inCountScope,reconcileCountryCount,officialPath,officialPlacement,displayName,publicId};
   if (typeof module === 'object') module.exports=api;
   else root.YDNASync=api;
 })(typeof window === 'object' ? window : globalThis);

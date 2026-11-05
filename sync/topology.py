@@ -17,7 +17,7 @@ def reference_labels(rows):
         for key in ('y_dna','y_dna_alias','node_label'):
             for label in re.split(r'[,;/|\s]+',str(row.get(key) or '')):
                 if LABEL.fullmatch(label) and not re.fullmatch(r'YF\d+',label,re.I) and (any(c.isdigit() for c in label) or label.upper() in structural):
-                    labels.add(label.upper())
+                    labels.add(label.upper().rstrip('*'))
     return sorted(labels)
 
 
@@ -56,7 +56,7 @@ class YFullTree:
         if not self.nodes or 'Y-Adam' not in self.nodes: raise ValueError('Missing YFull root')
 
     def match(self,query):
-        query=query.strip().upper()
+        query=query.strip().upper().rstrip('*')
         if query in self.names: return {'status':'exact','label':self.names[query]}
         marker=query.split('-',1)[1] if '-' in query else query
         candidates=self.markers.get(marker,set())

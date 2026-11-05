@@ -6,7 +6,8 @@ create table public."Modern_published_samples" (
  id bigint generated always as identity primary key,
  name text default '—',kit_number text default '—',test_type text default '—',
  y_dna text default '—',y_dna_alias text,snp_path text default '—',full_snp_path text default '—',
- governorate text default '—',y_link_1 text default '—',y_link_2 text default '—',created_at timestamptz default now()
+ governorate text default '—',y_link_1 text default '—',y_link_2 text default '—',created_at timestamptz default now(),
+ mt_dna text default '—',"full_mtDNA_path" text default '—',mt_link_1 text default '—',mt_link_2 text default '—'
 );
 alter table public."Modern_published_samples" enable row level security;
 create policy archive_read on public."Modern_published_samples" for select to anon,authenticated using(true);

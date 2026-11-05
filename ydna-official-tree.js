@@ -36,10 +36,11 @@ function renderOfficialTreePanel() {
       <option value="published" ${syncTreeTopology==='published'?'selected':''}>Existing published paths</option>
       <option value="yfull" ${syncTreeTopology==='yfull'?'selected':''}>Official YFull paths · v${esc(r.version)}</option>
     </select>
+    <details><summary>YFull / YFullTeam YTree v${esc(r.version)} · published ${esc(r.published_at.slice(0,10))} · checked ${esc(r.checked_at.slice(0,10))} · CC BY 4.0 · source details</summary>
     <p>The default view keeps verified source paths, including newer archive observations. The dated GitHub tree fills missing paths. Branch ages describe the lineage, not the individual tester.<br>
     YFull GitHub v${esc(r.version)} · source published ${esc(r.published_at.slice(0,10))} · checked ${esc(r.checked_at.slice(0,10))}<br>
     ${esc(r.node_count-1)} source branches indexed; ${esc(r.selected_node_count)} path nodes for this archive. This is the GitHub snapshot, not a claim about the current live YTree version.</p>
-    <p>${esc(r.attribution)} · ${syncSourceLink(r.license_url,'License')} · ${syncSourceLink(r.source_url,'Original JSON')} · Relevant paths and metadata extracted.</p>`;
+    <p>${esc(r.attribution)} · ${syncSourceLink(r.license_url,'License')} · ${syncSourceLink(r.source_url,'Original JSON')} · Relevant paths and metadata extracted.</p></details>`;
 }
 
 function officialInfoForNode(node) {

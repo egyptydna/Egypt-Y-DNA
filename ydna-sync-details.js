@@ -18,13 +18,12 @@ async function loadSyncMetadata() {
   const observationTask=(async()=>{
     for(let offset=0;;offset+=1000){
       const evidence=await _sb.from('ydna_sync_observations')
-        .select('sample_id,project:payload->>project').eq('is_current',true)
+        .select('sample_id,namespace,is_current,published,project:payload->>project,test_type:payload->>test_type').eq('is_current',true).eq('published',true).order('id')
         .range(offset,offset+999);
       if(evidence.error)break;
       for(const item of evidence.data){
         const sample=sampleById.get(item.sample_id);
-        if(sample&&item.project)sample.__projects=[
-          ...new Set([...(sample.__projects||[]),item.project])];
+        if(sample)YDNASync.addObservation(sample,item);
       }
       if(evidence.data.length<1000)break;
     }
@@ -65,7 +64,8 @@ function resetSyncTreeFocus() {
 function syncNodeCountHTML(node) {
   if(currentTreeType==='mt') return '';
   const c=YDNASync.nodeCounts(node);
-  return `<span class="tree-count" title="Modern testers directly at this node / modern testers including subbranches / confirmed Big Y including subbranches">${c.direct} direct · ${c.modern} modern · ${c.bigY} Big Y</span>`;
+  const counts=[c.direct?`${c.direct} direct`:null,c.modern!==node.count?`${c.modern} modern`:null,c.bigY?`${c.bigY} Big Y`:null].filter(Boolean);
+  return `<span class="tree-count" title="${c.direct} modern directly at this node; ${c.modern} modern and ${c.bigY} confirmed Big Y including subbranches">${counts.join(' · ')}</span>`;
 }
 
 function visibleSyncCountryCounts() {
@@ -173,7 +173,7 @@ async function loadSyncDetails(sample) {
       ${sourcePaths.map(row=>`<p><b>${esc(row.source)} · record ${esc(row.sample_id)}</b></p>
         <p class="sample-detail-code">${esc(String(row.path).split('>').join(' > '))}</p>`).join('')}</details>`
     : '';
-  panel.innerHTML=`<div class="sample-detail-label">Test evidence</div><p>${esc(YDNASync.identitySummary(sample))}</p><p>${esc(YDNASync.labels[YDNASync.status(sample)] || sample.test_status)} · ${esc(sample.test_type)}</p><p>${esc(sample.origin_raw || '')}</p><p>Updated: ${esc(sample.sync_updated_at || sample.created_at || '—')}</p>${compareSourcePaths}<div id="sync-evidence-loading">Loading public source evidence…</div>`;
+  panel.innerHTML=`<div class="sample-detail-label">Test evidence</div><p>${esc(YDNASync.identitySummary(sample))}</p><p>${esc(YDNASync.labels[YDNASync.status(sample)] || sample.test_status)} · ${esc(YDNASync.preferredTest(sample))}</p>${YDNASync.preferredTest(sample)!==sample.test_type?`<p>Preserved archive test: ${esc(sample.test_type)}</p>`:''}<p>${esc(sample.origin_raw || '')}</p>${sample.sync_origin_conflict?'<p class="phylo-warning">Conflicting source governorates: pending review. Included in the Egyptian total, excluded from governorate statistics. Original records remain archived.</p>':''}<p>Updated: ${esc(sample.sync_updated_at || sample.created_at || '—')}</p>${compareSourcePaths}<div id="sync-evidence-loading">Loading public source evidence…</div>`;
   try {
     const observations=[];
     for(let offset=0; ; offset+=1000) {
@@ -187,7 +187,7 @@ async function loadSyncDetails(sample) {
     if(!observations.length) { loading.textContent='No synchronized STR evidence available for this profile.'; return; }
     const markers=observations.flatMap(o=>(o.payload.str_markers||[]).map(m=>({...m,source:o.payload.source_url,date:o.last_seen_at,current:o.is_current})));
     panel.__strProfile={sample,markers};
-    const sources=observations.map(o=>`<li>${syncSourceLink(o.payload.source_url,o.payload.project||o.source_id)} · ${esc(o.namespace)}: ${esc(o.external_id)} · ${esc(o.payload.y_dna || '—')} ${esc(o.payload.y_dna_alias || '')} · ${esc(o.payload.test_type || 'Unspecified')} · ${esc(o.last_seen_at)}${o.is_current?'':' (previous observation)'}${o.payload.snp_path?.length?`<p>${esc(o.payload.snp_path.join(' > '))}</p>`:''}</li>`).join('');
+    const sources=observations.map(o=>`<li>${syncSourceLink(o.payload.source_url,o.payload.project||o.source_id)} · ${esc(o.namespace)}: ${esc(o.external_id)} · ${esc(o.payload.y_dna || '—')} ${esc(o.payload.y_dna_alias || '')} · ${esc(o.payload.test_type || 'Unspecified')} · Imported: ${esc(o.last_seen_at)}${o.is_current?'':' (previous observation)'}${o.payload.snp_path?.length?`<p>${esc(o.payload.snp_path.join(' > '))}</p>`:''}</li>`).join('');
     loading.outerHTML=`<div><div class="sample-detail-label">Public source claims (differences retained for review)</div><ul class="space-y-2 text-sm">${sources}</ul></div>
       <div><label for="sync-str-search" class="sample-detail-label">Search STR markers or alleles</label><input id="sync-str-search" class="tree-search" type="search" oninput="filterSyncSTR(this.value)">
       <p class="text-xs">Original marker order and alleles; unknown values are shown as —. Earlier observations remain labelled.</p>

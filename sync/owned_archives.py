@@ -147,11 +147,12 @@ def json_literal(value):
     return literal(json.dumps(value,ensure_ascii=False,separators=(',',':')))+'::jsonb'
 
 
-def sql_plan(records,counts,sources,summary,outdir,run_id=None,guarded_updates=False,batch_size=20):
+def sql_plan(records,counts,sources,summary,outdir,run_id=None,guarded_updates=False,batch_size=20,evidence_only=False):
+    if evidence_only and guarded_updates:raise ValueError('Evidence-only mode cannot update curated profiles')
     out=Path(outdir);out.mkdir(parents=True,exist_ok=True)
     run_id=str(uuid.UUID(run_id)) if run_id else str(uuid.uuid4())
     gaz=Gazetteer();records=[prepare(r,gaz) for r in records];counts=[prepare_country_count(c) for c in counts]
-    summary=dict(summary,update_policy='guarded_automatic_profiles' if guarded_updates else 'new_profiles_only',profile_observations=len(records),unique_profile_ids=len({(r['namespace'],r['external_id']) for r in records}),
+    summary=dict(summary,update_policy='evidence_only_existing_profiles' if evidence_only else 'guarded_automatic_profiles' if guarded_updates else 'new_profiles_only',profile_observations=len(records),unique_profile_ids=len({(r['namespace'],r['external_id']) for r in records}),
         accepted_observations=sum(r['accepted'] for r in records),review_observations=sum(not r['accepted'] for r in records),count_facts=len(counts))
     header='begin; set local standard_conforming_strings=on; set local role service_role;\n'
     start=header+'insert into public.ydna_sync_runs(id,status,report) values('+literal(run_id)+",'running',"+json_literal({'mode':'owner_archive_transfer','plan':summary})+');\n'
@@ -198,14 +199,13 @@ begin
       and existing.sync_published->e.key is distinct from to_jsonb(existing)->e.key)
      and not (existing.test_type in ('Big Y-500','Big Y-700') and existing.test_type is distinct from op->'record'->>'test_type');
    end if;
-   if checked->>'status'='would_insert' or may_update then
+   if '''+('false' if evidence_only else "checked->>'status'='would_insert' or may_update")+''' then
     result:=public.ydna_sync_ingest(op->'record',run_key,false);
    elsif checked->>'status'='would_reconcile' then
-    result:=jsonb_build_object('status','retained_existing');
-    if not exists(select 1 from public.ydna_sync_observations where source_id=op->'record'->>'source_id'
-     and namespace=op->'record'->>'namespace' and external_id=op->'record'->>'external_id'
-     and checksum=md5((op->'record')::text)) then
-      perform public.ydna_sync_review((checked->>'sample_id')::bigint,op->'record'->>'source_id','protected_archive_update',op->'record');
+    result:=public.ydna_sync_attach_archive_evidence(op->'record',false);
+    if coalesce((result->>'evidence_attached')::boolean,false) then
+     totals:=totals||jsonb_build_object('evidence_attached',coalesce((totals->>'evidence_attached')::int,0)+1,
+      'str_values_attached',coalesce((totals->>'str_values_attached')::int,0)+(result->>'marker_count')::int);
     end if;
    else
     result:=checked;
@@ -236,6 +236,7 @@ def main():
     parser.add_argument('--observatory');parser.add_argument('--tracker');parser.add_argument('--outdir',required=True)
     parser.add_argument('--owner-authorized',action='store_true',required=True)
     parser.add_argument('--guarded-updates',action='store_true',help='Only untouched automatically managed profiles from their primary source, without pending reviews')
+    parser.add_argument('--evidence-only',action='store_true',help='Only attach source evidence to existing profiles; never create or update tester rows')
     args=parser.parse_args();records=[];counts=[];sources=[];summary={}
     for kind,path in [('observatory',args.observatory),('tracker',args.tracker)]:
         if path:
@@ -250,7 +251,7 @@ def main():
             except (ValueError,KeyError,TypeError) as error:
                 summary[kind]={'status':'unavailable','error_type':type(error).__name__}
     if not records and not counts:raise ValueError('No supported archive observations')
-    print(json.dumps(sql_plan(records,counts,sources,summary,args.outdir,guarded_updates=args.guarded_updates),indent=2))
+    print(json.dumps(sql_plan(records,counts,sources,summary,args.outdir,guarded_updates=args.guarded_updates,evidence_only=args.evidence_only),indent=2))
 
 
 if __name__=='__main__':main()
