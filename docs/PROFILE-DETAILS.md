@@ -126,3 +126,41 @@ approved-export importer accepts exact typed `verified_ids` only with an HTTPS
 `identity_evidence_url` and source publication approval. Private account pages
 and passwords are not part of the public website or repository. New links need
 specific permitted evidence naming both IDs, rather than similar haplogroups.
+
+## Scientific layout, fixed controls and dated ages
+
+The compact toolbar above the tree stays below the main navigation while the
+page scrolls. It contains a SNP/sample search, compact/full path controls and
+Y-DNA source-path selection. The breadcrumb follows the selected branch there.
+Y-DNA and mtDNA remain separate views. Gray descendant trunks align with the
+left edge of their parent branch label, and branch labels use the reference's
+green / gold color scheme. Small † (Egyptian ancient), ▤ (study) and ◇ (related
+ancient) symbols replace framed sample rows; category text and flags remain.
+
+The combined Y-DNA tree now shows the same source-backed Formed and TMRCA
+metadata as the profile tree. The preferred source is the licensed YFull GitHub
+snapshot, with its actual version, publication date and confidence intervals in
+Info. This does not claim to be the current live YTree. Ages describe lineages,
+not sample lifetimes, and are never borrowed from a parent or invented from a
+calendar date. No Y-DNA age is assigned to an mtDNA branch.
+
+A missing YFull lineage age can fall back to an explicitly published FTDNA
+lineage estimate already supplied through an approved observation/export. Its
+`payload.branch_age` must specify `kind: lineage_estimate`, `dna_type: y`,
+`unit: ybp`, the exact `node_label`, numeric `formed` / `tmrca` estimates and
+optional `low` / `high`, `observed_at`, and a matching HTTPS FTDNA Discover
+branch URL. Only current public observations qualify. Conflicting equally dated
+claims remain unresolved. Missing evidence remains unavailable; this UI does
+not enable previously restricted provider crawling or make up FTDNA ages.
+
+## Manual owner additions
+
+Profiles explicitly supplied by the archive owner are saved with owner-submitted
+provenance, their exact typed kit identity, the given test label and governorate.
+They are separate from independently checked provider claims. Unprovided STRs,
+mtDNA, YFull IDs and individual SNP sequences remain absent. New additions get a
+fixed 30-day marker and a resumable exact-kit project-search target. Writes are
+idempotent, preserve existing different records for review and respect opt-outs.
+Personal submission data and internal write instructions are kept out of this
+public code repository; the explicitly requested profile is served by the
+existing archive database and its existing access rules.

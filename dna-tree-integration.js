@@ -67,10 +67,10 @@ function compactTreeOptions() {
     test:s=>currentTreeType==='mt'?(s.mt_dna||''):s.__sourceType==='modern'?[YDNASync.preferredTest(s),YDNASync.labels[YDNASync.status(s)]].filter(isRealValue).filter((v,i,a)=>a.indexOf(v)===i).join(' · '):s.y_dna,
     issue:s=>currentTreeType==='mt'?'':YDNASync.pathIssue(s,undefined,syncOfficialRelease,syncOfficialNodes),
     sort:sortNodeChildren,aliases:renderNodeAliases,counts:syncNodeCountHTML,country:treeCountryCountBadge,
-    age:n=>{if(currentTreeType==='mt')return '';const info=officialInfoForNode(n),age=info?.age_estimates;if(!age)return '';return [age.formed?.estimate!=null?`formed ${age.formed.estimate} ybp`:null,age.tmrca?.estimate!=null?`TMRCA ${age.tmrca.estimate} ybp`:null].filter(Boolean).join(', ');},
+    age:treeBranchAgeText,ageTitle:treeBranchAgeTitle,
     hasEvidence:n=>{
       phyloNodeLookup.set(n.pathKey,n);
-      return currentTreeType!=='mt'&&(officialInfoForNode(n)||syncCountryFacts(n).length);
+      return currentTreeType!=='mt'&&(officialInfoForNode(n)||syncCountryFacts(n).length||publishedBranchAge(n));
     },
     evidence:n=>renderOfficialNodeInfo(n)+renderSyncCountryEvidence(n)
   };

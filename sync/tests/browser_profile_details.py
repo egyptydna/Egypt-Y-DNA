@@ -36,8 +36,14 @@ def route_handler(route):
   elif table=='ydna_sync_observations':
    data=[{'id':1,'sample_id':1,'namespace':'ftdna','external_id':'990001','is_current':True,'published':True,'last_seen_at':now,'project':'Fixture A','test_type':'Big Y-700','country':'Egypt','payload':{'source_id':'fixture','source_url':'https://example.org/fixture-a','project':'Fixture A','test_type':'Big Y-700','y_dna':'E-TEST1','snp_path':['E-V13','E-CTS1','E-TEST1'],'str_markers':[{'marker':'DYS425','source_label':'DYS425','position':0,'value':'0'},{'marker':'DYS464','source_label':'DYS464','position':1,'value':'14-16-17-17'}]}},
     {'id':2,'sample_id':2,'namespace':'yfull','external_id':'YF990002','is_current':True,'published':True,'last_seen_at':now,'project':'','test_type':'YFull sequencing','payload':{'source_url':'https://example.org/fixture-yfull','str_markers':[],'y_dna':'J-TEST2'}}]
+   data[0]['branch_age']={'kind':'lineage_estimate','dna_type':'y','unit':'ybp','node_label':'J-COUNT2','formed':{'estimate':6500},'tmrca':{'estimate':4200},'observed_at':now,'source_url':'https://discover.familytreedna.com/y-dna/J-COUNT2/time-tree'}
+   data[0]['payload']['branch_age']=data[0]['branch_age']
    if 'sample_id' in q:
     selected=1 if '1' in q['sample_id'][0] else 2;data=[r for r in data if r['sample_id']==selected]
+  elif table=='ydna_sync_tree_releases':data=[{'source_id':'yfull-github','release_key':'synthetic-release','version':'fixture','published_at':now,'checked_at':now,'source_url':'https://github.com/YFullTeam/YTree','license_url':'https://github.com/YFullTeam/YTree/blob/master/LICENSE.md','attribution':'Synthetic reference fixture','node_count':8,'selected_node_count':8,'metadata':{'matches':{}}}]
+  elif table=='ydna_sync_official_tree_nodes':
+   parents={'Y-Adam':None,'E-V13':'Y-Adam','E-CTS1':'E-V13','E-TEST1':'E-CTS1','E-ANCIENT':'E-CTS1','E-STUDY':'E-V13','J-M267':'Y-Adam','J-TEST2':'J-M267'}
+   data=[{'label':label,'parent_label':parent,'aliases':[],'snp_groups':[],'age_estimates':{'unit':'ybp','formed':{'estimate':7000,'low':6500,'high':7500},'tmrca':{'estimate':5000,'low':4500,'high':5500}}} for label,parent in parents.items()]
   elif table=='ydna_sync_runs':data=[{'started_at':now}]
   elif table=='ydna_tracker_status':data={'provider':'ftdna','snapshot_id':'synthetic','checked_at':now,'primary_status':'ok'}
   elif table=='ydna_tracker_snapshots':
@@ -120,16 +126,23 @@ with sync_playwright() as p:
  assert page.locator('#tree-inner .phylo-reference-bar').count()==1
  assert page.locator('#tree-inner .phylo-node-name').count()>2
  color=page.locator('#tree-inner .phylo-node .phylo-node-name').first.evaluate('(e)=>getComputedStyle(e).backgroundColor')
- assert color=='rgb(66, 142, 32)',color
+ assert color=='rgb(37, 139, 21)',color
  for tree in ['y','mt']:
   page.evaluate("showSection('"+('ytree' if tree=='y' else 'mtree')+"');"+("setCountryTreeMode('profiles')" if tree=='y' else ''))
   assert page.locator('#tree-inner .phylo-root').get_attribute('data-tree')==tree
+  if tree=='y':
+   assert page.locator('#tree-inner .phylo-age').count()>0
+   assert 'formed 7000 ybp, TMRCA 5000 ybp' in page.locator('#tree-inner').inner_text()
+  else:assert page.locator('#tree-inner .phylo-age').count()==0
+  alignment=page.locator('#tree-inner .phylo-root').evaluate("e=>{const n=e.querySelector(':scope > .phylo-node-row > .phylo-node-name'),u=e.querySelector(':scope > ul');return Math.abs(n.getBoundingClientRect().left-u.getBoundingClientRect().left)}")
+  assert alignment<=1,alignment
   assert page.locator('#tree-inner .phylo-sample').count()==5
   assert page.locator('#tree-inner .phylo-sample-country').filter(has_text='🇪🇬').count()==4
   assert page.locator('#tree-inner .phylo-sample[data-kind=related] .phylo-sample-country').inner_text()=='🇦🇹 AT'
   for kind in ['study','ancient','related']:
    row=page.locator(f'#tree-inner .phylo-sample[data-kind={kind}] > .tree-sample-card').first
-   assert row.evaluate('(e)=>getComputedStyle(e).borderLeftWidth')=='4px'
+   assert row.evaluate('(e)=>getComputedStyle(e).borderLeftWidth')=='0px'
+   assert row.locator('.phylo-cohort-symbol').count()==1
    assert row.is_visible()
   page.locator('#tree-inner .tree-sample-card').first.click()
   assert page.evaluate('sampleModalTreeType')==tree
@@ -141,6 +154,9 @@ with sync_playwright() as p:
  # Anonymous counts still total five; known profile rows carry no dot identity.
  page.evaluate("showSection('ytree');setCountryTreeMode('ftdna')")
  assert page.locator('.country-result-dot').count()==5
+ assert 'formed 6500 ybp, TMRCA 4200 ybp' in page.locator('#tree-inner').inner_text()
+ ft_info=page.locator('#tree-inner .phylo-node-row').filter(has=page.locator('.phylo-node-name',has_text='J-COUNT2')).locator('summary').first
+ ft_info.click();assert 'FTDNA' in page.locator('#tree-inner .phylo-evidence[open]').inner_text()
  assert page.locator('.uploaded-branch-profiles details').first.evaluate('(e)=>e.open')
  assert page.locator('.uploaded-branch-profiles .phylo-sample-country').first.inner_text()=='🇪🇬 EGY'
  page.locator('.uploaded-branch-profiles summary').first.click()
@@ -164,6 +180,15 @@ with sync_playwright() as p:
  assert page.locator('#tree-inner .tree-sample-card').count()==6
  page.locator('#treeSearch').fill('TEST2');page.locator('#treeSearch').press('Enter')
  assert 'YF990002' in page.locator('#tree-inner').inner_text()
+ page.evaluate('treeReset()')
+ page.set_viewport_size({'width':1440,'height':700})
+ page.evaluate("window.scrollTo(0,document.getElementById('tree-workbench').getBoundingClientRect().top+scrollY+120)")
+ page.wait_for_function("Math.abs(document.getElementById('tree-workbench').getBoundingClientRect().top-document.querySelector('nav[aria-label=\"Primary navigation\"]').getBoundingClientRect().bottom)<2")
+ assert page.locator('#tree-dock-search').is_visible()
+ page.locator('#tree-dock-search').fill('TEST2');page.locator('.tree-dock-search button').click()
+ assert 'YF990002' in page.locator('#tree-inner').inner_text()
+ page.locator('#tree-workbench [data-tree-mode=full]').click()
+ assert page.locator('#tree-workbench [data-tree-mode=full]').get_attribute('aria-pressed')=='true'
  page.evaluate("treeReset();setCountryTreeMode('profiles');treeSetHaplo('J1')")
  assert page.locator('#tree-pills').inner_text().find('E (')>=0
  page.evaluate("treeSetHaplo(null);showSection('archive')")
@@ -191,5 +216,5 @@ with sync_playwright() as p:
   assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
   out=root/'reports';out.mkdir(exist_ok=True);page.screenshot(path=str(out/f'project-tracker-{width}.png'))
  assert not errors,errors
- print(json.dumps({'syntheticBrowser':'passed','desktopAndMobile':True,'pagedCatalogRequests':catalog_requests,'profileDetailsAndSTRs':True,'cohortFlagsAndFrames':True,'manualGroupHiding':True,'separateDNATrees':True,'maternalPopupContext':True,'providerFilters':True,'anonymousSeparation':True,'statusFailureRetainsSummary':True,'pageErrors':len(errors)}))
+ print(json.dumps({'syntheticBrowser':'passed','desktopAndMobile':True,'pagedCatalogRequests':catalog_requests,'profileDetailsAndSTRs':True,'cohortFlagsAndSymbols':True,'stickySNPControls':True,'datedBranchAges':True,'manualGroupHiding':True,'separateDNATrees':True,'maternalPopupContext':True,'providerFilters':True,'anonymousSeparation':True,'statusFailureRetainsSummary':True,'pageErrors':len(errors)}))
  browser.close()

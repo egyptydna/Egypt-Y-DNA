@@ -6,7 +6,7 @@
     const identity=options.identity(row),name=options.name(row);
     const kind=row.__sourceType||'modern';
     return `<li class="phylo-sample" data-kind="${escape(kind)}"><button type="button" class="tree-sample-card phylo-sample-row" data-uid="${escape(row.__uid)}" data-dna="${escape(options.type)}" onclick="openSampleModalByUid(this.dataset.uid,this.dataset.dna)">
-      <svg class="phylo-person-icon" aria-hidden="true" viewBox="0 0 12 12"><circle cx="6" cy="3" r="2"/><path d="M2 11V9a4 4 0 0 1 8 0v2z"/></svg><span class="phylo-sample-id">${escape(identity||name)}</span>
+      ${kind==='modern'?'<svg class="phylo-person-icon" aria-hidden="true" viewBox="0 0 12 12"><circle cx="6" cy="3" r="2"/><path d="M2 11V9a4 4 0 0 1 8 0v2z"/></svg>':`<span class="phylo-cohort-symbol phylo-cohort-${escape(kind)}" role="img" aria-label="${escape({study:'Study sample',ancient:'Ancient Egyptian sample',related:'Related ancient reference'}[kind]||'Source record')}">${{study:'▤',ancient:'†',related:'◇'}[kind]||'·'}</span>`}<span class="phylo-sample-id">${escape(identity||name)}</span>
       ${identity&&name!==identity&&name!=='—'?`<span class="phylo-sample-person">${escape(name)}</span>`:''}
       ${options.countryLabel?.(row)?`<span class="phylo-sample-country">${escape(options.countryLabel(row))}</span>`:''}<span class="phylo-sample-origin">${escape(options.location(row))}</span>
       <span class="phylo-sample-test">${escape(options.test(row))}</span>
@@ -33,11 +33,11 @@
       <span class="phylo-count" title="${options.countLabel?'Source-reported results including descendants':'Profiles in the displayed subtree, including this node'}">${options.countLabel?escape(options.countLabel(row)):row.count+(row.count===1?' profile':' profiles')}</span>
       ${options.counts(row)}
       ${options.country?options.country(row):''}
-      ${age?`<span class="phylo-age">${escape(age)}</span>`:''}
+      ${age?`<span class="phylo-age" title="${escape(options.ageTitle?.(row)||'Published lineage age estimate, not the age of an individual sample')}">${escape(age)}</span>`:''}
       ${evidence?`<details class="phylo-evidence" data-node-path="${encoded}" data-node-label="${escape(row.display)}" ${lazy?'ontoggle="loadPhyloEvidence(this)"':''}><summary>info</summary><div class="phylo-evidence-body">${lazy?'Open to load source details.':evidence}</div></details>`:''}
     </div>`;
     const inner=header+(body?`<ul class="${isRoot?'tree-ul focused-root-list':'phylo-children'}">${body}</ul>`:'');
-    return isRoot?`<div class="phylo-reference-bar"><strong>${options.type==='mt'?'Egypt mtDNA Tree':'Egypt Y-DNA Tree'}</strong><span>View:</span><button type="button" onclick="setTreeMode('direct')">compact</button><button type="button" onclick="setTreeMode('full')">full path</button><span class="phylo-reference-credit">Public archive · source-backed branches</span></div><div class="phylo-root" data-tree="${escape(options.type)}">${inner}</div>`:`<li class="phylo-node">${inner}</li>`;
+    return isRoot?`<div class="phylo-reference-bar"><strong>${options.type==='mt'?'Egypt mtDNA Tree':'Egypt Y-DNA Tree'}</strong><span>View:</span><button type="button" onclick="setTreeMode('direct')">compact</button><button type="button" onclick="setTreeMode('full')">full path</button><span class="phylo-reference-credit">Public archive · source-backed branches</span></div><div class="phylo-root" data-tree="${escape(options.type)}" data-root-label="${escape(row.display)}">${inner}</div>`:`<li class="phylo-node">${inner}</li>`;
   }
   const api={node,sample,escape};
   if(typeof module==='object')module.exports=api;else root.DNATreeView=api;

@@ -18,10 +18,11 @@ async function loadSyncMetadata() {
   const observationTask=(async()=>{
     for(let offset=0;;offset+=1000){
       const evidence=await _sb.from('ydna_sync_observations')
-        .select('sample_id,namespace,is_current,published,project:payload->>project,test_type:payload->>test_type,country:payload->>country').eq('is_current',true).eq('published',true).order('id')
+        .select('sample_id,namespace,is_current,published,project:payload->>project,test_type:payload->>test_type,country:payload->>country,branch_age:payload->branch_age').eq('is_current',true).eq('published',true).order('id')
         .range(offset,offset+999);
       if(evidence.error)break;
       for(const item of evidence.data){
+        if(typeof ingestPublishedBranchAge==='function')ingestPublishedBranchAge(item);
         const sample=sampleById.get(item.sample_id);
         if(sample)YDNASync.addObservation(sample,item);
       }

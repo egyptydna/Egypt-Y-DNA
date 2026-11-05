@@ -108,7 +108,8 @@ function renderCountryTree(){
     const reference=YDNASync.officialPath({y_dna:n.display},syncOfficialRelease,syncOfficialNodes);
     return {primary:n.display,secondary:reference&&reference.label!==n.display?`YFull: ${reference.label} (v${reference.version} reference)`:''};
   },countLabel:n=>[n.count?`${n.count} reported FTDNA results`:null,n.profileCount?`${n.profileCount} archive profiles`:null].filter(Boolean).join(' · '),
-  counts:()=>'',aliases:()=>'',country:()=>'',age:()=>'',hasEvidence:()=>false,evidence:()=>'',
+  counts:()=>'',aliases:()=>'',country:()=>'',age:treeBranchAgeText,ageTitle:treeBranchAgeTitle,
+  hasEvidence:n=>{phyloNodeLookup.set(n.pathKey,n);return !!publishedBranchAge(n);},evidence:renderOfficialNodeInfo,
   sampleGroup:n=>n.samples.length?`<li class="country-known-profiles"><details ${treeProfileGroupOpen(n.pathKey+'|archive')?'open':''} data-profile-group="${esc(treeProfileGroupKey(n.pathKey+'|archive'))}" ontoggle="rememberTreeProfileGroup(this)"><summary>${n.samples.length} archive ${n.samples.length===1?'profile':'profiles'} · overlap unverified</summary><ul>${sortTreeProfiles(n.samples).map(s=>DNATreeView.sample(s,sampleOptions)).join('')}</ul></details></li>`:'',
   hasGroup:n=>uploads.has(n.display.toUpperCase()),
   group:n=>{

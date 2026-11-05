@@ -73,13 +73,44 @@
 #section-tree .haplo-pill.on{background:#477f31!important;border-color:#477f31!important;color:#fff!important}
 .sample-historical{font:13px/1.6 Arial,sans-serif;margin-top:20px;border-top:1px solid #d7dfd1;padding-top:16px}.sample-historical dl{display:grid;grid-template-columns:1fr 1fr;gap:14px}.sample-historical dt{color:#728269;font-size:11px;text-transform:uppercase}.sample-historical dd{color:#34482c;overflow-wrap:anywhere}
 @media(max-width:700px){#tree-inner .phylo-root{padding:14px 10px 28px}.sample-historical dl{grid-template-columns:1fr}.tree-sort-label{width:100%}}
-/* Archive cohorts have a clear border; flags describe the archive / find country. */
-#tree-inner .phylo-sample-country{display:inline-flex;align-items:center;gap:4px;flex-shrink:0;font-size:12px;color:#43563c;white-space:nowrap}
-#tree-inner .phylo-sample[data-kind="study"]>.tree-sample-card{border:1px solid #a98cbd;border-left:4px solid #8c68a7;background:#ece5f1;padding:3px 8px;margin:2px 0}
-#tree-inner .phylo-sample[data-kind="ancient"]>.tree-sample-card{border:1px solid #c69b72;border-left:4px solid #a66b35;background:#f0e5d9;padding:3px 8px;margin:2px 0}
-#tree-inner .phylo-sample[data-kind="related"]>.tree-sample-card{border:1px solid #77a99e;border-left:4px solid #387e70;background:#dfede7;padding:3px 8px;margin:2px 0}
-#tree-inner .phylo-sample[data-kind="study"] .phylo-kind{font-weight:700;color:#6f448e}
-#tree-inner .phylo-sample[data-kind="ancient"] .phylo-kind{font-weight:700;color:#8e5729}
-#tree-inner .phylo-sample[data-kind="related"] .phylo-kind{font-weight:700;color:#286b5d}
-#tree-inner .phylo-sample[data-kind]>.tree-sample-card:hover{filter:brightness(.97)}
+/* Country labels stay compact; cohort symbols replace framed sample rows. */
+#tree-inner .phylo-sample-country{display:inline-flex;align-items:center;gap:4px;flex-shrink:0;font-size:12px;color:#63715c;white-space:nowrap}
 .tree-separate-note{font:12px/1.6 Arial,sans-serif;color:#63745a;margin:4px 0 12px}
+/* Scientific tree: descendant trunks start exactly below their parent label. */
+#tree-wrap{background:#f2f3f3;border-color:#dce1e1;box-shadow:none}
+#section-tree #tree-inner,#tree-inner .phylo-root{background:#f2f3f3}
+#tree-inner .phylo-root{padding:18px 28px 36px}
+#tree-inner .phylo-node-row{position:relative;min-height:24px;padding:0;gap:5px;line-height:22px}
+#tree-inner .phylo-toggle{position:absolute;left:-16px;top:5px;width:12px;height:16px;color:#a4aaa6}
+#tree-inner .phylo-node-name{background:#258b15;color:#fff;border-color:#92b88c;font:14px/21px Arial,sans-serif;padding:0 4px}
+#tree-inner .phylo-node-name:hover{background:#1b7610}
+#tree-inner .phylo-root>.phylo-node-row>.phylo-node-name{background:#258b15;color:#fff;border-color:#92b88c}
+#tree-inner .phylo-root[data-root-label="Y-Adam"]>.phylo-node-row>.phylo-node-name,#tree-inner .phylo-root[data-root-label="mt-Eve"]>.phylo-node-row>.phylo-node-name{background:#ffce00;color:#596158;border-color:#ebc721}
+#tree-inner .tree-ul,#tree-inner .tree-ul ul{margin-left:0;padding-left:0}
+#tree-inner .tree-ul>li,#tree-inner .tree-ul ul>li{padding-left:19px;border-left:1px solid #bcc1bd}
+#tree-inner .tree-ul>li::before,#tree-inner .tree-ul ul>li::before{left:-1px;top:13px;width:21px;height:1px;background:#bcc1bd}
+#tree-inner .tree-ul>li:last-child,#tree-inner .tree-ul ul>li:last-child{border-left-color:transparent}
+#tree-inner .tree-ul>li:last-child::after,#tree-inner .tree-ul ul>li:last-child::after{left:-1px;top:0;height:13px;width:1px;background:#bcc1bd}
+#tree-inner .phylo-age{background:#dde9ee;color:#7a9098;font:12px/18px Arial,sans-serif;padding:0 4px}
+#tree-inner .phylo-sample[data-kind]>.tree-sample-card{border:0;background:transparent;padding:2px 5px;margin:0;filter:none}
+#tree-inner .phylo-sample[data-kind]>.tree-sample-card:hover{background:#e5eae4}
+#tree-inner .phylo-kind{border:0;background:transparent;padding:0;color:#929a90;font-size:10px}
+#tree-inner .phylo-cohort-symbol{display:inline-flex;align-items:center;justify-content:center;min-width:14px;font:16px Arial,sans-serif}
+#tree-inner .phylo-cohort-ancient,.tree-cohort-ancient{color:#a17b42}
+#tree-inner .phylo-cohort-study,.tree-cohort-study{color:#877098}
+#tree-inner .phylo-cohort-related,.tree-cohort-related{color:#5a9287}
+.tree-cohort-key{font:12px Arial,sans-serif;letter-spacing:0;text-transform:none}
+.phylo-reference-bar{background:#ffce00;border-color:#e9bf18}
+.phylo-reference-bar button{background:#ffd735;border-color:#d9b525}
+.tree-workbench{position:sticky;top:var(--tree-nav-height,80px);z-index:35;max-width:100%;background:#ffce00;border:1px solid #dbb92e;box-shadow:0 2px 5px #34403415;font:12px Arial,sans-serif}
+.tree-workbench-controls{display:flex;align-items:center;gap:9px;flex-wrap:wrap;min-height:42px;padding:6px 10px;color:#626444}
+.tree-workbench-controls strong{font-weight:400;font-size:15px;color:#526474;white-space:nowrap;margin-right:4px}
+.tree-dock-search{display:flex;flex:1 1 230px;max-width:440px;min-width:170px;gap:4px}
+.tree-dock-search input{min-width:0;width:100%;border:1px solid #d2b331;border-radius:0;background:#fff9d6;padding:5px 8px;font:12px Arial,sans-serif;color:#596548}
+.tree-workbench button,.tree-workbench select{border:1px solid #d1b12e;border-radius:0;background:#ffd93e;color:#67633f;font:12px Arial,sans-serif;padding:4px 7px;min-height:29px}
+.tree-workbench button[aria-pressed="true"]{background:#f4edbc;color:#45633e;border-color:#a99a39}
+.tree-workbench button:focus-visible,.tree-workbench select:focus-visible,.tree-dock-search input:focus-visible{outline:2px solid #5b7c38;outline-offset:2px}
+.tree-dock-modes{display:flex;gap:4px}.tree-workbench label{display:flex;align-items:center;gap:5px}
+#section-tree .tree-workbench .tree-result-path.active{margin:0;border-top:1px solid #d0d7d4;background:#e6e9e8;max-width:100%;overflow-x:auto;flex-wrap:nowrap;padding:5px 10px}
+#section-tree .tree-workbench .tree-path-link{background:#f7f8f7;font-size:12px;white-space:nowrap}
+@media(max-width:700px){#tree-inner .phylo-root{padding:16px 23px 28px}.tree-workbench-controls{gap:5px;padding:5px 7px}.tree-workbench-controls strong{font-size:13px}.tree-dock-search{flex-basis:200px;max-width:none}.tree-workbench label{font-size:11px}.tree-workbench select{max-width:200px;font-size:11px}}

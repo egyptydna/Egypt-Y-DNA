@@ -7,19 +7,20 @@
   <meta name="google-site-verification" content="Uaawg80AzlTHbqfR-OfSFSJdBAtg9OIjpOVgCRrWXHY"/>
   <meta name="description" content="Independent genomic archive documenting Egyptian Y-DNA and mtDNA lineages, with a current focus on Y-DNA results across Egypt."/>
 
-  <link rel="stylesheet" href="styles/tailwind.generated.css?v=20261105-flags3">
+  <link rel="stylesheet" href="styles/tailwind.generated.css?v=20261105-clean4">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="ydna-sync-ui.js?v=20261105-flags3"></script>
-  <script src="ydna-profile-tools.js?v=20261105-flags3"></script>
-  <script src="ydna-project-tracker.js?v=20261105-flags3"></script>
+  <script src="ydna-sync-ui.js?v=20261105-clean4"></script>
+  <script src="ydna-profile-tools.js?v=20261105-clean4"></script>
+  <script src="ydna-project-tracker.js?v=20261105-clean4"></script>
   <link rel="stylesheet" href="ydna-project-tracker.css">
-  <script src="ydna-sync-details.js?v=20261105-flags3"></script>
-  <script src="ydna-official-tree.js"></script>
-  <script src="dna-tree-view.js?v=20261105-flags3"></script>
-  <script src="dna-tree-integration.js?v=20261105-flags3"></script>
-  <script src="ydna-country-tree.js?v=20261105-flags3"></script>
-  <script src="ydna-country-tracker.js?v=20261105-flags3"></script>
-  <script src="ydna-uploaded-profiles.js?v=20261105-flags3"></script>
+  <script src="ydna-sync-details.js?v=20261105-clean4"></script>
+  <script src="ydna-official-tree.js?v=20261105-clean4"></script>
+  <script src="dna-tree-view.js?v=20261105-clean4"></script>
+  <script src="dna-tree-integration.js?v=20261105-clean4"></script>
+  <script src="ydna-country-tree.js?v=20261105-clean4"></script>
+  <script src="ydna-country-tracker.js?v=20261105-clean4"></script>
+  <script src="ydna-uploaded-profiles.js?v=20261105-clean4"></script>
+  <script src="dna-tree-workbench.js?v=20261105-clean4"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
@@ -3188,7 +3189,7 @@
 
 </style>
   <link rel="stylesheet" href="dna-tree-view.css"/>
-  <link rel="stylesheet" href="dna-tree-reference.css?v=20261105-flags3"/>
+  <link rel="stylesheet" href="dna-tree-reference.css?v=20261105-clean4"/>
 </head>
 <body class="bg-background text-primary font-body antialiased">
 
@@ -3439,7 +3440,6 @@
         <div id="project-tracker-panel" class="project-tracker" aria-live="polite"><p>Loading project tracking status…</p></div>
         <div id="country-tracker-panel" class="country-tracker-panel" aria-live="polite"></div>
         <div id="official-tree-panel" class="text-xs text-gray-500 space-y-2" aria-live="polite"></div>
-        <div id="tree-result-path" class="tree-result-path"></div>
         <div id="tree-pills" class="flex flex-wrap gap-2"></div>
       </div>
     </div>
@@ -3449,12 +3449,29 @@
     <div class="flex flex-wrap gap-5 items-center text-[10px] font-headline font-black uppercase tracking-widest text-gray-400">
       <span class="tree-legend-chip"><span class="inline-block w-5 h-3 rounded" style="background:#001736"></span>Node</span>
       <span class="tree-legend-chip"><span class="inline-block w-3 h-3 rounded-full" style="background:#8b6a1c"></span>Egyptian sample</span>
-      <span class="tree-legend-chip"><span class="inline-block px-2 py-[2px] rounded-full text-[9px] font-black text-white" style="background:#7c3aed;">Study</span></span>
-      <span class="tree-legend-chip"><span class="inline-block px-2 py-[2px] rounded-full text-[9px] font-black text-white" style="background:#dc2626;">Egyptian Ancient</span></span>
-      <span class="tree-legend-chip"><span class="inline-block px-2 py-[2px] rounded-full text-[9px] font-black text-white" style="background:#0f766e;">Related Ancient</span></span>
+      <span class="tree-legend-chip"><span class="tree-cohort-key tree-cohort-study">▤ Study</span></span>
+      <span class="tree-legend-chip"><span class="tree-cohort-key tree-cohort-ancient">† Egyptian Ancient</span></span>
+      <span class="tree-legend-chip"><span class="tree-cohort-key tree-cohort-related">◇ Related Ancient</span></span>
     </div>
     <div class="related-reference-note">
       <strong>Related Ancient Samples</strong> are non-Egyptian ancient reference individuals that share Y-DNA or mtDNA branches with samples in the Egyptian archive. They can be shown or hidden in the trees, but they are excluded from every Egyptian total, percentage, regional statistic, and pie chart.
+    </div>
+
+    <div id="tree-workbench" class="tree-workbench" aria-label="Tree navigation and SNP search">
+      <div class="tree-workbench-controls">
+        <strong id="tree-dock-title">Y-DNA Tree</strong>
+        <form class="tree-dock-search" onsubmit="event.preventDefault();runDockTreeSearch()">
+          <label class="sr-only" for="tree-dock-search">Find SNP or sample</label>
+          <input id="tree-dock-search" type="search" placeholder="Find SNP or sample…" autocomplete="off">
+          <button type="submit">Search</button>
+        </form>
+        <div class="tree-dock-modes" aria-label="Path display">
+          <button type="button" data-tree-mode="direct" onclick="setTreeMode('direct')">Compact</button>
+          <button type="button" data-tree-mode="full" onclick="setTreeMode('full')">Full path</button>
+        </div>
+        <label id="tree-dock-topology-label">Paths <select id="tree-dock-topology" onchange="setOfficialTopology(this.value)"><option value="auto">Published + reference</option><option value="published">Published only</option><option value="yfull">YFull reference</option></select></label>
+      </div>
+      <div id="tree-result-path" class="tree-result-path" aria-live="polite"></div>
     </div>
 
     <div id="tree-wrap">
@@ -4040,7 +4057,8 @@
       const wrap = document.getElementById("tree-wrap");
       if (!wrap) return;
       const navHeight = document.querySelector('nav')?.getBoundingClientRect().height || 0;
-      const y = wrap.getBoundingClientRect().top + window.scrollY - navHeight - 12;
+      const dockHeight=document.getElementById('tree-workbench')?.getBoundingClientRect().height||0;
+      const y = wrap.getBoundingClientRect().top + window.scrollY - navHeight - dockHeight - 12;
       window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
     }
 
@@ -6498,6 +6516,7 @@
     }
 
     function renderTree() {
+      if(typeof syncTreeWorkbench==='function')syncTreeWorkbench();
       updateCountryTreeControls();
       if(isUploadedTree()){renderUploadedTree();return;}
       if(isCountryTree()){renderCountryTree();return;}

@@ -44,3 +44,19 @@ test('related ancient flags use only the published find country, with no Egyptia
   const result=profiles.sampleCountry({__sourceType:'related',country,site:'Egypt'});assert.equal(result.flag,'');
  }
 });
+const workbench=require('../../dna-tree-workbench.js');
+test('branch ages prefer published YFull values and preserve precision, zeroes and intervals',()=>{
+ const yfull={provider:'YFull',formed:{estimate:7000,low:6500,high:7500},tmrca:{estimate:5000,low:4500,high:5500}};
+ const fallback={provider:'FTDNA',formed:{estimate:6500},tmrca:{estimate:4800}};
+ assert.equal(workbench.chooseAges(yfull,fallback),yfull);
+ assert.equal(workbench.chooseAges(null,fallback),fallback);
+ assert.equal(workbench.ageText(yfull),'formed 7000 ybp, TMRCA 5000 ybp');
+ assert.equal(workbench.ageMetric({estimate:0}).estimate,0);
+ assert.equal(workbench.ageMetric({estimate:100,low:110}),null);
+ assert.equal(workbench.ageMetric({estimate:100,high:90}),null);
+});
+test('FTDNA fallback requires current published branch evidence, exact source label and ybp units',()=>{
+ const o={namespace:'ftdna',published:true,is_current:true,branch_age:{kind:'lineage_estimate',dna_type:'y',unit:'ybp',node_label:'J-AGEFIXTURE',formed:{estimate:6000},tmrca:{estimate:4000},observed_at:'2026-11-05',source_url:'https://discover.familytreedna.com/y-dna/J-AGEFIXTURE/time-tree'}};
+ assert.equal(workbench.ftdnaAge(o).provider,'FTDNA');
+ for(const changed of [{published:false},{is_current:false},{namespace:'yfull'},{branch_age:{...o.branch_age,unit:'calendar_year'}},{branch_age:{...o.branch_age,kind:'individual_age'}},{branch_age:{...o.branch_age,dna_type:'mt'}},{branch_age:{...o.branch_age,node_label:'J-OTHER'}},{branch_age:{...o.branch_age,source_url:'http://discover.familytreedna.com/y-dna/J-AGEFIXTURE'}},{branch_age:{...o.branch_age,formed:{estimate:1000}}}])assert.equal(workbench.ftdnaAge({...o,...changed}),null);
+});

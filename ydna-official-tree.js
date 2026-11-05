@@ -58,6 +58,9 @@ function publishedAgeText(age) {
 
 function renderOfficialNodeInfo(node) {
   if(currentTreeType==='mt') return '';
+  if(typeof renderBranchAgeInfo==='function'){
+    const ageInfo=renderBranchAgeInfo(node);if(ageInfo)return ageInfo;
+  }
   const info=officialInfoForNode(node);
   if(!info) return '';
   const alias=info.label!==node.display?` · YFull branch ${info.label}`:'';
@@ -83,7 +86,7 @@ function renderOfficialSampleInfo(sample) {
   const target=document.getElementById('sample-official-tree');
   if(!target) return;
   target.innerHTML='';
-  if(currentTreeType==='mt' || !isRealValue(sample.y_dna)) return;
+  if(sampleModalTreeType==='mt' || !isRealValue(sample.y_dna)) return;
   const terminalReference=publishedTerminalReferenceHTML(sample);
   target.innerHTML=terminalReference;
   if(!syncOfficialRelease) return;
