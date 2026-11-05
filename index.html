@@ -29,7 +29,7 @@
   <link rel="stylesheet" href="ydna-project-tracker.css">
   <script src="ydna-sync-details.js?v=20261105-owner6"></script>
   <script src="ydna-official-tree.js?v=20261105-owner6"></script>
-  <script src="ydna-lineage-links.js?v=20261105-owner6"></script>
+  <script src="ydna-lineage-links.js?v=20261105-provider7"></script>
   <script src="dna-tree-view.js?v=20261105-owner6"></script>
   <script src="dna-tree-integration.js?v=20261105-owner6"></script>
   <script src="ydna-country-tree.js?v=20261105-owner6"></script>
@@ -5919,10 +5919,10 @@
       }
 
       document.getElementById("sample-modal-y-links").innerHTML =
-        buildModalLinkButtons([sample.y_link_1, sample.y_link_2])+lineageLinkHTML(sample,'y');
+        lineageLinkHTML(sample,'y')+buildModalLinkButtons([sample.y_link_1, sample.y_link_2]);
 
       document.getElementById("sample-modal-mt-links").innerHTML =
-        buildModalLinkButtons([sample.mt_link_1, sample.mt_link_2])+lineageLinkHTML(sample,'mt');
+        lineageLinkHTML(sample,'mt')+buildModalLinkButtons([sample.mt_link_1, sample.mt_link_2]);
 
       document.getElementById('sample-modal-study-link-wrap').innerHTML = sample.__sourceType==='study'?buildStudyLinkButton(sample):'';
       let historical=document.getElementById('sample-modal-historical');
