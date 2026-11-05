@@ -21,22 +21,24 @@
   <meta name="theme-color" content="#001736">
 
 
-  <link rel="stylesheet" href="styles/tailwind.generated.css?v=20261105-admin5">
+  <link rel="stylesheet" href="styles/tailwind.generated.css?v=20261105-owner6">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="ydna-sync-ui.js?v=20261105-admin5"></script>
-  <script src="ydna-profile-tools.js?v=20261105-admin5"></script>
-  <script src="ydna-project-tracker.js?v=20261105-admin5"></script>
+  <script src="ydna-sync-ui.js?v=20261105-owner6"></script>
+  <script src="ydna-profile-tools.js?v=20261105-owner6"></script>
+  <script src="ydna-project-tracker.js?v=20261105-owner6"></script>
   <link rel="stylesheet" href="ydna-project-tracker.css">
-  <script src="ydna-sync-details.js?v=20261105-admin5"></script>
-  <script src="ydna-official-tree.js?v=20261105-admin5"></script>
-  <script src="dna-tree-view.js?v=20261105-admin5"></script>
-  <script src="dna-tree-integration.js?v=20261105-admin5"></script>
-  <script src="ydna-country-tree.js?v=20261105-admin5"></script>
-  <script src="ydna-country-tracker.js?v=20261105-admin5"></script>
-  <script src="ydna-uploaded-profiles.js?v=20261105-admin5"></script>
-  <script src="dna-tree-workbench.js?v=20261105-admin5"></script>
-  <script src="ydna-owner-admin.js?v=20261105-admin5"></script>
-  <link rel="stylesheet" href="ydna-owner-admin.css?v=20261105-admin5">
+  <script src="ydna-sync-details.js?v=20261105-owner6"></script>
+  <script src="ydna-official-tree.js?v=20261105-owner6"></script>
+  <script src="ydna-lineage-links.js?v=20261105-owner6"></script>
+  <script src="dna-tree-view.js?v=20261105-owner6"></script>
+  <script src="dna-tree-integration.js?v=20261105-owner6"></script>
+  <script src="ydna-country-tree.js?v=20261105-owner6"></script>
+  <script src="ydna-country-tracker.js?v=20261105-owner6"></script>
+  <script src="ydna-uploaded-profiles.js?v=20261105-owner6"></script>
+  <script src="dna-tree-workbench.js?v=20261105-owner6"></script>
+  <script src="ydna-owner-tools.js?v=20261105-owner6"></script>
+  <script src="ydna-owner-admin.js?v=20261105-owner6"></script>
+  <link rel="stylesheet" href="ydna-owner-admin.css?v=20261105-owner6">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
@@ -3205,7 +3207,7 @@
 
 </style>
   <link rel="stylesheet" href="dna-tree-view.css"/>
-  <link rel="stylesheet" href="dna-tree-reference.css?v=20261105-admin5"/>
+  <link rel="stylesheet" href="dna-tree-reference.css?v=20261105-owner6"/>
 </head>
 <body class="bg-background text-primary font-body antialiased">
 
@@ -5917,10 +5919,10 @@
       }
 
       document.getElementById("sample-modal-y-links").innerHTML =
-        buildModalLinkButtons([sample.y_link_1, sample.y_link_2]);
+        buildModalLinkButtons([sample.y_link_1, sample.y_link_2])+lineageLinkHTML(sample,'y');
 
       document.getElementById("sample-modal-mt-links").innerHTML =
-        buildModalLinkButtons([sample.mt_link_1, sample.mt_link_2]);
+        buildModalLinkButtons([sample.mt_link_1, sample.mt_link_2])+lineageLinkHTML(sample,'mt');
 
       document.getElementById('sample-modal-study-link-wrap').innerHTML = sample.__sourceType==='study'?buildStudyLinkButton(sample):'';
       let historical=document.getElementById('sample-modal-historical');

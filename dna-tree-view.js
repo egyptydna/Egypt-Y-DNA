@@ -34,6 +34,7 @@
       ${options.counts(row)}
       ${options.country?options.country(row):''}
       ${age?`<span class="phylo-age" title="${escape(options.ageTitle?.(row)||'Published lineage age estimate, not the age of an individual sample')}">${escape(age)}</span>`:''}
+      ${options.lineageLinks?.(row)||''}
       ${evidence?`<details class="phylo-evidence" data-node-path="${encoded}" data-node-label="${escape(row.display)}" ${lazy?'ontoggle="loadPhyloEvidence(this)"':''}><summary>info</summary><div class="phylo-evidence-body">${lazy?'Open to load source details.':evidence}</div></details>`:''}
     </div>`;
     const inner=header+(body?`<ul class="${isRoot?'tree-ul focused-root-list':'phylo-children'}">${body}</ul>`:'');

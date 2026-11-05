@@ -63,6 +63,7 @@ function openUploadedProfile(key){
   if(!dialog){dialog=document.createElement('dialog');dialog.id='uploaded-profile-dialog';dialog.className='uploaded-profile-dialog';document.body.append(dialog);}
   dialog.innerHTML=`<form method="dialog"><button class="ctrl-btn country-close">Close ×</button></form><h3>${esc(s.name)}</h3>
     <p><strong>${esc(s.y_dna)}</strong>${s.y_dna_alias?` · YFull reference: ${esc(s.y_dna_alias)}`:''}</p>
+    <p>${lineageLinkHTML(s,'y')}</p>
     <p>Paternal ancestor: ${esc(s.ancestor_name||'Not supplied')}</p><p>Original paternal origin text: ${esc(s.origin_raw||'Not supplied')}</p>
     <p>Paternal country: Egypt · Governorate: ${esc(s.governorate||'Unknown / pending review')}</p>
     <p>Kit number: not supplied · Test type: not supplied · STR values: not supplied</p>

@@ -1,13 +1,15 @@
 # Proben selbst verwalten
 
-Über **Verwalten** in der Navigation öffnest du den geschützten Bereich.
-Erstelle beim ersten Mal ein Konto mit deiner freigeschalteten E-Mail-Adresse,
-bestätige die Anmeldemail und melde dich dann an. Dein Passwort wird nicht im
-Projektcode gespeichert. Falls die E-Mail-Weiterleitung nicht zur Webseite
-führt, kannst du den Bestätigungslink im dafür vorgesehenen Feld prüfen lassen.
-Nur eine serverseitig freigeschaltete, verifizierte Adresse mit einer aktiven
-Anmeldesitzung erhält Schreibrechte. Andere Besucher und andere angemeldete
-Konten erhalten keine Verwaltungsrechte.
+**Verwalten** erscheint in der Navigation erst nach einer serverseitig bestätigten
+Anmeldung mit dem freigeschalteten Betreiberkonto. Auf einem neuen Gerät öffnest
+du zuerst den direkten [Anmeldelink](https://egyptydna.github.io/Egypt-Y-DNA/?share=1&state=1&section=admin).
+Die öffentliche Registrierung ist geschlossen; es gibt keinen Knopf zum
+Erstellen weiterer Konten. Bestehende andere Konten erhalten keine Verwaltungsrechte.
+Die Betreiberfreigabe ist fest an das bereits bestätigte Konto gebunden.
+Passwort und Anmeldeadresse sind gegen Änderungen über die Auth-API gesperrt.
+Eine spätere Änderung benötigt einen ausdrücklichen Auftrag des Betreibers und
+eine kurze, einmalige Freigabe durch die Datenbankverwaltung. Neue Passwörter
+werden ausschließlich im geschützten Anmeldedienst eingegeben, nicht im Chat.
 
 - **Neue Probe:** Kategorie wählen, bekannte Angaben eintragen, Gouvernement
   auswählen und die Veröffentlichungsfreigabe bestätigen. Nicht bekannte
@@ -16,6 +18,15 @@ Konten erhalten keine Verwaltungsrechte.
 - **Bearbeiten:** Nach Name, ID oder Linie suchen, die Probe öffnen und die
   Angaben ändern. Nicht zugeordnete Proben findest du über den Gouvernement-
   Filter. Änderungen werden nicht stillschweigend von älteren Importen ersetzt.
+- **Mehrere Proben:** Bis zu 200 Zeilen mit Kopfzeile aus Excel einfügen oder
+  eine CSV-/TSV-Datei wählen. Die CSV-Vorlage enthält die passenden Spalten.
+  Vor dem Speichern zeigt die Vorschau vorhandene Kitnummern, doppelte Kennungen
+  innerhalb der Datei und fehlerhafte Angaben. Nur gültige neue Zeilen werden
+  ergänzt. Vorhandene Proben werden weder überschrieben noch automatisch vereinigt.
+  Für Zeilen ohne Ortsangabe kann ein gemeinsames Gouvernement gewählt werden.
+- **Kitnummer prüfen:** Beim Eingeben einer Kitnummer oder YFull-ID erscheint
+  ein Hinweis, wenn die Probe bereits vorhanden ist. „Vorhandene Probe öffnen“
+  führt zur Bearbeitung dieses Eintrags.
 - **Zusammenführen:** Zwei Proben auswählen. Die Auswahl bleibt beim Wechsel
   der Kategorie erhalten. Bei einer modernen und einer gesammelten Probe bleibt
   die moderne Probe der Hauptdatensatz. Die Vorschau zeigt beide Datensätze;
@@ -60,3 +71,18 @@ Adresse und interne Nutzerkennungen werden nicht ins öffentliche Git geschriebe
 
 Neue Tabellen verwenden RLS; ausgeblendete Proben erhalten zusätzliche
 restriktive Leseregeln. Vorhandene Herkunfts-/Origin-Regeln bleiben bestehen.
+
+## Quellzahlen und Linienlinks
+
+„Egypt … reported results“ bezeichnet anonyme ägyptische Ergebniszahlen eines
+FTDNA-Quellenstands, keine zusätzlichen identifizierten Personen. Ihre
+Überschneidung mit gesammelten oder namentlichen Proben ist nicht bekannt.
+Diese zusätzlichen Ergebniszeilen sind standardmäßig verborgen und lassen sich
+über „Show anonymous source-count rows“ einschalten. Die Quelldaten bleiben erhalten.
+
+Linien im Baum und Proben-Popups erhalten automatisch Links zu YFull und bei
+Y-DNA zu FamilyTreeDNA Discover. Vorhandene Quellen und eindeutige Zuordnungen
+aus der datierten YFull-Referenz werden bevorzugt. Für neue, noch nicht bestätigte
+Provider-Zuordnungen zeigt die Oberfläche „Linie prüfen“. Ein solcher Link
+behauptet weder eine aktuelle Live-Bestätigung noch eine Identität beim Anbieter.
+Bei mtDNA wird keine nicht dokumentierte Discover-Adresse erfunden.

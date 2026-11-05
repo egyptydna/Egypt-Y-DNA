@@ -22,6 +22,7 @@ jobs:
       - run: node sync/tests/project-tracker.test.cjs
       - run: node sync/tests/profile-tools.test.cjs
       - run: node sync/tests/combined-tree.test.cjs
+      - run: node sync/tests/owner-workflow.test.cjs
   database:
     runs-on: ubuntu-latest
     services:
@@ -52,9 +53,25 @@ jobs:
       - run: psql -v ON_ERROR_STOP=1 -f sync/tests/database-uploaded-profiles.sql
       - run: psql -v ON_ERROR_STOP=1 -f sync/tests/database-project-tracking.sql
       - run: psql -v ON_ERROR_STOP=1 -f sync/tests/database-owner-admin.sql
+      - run: psql -v ON_ERROR_STOP=1 -f sync/tests/database-owner-workflow.sql
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - run: |
           python -m sync.tests.build_owned_guard_scenarios
           psql -v ON_ERROR_STOP=1 -f /tmp/owned-archive-guard-scenarios.sql
+
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PLAYWRIGHT_CHROMIUM_EXECUTABLE: ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install playwright==1.64.1
+      - run: python -m playwright install --with-deps chromium
+      - run: python sync/tests/browser_profile_details.py
+      - run: python sync/tests/browser_owner_admin.py

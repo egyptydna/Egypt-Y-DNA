@@ -2,6 +2,8 @@ let countryTreeMode='ftdna';
 let countryTracker=null,countryTrackerStatus=null,countryTrackerHistory=[];
 let countryTrackerLoading=null,countryTrackerError='',countryTrackerRoot=null;
 let countryTreeFamily=null;
+let showAnonymousCountryResults=false;
+function toggleAnonymousCountryResults(value){showAnonymousCountryResults=Boolean(value);renderTree();}
 
 const countryDate=value=>value?new Date(value).toLocaleString('en-GB',{timeZone:'UTC',dateStyle:'medium',timeStyle:'short'})+' UTC':'Not available';
 const countryLink=(url,label)=>{try{const u=new URL(url);return u.protocol==='https:'?`<a href="${esc(u.href)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`:'';}catch{return '';}};
@@ -52,6 +54,7 @@ function renderCountryTrackerPanel(){
   const snapshots=countryTrackerHistory.map(h=>`<li><time>${esc(countryDate(h.observed_at))}</time> · ${h.total_count} results · ${h.source_id==='owner-observatory-export'?'Observatory backup':'Primary feed'}<ul>${h.changes.slice(0,15).map(c=>`<li>${esc(YDNACountryTree.changeLabel(c))}</li>`).join('')}${h.changes.length>15?'<li>Additional branch changes recorded in the tracker.</li>':''}</ul></li>`).join('');
   panel.innerHTML=`<div class="country-tracker-heading"><strong>Egypt · ${s.total_count} reported FTDNA results</strong><span>${backup?'Observatory backup':'Own tracker · public aggregate feed'}</span></div>
     <div class="country-tracker-dates">Source updated: ${esc(countryDate(s.observed_at))} · Last check: ${esc(countryDate(status.checked_at))}</div>
+    <label class="country-anonymous-toggle"><input type="checkbox" ${showAnonymousCountryResults?'checked':''} onchange="toggleAnonymousCountryResults(this.checked)"> Show anonymous source-count rows</label><p>These are country totals published by FTDNA, without a kit-by-kit identity mapping. They can overlap with the samples below and are not additional identified people. The rows are hidden by default.</p>
     <p>Checked hourly on the server. Source publication can lag behind FTDNA. ${status.primary_status!=='ok'?'Primary feed unavailable; the last verified snapshot is retained.':''}</p>
     <details><summary>Tracker history & sources</summary><p>${countryLink(s.source_url,'Selected source snapshot')} · ${countryLink('https://egypt-ydna-observatory.kimoeln.chatgpt.site/archive?new=1','Observatory backup')} · ${countryLink('https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/ydna-tracker.yml','Server checks')}</p>
     <p>${esc(s.details.attribution||'FTDNA public country counts · owned Observatory archive')}. Counts represent published results; they do not establish individual identities or Big Y test types. The 622-result baseline is not presented as 622 newly discovered people.</p>
@@ -114,7 +117,7 @@ function renderCountryTree(){
   hasGroup:n=>uploads.has(n.display.toUpperCase()),
   group:n=>{
     const fromFile=uploads.get(n.display.toUpperCase())||[];
-    return (n.directCount?`<li class="country-result-group"><button class="country-result-button" data-branch="${esc(n.display)}" onclick="openCountryResult(this.dataset.branch)"><span class="country-result-dots" aria-hidden="true">${'<i class="country-result-dot"></i>'.repeat(n.directCount)}</span><span>🇪🇬 Egypt · ${n.directCount} reported ${n.directCount===1?'result':'results'}</span><span class="phylo-detail-hint">Count details ›</span></button></li>`:'')+
+    return (showAnonymousCountryResults&&n.directCount?`<li class="country-result-group"><button class="country-result-button" data-branch="${esc(n.display)}" onclick="openCountryResult(this.dataset.branch)"><span class="country-result-dots" aria-hidden="true">${'<i class="country-result-dot"></i>'.repeat(n.directCount)}</span><span>🇪🇬 FTDNA country count · ${n.directCount}</span><span class="phylo-detail-hint">Count details ›</span></button></li>`:'')+
       (fromFile.length?`<li class="country-known-profiles uploaded-branch-profiles"><details ${treeProfileGroupOpen(n.pathKey+'|uploaded')?'open':''} data-profile-group="${esc(treeProfileGroupKey(n.pathKey+'|uploaded'))}" ontoggle="rememberTreeProfileGroup(this)"><summary>${fromFile.length} collected ${fromFile.length===1?'record':'records'}</summary><ul>${fromFile.map(uploadedProfileRow).join('')}</ul></details></li>`:'');
   }};
   inner.innerHTML=`<p class="combined-tree-note">${root.count} reported FTDNA results · ${root.profileCount} samples in this selection. Includes saved YFull, owner-collected, study and ancient samples. These totals can overlap and are never added together.</p>`+DNATreeView.node(display,options,true);

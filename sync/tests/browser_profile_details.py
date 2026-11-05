@@ -1,4 +1,4 @@
-import json,urllib.request,urllib.error,mimetypes,time
+import os,json,urllib.request,urllib.error,mimetypes,time
 from pathlib import Path
 from urllib.parse import urlsplit,parse_qs,unquote
 from playwright.sync_api import sync_playwright
@@ -64,7 +64,7 @@ def route_handler(route):
  except Exception:route.abort()
 
 with sync_playwright() as p:
- browser=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
+ browser=p.chromium.launch(executable_path=os.environ.get('PLAYWRIGHT_CHROMIUM_EXECUTABLE','/usr/bin/chromium') or None,headless=True,args=['--no-sandbox'])
  page=browser.new_page(viewport={'width':1440,'height':1000})
  page.add_init_script("Object.defineProperty(navigator,'clipboard',{value:{writeText:async(value)=>{window.fixtureClipboard=value}}})")
  page.route('**/*',route_handler);page.on('pageerror',lambda e:errors.append(str(e)))
@@ -153,6 +153,8 @@ with sync_playwright() as p:
    out=root/'reports';out.mkdir(exist_ok=True);page.screenshot(path=str(out/f'profile-tree-{tree}-{width}.png'))
  # Anonymous counts still total five; known profile rows carry no dot identity.
  page.evaluate("showSection('ytree');setCountryTreeMode('ftdna')")
+ assert page.locator('.country-result-dot').count()==0
+ page.locator('.country-anonymous-toggle input').check()
  assert page.locator('.country-result-dot').count()==5
  assert 'formed 6500 ybp, TMRCA 4200 ybp' in page.locator('#tree-inner').inner_text()
  ft_info=page.locator('#tree-inner .phylo-node-row').filter(has=page.locator('.phylo-node-name',has_text='J-COUNT2')).locator('summary').first

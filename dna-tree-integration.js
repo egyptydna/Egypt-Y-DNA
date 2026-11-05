@@ -68,6 +68,7 @@ function compactTreeOptions() {
     issue:s=>currentTreeType==='mt'?'':YDNASync.pathIssue(s,undefined,syncOfficialRelease,syncOfficialNodes),
     sort:sortNodeChildren,aliases:renderNodeAliases,counts:syncNodeCountHTML,country:treeCountryCountBadge,
     age:treeBranchAgeText,ageTitle:treeBranchAgeTitle,
+    lineageLinks:n=>lineageLinkHTML(currentTreeType==='mt'?{mt_dna:n.display}:{y_dna:n.display},currentTreeType,true),
     hasEvidence:n=>{
       phyloNodeLookup.set(n.pathKey,n);
       return currentTreeType!=='mt'&&(officialInfoForNode(n)||syncCountryFacts(n).length||publishedBranchAge(n));

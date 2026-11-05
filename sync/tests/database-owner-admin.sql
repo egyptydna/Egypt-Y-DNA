@@ -1,9 +1,12 @@
 -- Synthetic records only; no production identities, emails or genetic data.
 begin;
+-- Disposable fixtures predate the locked registration policy.
+update ydna_editor.account_policy set registration_closed=false;
 insert into auth.users(id,email,email_confirmed_at) values
  ('00000000-0000-4000-8000-000000000001','owner@example.invalid',now()),
  ('00000000-0000-4000-8000-000000000002','outsider@example.invalid',now()),
  ('00000000-0000-4000-8000-000000000003','unverified@example.invalid',null);
+update ydna_editor.account_policy set registration_closed=true;
 insert into auth.sessions(id,user_id) values
  ('10000000-0000-4000-8000-000000000001','00000000-0000-4000-8000-000000000001'),
  ('10000000-0000-4000-8000-000000000002','00000000-0000-4000-8000-000000000002'),
