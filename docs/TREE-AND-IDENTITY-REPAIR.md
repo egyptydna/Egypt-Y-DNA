@@ -43,7 +43,16 @@ Two verified pairs were consolidated: YF129136 (519 → 91), preserving U3b3d2a,
 its maternal path and YSEQ test; MI33015 (36 → 50), retaining the documented
 deeper paternal path. There are 787 active profiles and all 789 stored original
 rows. Exact active kit/YFull duplicate counts are zero. A full before/after
-comparison confirmed that no pre-existing non-metadata field changed.
+comparison confirmed that the merges changed no pre-existing non-metadata field.
+
+One separately reviewed lineage correction updates YF128892 from its old upstream
+G-Y164809 assignment to the individually documented G-Y164948* source path.
+Its YSEQ test is retained. The licensed YTree defining block documents the
+corresponding FTDNA branch label G-FTA64278, stored as an alternate branch name.
+These are different defining SNPs on the same branch, not a claim that the
+mutations are identical. The previous row remains in the protected backup and
+the reviewed correction has a private evidence record. Other original fields
+remain unchanged.
 
 MI33015 has conflicting recorded governorates. Both original claims remain
 stored; one private origin review is pending. The site excludes this identity
@@ -60,7 +69,11 @@ data and substitutes local assets; its synthetic examples exist only inside the
 browser, never in Supabase. It also checks mobile overflow and produces preview
 images outside the repository.
 
-These changes add no new testers. Licensed YFull GitHub topology checks and the
+Basal `*` annotations are preserved on individual results while reference-tree
+queries resolve the underlying real branch. Valid ancestral F/K/P prefixes
+are accepted in R/Q paths, and recurrent SNP names are treated as ambiguous.
+
+These changes add no new testers and update one verified lineage. Licensed YFull GitHub topology checks and the
 existing owner-archive transfer continue separately. They do not establish that
 every public FTDNA project or the complete current YFull site was checked. The
 official GitHub snapshot currently reports v14.06.0; source timestamps remain

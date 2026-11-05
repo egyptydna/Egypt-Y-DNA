@@ -22,6 +22,12 @@ def tree_fixture():
 
 
 class TopologyTests(unittest.TestCase):
+    def test_basal_asterisk_uses_the_documented_branch_without_changing_sample_labels(self):
+        tree=YFullTree(tree_fixture());profile={'y_dna':'J-TEST1*'}
+        self.assertEqual(tree.match('J-TEST1*')['label'],'J-TEST1')
+        self.assertEqual(reference_labels([profile]),['J-TEST1'])
+        self.assertEqual(profile['y_dna'],'J-TEST1*')
+
     def test_exact_equivalent_blocks_and_aliases(self):
         tree=YFullTree(tree_fixture())
         self.assertEqual(tree.match('J-TEST1')['status'],'exact')

@@ -14,6 +14,8 @@ test('J-M319 source ancestry cannot place a J2a tester under J1',()=>{
 test('wrong major ancestry and incomplete terminal paths are not silently used',()=>{
   assert.equal(ui.pathIssue({y_dna:'J-M319',full_snp_path:'Y-Adam>E-M35>J-M319'}),'Incompatible source ancestry');
   assert.equal(ui.pathIssue({y_dna:'J-TEST2',full_snp_path:'Y-Adam>J>J-TEST1'}),'Source path does not end at the published terminal');
+  assert.equal(ui.pathIssue({y_dna:'R-TEST2',full_snp_path:'Y-Adam>A-L1098>F-M89>K-M9>P-M45>R-TEST2'}),'');
+  assert.equal(ui.pathIssue({y_dna:'Q-TEST2',full_snp_path:'Y-Adam>F-M89>K-M9>P-M45>Q-TEST2'}),'');
 });
 test('compact view renders real samples for either tree, escapes content and respects collapse',()=>{
   const sample={__uid:'id" onclick="bad()',name:'<script>bad()</script>',__sourceType:'modern'};
@@ -37,6 +39,14 @@ test('platform labels prefer an unambiguous FTDNA name without conflating split 
   context.syncCountryCounts=[...context.syncCountryCounts,{namespace:'ftdna',node_label:'J-FT2'}];
   assert.equal(vm.runInContext("treePlatformNames({display:'J-Y1'}).primary",context),'J-Y1');
   assert.match(vm.runInContext("treePlatformNames({display:'J-Y1'}).secondary",context),/distinct source branches retained/);
+});
+test('a published FTDNA parent link is not an alternative terminal branch name',()=>{
+  const source=fs.readFileSync('dna-tree-integration.js','utf8');
+  const context={URL,YDNASync:ui,currentTreeType:'y',syncOfficialRelease:{version:'fixture'},syncCountryCounts:[],modernSamples:[{y_dna:'J-Y2',y_link_1:'https://discover.familytreedna.com/y-dna/J-FT1/tree'}],syncOfficialNodes:new Map([['Y-Adam',{parent_label:null}],['J-Y1',{parent_label:'Y-Adam',snp_groups:[['FT1']]}],['J-Y2',{parent_label:'J-Y1',snp_groups:[['FT2']]}]])};
+  vm.createContext(context);vm.runInContext(source,context);
+  assert.equal(vm.runInContext("treePlatformNames({display:'J-Y2'}).primary",context),'J-Y2');
+  context.modernSamples=[{y_dna:'J-Y2',y_link_1:'https://discover.familytreedna.com/y-dna/J-FT2/tree'}];
+  assert.equal(vm.runInContext("treePlatformNames({display:'J-Y2'}).primary",context),'J-FT2');
 });
 test('one kit in three projects counts once',()=>{
   assert.equal(ui.deduplicate([1,2,3].map(id=>({id,kit_number:'990099001'}))).length,1);
@@ -120,6 +130,18 @@ const officialNodes=new Map([
   ['Y-Adam',{parent_label:null}],['J-M1',{parent_label:'Y-Adam'}],
   ['J-TEST1',{parent_label:'J-M1'}],['E-M35',{parent_label:'Y-Adam'}]
 ]);
+test('co-defining SNP blocks resolve branch labels without inventing SNP identity',()=>{
+  const nodes=new Map([['Y-Adam',{parent_label:null}],['G-Y100',{parent_label:'Y-Adam',snp_groups:[['Y100'],['FTA100','Y101']]}]]);
+  const release={version:'fixture',metadata:{matches:{}}};
+  assert.equal(ui.officialPath({y_dna:'G-FTA100'},release,nodes).label,'G-Y100');
+  assert.equal(ui.officialPath({y_dna:'G-Y100*'},release,nodes).label,'G-Y100');
+  assert.equal(ui.pathIssue({y_dna:'G-Y100',full_snp_path:'Y-Adam>G-FTA100'},undefined,release,nodes),'');
+  assert.equal(ui.pathIssue({y_dna:'G-Y100',full_snp_path:'Y-Adam>G-UNKNOWN1'},undefined,release,nodes),'Source path does not end at the published terminal');
+});
+test('a recurrent SNP in two official branches is not an unambiguous alias',()=>{
+  const nodes=new Map([['Y-Adam',{parent_label:null}],['G-Y100',{parent_label:'Y-Adam',snp_groups:[['RECUR100']]}],['G-Y200',{parent_label:'Y-Adam',snp_groups:[['RECUR100']]}]]);
+  assert.equal(ui.officialPath({y_dna:'G-RECUR100'},{version:'fixture'},nodes),null);
+});
 test('official paths use exact and source-proven equivalent branch names without altering profiles',()=>{
   const sample={y_dna:'J-ALIAS1',full_snp_path:'Y-Adam>J-ALIAS1',kit_number:'990099001'};
   const original=structuredClone(sample);
