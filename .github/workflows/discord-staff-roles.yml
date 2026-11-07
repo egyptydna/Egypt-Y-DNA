@@ -1,0 +1,37 @@
+name: Egypt Y-DNA Staff Permissions and Self-Selection Setup
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Preview changes, then select apply to set permissions and role menus"
+        required: true
+        default: preview
+        type: choice
+        options:
+          - preview
+          - apply
+
+permissions:
+  contents: read
+
+concurrency:
+  group: egypt-ydna-staff-role-setup
+  cancel-in-progress: false
+
+jobs:
+  configure:
+    name: Secure staff roles and create member self-selection
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Validate Python
+        run: python3 -m py_compile scripts/discord_staff_and_roles.py scripts/discord_role_reactions.py
+      - name: Configure roles and self-selection
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
+          MODE: ${{ inputs.mode }}
+        run: python3 -u scripts/discord_staff_and_roles.py
