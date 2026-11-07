@@ -1,0 +1,30 @@
+name: Egypt Y-DNA Role Self-Selection
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Apply member-selected roles every 5 minutes; GitHub can delay scheduled jobs.
+    - cron: "4-59/5 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: egypt-ydna-role-self-selection
+  cancel-in-progress: false
+
+jobs:
+  assign-roles:
+    name: Grant only nonprivileged self-selected origin and Y-DNA roles
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Validate Python
+        run: python3 -m py_compile scripts/discord_role_reactions.py
+      - name: Process role reactions
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
+        run: python3 -u scripts/discord_role_reactions.py
