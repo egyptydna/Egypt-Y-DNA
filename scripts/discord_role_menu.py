@@ -31,7 +31,7 @@ ORIGIN_SECTIONS = [
 ]
 YDNA_SECTIONS = [
     ("E, J & R", [
-        "E-M2", "E-M81", "E-M123", "E-V13", "E-V22", "E-V32",
+        "E-M2", "E-M81", "E-M123", "E-V13", "E-V22", "E-V12",
         "J1", "J1-P58", "J2a", "J2b",
         "R1a", "R1b-V88", "R1b-M269", "R2",
     ]),
@@ -74,7 +74,7 @@ ROLE_EMOJIS = {
     "Caribbean": "🏖️", "South America": "🦜",
     "Indigenous Peoples": "🌱", "Multiple Regions": "🌐",
     "E-M2": "🔵", "E-M81": "🟦", "E-M123": "🔷",
-    "E-V13": "💠", "E-V22": "🌀", "E-V32": "🌊",
+    "E-V13": "💠", "E-V22": "🌀", "E-V12": "🌊",
     "J1": "🧬", "J1-P58": "🟢", "J2a": "🍃", "J2b": "🌿",
     "R1a": "🟠", "R1b-V88": "🔴", "R1b-M269": "🟥", "R2": "🟨",
     "Q1": "🟣", "Q2": "💜", "T-P77": "🟧",
