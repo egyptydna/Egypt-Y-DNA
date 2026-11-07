@@ -210,6 +210,28 @@ def main():
             if updates:
                 change("PATCH", f"/guilds/{GUILD}/roles/{role['id']}",
                        updates, "recolor role: " + name)
+    # Explicitly remove only the unwanted gender/opt-out roles. Never remove
+    # any other existing origin, lineage, staff or membership role.
+    obsolete_names = {"non-binary", "nonbinary", "other / non-binary",
+                      "prefer not to say"}
+    for obsolete in list(roles):
+        if obsolete.get("name", "").casefold() in obsolete_names:
+            if obsolete.get("managed"):
+                print("[NOTICE] Skipping Discord-managed obsolete role:",
+                      obsolete["name"])
+                continue
+            try:
+                change("DELETE", f"/guilds/{GUILD}/roles/{obsolete['id']}", None,
+                       "remove unwanted role: " + obsolete["name"])
+                if MODE == "apply":
+                    roles.remove(obsolete)
+                    by_name.pop(obsolete["name"].casefold(), None)
+            except RuntimeError as exc:
+                print("[ACTION REQUIRED] Could not remove unwanted role ",
+                      obsolete["name"], ": ", exc,
+                      ". The server owner can delete this role manually.",
+                      flush=True)
+
     if MODE == "preview" and "verified" not in by_name:
         print("[PREVIEW] Verified role must be created before channel permissions can be applied.")
     verified = by_name.get("verified")
