@@ -69,7 +69,7 @@ def overwrite(role_id, allow=0, deny=0, kind=0):
     return {"id": str(role_id), "type": kind,
             "allow": str(allow), "deny": str(deny)}
 
-def secured_permissions(verified_id, staff_ids, bot_id, can_post):
+def secured_permissions(verified_id, staff_ids, bot_id, can_post, carl_bot_id=None):
     # @everyone cannot see the private member channels until Verified,
     # even though the channel's parent category may have different overrides.
     result = [overwrite(GID, deny=VIEW | SEND | THREADS)]
@@ -82,6 +82,10 @@ def secured_permissions(verified_id, staff_ids, bot_id, can_post):
     )
     result.append(overwrite(
         bot_id, allow=VIEW | SEND | READ | REACT | THREADS, kind=1))
+    if carl_bot_id:
+        # Only the trusted Carl-bot ACCOUNT (not @everyone) gets view/reaction
+        # access to an otherwise Verified-only role menu. It gets no staff powers.
+        result.append(overwrite(carl_bot_id, allow=VIEW | READ | REACT, kind=1))
     return result
 
 def norm(overwrites):
@@ -138,6 +142,20 @@ def main():
     roles = api("GET", f"/guilds/{GID}/roles")
     channels = api("GET", f"/guilds/{GID}/channels")
     names = {r["name"].casefold(): r for r in roles}
+    carl_managed = next(
+        (r for r in roles if r.get("managed") and
+         r.get("tags", {}).get("bot_id") and
+         "carl" in r.get("name", "").casefold() and
+         "bot" in r.get("name", "").casefold()), None)
+    carl_bot_id = str(carl_managed["tags"]["bot_id"]) if carl_managed else None
+    if carl_bot_id:
+        print("[CHECK] Carl-bot account detected; granting it read/reaction "
+              "access to #choose-roles only:", carl_bot_id, flush=True)
+    else:
+        print("[ACTION REQUIRED] Could not identify Carl-bot's managed integration "
+              "role. In Discord #choose-roles > Edit Channel > Permissions, add "
+              "Carl-bot with View Channel, Read Message History and Add Reactions. "
+              "Normal users must still need Verified.", flush=True)
     verified = names.get("verified")
     if not verified:
         raise RuntimeError("Verified role missing. Run verification setup first.")
@@ -246,13 +264,14 @@ def main():
             "name": "choose-roles", "type": 0,
             "topic": "Pick your own origin, detailed Y-DNA and optional gender roles.",
             "permission_overwrites": secured_permissions(
-                str(verified["id"]), staff_ids, bot["id"], False),
+                str(verified["id"]), staff_ids, bot["id"], False, carl_bot_id),
         }
         if community: payload["parent_id"] = str(community["id"])
         picker = change("POST", f"/guilds/{GID}/channels", payload,
                         "create Verified-only #choose-roles")
     if picker:
-        desired = secured_permissions(str(verified["id"]), staff_ids, bot["id"], False)
+        desired = secured_permissions(str(verified["id"]), staff_ids, bot["id"], False,
+                                      carl_bot_id)
         if norm(picker.get("permission_overwrites", [])) != norm(desired):
             change("PATCH", f"/channels/{picker['id']}",
                    {"permission_overwrites": desired},
