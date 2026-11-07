@@ -148,6 +148,35 @@ def main():
     print("[SERVER]", guild["name"], "| mode", MODE)
     print("[GOAL] Flag-based origins, detailed single-branch Y-DNA, member posts in #new-results.")
 
+    print("0) Replace E-V32 with E-V12, preserving existing members.")
+    old_v32 = names.get("e-v32")
+    v12 = names.get("e-v12")
+    if old_v32 and not v12:
+        if MODE == "preview":
+            print("[PREVIEW] Rename existing E-V32 role (ID " +
+                  str(old_v32["id"]) + ") to E-V12; keep all current members.")
+            names["e-v12"] = {**old_v32, "name": "E-V12"}
+            names.pop("e-v32", None)
+        else:
+            updated = change("PATCH",
+                             f"/guilds/{GID}/roles/{old_v32['id']}",
+                             {"name": "E-V12"},
+                             "rename E-V32 -> E-V12 without changing role ID or members")
+            if updated:
+                names["e-v12"] = updated
+                names.pop("e-v32", None)
+    elif not v12:
+        created = change("POST", f"/guilds/{GID}/roles",
+                         {"name": "E-V12", "permissions": "0",
+                          "color": 0x2563A6, "mentionable": False},
+                         "create E-V12 subgroup role")
+        if created:
+            names["e-v12"] = created
+        elif MODE == "preview":
+            names["e-v12"] = {"name": "E-V12", "permissions": "0"}
+    else:
+        print("[EXISTS] E-V12 already exists; old E-V32 is not offered.")
+
     print("1) Create only missing country roles. Existing roles remain untouched.")
     for name in SELECTABLE_ORIGINS:
         if name.casefold() in names:
