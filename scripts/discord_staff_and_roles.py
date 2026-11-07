@@ -95,7 +95,8 @@ def menu_groups(role_by_name):
     groups = []
     for category, choices in (
         ("ORIGIN", list(ORIGIN) + list(LEGACY_ORIGINS)),
-        ("Y-DNA", list(HAPLOS))
+        ("Y-DNA", list(HAPLOS)),
+        ("GENDER", ["Male", "Female"])
     ):
         available = [name for name in dict.fromkeys(choices)
                      if name.casefold() in role_by_name]
@@ -107,15 +108,20 @@ def menu_groups(role_by_name):
     return groups
 
 def menu_content(marker, category, names):
-    intro = ("**Choose your geographical/heritage origins** (self-declared, optional)"
-             if category == "ORIGIN" else
-             "**Choose your Y-DNA haplogroup** (self-reported, NOT verified)")
+    intro = (
+        "**Choose your geographical/heritage origins** (self-declared, optional)"
+        if category == "ORIGIN" else
+        "**Choose your Y-DNA haplogroup** (self-reported, NOT verified)"
+        if category == "Y-DNA" else
+        "**Optional gender role** — choose ONE: Male or Female"
+    )
     lines = [marker, intro,
              "React with the matching number(s). Each selection grants one role.",
              "You can choose more than one. No staff or verified-tester roles are available.",
              ""]
     lines += [f"{EMOJIS[i]} {name}" for i, name in enumerate(names)]
-    lines.append("\nRole changes are processed periodically; ask a moderator to remove a selection.")
+    lines.append("\nRole changes are processed periodically. For gender, react to exactly one option. "
+                 "To change an existing gender role, contact staff.")
     return "\n".join(lines)
 
 def members_only_overwrites(member_id, bot_id, staff_ids):
@@ -150,9 +156,9 @@ def main():
         if not role:
             raise RuntimeError("Missing " + name + " role. Run server setup first.")
         staff[name] = role
-    member = by_name.get("member")
+    member = by_name.get("verified")
     if not member:
-        raise RuntimeError("Missing Member role; run Discord server setup first.")
+        raise RuntimeError("Missing Verified role; run Verification & Roles Setup first.")
 
     # SAFETY PREFLIGHT: Check all role edits before performing any writes.
     # A bot cannot edit a role at or above its top role. It also cannot grant
@@ -217,7 +223,7 @@ def main():
 
     ordinary = {n.casefold() for n in
         list(ORIGIN) + list(HAPLOS) + list(LEGACY_ORIGINS) +
-        ["Member", "Research Contributor", "Verified Y-DNA Tester",
+        ["Male", "Female", "Bot", "Verified", "Member", "Research Contributor", "Verified Y-DNA Tester",
          "Contributor", "Verified Tester"]}
     planned = []
     hierarchy_problems = []
@@ -413,7 +419,7 @@ def main():
         if chosen_category and str(choose.get("parent_id")) != str(chosen_category["id"]):
             payload["parent_id"] = str(chosen_category["id"])
         maybe("PATCH", "/channels/" + str(choose["id"]), payload,
-              "restrict #choose-roles to Member + staff")
+              "restrict #choose-roles to Verified + staff")
     if not choose:
         if MODE == "preview":
             print("[PREVIEW] Prepare numbered role-selection posts")
