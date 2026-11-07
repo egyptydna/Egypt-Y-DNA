@@ -4,7 +4,7 @@
 1. A newcomer reads rules, reacts ✅ in #verification, writes a short
    introduction in #verification-chat (no private DNA details).
 2. Founder/Administrator/Moderator reacts ✅ to THAT member message.
-3. This worker verifies BOTH acknowledgments and assigns Member + Verified.
+3. This worker verifies BOTH acknowledgments and assigns Verified only.
 No staff approval means no access. Bot accounts cannot be approved as humans.
 """
 import json, os, sys, time, urllib.error, urllib.parse, urllib.request
@@ -73,7 +73,7 @@ def main():
     bot = api("GET", "/users/@me")
     roles = api("GET", f"/guilds/{GUILD}/roles")
     by_name = {r["name"].casefold(): r for r in roles}
-    roles_needed = ("member", "verified")
+    roles_needed = ("verified",)
     if any(name not in by_name for name in roles_needed):
         print("SKIP: Create the Verified role using the Verification Room setup first.")
         return
