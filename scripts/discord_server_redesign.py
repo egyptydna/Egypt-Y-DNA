@@ -294,10 +294,13 @@ def main():
         bot_member = request("GET", "/guilds/" + GUILD + "/members/" + str(bot["id"]))
         bot_rank = max([positions.get(str(r), -1) for r in bot_member.get("roles", [])] or [-1])
         member_rank = positions.get(str(member_id), -1)
+        print(f"[CHECK] Bot role position: {bot_rank}; Member role position: {member_rank}", flush=True)
         if bot_rank <= member_rank:
             raise RuntimeError(
-                "Bot role must be ABOVE the Member role in Discord Server Settings > Roles. "
-                "Move Egypt YDNA Bot up, then re-run apply.")
+                "DISCORD ROLE ORDER: Egypt YDNA Bot is not above the Member role. "
+                "In Discord Server Settings > Roles, move the 'Egypt YDNA Bot' role "
+                "higher than 'Member'. Save the change, then re-run apply. "
+                f"Bot position={bot_rank}; Member position={member_rank}.")
     channels = request("GET", "/guilds/" + GUILD + "/channels")
     print("\n== CATEGORIES AND CHANNELS ==")
     for category, items in DESIGN:
