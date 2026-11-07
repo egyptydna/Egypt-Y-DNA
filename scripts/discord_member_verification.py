@@ -3,12 +3,13 @@
 
 Runs on GitHub Actions about every five minutes. Grant Verified only when:
   * Rules Screening is enabled on the existing Egypt Y-DNA server,
-  * the Discord guild-member object explicitly has pending == False,
+  * the Discord member is not pending (pending == False, or omitted per API),
   * the account is human, and
   * the member does not already have Verified.
 
 Guild Members privileged intent is required to LIST members via Discord REST.
-A missing 'pending' field is never considered acceptance (fail closed).
+Discord API types specify that an omitted 'pending' field means False;
+we still refuse to verify a pending=True or pending=None member.
 This script never alters staff roles or approves members on their behalf.
 """
 import json
@@ -121,7 +122,7 @@ def main():
         raise RuntimeError("Egypt YDNA Bot needs Manage Roles.")
 
     verified_id = str(verified["id"])
-    scanned = accepted = pending = missing_pending = bots = already = granted = failures = 0
+    scanned = accepted = pending = unknown_pending = omitted_pending = bots = already = granted = failures = 0
     for member in all_members():
         user = member.get("user") or {}
         member_id = str(user.get("id", ""))
@@ -134,10 +135,15 @@ def main():
         if member.get("pending") is True:
             pending += 1
             continue
-        # Fail closed: absence/null of "pending" does not prove rule acceptance.
-        if member.get("pending") is not False:
-            missing_pending += 1
+        # Discord API declares 'pending' optional, and a missing value is
+        # equivalent to False for members who have passed Rules Screening.
+        # A None value is still treated as ambiguous and skipped.
+        raw_pending = member.get("pending", False)
+        if raw_pending is not False:
+            unknown_pending += 1
             continue
+        if "pending" not in member:
+            omitted_pending += 1
         accepted += 1
         if verified_id in {str(id_) for id_ in member.get("roles", [])}:
             already += 1
@@ -154,12 +160,13 @@ def main():
                   file=sys.stderr, flush=True)
 
     print("[SUMMARY] scanned=", scanned, "screening_accepted=", accepted,
-          "still_pending=", pending, "pending_unknown=", missing_pending,
+          "still_pending=", pending, "pending_unknown=", unknown_pending,
+          "pending_field_omitted=", omitted_pending,
           "bots_ignored=", bots, "already_verified=", already,
           "newly_verified=", granted, "errors=", failures, flush=True)
-    if missing_pending:
-        print("[NOTICE] Members without an explicit pending=false were NOT granted "
-              "Verified. Confirm the bot has SERVER MEMBERS INTENT enabled.")
+    if unknown_pending:
+        print("[NOTICE] Members whose pending status was null or invalid were "
+              "not automatically Verified; they need a valid Discord member status.")
     if failures:
         raise RuntimeError(
             "Some verified-role assignments failed; inspect bot permissions "
