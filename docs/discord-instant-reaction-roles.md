@@ -1,3 +1,36 @@
+# Wichtig: Carl-bot-Berechtigungen allein vergeben noch keine Rollen!
+
+Die Rolle von Carl-bot darf **Manage Roles** haben, trotzdem passiert beim Emoji-Klick nichts, solange die Emoji-zu-Rolle-Zuordnungen **nicht unter Carl-bot → Reaction Roles gespeichert** sind. GitHub hat keinen Zugriff auf Carl-bots eigene Datenbank; das Anlegen eines Emoji-Posts durch den Egypt YDNA Bot verbindet ihn NICHT automatisch mit Carl-bot.
+
+## Carl-bot auf dem bestehenden Discord-Post konfigurieren (kostenlos)
+
+1. Öffne https://carl.gg und wähle deinen **Egypt Y-DNA** Server.
+2. Öffne **Reaction Roles → Create new reaction role**.
+3. Wähle **Use ID / ID / Existing message**, NICHT „Post embed“, denn `#choose-roles` enthält bereits fertige Nachrichten unseres Egypt YDNA Bots.
+4. Wähle den Kanal **#choose-roles**, kopiere die **Nachrichten-ID der jeweiligen Auswahl-Nachricht** und füge sie im Carl-bot-Feld ein. In Discord: Entwickler-Modus aktivieren, lange auf die *tatsächliche Emoji-Auswahl-Nachricht* drücken → **ID kopieren**. Nicht die angepinnte Übersichts-Nachricht verwenden.
+5. Verknüpfe die Emojis einzeln: `🇪🇬 → Egypt`, `🇲🇦 → Morocco`, `🧬 → J1`, `🟢 → J1-P58`, `🌊 → E-V12`, `🔵 → Male` (jeweils auf der korrekten Nachricht) usw. Für mehrere Emojis derselben Nachricht ein gemeinsames Reaction-Role-Set.
+6. **Save / Create** drücken. Für die Y-DNA-Nachrichten nach Möglichkeit „Unique“ einstellen, damit eine Person nur einen väterlichen Zweig wählt. Bei getrennten Y-DNA-Nachrichten zusätzlich die Link-Funktion verwenden oder Rollenwechsel durch Moderation prüfen.
+7. In Discord → Servereinstellungen → Rollen: **Carl-bot über Herkunfts-, Geschlechts- und Y-DNA-Rollen**, aber **unter Founder, Administrator, Moderator und Verified** positionieren. `Manage Roles` aktiv, `Administrator` aus. Carl-bot braucht Lesezugriff auf `#choose-roles`.
+8. Mit einem Testmitglied, das bereits **Verified** hat, auf ein Emoji reagieren. Carl-bot sollte unmittelbar die Rolle vergeben. Einstellungen unter `Reaction Roles` prüfen, falls nicht.
+
+Offizielle Carl-bot-Dokumentation: https://github.com/botlabs-gg/carlbot-docs/blob/master/docs/roles.md
+Das Dashboard unterstützt die Verknüpfung mit einer fremden, bestehenden Nachricht über die Nachrichten-ID.
+
+## Alternativ: unser GitHub-Bot ohne Carl-bot verwenden
+
+Der vorhandene Workflow https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-role-selection.yml
+vergibt Rollen **automatisch, aber nicht sofort**. Manuell **Run workflow** starten, dann im Job **Process role reactions** die neue `[SUMMARY]`-Zeile ansehen.
+
+- `not Verified` → Der Reagierende hat noch keine Verified-Rolle (Serverinhaber wird jetzt als Ausnahme berücksichtigt).
+- `unsafe/unmanageable roles` → Die Zielrolle liegt über dem Bot oder hat alte Server-Berechtigungen. Als Serverinhaber korrigieren.
+- `outdated/missing menus` → Erneut den Role Menu & New Results Workflow mit `apply` ausführen.
+- `roles granted: 0` und `human selections checked: 0` → Reaktion auf die tatsächliche Bot-Auswahl-Nachricht prüfen; nicht nur auf die Hauptübersicht.
+- Bei Discord HTTP 403 steht der fehlgeschlagene API-Aufruf im Log.
+
+**Wichtig:** Nach erfolgreicher Carl-bot-Konfiguration empfehlen wir, den GitHub-Schedule für `discord-role-selection.yml` zu deaktivieren, damit nicht zwei unabhängige Systeme konkurrieren. Die GitHub-Setup-Workflows für Regeln/Verifizierung bleiben aktiv.
+
+---
+
 # Instant reaction roles for Egypt Y-DNA (free)
 
 **Current GitHub Actions role selector is already automatic, but NOT instant.** It reads reactions to the messages in `#choose-roles` and assigns roles only on its approximately 5-minute scheduled runs. GitHub cron cannot run every second. No manual staff action is required once the workflow is enabled.
