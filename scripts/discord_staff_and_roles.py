@@ -154,9 +154,13 @@ def main():
     if not member:
         raise RuntimeError("Missing Member role; run Discord server setup first.")
 
-    # Any administrator bit / Manage Roles privilege outside the bot's own role
-    # would let that user bypass staff-only assignment. Remove those two bits
-    # globally without touching other unrelated permissions.
+    # All ordinary selectable roles receive exactly ZERO server-wide powers.
+    # This includes legacy geographic labels already present on the server.
+    # Other non-bot roles lose the Administrator/Manage Roles bits only.
+    ordinary = {n.casefold() for n in
+        list(ORIGIN) + list(HAPLOS) + list(LEGACY_ORIGINS) +
+        ["Member", "Research Contributor", "Verified Y-DNA Tester",
+         "Contributor", "Verified Tester"]}
     for role in roles:
         if role.get("managed"):
             continue
@@ -164,6 +168,8 @@ def main():
         current = int(role.get("permissions", "0"))
         if name in POLICY:
             desired = POLICY[name]
+        elif name.casefold() in ordinary:
+            desired = 0
         else:
             desired = current & ~(ADMINISTRATOR | MANAGE_ROLES)
         if current != desired:
