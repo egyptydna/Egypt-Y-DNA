@@ -16,6 +16,7 @@ VIEW = 1 << 10
 SEND = 1 << 11
 ADD_REACTIONS = 1 << 6
 READ_HISTORY = 1 << 16
+THREAD_SEND = 1 << 38
 
 STAFF = ["Administrator", "Moderator"]
 CORE = ["Founder", "Administrator", "Moderator", "Member",
@@ -188,31 +189,31 @@ def overlays(channel, access, member_id, staff_ids, bot_id, kind):
         old["deny"] = str((old_deny & ~involved) | deny)
         overwrites[key] = old
     if access == "staff":
-        set_permission(GUILD, 0, 0, VIEW | SEND)
-        set_permission(member_id, 0, 0, VIEW | SEND)
+        set_permission(GUILD, 0, 0, VIEW | SEND | THREAD_SEND)
+        set_permission(member_id, 0, 0, VIEW | SEND | THREAD_SEND)
         for id in staff_ids:
-            set_permission(id, 0, VIEW | SEND | READ_HISTORY, 0)
+            set_permission(id, 0, VIEW | SEND | THREAD_SEND | READ_HISTORY, 0)
     elif access == "public":
-        set_permission(GUILD, 0, VIEW | READ_HISTORY, SEND)
-        set_permission(member_id, 0, VIEW | READ_HISTORY, SEND)
+        set_permission(GUILD, 0, VIEW | READ_HISTORY, SEND | THREAD_SEND)
+        set_permission(member_id, 0, VIEW | READ_HISTORY, SEND | THREAD_SEND)
         for id in staff_ids:
             set_permission(id, 0, VIEW | SEND | READ_HISTORY, 0)
     elif access == "verify":
-        set_permission(GUILD, 0, VIEW | READ_HISTORY | ADD_REACTIONS, SEND)
-        set_permission(member_id, 0, VIEW | READ_HISTORY | ADD_REACTIONS, SEND)
+        set_permission(GUILD, 0, VIEW | READ_HISTORY | ADD_REACTIONS, SEND | THREAD_SEND)
+        set_permission(member_id, 0, VIEW | READ_HISTORY | ADD_REACTIONS, SEND | THREAD_SEND)
         for id in staff_ids:
             set_permission(id, 0, VIEW | SEND | READ_HISTORY | ADD_REACTIONS, 0)
     elif access == "read":
-        set_permission(GUILD, 0, 0, VIEW | SEND)
-        set_permission(member_id, 0, VIEW | READ_HISTORY, SEND)
+        set_permission(GUILD, 0, 0, VIEW | SEND | THREAD_SEND)
+        set_permission(member_id, 0, VIEW | READ_HISTORY, SEND | THREAD_SEND)
         for id in staff_ids:
             set_permission(id, 0, VIEW | SEND | READ_HISTORY, 0)
     elif access == "members":
-        set_permission(GUILD, 0, 0, VIEW | SEND)
-        set_permission(member_id, 0, VIEW | SEND | READ_HISTORY, 0)
+        set_permission(GUILD, 0, 0, VIEW | SEND | THREAD_SEND)
+        set_permission(member_id, 0, VIEW | SEND | THREAD_SEND | READ_HISTORY, 0)
         for id in staff_ids:
             set_permission(id, 0, VIEW | SEND | READ_HISTORY, 0)
-    set_permission(bot_id, 1, VIEW | SEND | READ_HISTORY | ADD_REACTIONS, 0)
+    set_permission(bot_id, 1, VIEW | SEND | THREAD_SEND | READ_HISTORY | ADD_REACTIONS, 0)
     return list(overwrites.values())
 
 
@@ -391,7 +392,7 @@ def main():
             if not target: continue
             try:
                 recent = request("GET", "/channels/" + str(target["id"]) + "/messages?limit=50")
-                marker = "**EGYPT Y-DNA — COMMUNITY RULES**" if channel_name == "rules" else "**Getting started**"
+                marker = "To unlock the server, read these rules" if channel_name == "rules" else "The Member role is assigned automatically"
                 if not any(marker in m.get("content", "") for m in recent):
                     request("POST", "/channels/" + str(target["id"]) + "/messages",
                             {"content": MESSAGES[channel_name], "allowed_mentions": {"parse": []}})
