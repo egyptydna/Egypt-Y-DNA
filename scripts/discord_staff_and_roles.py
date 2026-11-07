@@ -208,6 +208,45 @@ def main():
         print("[NOTICE] Founder count could not be checked:", ex)
 
     channel_list = api("GET", f"/guilds/{GID}/channels")
+    # Give all staff the ability to see/manage member-gated channels even
+    # when they have not separately taken the ordinary Member role.
+    staff_ids = [str(staff[n]["id"]) for n in STAFF]
+    staff_category = next((c for c in channel_list if c["type"] == 4 and
+                           c["name"] in ("🔒 STAFF", "🔒 STAFF ONLY")), None)
+    forbidden = {"id": GID, "type": 0, "allow": "0",
+                 "deny": str(VIEW | SEND)}
+    bot_rule = {"id": str(bot["id"]), "type": 1,
+                "allow": str(VIEW | SEND | READ_HISTORY), "deny": "0"}
+    for ch in channel_list:
+        is_staff = (staff_category is not None and
+                    (str(ch["id"]) == str(staff_category["id"]) or
+                     str(ch.get("parent_id")) == str(staff_category["id"])))
+        if is_staff:
+            overrides = [forbidden] + [
+                {"id": rid, "type": 0,
+                 "allow": str(VIEW | SEND | READ_HISTORY), "deny": "0"}
+                for rid in staff_ids] + [bot_rule]
+        elif ch["type"] in (0, 2, 4, 15):
+            # Keep other permission overwrites unchanged; only ensure staff
+            # can view/read/send in channels shared with the community.
+            overrides = [dict(o) for o in ch.get("permission_overwrites", [])]
+            for rid in staff_ids:
+                old = next((o for o in overrides if str(o["id"]) == rid and
+                            o["type"] == 0), None)
+                if old is None:
+                    old = {"id": rid, "type": 0, "allow": "0", "deny": "0"}
+                    overrides.append(old)
+                bits = VIEW | SEND | READ_HISTORY
+                old["allow"] = str(int(old.get("allow", "0")) | bits)
+                old["deny"] = str(int(old.get("deny", "0")) & ~bits)
+        else:
+            continue
+        if overrides != ch.get("permission_overwrites", []):
+            maybe("PATCH", "/channels/" + str(ch["id"]),
+                  {"permission_overwrites": overrides},
+                  ("secure private STAFF access: " if is_staff else
+                   "allow staff in ordinary channel: ") + ch["name"])
+
     chosen_category = next((c for c in channel_list if c["type"] == 4 and
         c["name"] in ("📌 START HERE", "📌 INFORMATION")), None)
     choose = next((c for c in channel_list if c["type"] == 0 and
