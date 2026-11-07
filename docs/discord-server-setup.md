@@ -159,3 +159,12 @@ Discords eingebautes Onboarding erlaubt zwar sofortige Selbstwahl, erfordert nac
 - Bei einem normalen Rollenwechsel über Discord ohne Workflow kann der Bot eine dritte Founder-Person nicht präventiv verhindern.
 - Das Staff-Berechtigungsskript entfernt Administrator/Manage Roles von allen nicht vom Bot verwalteten Benutzerrollen, um ungewollte Eskalation zu verhindern. Das ist eine **echte Rechteänderung**; bitte deshalb den Preview-Modus lesen.
 - Die Workflow-Automatik kann Berechtigungen setzen und Rollen vergeben, sobald apply ausgeführt ist. Sie läuft nicht schon durch das bloße Anlegen der Dateien.
+
+
+### Fehler 403 / Discord Missing Permissions beim Staff-Setup
+
+Wenn GitHub im Schritt `scripts/discord_staff_and_roles.py` `Discord HTTP 403 ... Missing Permissions (50013)` meldet, verweigert Discord dem Bot eine Rollenänderung. Ursache ist insbesondere entweder (1) fehlendes **Manage Roles**, (2) die betroffene Rolle steht nicht unter der Bot-Rolle, oder (3) der Bot hat selbst nicht alle Rechte, die er an Founder/Administrator/Moderator übertragen soll.
+
+**Aktueller Workflow (verbessert):** https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-staff-roles.yml
+
+Er führt jetzt zuerst einen READ-ONLY-Vorcheck durch und gibt `[PREFLIGHT]` und `[ACTION REQUIRED]` aus; bei Problemen stoppt `apply` ohne eine Rollenänderung vorzunehmen. Für Diagnose zuerst **Run workflow → preview** ausführen. Die Ausgabe nennt die konkrete Ursache. Dann in **Discord → Servereinstellungen → Rollen → Egypt YDNA Bot → Berechtigungen** nötige Rechte aktivieren oder die Bot-Rolle über die Zielrolle setzen. Danach eine NEUE Ausführung mit `preview`, erst bei erfolgreicher Prüfung mit `apply` starten. Für die anfängliche Rechtevergabe muss der Bot die jeweiligen vergebenen Rechte selbst besitzen; anschließend können für den Bot unnötige Moderatorrechte wieder deaktiviert werden, aber **Manage Roles** muss für die laufende Mitgliederverifizierung und Selbstwahl eingeschaltet bleiben. Die allumfassende `Administrator`-Berechtigung ist dafür nicht nötig und sollte vermieden werden.
