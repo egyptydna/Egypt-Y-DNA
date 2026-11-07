@@ -81,3 +81,21 @@ Links:
 - Discord Member Applications: https://support.discord.com/hc/en-us/articles/29729107418519-Server-Member-Applications
 - Discord Rules Screening: https://support.discord.com/hc/en-us/articles/1500000466882-Rules-Screening-FAQ
 - Discord API: https://discord.com/developers/docs/topics/permissions
+
+## Farben für Herkunftsrollen (November 2026)
+
+Jede der 37 Herkunfts-/Regionalrollen bekommt beim nächsten **apply** eine eigene Farbe. Bestehende Rollen werden ebenfalls umgefärbt und behalten ihre Mitglieder und Namen. Zusätzlich werden die bereits früher selbst angelegten Rollen `Copt`, `Amazighi`, `Central Asian`, `European`, `South Asian`, `East Asian`, `Sea Asians` und `Native` in die Farbgestaltung einbezogen, falls sie existieren.
+
+Insgesamt sind **45 verschiedene Farben** fest hinterlegt. Beispiele:
+
+- Egypt: `#C89A2B` (Gold)
+- Balkans: `#7754BB` (Violett)
+- Copt: `#AD613A` (Terrakotta)
+- Amazighi: `#218C79` (Türkisgrün)
+- North Africa: `#29D229` (Grün)
+- West Africa: `#2929D2` (Blau)
+- Levant: `#3C1E96` (Indigo)
+
+Ein bloßer Farbwechsel vergibt keine zusätzlichen Discord-Rechte. Der gesamte Setup-Workflow kann allerdings weiterhin die zuvor geplanten Kanalzugriffsregeln aktualisieren. Die Farbe eines sichtbaren Discord-Namens wird durch die **höchste Rolle mit Farbe** bestimmt, falls ein Mitglied mehrere Herkunftsrollen besitzt. Rollen können über das vorhandene Discord-Onboarding später freiwillig ausgewählt werden; das Anlegen der Rollen allein richtet die Auswahl noch nicht ein.
+
+Bei `preview` erscheint vorerst nur der geplante Änderungsumfang. Erst `apply` führt die Farbänderungen auf Discord aus. Sollte die Discord-API wegen der Rollenhierarchie die Änderung einer Rolle verweigern, steht ein Hinweis im Workflow-Log.
