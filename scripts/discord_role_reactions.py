@@ -122,7 +122,15 @@ def main():
                 continue
             if name not in allowed_names:
                 raise RuntimeError("A privileged role appeared in menu: " + name)
-            role_id = str(by_name[name.casefold()]["id"])
+            selected_role = by_name[name.casefold()]
+            role_id = str(selected_role["id"])
+            # Essential safety: some old origin roles historically had broad
+            # Discord permissions. Never allow a reaction to grant any role
+            # carrying server-wide powers, especially Administrator/Manage Roles.
+            if int(selected_role.get("permissions", "0")) != 0:
+                print("[SECURITY BLOCK] Self-assignment disabled for", name,
+                      "- role has elevated permissions; owner must set them to zero.")
+                continue
             for user_id in react_users(selector["id"], menu["id"], emoji):
                 examined += 1
                 if category == "GENDER" and user_id in gender_conflicts:
