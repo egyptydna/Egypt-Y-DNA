@@ -278,8 +278,8 @@ def find_channel(channels, name, kind, aliases=()):
     return None, False
 
 def main():
-    if MODE not in ("preview", "apply"):
-        raise ValueError("MODE must be preview or apply")
+    if MODE not in ("preview", "apply", "colors-preview", "colors-apply"):
+        raise ValueError("MODE must be preview, apply, colors-preview or colors-apply")
     if not TOKEN or not GUILD.isdecimal():
         raise ValueError("GitHub secrets DISCORD_BOT_TOKEN and DISCORD_GUILD_ID required")
     guild = request("GET", "/guilds/" + GUILD)
@@ -288,6 +288,49 @@ def main():
     community = "COMMUNITY" in guild.get("features", [])
     existing_roles = request("GET", "/guilds/" + GUILD + "/roles")
     existing_by_name = {r["name"].casefold(): r for r in existing_roles}
+
+    # Dedicated, safe recoloring command. This never creates/deletes/renames
+    # roles, changes permissions, or modifies channels. It also bypasses
+    # unrelated setup checks so a channel issue cannot block role colors.
+    if MODE in ("colors-preview", "colors-apply"):
+        issues = []
+        recolored = 0
+        unchanged = 0
+        missing = 0
+        values = list(ORIGIN_ROLE_COLORS.values())
+        if len(values) != len(set(values)):
+            raise RuntimeError("Origin role palette contains repeated colors")
+        for name, color in ORIGIN_ROLE_COLORS.items():
+            old = existing_by_name.get(name.casefold())
+            if not old:
+                print("[MISSING] origin role:", name, "(not created by colors mode)")
+                missing += 1
+                continue
+            current = int(old.get("color", 0))
+            if current == color:
+                print(f"[OK] {name}: #{color:06X}")
+                unchanged += 1
+                continue
+            description = f"recolor {name}: #{current:06X} -> #{color:06X}"
+            if MODE == "colors-preview":
+                print("[PREVIEW]", description)
+            else:
+                try:
+                    change("PATCH", f"/guilds/{GUILD}/roles/{old['id']}",
+                           {"color": color}, description)
+                    recolored += 1
+                except RuntimeError as error:
+                    issues.append(name)
+                    print("[FAILED]", description, str(error), flush=True)
+        print(f"Origin palette: {len(values)} unique colors; "
+              f"{unchanged} already correct, {recolored} updated, "
+              f"{missing} roles not present, {len(issues)} errors.")
+        if MODE == "colors-preview":
+            print("Read-only preview. Use colors-apply to change ONLY colors.")
+        if issues:
+            raise RuntimeError("Could not recolor these roles: " + ", ".join(issues))
+        return
+
     role_ids = {}
     print("\n== SELF-SELECTABLE ROLES / NO SPECIAL PERMISSIONS ==")
     for name, group in ROLES:
