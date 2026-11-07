@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   verify-members:
-    name: Grant Member after rules confirmation
+    name: Grant Verified only after a staff approval
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -25,4 +25,10 @@ jobs:
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
-        run: python3 scripts/discord_member_verification.py
+        run: python3 -u scripts/discord_member_verification.py
+      - name: Automatically label bot accounts
+        if: success()
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
+        run: python3 -u scripts/discord_bot_roles.py
