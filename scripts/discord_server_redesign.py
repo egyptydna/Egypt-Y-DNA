@@ -47,6 +47,54 @@ ROLE_ALIASES = {
     "Research Contributor": ["Contributor"],
     "Verified Y-DNA Tester": ["Verified Tester"],
 }
+ORIGIN_ROLE_COLORS = {
+    "North Africa": 0x29D229,
+    "West Africa": 0x2929D2,
+    "Central Africa": 0x49D68F,
+    "East Africa": 0xD22953,
+    "Southern Africa": 0xBDD229,
+    "Egypt": 0xC89A2B,
+    "Maghreb": 0xD229D2,
+    "Nile Valley / Nubia": 0x598430,
+    "Horn of Africa": 0x498FD6,
+    "Northern Europe": 0x49D6D6,
+    "Western Europe": 0x843045,
+    "Southern Europe": 0xD25329,
+    "Balkans": 0x7754BB,
+    "Eastern Europe": 0x80CB53,
+    "West Asia": 0x304F84,
+    "Levant": 0x3C1E96,
+    "Arabian Peninsula": 0xB4C05F,
+    "Mesopotamia": 0x49B3D6,
+    "Anatolia": 0xD2297E,
+    "Caucasus": 0x8F49D6,
+    "Iranian Plateau": 0x961E1E,
+    "North Asia": 0x846F30,
+    "Central Asia": 0xC05F84,
+    "South Asia": 0x1E9659,
+    "East Asia": 0x5FC09B,
+    "Southeast Asia": 0xD229A8,
+    "North America": 0x1E961E,
+    "Central America": 0x871E96,
+    "Caribbean": 0x2953D2,
+    "South America": 0xD27E29,
+    "Australia & New Zealand": 0xD2BD29,
+    "Melanesia": 0x1E7896,
+    "Micronesia": 0xC05F5F,
+    "Polynesia": 0x8D8D26,
+    "Indigenous Peoples": 0x366CC5,
+    "Multiple Regions": 0xAB459A,
+    "Prefer Not to Say": 0x6D7886,
+    "Copt": 0xAD613A,
+    "Amazighi": 0x218C79,
+    "Central Asian": 0x303084,
+    "European": 0xC08F5F,
+    "South Asian": 0x29D268,
+    "East Asian": 0xBC53CB,
+    "Sea Asians": 0x93D229,
+    "Native": 0x843064,
+}
+
 def role_color(name, group):
     if name == "Founder": return 0xD4AF37
     if name == "Administrator": return 0xC0392B
@@ -54,7 +102,7 @@ def role_color(name, group):
     if name == "Member": return 0x95A5A6
     if name == "Research Contributor": return 0x00A6A6
     if name == "Verified Y-DNA Tester": return 0x27AE60
-    if group == "origin": return 0x7797AF
+    if group == "origin": return ORIGIN_ROLE_COLORS[name]
     if group == "haplo":
         prefixes = [
             ("J1", 0x218C53), ("J2", 0x7AAE48), ("E", 0x2563A6),
@@ -258,6 +306,8 @@ def main():
                 changes["name"] = name
             if group in ("origin", "haplo") and int(old["permissions"]) != 0:
                 changes["permissions"] = "0"
+            if group == "origin" and int(old.get("color", 0)) != role_color(name, group):
+                changes["color"] = role_color(name, group)
             if changes:
                 try:
                     change("PATCH", "/guilds/" + GUILD + "/roles/" + str(old["id"]),
@@ -273,6 +323,17 @@ def main():
                   f"create neutral {group} role: {name}")
             if created:
                 role_ids[name] = str(created["id"])
+    # Recolor pre-existing origin/identity roles without changing names,
+    # assigned members, hierarchy or their existing permissions.
+    for old_name in ["Copt","Amazighi","Central Asian","European","South Asian","East Asian","Sea Asians","Native"]:
+        old = existing_by_name.get(old_name.casefold())
+        if old and int(old.get("color", 0)) != ORIGIN_ROLE_COLORS[old_name]:
+            try:
+                change("PATCH", "/guilds/" + GUILD + "/roles/" + str(old["id"]),
+                       {"color": ORIGIN_ROLE_COLORS[old_name]},
+                       "recolor existing origin role: " + old_name)
+            except RuntimeError as exc:
+                print("[NOTICE] Could not recolor existing origin role:", old_name, exc)
     everyone = next((r for r in existing_roles if str(r["id"]) == GUILD), None)
     if everyone and not (int(everyone["permissions"]) & INVITE):
         try:
