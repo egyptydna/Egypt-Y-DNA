@@ -197,6 +197,7 @@ def main():
          "Contributor", "Verified Tester"]}
     planned = []
     hierarchy_problems = []
+    unavailable_existing_roles = []
     insufficient_flags = 0
     for role in roles:
         if role.get("managed") or str(role["id"]) == GID:
@@ -229,6 +230,9 @@ def main():
             print("[PREFLIGHT] Cannot grant to", name, ":",
                   human_permissions(missing), flush=True)
         if unavailable_existing:
+            unavailable_existing_roles.append(
+                name + " (ID " + str(role["id"]) + ", permissions: " +
+                human_permissions(unavailable_existing) + ")")
             print("[PREFLIGHT] Existing role contains permissions the bot lacks:",
                   name, "id="+str(role["id"]),
                   human_permissions(unavailable_existing),
@@ -245,6 +249,15 @@ def main():
             "Bot role must be HIGHER than these roles: " +
             "; ".join(hierarchy_problems[:12]) +
             (f" (and {len(hierarchy_problems)-12} more)" if len(hierarchy_problems) > 12 else ""))
+    if unavailable_existing_roles:
+        problems.append(
+            "Existing roles have permissions that the bot itself lacks: " +
+            "; ".join(unavailable_existing_roles[:8]) +
+            (f" (and {len(unavailable_existing_roles)-8} more)"
+             if len(unavailable_existing_roles) > 8 else "") +
+            ". As the Discord owner, review these roles manually in Server "
+            "Settings > Roles. Remove unneeded privileged permissions there "
+            "before running apply; do NOT grant the bot Administrator.")
     if insufficient_flags:
         problems.append(
             "Bot cannot grant these staff permissions: " +
