@@ -28,9 +28,9 @@ ORIGIN = [
     "Northern Europe", "Western Europe", "Southern Europe", "Eastern Europe",
     "Levant", "Arabian Peninsula", "Mesopotamia", "Anatolia", "Caucasus",
     "Iranian Plateau", "Central Asia", "South Asia", "East Asia", "Southeast Asia",
-    "Northern America", "Central America", "Caribbean", "South America",
+    "North America", "Central America", "Caribbean", "South America",
     "Australia & New Zealand", "Melanesia", "Micronesia", "Polynesia",
-    "Multiple Regions", "Prefer Not to Say",
+    "Indigenous Peoples", "Multiple Regions", "Prefer Not to Say",
 ]
 # User-selectable confirmed/predicted Y-DNA affiliation, not auto-verified.
 HAPLOS = [
@@ -213,7 +213,11 @@ def main():
         old = existing_by_name.get(name.casefold())
         if old:
             role_ids[name] = str(old["id"])
-            print("[EXISTS]", group, "role:", name)
+            if group in ("origin", "haplo") and int(old["permissions"]) != 0:
+                change("PATCH", "/guilds/" + GUILD + "/roles/" + str(old["id"]),
+                       {"permissions": "0"}, "align neutral role permissions: " + name)
+            else:
+                print("[EXISTS]", group, "role:", name)
         else:
             created = change("POST", "/guilds/" + GUILD + "/roles",
                   {"name": name, "permissions": "0", "mentionable": False},
@@ -281,6 +285,32 @@ def main():
                            f"align existing channel {old['name']} in {category} (preserve messages)")
                 else:
                     print("[EXISTS] unchanged:", name)
+    # Ensure English appears first, ahead of Arabic, within the community section.
+    english = next((c for c in channels if c["type"] == 0 and c["name"] == "english-chat"), None)
+    arabic = next((c for c in channels if c["type"] == 0 and c["name"] == "arabic-chat"), None)
+    if english and arabic:
+        change("PATCH", f"/guilds/{GUILD}/channels",
+               [{"id": str(english["id"]), "position": 0},
+                {"id": str(arabic["id"]), "position": 1}],
+               "place #english-chat before #arabic-chat")
+    elif MODE == "preview":
+        print("[PREVIEW] #english-chat will be positioned before #arabic-chat")
+
+    # Post new rule version once, even in existing channels. Avoid reposting on re-run.
+    if MODE == "apply":
+        for channel_name in ("rules", "server-guide"):
+            target = next((ch for ch in channels if ch["type"] == 0 and ch["name"] == channel_name), None)
+            if not target: continue
+            try:
+                recent = request("GET", "/channels/" + str(target["id"]) + "/messages?limit=50")
+                marker = "**EGYPT Y-DNA — COMMUNITY RULES**" if channel_name == "rules" else "**Getting started**"
+                if not any(marker in m.get("content", "") for m in recent):
+                    request("POST", "/channels/" + str(target["id"]) + "/messages",
+                            {"content": MESSAGES[channel_name], "allowed_mentions": {"parse": []}})
+                    print("[POSTED] updated information:", channel_name)
+            except RuntimeError as error:
+                print("[NOTICE] Could not check/post updated content:", error)
+
     # Apply the same Member role approval gate to legacy public template chat.
     for ch in channels:
         if ch["type"] == 0 and ch["name"] == "general":
