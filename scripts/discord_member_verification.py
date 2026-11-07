@@ -1,166 +1,173 @@
 #!/usr/bin/env python3
-"""Manual verification by staff reactions, checked by GitHub Actions.
+"""Automatic Verified after Discord native Rules Screening (NO manual approval).
 
-1. A newcomer accepts the mandatory Discord Rules Screening checkbox.
-2. They write a short introduction in #verification-chat (no private DNA details).
-3. Founder/Administrator/Moderator reacts ✅ to THAT applicant's message.
-4. This worker requires both native screening completion and staff approval.
-No staff approval means no access. Bot accounts cannot be approved as humans.
+Runs on GitHub Actions about every five minutes. Grant Verified only when:
+  * Rules Screening is enabled on the existing Egypt Y-DNA server,
+  * the Discord guild-member object explicitly has pending == False,
+  * the account is human, and
+  * the member does not already have Verified.
+
+Guild Members privileged intent is required to LIST members via Discord REST.
+A missing 'pending' field is never considered acceptance (fail closed).
+This script never alters staff roles or approves members on their behalf.
 """
-import json, os, sys, time, urllib.error, urllib.parse, urllib.request
+import json
+import os
+import sys
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
 
 GUILD = os.getenv("DISCORD_GUILD_ID", "").strip()
 TOKEN = os.getenv("DISCORD_BOT_TOKEN", "").strip()
 BASE = "https://discord.com/api/v10"
-EMOJI = urllib.parse.quote("✅", safe="")
-STAFF = {"founder", "administrator", "moderator"}
+SCREENING_FEATURE = "MEMBER_VERIFICATION_GATE_ENABLED"
+ROLE_MANAGEMENT = 1 << 28
+ADMINISTRATOR = 1 << 3
 
-def api(method, path, data=None, optional=False):
-    body = json.dumps(data).encode() if data is not None else None
+def api(method, path, data=None):
+    body = json.dumps(data).encode("utf-8") if data is not None else None
     for attempt in range(6):
-        req = urllib.request.Request(BASE + path, data=body, method=method, headers={
-            "Authorization": "Bot " + TOKEN,
-            "Content-Type": "application/json",
-            "User-Agent": "EgyptYDNAManualVerification/2.0"
-        })
+        req = urllib.request.Request(
+            BASE + path, method=method, data=body,
+            headers={
+                "Authorization": "Bot " + TOKEN,
+                "Content-Type": "application/json",
+                "User-Agent": "EgyptYDNAAutoVerification/3.0"
+            }
+        )
         try:
-            with urllib.request.urlopen(req, timeout=25) as res:
-                raw = res.read()
-                time.sleep(0.16)
+            with urllib.request.urlopen(req, timeout=25) as response:
+                raw = response.read()
+                time.sleep(0.12)
                 return json.loads(raw) if raw else None
         except urllib.error.HTTPError as error:
-            text = error.read().decode(errors="replace")
+            detail = error.read().decode("utf-8", errors="replace")
             if error.code == 429 and attempt < 5:
-                try: delay = min(30, float(json.loads(text).get("retry_after", 2)))
-                except (TypeError, ValueError): delay = 2
-                time.sleep(delay + 0.5)
+                try:
+                    pause = min(30, float(json.loads(detail).get("retry_after", 2)))
+                except (ValueError, TypeError):
+                    pause = 2
+                time.sleep(pause + 0.6)
                 continue
-            if error.code == 404 and optional:
-                return None
-            raise RuntimeError(f"Discord HTTP {error.code} {method} {path}: {text[:350]}")
-    raise RuntimeError("Rate limit retries exhausted")
+            if error.code in (401, 403) and "/members?limit=" in path:
+                raise RuntimeError(
+                    "Cannot list server members. In Discord Developer Portal > "
+                    "Egypt YDNA Bot > Bot > Privileged Gateway Intents, enable "
+                    "SERVER MEMBERS INTENT, then rerun. "
+                    "Discord error: " + detail[:280]) from error
+            raise RuntimeError(
+                "Discord API " + str(error.code) + " " + method + " " +
+                path + ": " + detail[:300]) from error
+    raise RuntimeError("Discord API rate limit exceeded retry budget")
 
-def people_who_reacted(channel_id, message_id, emoji=EMOJI):
+def all_members():
     after = None
-    while True:
-        path = f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}?limit=100"
-        if after: path += "&after=" + urllib.parse.quote(after, safe="")
-        people = api("GET", path, optional=True) or []
-        for user in people:
-            if not user.get("bot"):
-                yield str(user["id"])
-        if len(people) < 100:
+    for page_no in range(1, 101):
+        path = f"/guilds/{GUILD}/members?limit=1000"
+        if after:
+            path += "&after=" + urllib.parse.quote(after, safe="")
+        items = api("GET", path)
+        if not isinstance(items, list):
+            raise RuntimeError("Discord members endpoint did not return a list")
+        for member in items:
+            yield member
+        if len(items) < 1000:
             return
-        after = str(people[-1]["id"])
-
-def latest_messages(channel_id, max_pages=10):
-    before = None
-    for _ in range(max_pages):
-        path = f"/channels/{channel_id}/messages?limit=100"
-        if before: path += "&before=" + before
-        batch = api("GET", path) or []
-        for msg in batch:
-            yield msg
-        if len(batch) < 100:
-            break
-        before = str(batch[-1]["id"])
+        after = str(items[-1].get("user", {}).get("id", ""))
+        if not after.isdecimal():
+            raise RuntimeError("Invalid pagination cursor in Discord member list")
+    raise RuntimeError(
+        "Server member listing exceeded 100 pages; extend pagination limit "
+        "before considering the verification scan complete")
 
 def main():
     if not GUILD.isdecimal() or not TOKEN:
-        raise ValueError("Missing GitHub Secrets DISCORD_GUILD_ID / DISCORD_BOT_TOKEN")
+        raise ValueError(
+            "GitHub Secrets DISCORD_GUILD_ID and DISCORD_BOT_TOKEN are required")
     guild = api("GET", f"/guilds/{GUILD}")
-    # No automatic Verified role can be issued unless Discord's official rules
-    # checkbox is enabled. This prevents an emoji reaction from substituting
-    # for the native membership-screening acceptance.
-    if "MEMBER_VERIFICATION_GATE_ENABLED" not in guild.get("features", []):
-        print("[ACTION REQUIRED] Native Discord Rules Screening is disabled. "
-              "Enable in Server Settings > Safety Setup > DM and Spam Protection. "
-              "No Verified roles will be issued until it is enabled.")
-        return
+    print("[CHECK] Server:", guild.get("name"), flush=True)
+    if SCREENING_FEATURE not in guild.get("features", []):
+        raise RuntimeError(
+            "Official Discord Rules Screening is not enabled. Turn it on in "
+            "Server Settings > Safety Setup > DM and Spam Protection > "
+            "'Members must accept rules before they can talk or DM'. "
+            "No one has been verified by this run.")
 
     roles = api("GET", f"/guilds/{GUILD}/roles")
     by_name = {r["name"].casefold(): r for r in roles}
     verified = by_name.get("verified")
     if not verified:
-        print("SKIP: Create the Verified role using Verification Setup first.")
-        return
-    staff_ids = {str(r["id"]) for r in roles if r["name"].casefold() in STAFF}
-    channels = api("GET", f"/guilds/{GUILD}/channels")
-    applications = next((c for c in channels if c.get("type") == 0
-                         and c["name"] == "verification-chat"), None)
-    if not applications:
-        print("SKIP: #verification-chat is missing.")
-        return
-    modlog = next((c for c in channels if c.get("type") == 0
-                   and c["name"] == "mod-log"), None)
-    cache = {}
-    verified_count = 0
-    applications_approved = 0
-    errors = 0
-    for message in latest_messages(applications["id"]):
-        author = message.get("author", {})
-        user_id = str(author.get("id", ""))
-        if not user_id or author.get("bot"):
+        raise RuntimeError(
+            "The Verified role does not exist. Run the Auto Verification "
+            "Setup workflow with apply before scheduling approvals.")
+
+    self_bot = api("GET", "/users/@me")
+    me = api("GET", f"/guilds/{GUILD}/members/{self_bot['id']}")
+    by_id = {str(r["id"]): r for r in roles}
+    mine = {str(x) for x in me.get("roles", [])}
+    my_top = max(
+        (int(by_id[x]["position"]) for x in mine if x in by_id),
+        default=-1)
+    if my_top <= int(verified.get("position", 0)):
+        raise RuntimeError(
+            "Egypt YDNA Bot must be ABOVE Verified in the Discord role hierarchy.")
+    my_permissions = int(by_id.get(GUILD, {}).get("permissions", "0"))
+    for id_ in mine:
+        if id_ in by_id:
+            my_permissions |= int(by_id[id_].get("permissions", "0"))
+    if not my_permissions & (ROLE_MANAGEMENT | ADMINISTRATOR):
+        raise RuntimeError("Egypt YDNA Bot needs Manage Roles.")
+
+    verified_id = str(verified["id"])
+    scanned = accepted = pending = missing_pending = bots = already = granted = failures = 0
+    for member in all_members():
+        user = member.get("user") or {}
+        member_id = str(user.get("id", ""))
+        if not member_id.isdecimal():
             continue
-        if not any(r.get("emoji", {}).get("name") == "✅"
-                   for r in message.get("reactions", [])):
+        scanned += 1
+        if user.get("bot"):
+            bots += 1
             continue
-        staff_reactors = list(people_who_reacted(applications["id"], message["id"]))
-        if not staff_reactors:
+        if member.get("pending") is True:
+            pending += 1
             continue
-        approved = False
-        for reactor_id in staff_reactors:
-            if reactor_id == str(guild["owner_id"]):
-                approved = True
-                break
-            if reactor_id not in cache:
-                cache[reactor_id] = api(
-                    "GET", f"/guilds/{GUILD}/members/{reactor_id}", optional=True)
-            moderator = cache[reactor_id]
-            if moderator and not moderator.get("pending") and (
-                staff_ids.intersection({str(r) for r in moderator.get("roles", [])})
-            ):
-                approved = True
-                break
-        if not approved:
+        # Fail closed: absence/null of "pending" does not prove rule acceptance.
+        if member.get("pending") is not False:
+            missing_pending += 1
             continue
-        applications_approved += 1
-        if user_id not in cache:
-            cache[user_id] = api(
-                "GET", f"/guilds/{GUILD}/members/{user_id}", optional=True)
-        applicant = cache[user_id]
-        if not applicant or applicant.get("pending"):
-            # A pending member has NOT accepted the native Discord checkbox.
-            continue
-        if str(verified["id"]) in {str(role) for role in applicant.get("roles", [])}:
+        accepted += 1
+        if verified_id in {str(id_) for id_ in member.get("roles", [])}:
+            already += 1
             continue
         try:
             api("PUT",
-                f"/guilds/{GUILD}/members/{user_id}/roles/{verified['id']}")
-            applicant.setdefault("roles", []).append(str(verified["id"]))
-            verified_count += 1
-            print("[VERIFIED] Staff approved", user_id,
-                  "and native rules checkbox was completed")
-            if modlog:
-                try:
-                    api("POST", f"/channels/{modlog['id']}/messages", {
-                        "content": "✅ Staff verified <@" + user_id +
-                                   "> after accepting Discord's rules checkbox.",
-                        "allowed_mentions": {"parse": []}
-                    })
-                except RuntimeError as error:
-                    print("[NOTICE] Could not post moderation log:", error)
+                f"/guilds/{GUILD}/members/{member_id}/roles/{verified_id}")
+            granted += 1
+            print("[VERIFIED] Granted role automatically after Rules Screening:",
+                  member_id, flush=True)
         except RuntimeError as error:
-            errors += 1
-            print("[ERROR] Granting Verified to", user_id, error, file=sys.stderr)
-    print("Completed: staff-approved posts:", applications_approved,
-          "| newly Verified:", verified_count, "| errors:", errors)
-    if errors:
+            failures += 1
+            print("[ERROR] Cannot assign Verified to", member_id, error,
+                  file=sys.stderr, flush=True)
+
+    print("[SUMMARY] scanned=", scanned, "screening_accepted=", accepted,
+          "still_pending=", pending, "pending_unknown=", missing_pending,
+          "bots_ignored=", bots, "already_verified=", already,
+          "newly_verified=", granted, "errors=", failures, flush=True)
+    if missing_pending:
+        print("[NOTICE] Members without an explicit pending=false were NOT granted "
+              "Verified. Confirm the bot has SERVER MEMBERS INTENT enabled.")
+    if failures:
         raise RuntimeError(
-            "Some approvals failed. Check bot role hierarchy and Manage Roles.")
+            "Some verified-role assignments failed; inspect bot permissions "
+            "and Discord's role hierarchy.")
 
 if __name__ == "__main__":
-    try: main()
-    except (ValueError, RuntimeError, urllib.error.URLError) as error:
-        print("FAILED:", error, file=sys.stderr)
+    try:
+        main()
+    except (RuntimeError, ValueError, urllib.error.URLError) as error:
+        print("FAILED:", error, file=sys.stderr, flush=True)
         sys.exit(1)
