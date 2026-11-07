@@ -1,3 +1,41 @@
+# Aktuell: Rollen mit Länderflaggen und offene Y-DNA-Ergebnisse (November 2026)
+
+**Neuer, gezielter GitHub-Workflow:**
+https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-role-menu-update.yml
+
+- **Run workflow → preview** (lesend; überprüft die neuen Rollen und Kanalrechte)
+- Protokoll auf `[WARNING]`, `[SECURITY]` und `[ACTION REQUIRED]` prüfen
+- Danach **Run workflow → apply** ausführen.
+- Für automatische Zuweisung bleibt der bisherige Zeitplan-Workflow aktiv:
+  https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-role-selection.yml
+
+## Neue Rollenauswahl
+
+Für den bestehenden `#choose-roles`-Kanal gibt es einen kompakten Hauptbeitrag mit der Bedienungsanleitung und **7 thematische Auswahl-Nachrichten**. Die Hauptnachricht wird nach Möglichkeit angepinnt. Discord erlaubt maximal **20 verschiedene Emoji-Reaktionen je Nachricht**, deshalb ist eine einzelne Nachricht für alle rund 70 Optionen mit dem kostenlosen, nur durch GitHub Actions ausgeführten Reaktionsbot nicht möglich. Eine Dropdown-Menü-Lösung in einer Nachricht würde einen laufenden Discord-Interaction-Endpoint benötigen.
+
+**North Africa:**
+🇪🇬 Egypt, 🇲🇦 Morocco, 🇩🇿 Algeria, 🇹🇳 Tunisia, 🇱🇾 Libya, 🇸🇩 Sudan, 🇲🇷 Mauritania sowie regionale/kulturelle Rollen.
+
+Alle übrigen globalen Herkunftsregionen stehen weiterhin als freiwillige Optionen zur Verfügung. Die Länderrollen erhalten eigene Farben. Es wird weder eine genetische noch eine ethnische Identität erzwungen.
+
+**Y-DNA:** Nur die jeweils feineren, vorliegenden Untergruppen: E-M2, E-M81, E-M123, E-V13, E-V22, E-V32, J1-P58, J2a, J2b, R1a, R1b-V88, R1b-M269, R2, Q1, Q2, T-P77, G1, G2, I1, I2, L1, L2, H1, H2, Other / unresolved.
+
+Die allgemeinen alten Parent-Rollen (z. B. J, J2, R, E, E-M35, E-M78) sind **nicht mehr in der Selbstwahl**. Vorhandene Rollenzuweisungen werden **nicht gelöscht**. Mitglieder sollen nur ihren **am besten bestimmten Y-DNA-Zweig** wählen. Bei mehreren widersprechenden Auswahl-Reaktionen wird keine neue Y-DNA-Rolle vergeben.
+
+Male / Female bleiben optionale Rollen; Founder, Administrator, Moderator, Verified, Bot und Verified Y-DNA Tester sind nicht selbst auswählbar.
+
+Mitglieder können auf die jeweilige Reaktion tippen. Der kostenlose GitHub-Workflow liest diese Reaktionen zeitversetzt und vergibt die entsprechende Rolle, sofern die Person **Verified** ist. Es kann mehr als fünf Minuten dauern, wenn GitHub einen Lauf verspätet startet.
+
+**Sicherheit:** Einfache Herkunfts- oder Y-DNA-Rollen erhalten keinerlei zusätzliche Serverberechtigungen. Der neue Setup-Workflow versucht gefährliche ältere Berechtigungen zurückzusetzen, bevor solche Rollen in die Auswahl gelangen. Gelingt das mangels Discord-Rechten nicht, wird die Rolle nicht zur Selbstwahl angeboten, bis der Serverinhaber ihre Berechtigungen korrigiert.
+
+## #new-results
+
+Alle Mitglieder mit der Rolle **Verified** können jetzt selbst in `#new-results` schreiben, nicht nur Moderatoren. Bitte öffentliche Quellen, SNP-Bezeichnung und Testtyp angeben. Die Kategorie STAFF bleibt privat, und unverifizierte Nutzer behalten weiterhin keinen Zugriff auf die normalen Forschungskanäle.
+
+**Wichtig:** Diese Anpassungen sind erst nach einem **erfolgreichen `apply`-Lauf** auf Discord aktiv. Das Anlegen der GitHub-Dateien ändert den Discord-Server noch nicht.
+
+---
+
 # Wichtig: Oberen Discord-Regelkanal behalten und Pflicht-Häkchen verwenden (November 2026)
 
 **Aktueller Workflow für die Regelkanäle:**
