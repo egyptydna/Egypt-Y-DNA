@@ -210,11 +210,17 @@ def main():
             if int(role.get("color", 0)) != color:
                 updates["color"] = color
             if int(role.get("permissions", 0)) != 0:
-                print("[WARNING] Role", name, "currently has server-wide permissions. "
-                      "They should be set to zero by the server owner.")
+                updates["permissions"] = "0"
             if updates:
-                change("PATCH", f"/guilds/{GUILD}/roles/{role['id']}",
-                       updates, "recolor role: " + name)
+                try:
+                    change("PATCH", f"/guilds/{GUILD}/roles/{role['id']}",
+                           updates, "make " + name + " role neutral and set color")
+                except RuntimeError as exc:
+                    raise RuntimeError(
+                        "Cannot secure the " + name + " role. As server owner, "
+                        "set its permissions to zero and keep it below the bot "
+                        "in Discord > Server Settings > Roles, then rerun. " +
+                        str(exc)) from exc
     # Explicitly remove only the unwanted gender/opt-out roles. Never remove
     # any other existing origin, lineage, staff or membership role.
     obsolete_names = {"non-binary", "nonbinary", "other / non-binary",
