@@ -49,7 +49,7 @@ READ_ONLY = {
     "new-results", "project-map", "useful-links", "ydna-map"
 }
 RULE_PROMPT = (
-    "🛡️ **EGYPT Y-DNA — VERIFICATION INSTRUCTIONS**\n"
+    "🛡️ **EGYPT Y-DNA VERIFICATION**\n"
     "**Step 1:** Read #rules and accept Discord's official mandatory "
     "rules checkbox when joining. This checkbox is controlled by "
     "Server Settings > Safety Setup, not by a reaction here.\n"
