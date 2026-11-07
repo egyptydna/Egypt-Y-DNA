@@ -182,6 +182,18 @@ def main():
         (MANAGE_THREADS, "Manage Threads"),
         (MODERATE_MEMBERS, "Timeout Members"),
         (MANAGE_ROLES, "Manage Roles"),
+        (ADMINISTRATOR, "Administrator"),
+        (1 << 8, "Priority Speaker"),
+        (1 << 12, "Send TTS Messages"),
+        (1 << 17, "Mention Everyone"),
+        (1 << 19, "View Guild Insights"),
+        (1 << 22, "Mute Members"),
+        (1 << 23, "Deafen Members"),
+        (1 << 24, "Move Members"),
+        (1 << 43, "Create Expressions"),
+        (1 << 44, "Create Events"),
+        (1 << 51, "Pin Messages"),
+        (1 << 52, "Bypass Slowmode"),
     )
     def human_permissions(bits):
         matched = [label for flag, label in permission_names if bits & flag]
@@ -190,6 +202,18 @@ def main():
     print("[PREFLIGHT] Bot highest role position:", bot_top, flush=True)
     print("[PREFLIGHT] Bot can manage roles:",
           bool(bot_permissions & MANAGE_ROLES), flush=True)
+    if bot_permissions & ADMINISTRATOR:
+        print("[SECURITY WARNING] The bot currently has full Administrator access. "
+              "If enabled only for this one-time role cleanup, REMOVE the "
+              "Administrator permission from Egypt YDNA Bot immediately after "
+              "a successful apply. Keep Manage Roles for member verification.",
+              flush=True)
+    everyone = by_id.get(str(GID))
+    if everyone and int(everyone.get("permissions", "0")) & (ADMINISTRATOR | MANAGE_ROLES):
+        raise RuntimeError(
+            "DANGEROUS @everyone permissions detected: manually disable "
+            "Administrator and Manage Roles on @everyone before any setup.")
+
 
     ordinary = {n.casefold() for n in
         list(ORIGIN) + list(HAPLOS) + list(LEGACY_ORIGINS) +
@@ -250,6 +274,14 @@ def main():
             "; ".join(hierarchy_problems[:12]) +
             (f" (and {len(hierarchy_problems)-12} more)" if len(hierarchy_problems) > 12 else ""))
     if unavailable_existing_roles:
+        print("[OWNER ACTION] Some old geographic roles and/or Founder still hold "
+              "permissions the bot cannot modify. The safe fix is to have the "
+              "server owner reduce those role permissions directly in Discord. "
+              "An alternative ONE-TIME migration is to grant the bot temporary "
+              "Administrator access, run apply once, then immediately revoke "
+              "the bot's Administrator permission. Temporary Administrator "
+              "grants full server access; only use it if you control the bot token "
+              "and the GitHub workflow.", flush=True)
         problems.append(
             "Existing roles have permissions that the bot itself lacks: " +
             "; ".join(unavailable_existing_roles[:8]) +
