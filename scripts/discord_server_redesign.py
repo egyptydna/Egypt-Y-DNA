@@ -289,6 +289,18 @@ def main():
     existing_roles = request("GET", "/guilds/" + GUILD + "/roles")
     existing_by_name = {r["name"].casefold(): r for r in existing_roles}
 
+    # Once the manual staff-approval model is installed, the old one-time
+    # bootstrap must never move #verification back or restore Member-based
+    # access. Recolour-only operations remain safe to run.
+    if MODE in ("preview", "apply"):
+        installed = request("GET", "/guilds/" + GUILD + "/channels")
+        if any(c["type"] == 4 and c["name"] == "🛡️ VERIFICATION"
+               for c in installed):
+            print("[NOTICE] Manual VERIFICATION setup is already installed. "
+                  "Use the discord-verification-setup.yml workflow instead. "
+                  "This legacy server-bootstrap run changes nothing.")
+            return
+
     # Dedicated, safe recoloring command. This never creates/deletes/renames
     # roles, changes permissions, or modifies channels. It also bypasses
     # unrelated setup checks so a channel issue cannot block role colors.
