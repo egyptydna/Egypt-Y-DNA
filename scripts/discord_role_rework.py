@@ -163,16 +163,40 @@ def main():
                       "create new country role: " + name)
         if made:
             names[name.casefold()] = made
-    print("2) Verify all selected Y-DNA subgroups exist; no generic letters are offered.")
+    print("2) Verify Y-DNA subgroups and neutral role permissions.")
     for name in SELECTABLE_YDNA:
         if name.casefold() not in names:
             print("[WARNING] Missing DNA branch role:", name)
+    unsafe = set()
+    for name in list(SELECTABLE_ORIGINS) + list(SELECTABLE_YDNA) + ["Male", "Female"]:
+        role = names.get(name.casefold())
+        if not role:
+            continue
+        perms = int(role.get("permissions", "0"))
+        if not perms:
+            continue
+        print("[SECURITY] Existing selectable role has server powers:",
+              name, "permission_bits=", perms, flush=True)
+        if MODE == "preview":
+            print("[PREVIEW] Reset this role to zero extra permissions:", name)
+        else:
+            try:
+                change("PATCH", f"/guilds/{GID}/roles/{role['id']}",
+                       {"permissions": "0"},
+                       "remove dangerous permissions from selectable role: " + name)
+                role["permissions"] = "0"
+            except RuntimeError as error:
+                unsafe.add(name.casefold())
+                print("[ACTION REQUIRED] Cannot secure", name,
+                      "- role will NOT be offered or auto-granted until the "
+                      "owner manually removes all role permissions:", error,
+                      flush=True)
     if MODE == "preview":
         planned = {**names}
         for name in SELECTABLE_ORIGINS:
-            planned.setdefault(name.casefold(), {"name": name})
+            planned.setdefault(name.casefold(), {"name": name, "permissions": "0"})
     else:
-        planned = names
+        planned = {key: role for key, role in names.items() if key not in unsafe}
 
     picker = next((c for c in channels if c.get("type") == 0
                    and c["name"] == "choose-roles"), None)
