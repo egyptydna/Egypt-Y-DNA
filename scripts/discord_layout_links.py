@@ -24,6 +24,7 @@ THREAD_SEND = 1 << 38
 SITE_TEXT = "🌐 **Official Website**\nhttps://egyptydna.github.io/Egypt-Y-DNA/"
 TWITTER_TEXT = "𝕏 **Official X / Twitter**\nhttps://x.com/egyptydna"
 CATEGORY_NAMES = [
+    ("🛡️ VERIFICATION", "🛡️ VERIFICATION"),
     ("📌 START HERE", "📌 INFORMATION"),
     ("🌍 COMMUNITY", "💬 COMMUNITY"),
     ("🧬 Y-DNA RESEARCH", "🧬 Y-DNA RESULTS"),
