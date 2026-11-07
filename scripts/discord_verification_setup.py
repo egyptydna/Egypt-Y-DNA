@@ -278,7 +278,8 @@ def main():
         allowed = policy(style, vid, staff_ids, bot["id"])
         if channel:
             diff = {}
-            if category and str(channel.get("parent_id")) != str(category["id"]):
+            if name != "rules" and category and str(channel.get("parent_id")) != str(category["id"]):
+                # Keep the existing upper Community #rules channel in place.
                 diff["parent_id"] = str(category["id"])
             if not exact_overwrites(channel, allowed):
                 diff["permission_overwrites"] = allowed
