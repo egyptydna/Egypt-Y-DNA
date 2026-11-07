@@ -42,7 +42,7 @@ class RoleMenuTests(unittest.TestCase):
             self.assertNotIn(restricted, selected)
 
     def test_specific_roles_present(self):
-        for name in ("E-M81", "J1-P58", "J2a", "J2b", "R1b-V88", "Q1", "Q2"):
+        for name in ("E-M81", "J1", "J1-P58", "J2a", "J2b", "R1b-V88", "Q1", "Q2"):
             self.assertIn(name, SELECTABLE_YDNA)
 
     def test_north_african_country_roles_present(self):
