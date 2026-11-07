@@ -14,6 +14,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from discord_server_redesign import ORIGIN, HAPLOS
+from discord_role_menu import menu_groups, menu_content, menu_emojis, SELECTABLE_ORIGINS
 
 GID = os.getenv("DISCORD_GUILD_ID", "").strip()
 TOKEN = os.getenv("DISCORD_BOT_TOKEN", "").strip()
@@ -55,11 +56,6 @@ POLICY = {
 STAFF = ("Founder", "Administrator", "Moderator")
 LEGACY_ORIGINS = ("Copt", "Amazighi", "Central Asian", "European",
                   "South Asian", "East Asian", "Sea Asians", "Native")
-EMOJIS = ("1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣",
-          "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟")
-PER_CHUNK = len(EMOJIS)
-ROLE_MARKER = "**EGYPT Y-DNA ROLE SELECTION:"
-
 def api(method, path, data=None):
     raw = json.dumps(data).encode() if data is not None else None
     for attempt in range(6):
@@ -90,39 +86,6 @@ def maybe(method, path, payload, label):
     data = api(method, path, payload)
     print("[APPLIED]", label, flush=True)
     return data
-
-def menu_groups(role_by_name):
-    groups = []
-    for category, choices in (
-        ("ORIGIN", list(ORIGIN) + list(LEGACY_ORIGINS)),
-        ("Y-DNA", list(HAPLOS)),
-        ("GENDER", ["Male", "Female"])
-    ):
-        available = [name for name in dict.fromkeys(choices)
-                     if name.casefold() in role_by_name]
-        for offset in range(0, len(available), PER_CHUNK):
-            chunk = available[offset:offset+PER_CHUNK]
-            group_no = offset // PER_CHUNK + 1
-            marker = f"{ROLE_MARKER} {category} {group_no}**"
-            groups.append((marker, category, chunk))
-    return groups
-
-def menu_content(marker, category, names):
-    intro = (
-        "**Choose your geographical/heritage origins** (self-declared, optional)"
-        if category == "ORIGIN" else
-        "**Choose your Y-DNA haplogroup** (self-reported, NOT verified)"
-        if category == "Y-DNA" else
-        "**Optional gender role** — choose ONE: Male or Female"
-    )
-    lines = [marker, intro,
-             "React with the matching number(s). Each selection grants one role.",
-             "You can choose more than one. No staff or verified-tester roles are available.",
-             ""]
-    lines += [f"{EMOJIS[i]} {name}" for i, name in enumerate(names)]
-    lines.append("\nRole changes are processed periodically. For gender, react to exactly one option. "
-                 "To change an existing gender role, contact staff.")
-    return "\n".join(lines)
 
 def members_only_overwrites(member_id, bot_id, staff_ids):
     result = [
@@ -222,7 +185,7 @@ def main():
 
 
     ordinary = {n.casefold() for n in
-        list(ORIGIN) + list(HAPLOS) + list(LEGACY_ORIGINS) +
+        list(ORIGIN) + list(HAPLOS) + list(LEGACY_ORIGINS) + list(SELECTABLE_ORIGINS) +
         ["Male", "Female", "Bot", "Verified", "Member", "Research Contributor", "Verified Y-DNA Tester",
          "Contributor", "Verified Tester"]}
     planned = []
@@ -443,7 +406,7 @@ def main():
                            "post " + marker)
         if target:
             already = {r.get("emoji", {}).get("name") for r in target.get("reactions", [])}
-            for symbol in EMOJIS[:len(names)]:
+            for symbol in menu_emojis(category, names):
                 if symbol not in already:
                     maybe("PUT",
                           f"/channels/{choose['id']}/messages/{target['id']}"
