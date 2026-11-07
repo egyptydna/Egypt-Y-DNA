@@ -1,4 +1,4 @@
-name: Egypt Y-DNA Member Verification
+name: Egypt Y-DNA Auto Verification After Rules
 
 on:
   workflow_dispatch:
@@ -15,13 +15,15 @@ concurrency:
 
 jobs:
   verify-members:
-    name: Grant Verified only after a staff approval
+    name: Auto-grant Verified after Discord rules acceptance
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Process verified reactions
+      - name: Check worker syntax
+        run: python3 -m py_compile scripts/discord_member_verification.py scripts/discord_bot_roles.py
+      - name: Check Rules Screening and auto-grant Verified
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
