@@ -46,6 +46,10 @@ class RoleMenuTests(unittest.TestCase):
         for name in ("E-M81", "J1", "J1-P58", "J2a", "J2b", "R1b-V88", "Q1", "Q2"):
             self.assertIn(name, SELECTABLE_YDNA)
 
+    def test_e_v12_replaces_e_v32(self):
+        self.assertIn("E-V12", SELECTABLE_YDNA)
+        self.assertNotIn("E-V32", SELECTABLE_YDNA)
+
     def test_north_african_country_roles_present(self):
         for name in ("Egypt", "Morocco", "Algeria", "Tunisia", "Libya", "Sudan", "Mauritania"):
             self.assertIn(name, SELECTABLE_ORIGINS)
