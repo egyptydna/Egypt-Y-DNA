@@ -98,7 +98,7 @@ def main():
     roles = api("GET", "/guilds/" + GUILD + "/roles")
     channels = api("GET", "/guilds/" + GUILD + "/channels")
     role_ids = []
-    for role_name in ("Moderator", "Administrator"):
+    for role_name in ("Founder", "Moderator", "Administrator"):
         found = next((r for r in roles if r["name"].casefold() == role_name.casefold()), None)
         if not found:
             raise RuntimeError("Missing role " + role_name + "; run initial setup first")
