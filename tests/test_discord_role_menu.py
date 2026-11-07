@@ -18,7 +18,8 @@ class RoleMenuTests(unittest.TestCase):
 
     def test_no_generic_parent_letters(self):
         self.assertFalse(any(len(name) == 1 for name in SELECTABLE_YDNA))
-        for umbrella in ["J", "J1", "J2", "R", "R1b", "E", "E-M35", "E-M78", "T-M70"]:
+        # J1 is deliberately allowed: not every J1 lineage belongs to P58.
+        for umbrella in ["J", "J2", "R", "R1b", "E", "E-M35", "E-M78", "T-M70"]:
             self.assertNotIn(umbrella, SELECTABLE_YDNA)
 
     def test_flags_for_north_africa(self):
