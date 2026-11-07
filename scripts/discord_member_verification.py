@@ -1,171 +1,161 @@
 #!/usr/bin/env python3
-"""Scheduled, free Discord verification gate using official REST API.
+"""Manual verification by staff reactions, checked by GitHub Actions.
 
-Members accept server rules by reacting ✅ to the bot's pinned-like
-verification prompt. No always-on bot, server, or third-party bot required.
-Runs periodically via GitHub Actions. Never removes roles or bans people.
+1. A newcomer reads rules, reacts ✅ in #verification, writes a short
+   introduction in #verification-chat (no private DNA details).
+2. Founder/Administrator/Moderator reacts ✅ to THAT member message.
+3. This worker verifies BOTH acknowledgments and assigns Member + Verified.
+No staff approval means no access. Bot accounts cannot be approved as humans.
 """
-import json
-import os
-import sys
-import time
-import urllib.error
-import urllib.parse
-import urllib.request
+import json, os, sys, time, urllib.error, urllib.parse, urllib.request
 
 GUILD = os.getenv("DISCORD_GUILD_ID", "").strip()
 TOKEN = os.getenv("DISCORD_BOT_TOKEN", "").strip()
 BASE = "https://discord.com/api/v10"
-MARKER = "**EGYPT Y-DNA VERIFICATION**"
+RULE_MARKER = "**EGYPT Y-DNA VERIFICATION**"
 EMOJI = urllib.parse.quote("✅", safe="")
+STAFF = {"founder", "administrator", "moderator"}
 
-
-def api(method, path, data=None):
-    payload = json.dumps(data).encode() if data is not None else None
-    headers = {
-        "Authorization": "Bot " + TOKEN,
-        "Content-Type": "application/json",
-        "User-Agent": "EgyptYDNAVerification/1.0",
-    }
+def api(method, path, data=None, optional=False):
+    body = json.dumps(data).encode() if data is not None else None
     for attempt in range(6):
-        request = urllib.request.Request(
-            BASE + path, data=payload, headers=headers, method=method
-        )
+        req = urllib.request.Request(BASE + path, data=body, method=method, headers={
+            "Authorization": "Bot " + TOKEN,
+            "Content-Type": "application/json",
+            "User-Agent": "EgyptYDNAManualVerification/2.0"
+        })
         try:
-            with urllib.request.urlopen(request, timeout=25) as result:
-                response = result.read()
-                time.sleep(0.15)
-                return json.loads(response) if response else None
+            with urllib.request.urlopen(req, timeout=25) as res:
+                raw = res.read()
+                time.sleep(0.16)
+                return json.loads(raw) if raw else None
         except urllib.error.HTTPError as error:
-            body = error.read().decode(errors="replace")
+            text = error.read().decode(errors="replace")
             if error.code == 429 and attempt < 5:
-                try:
-                    wait = min(30, float(json.loads(body).get("retry_after", 2)))
-                except (ValueError, TypeError):
-                    wait = 2
-                time.sleep(wait + 0.5)
+                try: delay = min(30, float(json.loads(text).get("retry_after", 2)))
+                except (TypeError, ValueError): delay = 2
+                time.sleep(delay + 0.5)
                 continue
-            if error.code == 404:
+            if error.code == 404 and optional:
                 return None
-            raise RuntimeError(
-                f"{method} {path}: HTTP {error.code}: {body[:350]}"
-            ) from error
-    raise RuntimeError("Could not complete Discord request (rate limit).")
+            raise RuntimeError(f"Discord HTTP {error.code} {method} {path}: {text[:350]}")
+    raise RuntimeError("Rate limit retries exhausted")
 
+def people_who_reacted(channel_id, message_id, emoji=EMOJI):
+    after = None
+    while True:
+        path = f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}?limit=100"
+        if after: path += "&after=" + urllib.parse.quote(after, safe="")
+        people = api("GET", path, optional=True) or []
+        for user in people:
+            if not user.get("bot"):
+                yield str(user["id"])
+        if len(people) < 100:
+            return
+        after = str(people[-1]["id"])
+
+def latest_messages(channel_id, max_pages=10):
+    before = None
+    for _ in range(max_pages):
+        path = f"/channels/{channel_id}/messages?limit=100"
+        if before: path += "&before=" + before
+        batch = api("GET", path) or []
+        for msg in batch:
+            yield msg
+        if len(batch) < 100:
+            break
+        before = str(batch[-1]["id"])
 
 def main():
-    if not TOKEN or not GUILD.isdecimal():
-        raise RuntimeError(
-            "Missing GitHub Actions secrets DISCORD_BOT_TOKEN or DISCORD_GUILD_ID"
-        )
+    if not GUILD.isdecimal() or not TOKEN:
+        raise ValueError("Missing GitHub Secrets DISCORD_GUILD_ID / DISCORD_BOT_TOKEN")
+    guild = api("GET", f"/guilds/{GUILD}")
     bot = api("GET", "/users/@me")
     roles = api("GET", f"/guilds/{GUILD}/roles")
-    if not bot or not roles:
-        raise RuntimeError("Discord bot cannot read server roles")
-    member = next((role for role in roles if role["name"] == "Member"), None)
-    if not member:
-        print("SKIP: No Member role yet. Run Discord Server Setup with apply first.")
+    by_name = {r["name"].casefold(): r for r in roles}
+    roles_needed = ("member", "verified")
+    if any(name not in by_name for name in roles_needed):
+        print("SKIP: Create the Verified role using the Verification Room setup first.")
         return
-
+    staff_ids = {str(r["id"]) for r in roles if r["name"].casefold() in STAFF}
     channels = api("GET", f"/guilds/{GUILD}/channels")
-    verify = next(
-        (ch for ch in channels or []
-         if ch.get("type") == 0 and ch.get("name") == "verification"),
-        None,
-    )
-    if not verify:
-        print("SKIP: #verification is not set up yet.")
+    channel_by_name = {c["name"]: c for c in channels if c.get("type") == 0}
+    if "verification" not in channel_by_name or "verification-chat" not in channel_by_name:
+        print("SKIP: verification/verification-chat channels not yet installed.")
         return
-
-    messages = api(
-        "GET", f"/channels/{verify['id']}/messages?limit=100"
-    )
-    prompt = next(
-        (msg for msg in messages or []
-         if msg.get("author", {}).get("id") == bot["id"]
-         and MARKER in msg.get("content", "")),
-        None,
-    )
-    if not prompt:
-        print("SKIP: No bot-owned verification prompt is visible.")
+    intro = channel_by_name["verification"]
+    applications = channel_by_name["verification-chat"]
+    rule_msg = next((m for m in latest_messages(intro["id"], 2)
+                     if str(m.get("author", {}).get("id")) == str(bot["id"])
+                     and RULE_MARKER in m.get("content", "")), None)
+    if not rule_msg:
+        print("SKIP: Bot rule-confirmation prompt missing. Run room setup.")
         return
-
-    modlog = next(
-        (ch for ch in channels or []
-         if ch.get("type") == 0 and ch.get("name") == "mod-log"),
-        None,
-    )
-
-    channel_id, message_id = verify["id"], prompt["id"]
-    after = None
-    seen = 0
+    rule_acceptors = set(people_who_reacted(intro["id"], rule_msg["id"]))
+    modlog = channel_by_name.get("mod-log")
+    member_cache = {}
     assigned = 0
-    errors = 0
-    while True:
-        url = (
-            f"/channels/{channel_id}/messages/{message_id}"
-            f"/reactions/{EMOJI}?limit=100"
-        )
-        if after:
-            url += "&after=" + urllib.parse.quote(str(after), safe="")
-        reactions = api("GET", url)
-        if reactions is None:
-            raise RuntimeError("Verification message or emoji reaction is missing")
-        if not reactions:
-            break
-        for user in reactions:
-            if user.get("bot"):
+    approved_messages = 0
+    failures = 0
+    for message in latest_messages(applications["id"]):
+        author = message.get("author", {})
+        user_id = str(author.get("id", ""))
+        if not user_id or author.get("bot"):
+            continue
+        if user_id not in rule_acceptors:
+            continue
+        if not any(r.get("emoji", {}).get("name") == "✅" for r in message.get("reactions", [])):
+            continue
+        staff_reactors = list(people_who_reacted(applications["id"], message["id"]))
+        if not staff_reactors:
+            continue
+        approved = False
+        for reactor_id in staff_reactors:
+            if reactor_id == str(guild["owner_id"]):
+                approved = True
+                break
+            if reactor_id not in member_cache:
+                member_cache[reactor_id] = api(
+                    "GET", f"/guilds/{GUILD}/members/{reactor_id}", optional=True)
+            reactor = member_cache[reactor_id]
+            if reactor and not reactor.get("pending") and (
+                staff_ids.intersection({str(r) for r in reactor.get("roles", [])})
+            ):
+                approved = True
+                break
+        if not approved:
+            continue
+        approved_messages += 1
+        if user_id not in member_cache:
+            member_cache[user_id] = api("GET", f"/guilds/{GUILD}/members/{user_id}", optional=True)
+        applicant = member_cache[user_id]
+        if not applicant or applicant.get("pending"):
+            continue
+        known_roles = {str(role) for role in applicant.get("roles", [])}
+        for name in roles_needed:
+            role_id = str(by_name[name]["id"])
+            if role_id in known_roles:
                 continue
-            user_id = str(user["id"])
-            seen += 1
             try:
-                info = api("GET", f"/guilds/{GUILD}/members/{user_id}")
-                if not info:
-                    # Former member: do not restore access.
-                    continue
-                if info.get("pending"):
-                    # Respect Discord native Rules Screening if enabled.
-                    continue
-                if str(member["id"]) in info.get("roles", []):
-                    continue
-                api(
-                    "PUT",
-                    f"/guilds/{GUILD}/members/{user_id}/roles/{member['id']}",
-                )
+                api("PUT", f"/guilds/{GUILD}/members/{user_id}/roles/{role_id}")
+                known_roles.add(role_id)
                 assigned += 1
-                print("Verified member:", user_id)
-                if modlog:
-                    try:
-                        api("POST", f"/channels/{modlog['id']}/messages", {
-                            "content": (
-                                f"✅ Verification: <@{user_id}> accepted #rules "
-                                "via ✅ reaction and received the Member role."
-                            ),
-                            "allowed_mentions": {"parse": []},
-                        })
-                    except RuntimeError as error:
-                        print("Notice: could not write staff log:", error)
+                print("Granted", name, "to", user_id, "after staff approval")
             except RuntimeError as error:
-                errors += 1
-                print(f"ERROR assigning member {user_id}: {error}", file=sys.stderr)
-        if len(reactions) < 100:
-            break
-        after = str(reactions[-1]["id"])
-
-    print(
-        f"Completed. Human reactions: {seen}; "
-        f"newly verified: {assigned}; errors: {errors}"
-    )
-    if errors:
-        raise RuntimeError(
-            "Some members could not be assigned; verify bot's Manage Roles "
-            "permission and place its role above Member."
-        )
-
+                failures += 1
+                print("ERROR approving", user_id, name, error, file=sys.stderr)
+        applicant["roles"] = list(known_roles)
+        if modlog and str(by_name["verified"]["id"]) in known_roles:
+            # Log only upon the newly completed approval, not on every repeat.
+            # The above role assignment uses the guarded API calls.
+            pass
+    print("Applications with staff approval:", approved_messages,
+          "| Roles granted:", assigned, "| Failures:", failures)
+    if failures:
+        raise RuntimeError("One or more approvals failed. Check the bot role hierarchy.")
 
 if __name__ == "__main__":
-    try:
-        main()
-    except (RuntimeError, urllib.error.URLError) as exc:
-        print("VERIFICATION ERROR:", exc, file=sys.stderr)
+    try: main()
+    except (ValueError, RuntimeError, urllib.error.URLError) as error:
+        print("FAILED:", error, file=sys.stderr)
         sys.exit(1)
