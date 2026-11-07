@@ -1,0 +1,40 @@
+name: Egypt Y-DNA Owner-Only Staff Assignment
+
+on:
+  workflow_dispatch:
+    inputs:
+      role:
+        description: "Privileged staff role to assign or remove"
+        type: choice
+        required: true
+        options: [Founder, Administrator, Moderator]
+      target_user_id:
+        description: "Discord numeric user ID"
+        type: string
+        required: true
+      operation:
+        description: "Assign or remove this staff role"
+        type: choice
+        required: true
+        options: [assign, remove]
+
+permissions:
+  contents: read
+
+jobs:
+  owner-only:
+    if: github.actor == 'egyptydna'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Python
+        run: python3 -m py_compile scripts/discord_staff_assignment.py
+      - name: Assign or remove staff role
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
+          STAFF_ROLE: ${{ inputs.role }}
+          TARGET_USER_ID: ${{ inputs.target_user_id }}
+          OPERATION: ${{ inputs.operation }}
+        run: python3 -u scripts/discord_staff_assignment.py
