@@ -215,11 +215,24 @@ def main():
         planned.append((role, current, desired))
         if int(role["position"]) >= bot_top:
             hierarchy_problems.append(f"{name} (position {role['position']})")
+        # An existing role can contain privileges the bot itself does not
+        # possess. Discord may refuse modifying such a role, even to remove
+        # those privileges. Detect this without any write.
         missing = desired & ~bot_permissions
+        unavailable_existing = current & ~bot_permissions
+        print("[TARGET ROLE]", name, "id="+str(role["id"]),
+              "position="+str(role["position"]),
+              "current="+str(current), "requested="+str(desired),
+              flush=True)
         if missing:
             insufficient_flags |= missing
             print("[PREFLIGHT] Cannot grant to", name, ":",
                   human_permissions(missing), flush=True)
+        if unavailable_existing:
+            print("[PREFLIGHT] Existing role contains permissions the bot lacks:",
+                  name, "id="+str(role["id"]),
+                  human_permissions(unavailable_existing),
+                  "bits="+str(unavailable_existing), flush=True)
 
     print("[PREFLIGHT] Role updates pending:", len(planned), flush=True)
     problems = []
@@ -258,9 +271,20 @@ def main():
 
     # Only edit roles after we know the requested staff permissions can be set.
     for role, current, desired in planned:
-        maybe("PATCH", f"/guilds/{GID}/roles/{role['id']}",
-              {"permissions": str(desired)},
-              f"set permissions for {role['name']}: {current} -> {desired}")
+        print("[ROLE WRITE]", role["name"], "id="+str(role["id"]),
+              "from="+str(current), "to="+str(desired), flush=True)
+        try:
+            maybe("PATCH", f"/guilds/{GID}/roles/{role['id']}",
+                  {"permissions": str(desired)},
+                  f"set permissions for {role['name']}: {current} -> {desired}")
+        except RuntimeError as error:
+            raise RuntimeError(
+                "Discord rejected an update to role '" + role["name"] +
+                "' (ID " + str(role["id"]) + "). " +
+                "Inspect this role in Server Settings > Roles, including its current "
+                "Administrator / Manage Roles permissions. Original error: " +
+                str(error)
+            ) from error
 
     # Ensure role hierarchy: bot above Founder > Administrator > Moderator.
     desired = {name: bot_top - (i+1) for i, name in enumerate(STAFF)}
