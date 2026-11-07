@@ -153,12 +153,12 @@ def main():
                          if str(m.get("author",{}).get("id"))==str(bot["id"])
                          and "**EGYPT Y-DNA VERIFICATION**" in m.get("content","")),None)
         new_prompt=(
-            "🛡️ **EGYPT Y-DNA VERIFICATION**\\n"
+            "🛡️ **EGYPT Y-DNA VERIFICATION**\n"
             "**Step 1:** Accept the OFFICIAL Discord rules checkbox when joining. "
-            "Read #rules for the full text.\\n"
-            "**Step 2:** Write a short request in #verification-chat.\\n"
+            "Read #rules for the full text.\n"
+            "**Step 2:** Write a short request in #verification-chat.\n"
             "**Step 3:** A staff member approves your message by reacting ✅ to it. "
-            "Only then will the Bot grant Verified.\\n"
+            "Only then will the Bot grant Verified.\n"
             "No extra ✅ is required on this instruction message."
         )
         if old_prompt and old_prompt.get("content")!=new_prompt:
