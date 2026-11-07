@@ -244,8 +244,14 @@ def main():
         # Publish menu messages first, then the overview so it is the most
         # recently sent / easily discoverable message in Discord.
         for marker, category, options in groups:
-            ensure_menu(cid, marker, menu_content(marker, category, options),
-                        menu_emojis(category, options), messages, bot["id"])
+            message = ensure_menu(cid, marker, menu_content(marker, category, options),
+                                  menu_emojis(category, options), messages, bot["id"])
+            if message:
+                for symbol, role in zip(menu_emojis(category, options), options):
+                    print("[INSTANT REACTION BOT MAPPING] message_id=" +
+                          str(message["id"]) + " emoji=" + symbol +
+                          " role=" + role + " channel_id=" + cid,
+                          flush=True)
         overview = next((m for m in messages
                          if str(m.get("author", {}).get("id")) == str(bot["id"])
                          and OVERVIEW_MARKER in m.get("content", "")), None)
