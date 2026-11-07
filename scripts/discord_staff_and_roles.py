@@ -87,7 +87,7 @@ def maybe(method, path, payload, label):
     print("[APPLIED]", label, flush=True)
     return data
 
-def members_only_overwrites(member_id, bot_id, staff_ids):
+def members_only_overwrites(member_id, bot_id, staff_ids, carl_bot_id=None):
     result = [
         {"id": GID, "type": 0, "allow": "0", "deny": str(VIEW | SEND)},
         {"id": member_id, "type": 0,
@@ -100,6 +100,10 @@ def members_only_overwrites(member_id, bot_id, staff_ids):
     result.append({"id": bot_id, "type": 1,
                    "allow": str(VIEW | SEND | READ_HISTORY | ADD_REACTIONS),
                    "deny": "0"})
+    if carl_bot_id:
+        result.append({"id": carl_bot_id, "type": 1,
+                       "allow": str(VIEW | READ_HISTORY | ADD_REACTIONS),
+                       "deny": "0"})
     return result
 
 def main():
@@ -367,8 +371,13 @@ def main():
         c["name"] in ("📌 START HERE", "📌 INFORMATION")), None)
     choose = next((c for c in channel_list if c["type"] == 0 and
                    c["name"] == "choose-roles"), None)
+    carl_role = next(
+        (r for r in roles if r.get("managed") and r.get("tags", {}).get("bot_id")
+         and "carl" in r.get("name", "").casefold()
+         and "bot" in r.get("name", "").casefold()), None)
+    carl_id = str(carl_role["tags"]["bot_id"]) if carl_role else None
     perms = members_only_overwrites(str(member["id"]), str(bot["id"]),
-                                  [str(staff[n]["id"]) for n in STAFF])
+                                  [str(staff[n]["id"]) for n in STAFF], carl_id)
     if not choose:
         payload = {"name": "choose-roles", "type": 0,
                    "topic": "Choose your own origin and Y-DNA roles (after verification).",
