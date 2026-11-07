@@ -26,6 +26,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check syntax
         run: python3 -m py_compile scripts/discord_rules_cleanup.py scripts/discord_verification_setup.py scripts/discord_member_verification.py scripts/discord_role_reactions.py
+      - name: Test automatic verification safety
+        run: python3 -m unittest discover -s tests -p test_discord_auto_verification.py -v
       - name: Consolidate official rules channel first
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
