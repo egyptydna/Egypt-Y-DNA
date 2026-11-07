@@ -62,7 +62,7 @@ class AutoVerificationTests(unittest.TestCase):
         self.run_check([
             self.member(1, False),
             self.member(2, True),
-            self.member(3, include_pending=False),
+            self.member(3, None),
             self.member(4, False, is_bot=True),
             self.member(5, False, roles=[VERIFIED_ID]),
         ])
@@ -83,12 +83,16 @@ class AutoVerificationTests(unittest.TestCase):
                 worker.main()
         self.assertEqual(self.grants, [])
 
-    def test_missing_pending_flag_never_counts_as_acceptance(self):
+    def test_optional_pending_omitted_means_false_but_null_is_not_accepted(self):
+        # Discord's API marks pending optional and specifies that a missing
+        # field can be assumed False when screening is enabled.
         self.run_check([
             self.member(1, include_pending=False),
             self.member(2, None),
         ])
-        self.assertEqual(self.grants, [])
+        self.assertEqual(self.grants, [
+            f"/guilds/{GUILD}/members/1/roles/{VERIFIED_ID}"
+        ])
 
     def test_role_grant_is_idempotent(self):
         self.run_check([self.member(1, False, roles=[VERIFIED_ID])])
