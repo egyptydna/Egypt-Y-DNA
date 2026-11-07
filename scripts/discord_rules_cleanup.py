@@ -142,6 +142,38 @@ def main():
               {"content":RULES_TEXT,"allowed_mentions":{"parse":[]}},
               "Post complete English rules in original channel")
 
+    # Remove outdated instructions that asked for an extra emoji reaction.
+    # The native checkbox is now the only rules acceptance step.
+    verify_channel=next((c for c in channels if c.get("type")==0
+                         and c["name"]=="verification"),None)
+    if verify_channel:
+        verify_messages=request(
+            "GET",f"/channels/{verify_channel['id']}/messages?limit=100")
+        old_prompt=next((m for m in verify_messages
+                         if str(m.get("author",{}).get("id"))==str(bot["id"])
+                         and "**EGYPT Y-DNA VERIFICATION**" in m.get("content","")),None)
+        new_prompt=(
+            "🛡️ **EGYPT Y-DNA VERIFICATION**\\n"
+            "**Step 1:** Accept the OFFICIAL Discord rules checkbox when joining. "
+            "Read #rules for the full text.\\n"
+            "**Step 2:** Write a short request in #verification-chat.\\n"
+            "**Step 3:** A staff member approves your message by reacting ✅ to it. "
+            "Only then will the Bot grant Verified.\\n"
+            "No extra ✅ is required on this instruction message."
+        )
+        if old_prompt and old_prompt.get("content")!=new_prompt:
+            apply("PATCH",f"/channels/{verify_channel['id']}/messages/{old_prompt['id']}",
+                  {"content":new_prompt,"allowed_mentions":{"parse":[]}},
+                  "Replace old emoji-verification instructions with native checkbox instructions")
+            # The old bot's ✅ is a remnant of the removed gating method.
+            try:
+                from urllib.parse import quote
+                apply("DELETE",f"/channels/{verify_channel['id']}/messages/"
+                      f"{old_prompt['id']}/reactions/{quote('✅',safe='')}/@me",None,
+                      "Remove obsolete bot checkmark reaction from instructions")
+            except RuntimeError as err:
+                print("[NOTICE] Could not remove old bot's reaction:",err)
+
     secret_perms=[overwrite(GID,deny=VIEW|SEND|THREAD)]
     secret_perms.extend(overwrite(r,VIEW|SEND|READ|THREAD) for r in staff_ids)
     secret_perms.append(overwrite(bot["id"],VIEW|SEND|READ|THREAD,kind=1))
