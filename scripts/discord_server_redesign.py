@@ -2,8 +2,8 @@
 """Egypt Y-DNA Discord redesign. Preview-only by default, no deletions.
 
 Existing categories/channels are renamed or moved only where explicitly
-mapped below. Member verification is manual: only staff assign 'Member'.
-Discord's Apply-to-Join and Onboarding must be enabled separately in Discord.
+mapped below. New members receive Member automatically after a ✅ reaction in #verification.
+Scheduled GitHub Actions checks confirmations approximately every 5 minutes.
 """
 import json, os, sys, time, urllib.error, urllib.request
 
@@ -14,6 +14,8 @@ BASE = "https://discord.com/api/v10"
 INVITE = 1 << 0
 VIEW = 1 << 10
 SEND = 1 << 11
+ADD_REACTIONS = 1 << 6
+READ_HISTORY = 1 << 16
 
 STAFF = ["Administrator", "Moderator"]
 CORE = ["Founder", "Administrator", "Moderator", "Member",
@@ -23,7 +25,7 @@ CORE = ["Founder", "Administrator", "Moderator", "Member",
 ORIGIN = [
     "North Africa", "West Africa", "Central Africa", "East Africa", "Southern Africa",
     "Egypt", "Maghreb", "Nile Valley / Nubia", "Horn of Africa",
-    "Northern Europe", "Western Europe", "Southern Europe", "Eastern Europe",
+    "Northern Europe", "Western Europe", "Southern Europe", "Balkans", "Eastern Europe",
     "West Asia", "Levant", "Arabian Peninsula", "Mesopotamia", "Anatolia", "Caucasus",
     "Iranian Plateau", "North Asia", "Central Asia", "South Asia", "East Asia", "Southeast Asia",
     "North America", "Central America", "Caribbean", "South America",
@@ -71,8 +73,9 @@ ROLES = [(n, "staff") for n in CORE[:3]] + [
 # (target name, kind, permission mode, information/description)
 DESIGN = [
     ("📌 START HERE", [
-        ("welcome", 0, "read", "Welcome to the Egypt Y-DNA community."),
-        ("rules", 0, "read", "Community rules and safety information."),
+        ("welcome", 0, "public", "Welcome to the Egypt Y-DNA community."),
+        ("rules", 0, "public", "Read the community rules before verification."),
+        ("verification", 0, "verify", "React with ✅ to confirm the rules and unlock the server."),
         ("announcements", 0, "read", "Official announcements."),
         ("server-guide", 0, "read", "How to participate and submit a Y-DNA result."),
     ]),
@@ -123,12 +126,13 @@ RULES = (
     "7. **English is the primary language.** Arabic is welcome in #arabic-chat.\n"
     "8. **Be careful with ancestry claims.** Regional roles are self-declared, not genetic proof; SNPs may be confirmed or predicted.\n"
     "9. **Follow moderators' instructions.** Repeat violations may result in restrictions or removal.\n"
-    "By participating you agree to these rules."
+    "To unlock the server, read these rules and react with ✅ in #verification."
 )
 MESSAGES = {
-    "welcome": "🧬 **Welcome to Egypt Y-DNA!**\nInternational Egyptian Y-DNA research and genetic genealogy community.\nMain chat: #english-chat | Arabic: #arabic-chat\nProject: https://egyptydna.github.io/Egypt-Y-DNA/\nPlease read #rules. New members are approved by staff.",
+    "welcome": "🧬 **Welcome to Egypt Y-DNA!**\nInternational Egyptian Y-DNA research and genetic genealogy community.\nMain chat: #english-chat | Arabic: #arabic-chat\nProject: https://egyptydna.github.io/Egypt-Y-DNA/\nPlease read #rules and react with ✅ in #verification. Your Member role will be assigned automatically in a few minutes.",
     "rules": RULES,
-    "server-guide": "📖 **Getting started**\nJoin the main discussions in #english-chat. Share one sourced result per post in #submit-results; note your terminal confirmed SNP, testing platform, source, and Egyptian governorate if publicly documented or consented. Do not upload private DNA files.\nChoose any applicable geographical-origin and Y-DNA roles (self-declared); these never prove ancestry. Moderators may assign the Member role after review.",
+    "verification": "✅ **EGYPT Y-DNA VERIFICATION**\nPlease read #rules carefully. By reacting with ✅ below, you confirm that you have read and agree to the rules. Once processed, the Member role is assigned and the other channels become visible. This check runs approximately every five minutes; it can be delayed.\nNo DNA test or personal information is required.",
+    "server-guide": "📖 **Getting started**\nJoin the main discussions in #english-chat. Share one sourced result per post in #submit-results; note your terminal confirmed SNP, testing platform, source, and Egyptian governorate if publicly documented or consented. Do not upload private DNA files.\nChoose any applicable geographical-origin and Y-DNA roles (self-declared); these never prove ancestry. The Member role is assigned automatically after you confirm #rules in #verification.",
     "new-results": "🆕 **Confirmed Egyptian Y-DNA results**\nStaff will post reviewed samples with sources. An unverified submission is not a confirmed new result.\nhttps://egyptydna.github.io/Egypt-Y-DNA/",
     "project-map": "🗺️ **Egypt Y-DNA Project**\nhttps://egyptydna.github.io/Egypt-Y-DNA/\nLocations are approximate at the governorate level.",
     "useful-links": "🔗 **Research resources**\nYFull: https://www.yfull.com/tree/\nFTDNA Discover: https://discover.familytreedna.com/\nISOGG: https://isogg.org/\nEgyptian Y-DNA Project: https://egyptydna.github.io/Egypt-Y-DNA/",
@@ -172,7 +176,7 @@ def entry(role_id, allow=0, deny=0, kind=0):
             "allow": str(allow), "deny": str(deny)}
 
 def overlays(channel, access, member_id, staff_ids, bot_id, kind):
-    """Preserve unrelated role overwrites. Verification gates VIEW_CHANNEL."""
+    """Explicitly hide member-only channels until the Member role is granted."""
     prior = channel.get("permission_overwrites", []) if channel else []
     overwrites = {(str(o["id"]), o["type"]): dict(o) for o in prior}
     def set_permission(id, kind_, allow, deny):
@@ -187,19 +191,30 @@ def overlays(channel, access, member_id, staff_ids, bot_id, kind):
         set_permission(GUILD, 0, 0, VIEW | SEND)
         set_permission(member_id, 0, 0, VIEW | SEND)
         for id in staff_ids:
-            set_permission(id, 0, VIEW | SEND, 0)
-    elif access == "read":
-        set_permission(GUILD, 0, VIEW, SEND)
-        set_permission(member_id, 0, VIEW, SEND)
+            set_permission(id, 0, VIEW | SEND | READ_HISTORY, 0)
+    elif access == "public":
+        set_permission(GUILD, 0, VIEW | READ_HISTORY, SEND)
+        set_permission(member_id, 0, VIEW | READ_HISTORY, SEND)
         for id in staff_ids:
-            set_permission(id, 0, VIEW | SEND, 0)
+            set_permission(id, 0, VIEW | SEND | READ_HISTORY, 0)
+    elif access == "verify":
+        set_permission(GUILD, 0, VIEW | READ_HISTORY | ADD_REACTIONS, SEND)
+        set_permission(member_id, 0, VIEW | READ_HISTORY | ADD_REACTIONS, SEND)
+        for id in staff_ids:
+            set_permission(id, 0, VIEW | SEND | READ_HISTORY | ADD_REACTIONS, 0)
+    elif access == "read":
+        set_permission(GUILD, 0, 0, VIEW | SEND)
+        set_permission(member_id, 0, VIEW | READ_HISTORY, SEND)
+        for id in staff_ids:
+            set_permission(id, 0, VIEW | SEND | READ_HISTORY, 0)
     elif access == "members":
         set_permission(GUILD, 0, 0, VIEW | SEND)
-        set_permission(member_id, 0, VIEW | SEND, 0)
+        set_permission(member_id, 0, VIEW | SEND | READ_HISTORY, 0)
         for id in staff_ids:
-            set_permission(id, 0, VIEW | SEND, 0)
-    set_permission(bot_id, 1, VIEW | SEND, 0)
+            set_permission(id, 0, VIEW | SEND | READ_HISTORY, 0)
+    set_permission(bot_id, 1, VIEW | SEND | READ_HISTORY | ADD_REACTIONS, 0)
     return list(overwrites.values())
+
 
 def find_channel(channels, name, kind, aliases=()):
     matches = [c for c in channels
@@ -271,6 +286,17 @@ def main():
         raise RuntimeError("Cannot gate channels: Member role was not created")
     member_id = member_id or "000000000000000000"
     staff_ids = [role_ids[name] for name in STAFF if name in role_ids]
+    # Fail before restricting channels if the bot cannot assign the Member role.
+    if MODE == "apply":
+        fresh_roles = request("GET", "/guilds/" + GUILD + "/roles")
+        positions = {str(r["id"]): int(r["position"]) for r in fresh_roles}
+        bot_member = request("GET", "/guilds/" + GUILD + "/members/" + str(bot["id"]))
+        bot_rank = max([positions.get(str(r), -1) for r in bot_member.get("roles", [])] or [-1])
+        member_rank = positions.get(str(member_id), -1)
+        if bot_rank <= member_rank:
+            raise RuntimeError(
+                "Bot role must be ABOVE the Member role in Discord Server Settings > Roles. "
+                "Move Egypt YDNA Bot up, then re-run apply.")
     channels = request("GET", "/guilds/" + GUILD + "/channels")
     print("\n== CATEGORIES AND CHANNELS ==")
     for category, items in DESIGN:
@@ -322,6 +348,31 @@ def main():
                            f"align existing channel {old['name']} in {category} (preserve messages)")
                 else:
                     print("[EXISTS] unchanged:", name)
+    # Post a single verification prompt in the new, read-only verification channel.
+    # The recurring verifier uses this exact marker; the prompt is never deleted.
+    if MODE == "apply":
+        verify = next((ch for ch in channels if ch["name"] == "verification" and ch["type"] == 0), None)
+        if not verify:
+            raise RuntimeError("Cannot enable verification gate: #verification is missing")
+        recent = request("GET", "/channels/" + str(verify["id"]) + "/messages?limit=100")
+        found = next((m for m in recent if m.get("author", {}).get("id") == str(bot["id"])
+                      and "**EGYPT Y-DNA VERIFICATION**" in m.get("content", "")), None)
+        if not found:
+            found = request("POST", "/channels/" + str(verify["id"]) + "/messages",
+                {"content": MESSAGES["verification"], "allowed_mentions": {"parse": []}})
+            print("[POSTED] verification prompt")
+        try:
+            import urllib.parse
+            emoji = urllib.parse.quote("✅", safe="")
+            request("PUT", "/channels/" + str(verify["id"]) +
+                    "/messages/" + str(found["id"]) + "/reactions/" + emoji + "/@me")
+            print("[READY] Members can react with ✅ in #verification")
+        except RuntimeError as error:
+            # Gate should not be enabled if reacting is impossible.
+            raise RuntimeError("Verification reaction could not be created: " + str(error))
+    elif MODE == "preview":
+        print("[PREVIEW] ensure one ✅ verification prompt exists")
+
     # Ensure English appears first, ahead of Arabic, within the community section.
     english = next((c for c in channels if c["type"] == 0 and c["name"] == "english-chat"), None)
     arabic = next((c for c in channels if c["type"] == 0 and c["name"] == "arabic-chat"), None)
@@ -363,11 +414,13 @@ def main():
     print("\nNotes:")
     print("- Existing messages and old channels are preserved; no channel/role deletions.")
     print("- Origin and Y-DNA roles are SELF-DECLARED and never confer staff powers.")
-    print("- New users must be assigned 'Member' by staff before viewing member-only channels.")
+    print("- Members unlock hidden channels by reacting ✅ in #verification.")
+    print("- GitHub scheduled verifier assigns Member automatically (usually 5+ minutes).")
     print("- Assign moderator role management rights and position manually if needed.")
     print("- Private #mod-log is NOT an automatic join/leave logger; native Discord")
     print("  System Messages can announce joins in #welcome.")
-    print("- Enable Rule Screening and (if offered) Apply to Join under Discord settings.")
+    print("- Optional native Rules Screening requires separate setup in Discord and")
+    print("  can add a second confirmation step before emoji reaction is allowed.")
     print("- Configure role-selection via Discord Community Onboarding on desktop.")
     print("- Existing channels with old/extra names remain; review them manually.")
     if not community:
