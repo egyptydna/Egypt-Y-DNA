@@ -99,3 +99,20 @@ Insgesamt sind **45 verschiedene Farben** fest hinterlegt. Beispiele:
 Ein bloßer Farbwechsel vergibt keine zusätzlichen Discord-Rechte. Der gesamte Setup-Workflow kann allerdings weiterhin die zuvor geplanten Kanalzugriffsregeln aktualisieren. Die Farbe eines sichtbaren Discord-Namens wird durch die **höchste Rolle mit Farbe** bestimmt, falls ein Mitglied mehrere Herkunftsrollen besitzt. Rollen können über das vorhandene Discord-Onboarding später freiwillig ausgewählt werden; das Anlegen der Rollen allein richtet die Auswahl noch nicht ein.
 
 Bei `preview` erscheint vorerst nur der geplante Änderungsumfang. Erst `apply` führt die Farbänderungen auf Discord aus. Sollte die Discord-API wegen der Rollenhierarchie die Änderung einer Rolle verweigern, steht ein Hinweis im Workflow-Log.
+
+
+## Herkunftsrollen: 45 eigene Farben (ohne andere Änderungen)
+
+Der Workflow `Egypt Y-DNA Discord Server Setup` unterstützt zusätzlich zwei sichere Modi:
+
+- `colors-preview`: zeigt nur an, welche **bereits vorhandenen** Herkunftsrollen andere Farben bekommen. Es werden keine Änderungen vorgenommen.
+- `colors-apply`: setzt nur die Farben dieser bereits vorhandenen Rollen. Es werden **keine** neuen Rollen oder Kanäle angelegt, keine Rollen gelöscht und keine Berechtigungen, Reihenfolgen oder Mitgliederzuweisungen geändert.
+
+Die Palette umfasst 45 verschiedene Farben für alle vorgesehenen Herkunftsregionen sowie frühere Rollen wie `Copt`, `Amazighi`, `European`, `Central Asian`, `South Asian`, `East Asian`, `Sea Asians` und `Native`. `Egypt`, `West Asia` und `Balkans` gehören ebenfalls dazu.
+
+**Auf dem iPad:** https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-server-setup.yml öffnen → `Run workflow` → `colors-preview` → danach `colors-apply`.
+
+Diese Farboption ist unabhängig von der Server- und Mitgliederverifizierung und vermeidet damit mögliche Fehler in anderen Einrichtungsschritten. Nicht vorhandene Herkunftsrollen werden in diesem Modus nur als `[MISSING]` angezeigt; erst der normale `apply`-Modus legt fehlende Rollen an.
+
+Discord zeigt einem Mitglied normalerweise nur **die Farbe der höchstplatzierten farbigen Rolle** an. Mehrere zugewiesene Herkunftsrollen erzeugen deshalb nicht mehrere sichtbare Namensfarben.
+
