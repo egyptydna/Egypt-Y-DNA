@@ -163,10 +163,20 @@ def main():
                       "create new country role: " + name)
         if made:
             names[name.casefold()] = made
-    print("2) Verify Y-DNA subgroups and neutral role permissions.")
+    print("2) Ensure J1 and detailed Y-DNA roles are ready.")
     for name in SELECTABLE_YDNA:
         if name.casefold() not in names:
-            print("[WARNING] Missing DNA branch role:", name)
+            if name == "J1":
+                # Unlike J1-P58, J1 also covers paternal lineages that are
+                # upstream or outside P58. Keep them as ALTERNATIVES.
+                made = change("POST", f"/guilds/{GID}/roles",
+                              {"name": "J1", "color": 0x218C53,
+                               "permissions": "0", "mentionable": False},
+                              "create neutral J1 (not necessarily J1-P58) role")
+                if made:
+                    names["j1"] = made
+            else:
+                print("[WARNING] Missing DNA branch role:", name)
     unsafe = set()
     for name in list(SELECTABLE_ORIGINS) + list(SELECTABLE_YDNA) + ["Male", "Female"]:
         role = names.get(name.casefold())
