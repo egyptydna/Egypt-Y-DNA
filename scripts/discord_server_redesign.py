@@ -36,10 +36,10 @@ ORIGIN = [
 ]
 # User-selectable confirmed/predicted Y-DNA affiliation, not auto-verified.
 HAPLOS = [
-    # Only the more informative Y-DNA subgroups; do not re-offer the
-    # redundant broad-letter roles or parent+child combinations.
+    # Mostly precise subgroups, plus J1 as an explicit fallback for testers
+    # whose J1 result is not confirmed to be under P58. Only ONE branch per user.
     "E-M2", "E-M81", "E-M123", "E-V13", "E-V22", "E-V32",
-    "J1-P58", "J2a", "J2b",
+    "J1", "J1-P58", "J2a", "J2b",
     "R1a", "R1b-V88", "R1b-M269", "R2",
     "Q1", "Q2", "T-P77", "G1", "G2", "I1", "I2",
     "L1", "L2", "H1", "H2", "Other / unresolved",
