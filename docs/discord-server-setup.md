@@ -168,3 +168,52 @@ Wenn GitHub im Schritt `scripts/discord_staff_and_roles.py` `Discord HTTP 403 ..
 **Aktueller Workflow (verbessert):** https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-staff-roles.yml
 
 Er führt jetzt zuerst einen READ-ONLY-Vorcheck durch und gibt `[PREFLIGHT]` und `[ACTION REQUIRED]` aus; bei Problemen stoppt `apply` ohne eine Rollenänderung vorzunehmen. Für Diagnose zuerst **Run workflow → preview** ausführen. Die Ausgabe nennt die konkrete Ursache. Dann in **Discord → Servereinstellungen → Rollen → Egypt YDNA Bot → Berechtigungen** nötige Rechte aktivieren oder die Bot-Rolle über die Zielrolle setzen. Danach eine NEUE Ausführung mit `preview`, erst bei erfolgreicher Prüfung mit `apply` starten. Für die anfängliche Rechtevergabe muss der Bot die jeweiligen vergebenen Rechte selbst besitzen; anschließend können für den Bot unnötige Moderatorrechte wieder deaktiviert werden, aber **Manage Roles** muss für die laufende Mitgliederverifizierung und Selbstwahl eingeschaltet bleiben. Die allumfassende `Administrator`-Berechtigung ist dafür nicht nötig und sollte vermieden werden.
+
+
+---
+
+## NEU: Manuelle VERIFICATION-Kategorie, Verified-Gate, Male/Female und Bot
+
+**Ab November 2026 ist dieser Workflow maßgeblich für die Verifizierung und die Sichtbarkeit der Kanäle:**
+https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-verification-setup.yml
+
+1. GitHub Actions > Egypt Y-DNA Verification Category and Roles > Run workflow > **preview**.
+2. Protokoll prüfen. Die Vorschau verändert nichts.
+3. Neuen Lauf mit **apply** starten.
+4. Discord kontrollieren: VERIFICATION ist ganz oben; Staff bleibt für normale Mitglieder unsichtbar.
+
+### Neue Kategorie vor der Freigabe
+
+**🛡️ VERIFICATION** — für alle neu beigetretenen Personen sichtbar:
+
+- #welcome — nur lesen
+- #rules — nur lesen
+- #verification — Regeln mit ✅ bestätigen; nur lesen/reagieren
+- #verification-chat — Neulinge dürfen schreiben und um Freigabe bitten
+
+**Manuelle Prüfung zwingend:** Ein neu beigetretenes Mitglied muss die Regeln mit ✅ bestätigen **und** selbst in #verification-chat schreiben. **Nur** ein ✅ von Founder, Administrator oder Moderator **auf die Nachricht des Antragstellers** bewirkt im geplanten Verifizierungsworkflow die Vergabe von **Verified**. Das geschieht zeitversetzt, gewöhnlich innerhalb weniger Minuten. Ein Regeln-✅ allein schaltet niemanden frei.
+
+Nach Freigabe erscheint **jedem Verified-Mitglied jeder normale Serverkanal und jede normale Kategorie**, einschließlich Community, Research, Resources, Announcements, #choose-roles und etwaiger alter #general-Kanäle; Schreibrechte hängen vom Kanal ab. Die **🔒 STAFF**-Kategorie und alle ihre Unterkanäle bleiben ausdrücklich nur Founder, Administrator, Moderator und dem autorisierten Bot zugänglich. Der Server-Owner hat technisch immer Zugriff.
+
+### Genau vier neue Rollen
+
+- **Male:** blau, optionale Selbstwahl in #choose-roles
+- **Female:** rosa, optionale Selbstwahl in #choose-roles
+- **Verified:** grün, nur nach Freigabe durch die Staff-Gruppe; nicht selbst auswählbar
+- **Bot:** türkis, nur für Discord-Botaccounts, automatische Vergabe durch GitHub Actions; niemals selbst auswählbar
+
+Male und Female können nicht gleichzeitig per Self-Service zugewiesen werden. Weitere Genderrollen werden nicht erstellt. Bereits vorhandene Rollen namens Non-binary, Nonbinary, Other / Non-binary oder Prefer Not to Say werden beim Setup nach Möglichkeit gelöscht. Falls ein Role-Delete wegen Discord-Berechtigungen scheitert, zeigt das GitHub-Protokoll **ACTION REQUIRED** und der Owner kann die Rolle selbst löschen. Die Herkunfts- und Y-DNA-Auswahl existiert weiterhin, aber **ohne** eine Option Prefer Not to Say.
+
+### Automatische Bot-Erkennung
+
+Der Workflow
+https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-member-verification.yml
+läuft planmäßig etwa alle fünf Minuten und verarbeitet manuelle Staff-Bestätigungen. Anschließend vergibt er die Bot-Rolle an als Bot gekennzeichnete Discord-Konten. Für die Erkennung *aller* Bots muss im **Discord Developer Portal → Bot → Privileged Gateway Intents → Server Members Intent** eingeschaltet sein. Auch ohne diesen Intent kann das Setup bereits den eigenen Egypt-YDNA-Bot kennzeichnen; andere Bots sind unter Umständen nicht automatisch auffindbar. Discords und GitHubs Zeitpläne können sich verzögern.
+
+### Sicherheit
+
+- Die vier neuen Rollen bekommen **keine** Admin- oder Serverrechte.
+- Ein vorhandener alter Herkunftsrollen-Eintrag mit Administrator- oder Manage-Channels-Berechtigung kann die beabsichtigte Sichtbarkeit unterlaufen. Der Setup-Workflow zeigt dazu **SECURITY WARNING**. Der Server-Eigentümer muss solche Altberechtigungen entfernen.
+- Die historischen Rollen und alten Channels werden nicht pauschal gelöscht (Ausnahme: die ausdrücklich unerwünschten Gender-/Opt-out-Rollennamen).
+- Das alte bootstrap-Skript stoppt, sobald die VERIFICATION-Kategorie existiert, damit es den neuen Verified-Gate nicht mehr zurücksetzen kann.
+- Die Rolle `Member` wird bei Freigabe nicht mehr benötigt und vom aktuellen Verifizierungsworker nicht vergeben; ausschließlich `Verified` schaltet die normalen Kanäle frei.
