@@ -170,6 +170,11 @@ def main():
     guild = api("GET", f"/guilds/{GUILD}")
     roles = api("GET", f"/guilds/{GUILD}/roles")
     channels = api("GET", f"/guilds/{GUILD}/channels")
+    carl_role = next(
+        (r for r in roles if r.get("managed") and r.get("tags", {}).get("bot_id")
+         and "carl" in r.get("name", "").casefold()
+         and "bot" in r.get("name", "").casefold()), None)
+    carl_id = str(carl_role["tags"]["bot_id"]) if carl_role else None
     by_name = {r["name"].casefold(): r for r in roles}
     bot_member = api("GET", f"/guilds/{GUILD}/members/{bot['id']}")
     role_by_id = {str(r["id"]): r for r in roles}
@@ -339,6 +344,14 @@ def main():
                 print("[SECURITY WARNING] Non-staff role", role["name"],
                       "has ADMINISTRATOR and can bypass channel privacy.")
 
+    def picker_permissions():
+        result = policy("normal", vid, staff_ids, bot["id"], is_readonly=True)
+        if carl_id:
+            # Member-level exception grants Carl-bot only view/read/reaction
+            # rights on the picker, not access to STAFF and not to @everyone.
+            result.append(overwrite(carl_id, allow=VIEW | READ | REACT, kind=1))
+        return result
+
     for channel in channels:
         name = channel["name"]
         is_category = channel["type"] == 4
@@ -361,7 +374,9 @@ def main():
         else:
             style = "normal"
         readonly = name in READ_ONLY or name == "choose-roles"
-        intended = policy(style, vid, staff_ids, bot["id"], is_readonly=readonly)
+        intended = (picker_permissions() if name == "choose-roles" and
+                    channel["type"] == 0 else
+                    policy(style, vid, staff_ids, bot["id"], is_readonly=readonly))
         if not exact_overwrites(channel, intended):
             change("PATCH", f"/channels/{channel['id']}",
                    {"permission_overwrites": intended},
@@ -375,16 +390,15 @@ def main():
         community = next((c for c in channels if c["type"] == 4 and
                           c["name"] in ("🌍 COMMUNITY", "💬 COMMUNITY")), None)
         data = {"name": "choose-roles", "type": 0,
-                "permission_overwrites": policy("normal", vid, staff_ids, bot["id"],
-                                                is_readonly=True)}
+                "permission_overwrites": picker_permissions()}
         if community: data["parent_id"] = str(community["id"])
         choose = change("POST", f"/guilds/{GUILD}/channels", data,
                         "create Verified-only #choose-roles")
         if choose: channels.append(choose)
-    elif not exact_overwrites(choose, policy("normal", vid, staff_ids, bot["id"], True)):
+    elif not exact_overwrites(choose, picker_permissions()):
         change("PATCH", f"/channels/{choose['id']}",
-               {"permission_overwrites": policy("normal", vid, staff_ids, bot["id"], True)},
-               "secure #choose-roles behind Verified")
+               {"permission_overwrites": picker_permissions()},
+               "secure #choose-roles behind Verified while letting Carl-bot read it")
 
     if choose and MODE == "apply":
         role_map = {r["name"].casefold(): r for r in roles}
