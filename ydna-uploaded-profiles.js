@@ -7,15 +7,20 @@ async function loadUploadedProfiles(){
     try{
       const rows=[];
       for(let offset=0;;offset+=1000){
-        const page=await _sb.from('ydna_uploaded_profiles').select('*').order('record_key').range(offset,offset+999);
+        const page=await _sb.from('ydna_uploaded_profiles').select('*').eq('published',true).eq('owner_active',true).order('record_key').range(offset,offset+999);
         if(page.error)throw Error('Collected samples unavailable');
         rows.push(...page.data);if(page.data.length<1000)break;
       }
       uploadedProfiles=rows;
-      collectedSamples=rows.filter(s=>s.owner_active!==false).map(s=>({...s,id:s.record_key,__record_key:s.record_key,__uid:'collected:'+s.record_key,__sourceType:'collected',kit_number:'—',mt_dna:'—',full_mtDNA_path:'—',full_snp_path:(s.tree_path||[]).join('>')||'—',snp_path:'—',governorate:s.governorate||'—'}));
-      document.querySelector('#treeDataset option[value="uploaded"]').textContent=`Collected samples · ${rows.length}`;
-      document.querySelector('#treeDataset option[value="uploaded"]').hidden=rows.length===0;
-      document.querySelector('#treeDataset option[value="uploaded"]').disabled=rows.length===0;
+      collectedSamples=rows.map(s=>({...s,id:s.record_key,__record_key:s.record_key,__uid:'collected:'+s.record_key,__sourceType:'collected',kit_number:'—',mt_dna:'—',full_mtDNA_path:'—',full_snp_path:(s.tree_path||[]).join('>')||'—',snp_path:'—',governorate:s.governorate||'—'}));
+      const uploadedOption=document.querySelector('#treeDataset option[value="uploaded"]');
+      if(uploadedOption){
+        uploadedOption.textContent=`Collected samples · ${rows.length}`;
+        uploadedOption.hidden=rows.length===0;
+        uploadedOption.disabled=rows.length===0;
+      }
+      // A retired source cohort must not remain selectable or leak through the tree.
+      if(!rows.length&&countryTreeMode==='uploaded'){countryTreeMode='ftdna';uploadedQuery='';}
     }catch{uploadedLoadError='Collected samples are temporarily unavailable.';}
     if(document.getElementById('section-tree')?.classList.contains('active'))renderTree();
   })();return uploadedProfilesLoading;
