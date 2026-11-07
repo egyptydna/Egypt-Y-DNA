@@ -154,15 +154,53 @@ def main():
     if not member:
         raise RuntimeError("Missing Member role; run Discord server setup first.")
 
-    # All ordinary selectable roles receive exactly ZERO server-wide powers.
-    # This includes legacy geographic labels already present on the server.
-    # Other non-bot roles lose the Administrator/Manage Roles bits only.
+    # SAFETY PREFLIGHT: Check all role edits before performing any writes.
+    # A bot cannot edit a role at or above its top role. It also cannot grant
+    # permission flags it does not itself have (Discord role hierarchy rules).
+    bot_member = api("GET", f"/guilds/{GID}/members/{bot['id']}")
+    by_id = {str(r["id"]): r for r in roles}
+    bot_assigned_ids = {str(GID)} | {str(i) for i in bot_member.get("roles", [])}
+    bot_top = max((int(by_id[i]["position"]) for i in bot_assigned_ids
+                   if i in by_id), default=-1)
+    bot_permissions = 0
+    for rid in bot_assigned_ids:
+        if rid in by_id:
+            bot_permissions |= int(by_id[rid].get("permissions", "0"))
+    if bot_permissions & ADMINISTRATOR:
+        bot_permissions = (1 << 63) - 1
+
+    permission_names = (
+        (KICK, "Kick Members"), (BAN, "Ban Members"),
+        (MANAGE_CHANNELS, "Manage Channels"),
+        (MANAGE_GUILD, "Manage Server"),
+        (VIEW_AUDIT_LOG, "View Audit Log"),
+        (MANAGE_MESSAGES, "Manage Messages"),
+        (MANAGE_NICKNAMES, "Manage Nicknames"),
+        (MANAGE_EVENTS, "Manage Events"),
+        (MANAGE_WEBHOOKS, "Manage Webhooks"),
+        (MANAGE_GUILD_EXPRESSIONS, "Manage Expressions"),
+        (MANAGE_THREADS, "Manage Threads"),
+        (MODERATE_MEMBERS, "Timeout Members"),
+        (MANAGE_ROLES, "Manage Roles"),
+    )
+    def human_permissions(bits):
+        matched = [label for flag, label in permission_names if bits & flag]
+        return ", ".join(matched) if matched else "(none)"
+
+    print("[PREFLIGHT] Bot highest role position:", bot_top, flush=True)
+    print("[PREFLIGHT] Bot can manage roles:",
+          bool(bot_permissions & MANAGE_ROLES), flush=True)
+
     ordinary = {n.casefold() for n in
         list(ORIGIN) + list(HAPLOS) + list(LEGACY_ORIGINS) +
         ["Member", "Research Contributor", "Verified Y-DNA Tester",
          "Contributor", "Verified Tester"]}
+    planned = []
+    hierarchy_problems = []
+    insufficient_flags = 0
     for role in roles:
-        if role.get("managed"):
+        if role.get("managed") or str(role["id"]) == GID:
+            # @everyone is a server baseline; never rewrite it implicitly.
             continue
         name = role["name"]
         current = int(role.get("permissions", "0"))
@@ -172,19 +210,59 @@ def main():
             desired = 0
         else:
             desired = current & ~(ADMINISTRATOR | MANAGE_ROLES)
-        if current != desired:
-            maybe("PATCH", f"/guilds/{GID}/roles/{role['id']}",
-                  {"permissions": str(desired)},
-                  f"set safe permissions for {name}: {current} -> {desired}")
+        if current == desired:
+            continue
+        planned.append((role, current, desired))
+        if int(role["position"]) >= bot_top:
+            hierarchy_problems.append(f"{name} (position {role['position']})")
+        missing = desired & ~bot_permissions
+        if missing:
+            insufficient_flags |= missing
+            print("[PREFLIGHT] Cannot grant to", name, ":",
+                  human_permissions(missing), flush=True)
 
-    # Ensure role hierarchy: bot above Founder > Administrator > Moderator;
-    # no other human role may sit above Founder. Discord owner bypasses hierarchy.
-    bot_member = api("GET", f"/guilds/{GID}/members/{bot['id']}")
-    by_id = {str(r["id"]): r for r in roles}
-    bot_top = max((int(by_id[id_]["position"]) for id_ in bot_member.get("roles", [])
-                   if id_ in by_id), default=-1)
+    print("[PREFLIGHT] Role updates pending:", len(planned), flush=True)
+    problems = []
+    if planned and not (bot_permissions & MANAGE_ROLES):
+        problems.append(
+            "Bot lacks Manage Roles. In Discord: Server Settings > Roles > "
+            "Egypt YDNA Bot > Permissions > Manage Roles.")
+    if hierarchy_problems:
+        problems.append(
+            "Bot role must be HIGHER than these roles: " +
+            "; ".join(hierarchy_problems[:12]) +
+            (f" (and {len(hierarchy_problems)-12} more)" if len(hierarchy_problems) > 12 else ""))
+    if insufficient_flags:
+        problems.append(
+            "Bot cannot grant these staff permissions: " +
+            human_permissions(insufficient_flags) +
+            ". Temporarily grant them to Egypt YDNA Bot in Server Settings > "
+            "Roles > Egypt YDNA Bot > Permissions. After applying, you may "
+            "remove unnecessary powers from the bot, but KEEP Manage Roles "
+            "for ongoing member verification and self-selected roles.")
     if bot_top < 4:
-        raise RuntimeError("Bot role position too low to secure staff hierarchy")
+        problems.append(
+            "The bot role is too low for Founder > Administrator > Moderator. "
+            "Move Egypt YDNA Bot to the top of the role list.")
+    if problems:
+        for item in problems:
+            print("[ACTION REQUIRED]", item, flush=True)
+        if MODE == "apply":
+            raise RuntimeError(
+                "Discord role permission preflight failed. Fix the [ACTION REQUIRED] "
+                "items above, then run a NEW apply. No role/channel edits were "
+                "attempted by this run.")
+        print("[PREVIEW] No changes will be made until the listed problems are fixed.")
+    elif MODE == "preview":
+        print("[PREVIEW] Role permission preflight passed.")
+
+    # Only edit roles after we know the requested staff permissions can be set.
+    for role, current, desired in planned:
+        maybe("PATCH", f"/guilds/{GID}/roles/{role['id']}",
+              {"permissions": str(desired)},
+              f"set permissions for {role['name']}: {current} -> {desired}")
+
+    # Ensure role hierarchy: bot above Founder > Administrator > Moderator.
     desired = {name: bot_top - (i+1) for i, name in enumerate(STAFF)}
     # Explicitly reorder staff roles below bot, above all other custom roles.
     # This operation never reorders the bot's own managed role.
