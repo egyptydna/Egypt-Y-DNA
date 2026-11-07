@@ -27,6 +27,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Validate scripts
         run: python3 -m py_compile scripts/discord_role_menu.py scripts/discord_role_rework.py scripts/discord_role_reactions.py scripts/discord_staff_and_roles.py
+      - name: Test emoji mapping and SNP menu constraints
+        run: python3 -m unittest discover -s tests -p test_discord_role_menu.py -v
       - name: Apply role picker redesign
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
