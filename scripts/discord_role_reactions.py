@@ -106,6 +106,28 @@ def main():
         print("Gender selection conflict: users reacted to Male and Female; "
               "those changes are ignored until one reaction is removed.")
 
+    # One paternal lineage per person: avoid offering simultaneous, unrelated
+    # SNP roles such as J2a + R1b. Even a user who clicks multiple emoji will
+    # only receive a lineage when exactly one detailed choice remains.
+    dna_choices = {}
+    for dna_marker, dna_category, dna_names in menu_groups(by_name):
+        if dna_category != "Y-DNA":
+            continue
+        dna_menu = next((m for m in own_messages if dna_marker in m.get("content", "")), None)
+        if not dna_menu:
+            continue
+        if dna_menu.get("content") != menu_content(dna_marker, dna_category, dna_names):
+            continue
+        for dna_name, symbol in zip(dna_names, menu_emojis("Y-DNA", dna_names)):
+            for uid in react_users(selector["id"], dna_menu["id"], symbol):
+                dna_choices.setdefault(uid, set()).add(dna_name)
+    dna_conflicts = {uid for uid, choices in dna_choices.items()
+                     if len(choices) > 1}
+    if dna_conflicts:
+        print("[NOTICE] Y-DNA conflicts:", len(dna_conflicts),
+              "users chose more than one detailed Y-DNA branch; no new Y-DNA "
+              "role will be granted until only one is selected.")
+
     for marker, category, names in menu_groups(by_name):
         menu = next((m for m in own_messages if marker in m.get("content", "")), None)
         if not menu:
@@ -135,6 +157,8 @@ def main():
                 examined += 1
                 if category == "GENDER" and user_id in gender_conflicts:
                     continue
+                if category == "Y-DNA" and user_id in dna_conflicts:
+                    continue
                 if user_id not in cache:
                     cache[user_id] = api(
                         "GET", f"/guilds/{GID}/members/{user_id}",
@@ -147,6 +171,14 @@ def main():
                     continue  # Must first accept the rules.
                 if role_id in known_roles:
                     continue
+                if category == "Y-DNA":
+                    other_branches = [r for _, c, entries in menu_groups(by_name)
+                                      if c == "Y-DNA" for r in entries if r != name]
+                    if any(str(by_name[other.casefold()]["id"]) in known_roles
+                           for other in other_branches):
+                        print("[SKIP] Member already has another detailed Y-DNA role:",
+                              user_id)
+                        continue
                 if category == "GENDER":
                     other = "Female" if name == "Male" else "Male"
                     other_role = by_name.get(other.casefold())
