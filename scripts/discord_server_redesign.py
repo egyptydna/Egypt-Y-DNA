@@ -44,6 +44,26 @@ ROLE_ALIASES = {
     "Research Contributor": ["Contributor"],
     "Verified Y-DNA Tester": ["Verified Tester"],
 }
+def role_color(name, group):
+    if name == "Founder": return 0xD4AF37
+    if name == "Administrator": return 0xC0392B
+    if name == "Moderator": return 0x2980B9
+    if name == "Member": return 0x95A5A6
+    if name == "Research Contributor": return 0x00A6A6
+    if name == "Verified Y-DNA Tester": return 0x27AE60
+    if group == "origin": return 0x7797AF
+    if group == "haplo":
+        prefixes = [
+            ("J1", 0x218C53), ("J2", 0x7AAE48), ("E", 0x2563A6),
+            ("R1b", 0xBB4040), ("R1a", 0xB58A63), ("R2", 0xB59C27),
+            ("Q", 0x845EC2), ("T", 0xCF7D28), ("L", 0x3CA6B0),
+            ("G", 0x808080), ("I", 0x8D74AE)
+        ]
+        for prefix, color in prefixes:
+            if name == prefix or name.startswith(prefix + "-"):
+                return color
+    return 0x7F8C8D
+
 ROLES = [(n, "staff") for n in CORE[:3]] + [
     (n, "member") for n in CORE[3:]
 ] + [(n, "origin") for n in ORIGIN] + [(n, "haplo") for n in HAPLOS]
@@ -232,7 +252,8 @@ def main():
                 print("[EXISTS]", group, "role:", name)
         else:
             created = change("POST", "/guilds/" + GUILD + "/roles",
-                  {"name": name, "permissions": "0", "mentionable": False},
+                  {"name": name, "permissions": "0", "mentionable": False,
+                   "color": role_color(name, group), "hoist": False},
                   f"create neutral {group} role: {name}")
             if created:
                 role_ids[name] = str(created["id"])
