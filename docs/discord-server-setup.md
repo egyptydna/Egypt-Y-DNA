@@ -1,65 +1,83 @@
-# Ägypt YDNA — kostenloser Discord-Server-Installer
+# Egypt Y-DNA Discord — Redesign (kostenlos)
 
-Dieser einmalige Installer ergänzt deinen BEREITS BESTEHENDEN Discord-Server mit Rollen, Kategorien, Textkanälen, Foren (wenn Community aktiv ist), einem Sprachkanal und Begrüßungstexten.
+**Dies ist jetzt die aktive Einrichtung.** Sie nutzt scripts/discord_server_redesign.py und wird durch .github/workflows/discord-server-setup.yml ausgeführt. Die frühere Datei scripts/discord_server_setup.py bleibt als alte Version vorhanden, wird aber nicht mehr vom Workflow gestartet.
 
-Er arbeitet nur mit einem eigenständigen Discord-Bot. Niemals einen Discord-Benutzer-Token, Passwort oder Sitzungscode verwenden oder in ChatGPT weitergeben.
+## Die neue Serverstruktur
 
-## Die drei Schritte auf deinem iPad — ohne PC und ohne Bezahlung
+- 📌 START HERE: welcome, rules, announcements, server-guide
+- 🧬 Y-DNA RESEARCH: new-results, submit-results (Forum), haplogroup-discussion (Forum), ancient-dna (Forum)
+- 🌍 COMMUNITY: english-chat (ZUERST), arabic-chat, introductions
+- 🗺️ RESOURCES: egyptian-governorates, project-map, useful-links
+- 🔒 STAFF: mod-log, member-review, staff-chat
 
-### 1. Kostenlosen Bot erstellen und deinem bestehenden Server hinzufügen
+Die bisherige channel-id und Geschichte existierender Kanäle bleibt erhalten. Bisherige Kategorien werden nach Möglichkeit umbenannt und bekannte Kanäle umgeordnet. Es werden keine Inhalte gelöscht. Alte Extra-Kanäle (z. B. snp-analysis oder Lounge/general) können weiterhin vorhanden sein: Sie werden nicht ungefragt gelöscht.
 
-- Öffne https://discord.com/developers/applications und erstelle eine neue Anwendung, zum Beispiel Egypt YDNA Setup.
-- Im Reiter Bot einen Bot einrichten und den BOT TOKEN kopieren. Nur in GitHub Secrets speichern (Schritt 2).
-- Unter OAuth2 > URL Generator (oder Installation) den Scope bot wählen. Benötigte Bot-Berechtigungen: Manage Channels, Manage Roles, View Channels, Send Messages, Read Message History. Optional: Send Messages in Threads. Du brauchst dafür KEINE Administrator-Vollmacht.
-- Den erzeugten Einladungslink öffnen und den Bot dem bestehenden Server Ägypt YDNA hinzufügen.
-- In Discord unter Server-Einstellungen den Community-Modus aktivieren. Nur dann können die drei Forumkanäle erstellt werden. Ohne Community-Modus überspringt der Installer diese Kanäle und du kannst ihn später erneut starten.
+## Regeln
 
-### 2. Beide Werte sicher in GitHub hinterlegen
+Die neue #rules-Nachricht wird bei Bedarf veröffentlicht, auch wenn ein rules-Kanal bereits existiert. Themen: Respekt, keine persönlichen Angriffe oder Diskriminierung, sachliche Quellennachweise, keine NSFW-Inhalte, keine unpassenden Religions-/Politikdiskussionen, Datenschutz, Englisch als Hauptsprache und Arabisch im Zusatzkanal.
 
-Öffne https://github.com/egyptydna/Egypt-Y-DNA/settings/secrets/actions
+## Rollen
 
-Unter New repository secret zwei Geheimnisse anlegen:
+Management/Status: Founder, Administrator, Moderator, Member, Research Contributor, Verified Y-DNA Tester.
 
-1. Name: DISCORD_BOT_TOKEN. Wert: dein neu erzeugter Bot-Token.
-2. Name: DISCORD_GUILD_ID. Wert: die numerische Server-ID deines bestehenden Servers.
+**Eine einzige Herkunftsgruppe; alles freiwillig und ohne genetische Zuweisung:**
 
-Um die Server-ID zu kopieren, in Discord Entwicklermodus unter Benutzereinstellungen > Erweitert aktivieren und im Kontextmenü deines Servers Server-ID kopieren wählen.
+Afrika: North Africa, West Africa, Central Africa, East Africa, Southern Africa, Egypt, Maghreb, Nile Valley / Nubia, Horn of Africa.
 
-WICHTIG: Weder deinen Bot-Token noch dein Discord-Passwort in einem Chat, in einer GitHub-Datei oder in einer Discord-Nachricht veröffentlichen.
+Europa: Northern Europe, Western Europe, Southern Europe, Eastern Europe.
 
-### 3. Automatisch einrichten
+Asien: Levant, Arabian Peninsula, Mesopotamia, Anatolia, Caucasus, Iranian Plateau, Central Asia, South Asia, East Asia, Southeast Asia.
 
-Öffne https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-server-setup.yml
+Amerika: North America, Central America, Caribbean, South America.
 
-- Klicke auf Run workflow und wähle zuerst preview. Das prüft, was fehlt, verändert aber NICHTS.
-- Lies die Ausgaben des Workflow-Runs.
-- Klicke erneut Run workflow, wähle apply und starte. Jetzt werden nur die fehlenden Elemente ergänzt.
-- Wenn du später Community aktivierst, starte apply einfach erneut, um die fehlenden Foren anzulegen.
+Ozeanien/Pazifik: Australia & New Zealand, Melanesia, Micronesia, Polynesia.
 
-## Was wird erstellt?
+Weitere: Indigenous Peoples, Multiple Regions, Prefer Not to Say.
 
-Kategorien:
-- 📌 INFORMATION — welcome, rules, announcements, how-to-submit
-- 🧬 Y-DNA RESULTS — new-results, submit-results, haplogroup-discussion, snp-analysis
-- 🗺️ EGYPTIAN ORIGINS — governorates, ydna-map, ancient-dna
-- 💬 COMMUNITY — general, arabic-chat, english-chat, voice-chat
-- 🔒 STAFF ONLY — moderation, sample-review
+Diese Begriffe sind geographische oder freiwillige kulturelle Selbstbeschreibungen, keine DNA-Beweise oder wissenschaftlich definierte „Rassen“. Mitglieder können mehrere Herkunftsrollen wählen. Alle neu eingerichteten Herkunftsrollen erhalten die gleichen serverweiten Berechtigungen: 0 zusätzliche Rechte.
 
-Rollen:
-Founder, Administrator, Moderator, Researcher, Verified Tester, Contributor, Member.
+**Y-DNA-Rollen:**
+A–T als grobe Gruppen plus E-M2, E-M35, E-M78, E-M81, E-M123, E-V13, E-V22, E-V32, J1, J1-P58, J2, J2a, J2b, R1a, R1b, R1b-V88, R1b-M269, R2, Q1, Q2, T-M70, T-P77, G1, G2, I1, I2, L1, L2, H1, H2, Not tested, Other / unresolved. **Q1/Q2 und andere alphanumerische Labels können je nach Stammbaumversion variieren**; eine durch SNP identifizierte Untergruppe ist wissenschaftlich präziser. Diese Rollen dienen nur der Selbstbeschreibung, nicht der Validierung eines DNA-Tests.
 
-Sicherheitsprinzipien:
-- Vorhandene Rollen/Kanäle werden NICHT gelöscht, umbenannt, verschoben oder überschrieben.
-- Bereits bestehende Kanalnamen werden erkannt und übersprungen, statt doppelt erstellt.
-- Neue Rollen erhalten keinerlei serverweite Sonderrechte. Insbesondere bezeichnet die neue Rolle Administrator zunächst nur den Rollennamen, NICHT eine echte Admin-Vollmacht. Du kannst Berechtigungen bewusst später vergeben.
-- Die neu angelegten Staff-Kanäle sind privat und für Eigentümer sowie Administrator-/Moderatorrollen zugänglich. Prüfe nach dem Setup den Zugriff.
-- Ankündigungen und verifizierte Ergebnisse werden als schreibgeschützte Kanäle neu angelegt. Dort können Eigentümer, Administrator-/Moderatorrollen und der Bot schreiben.
-- Startertexte betonen Quellenprüfung und den Schutz privater DNA-Daten.
-- Automatische Verknüpfung mit neuen Y-DNA-Proben ist NICHT enthalten; dazu müsste ein gesonderter, überprüfbarer Veröffentlichungsprozess eingerichtet werden.
-- Keine dauerhaft laufenden Bots oder kostenpflichtigen Discord-Dienste erforderlich. GitHub Actions ist bei öffentlichen Repositories kostenlos; private Repositories haben ein Freikontingent.
+**Keine Sprachrollen.**
 
-Wenn ein Kanal mit dem gleichen Namen bereits an einer anderen Stelle existiert, lässt das Script ihn unangetastet. Es überschreibt auch nicht die Rechte schon existierender Kanäle oder Kategorien. Bei unzureichenden Bot-Rechten erscheint ein Fehler im Workflow-Protokoll.
+## Mitglieder verifizieren
 
-Offizielle Referenzen:
-- https://discord.com/developers/docs/topics/permissions
-- https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow
+- Neue Benutzer dürfen die Kanäle in START HERE sehen. Die übrigen neu verwalteten Diskussions-/Forschungskanäle sind bis zur Freigabe gesperrt.
+- Moderator/Owner weist nach manueller Prüfung die Rolle **Member** zu. Erst dann werden die betreuten Forschungs- und Communitykanäle sichtbar.
+- Die Kategorien/Forschungskanäle und alte #general/#snp-analysis erhalten dafür Kanal-Overwrites. Eigentümer können die Bereiche immer sehen. Andere existierende Sonderrollen oder Kanäle sind separat zu überprüfen.
+- Jede Person kann weiterhin Einladungen erstellen: der Workflow schaltet nötigenfalls die allgemeine Berechtigung CREATE_INSTANT_INVITE für @everyone ein.
+- Moderatoren brauchen für die Rollenzuweisung die Discord-Berechtigung **Manage Roles** und die passende Position in der Rollen-Hierarchie. Der Script legt Moderator-Rollen aus Sicherheitsgründen zunächst **ohne** Admin-Rechte an. Nur vertrauenswürdigen Personen erlauben.
+- Discord bietet **Apply to Join** für eine echte Freigabe *vor* dem Beitritt, aber nur bei dafür freigeschalteten Servern; diese Funktion ist laut Discord schrittweise ausgerollt und wird in der Desktop-App aktiviert. Menü: Server Settings > Access.
+- Community-Modus und Regelbestätigung (Rules Screening) getrennt in den Discord-Einstellungen einschalten. Das ist **keine** persönliche Freigabe.
+- Optional Community Onboarding in der Desktop-Version konfigurieren, damit Mitglieder ihre Herkunfts-/Y-DNA-Rollen selbst wählen. Onboarding kann bei vielen Rollen durch mehrere übersichtliche Fragen gestaffelt werden.
+
+## Logs und Join-Mitteilungen
+
+- #mod-log ist vorerst ein **privater Notiz- und Moderationskanal**, kein echter automatischer Join-/Leave-Logger. Das Skript läuft einmalig via GitHub Actions, kein Bot läuft dauerhaft.
+- Für kostenlose Join-Benachrichtigungen unter Server Settings > Overview/Übersicht > System Messages Channel den Kanal #welcome auswählen. Discord kann dort bei einem Beitritt eine Systemnachricht veröffentlichen.
+- Der eingebaute Audit-Log in Server Settings protokolliert wichtige Moderationsaktionen. Ein ausführlicher, privater Join-/Leave-Log würde einen dauerhaft aktiven Bot mit den passenden Events benötigen.
+- Die meisten Teamaktionen können in #member-review dokumentiert werden.
+
+## Einrichtung / Neuer Lauf auf dem iPad
+
+Voraussetzung: Dein Discord-Bot ist eingeladen und im GitHub-Repo sind diese **Secrets** hinterlegt:
+- DISCORD_BOT_TOKEN (Bot-Token; niemals in ChatGPT, Issues oder Dateien einfügen)
+- DISCORD_GUILD_ID (numerische Server-ID)
+
+1. Öffne https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-server-setup.yml
+2. **Run workflow** → **preview** → Run workflow. Das ist lesend und ändert nichts.
+3. Prüfe den Log, ob die vorgeschlagenen Änderungen passen.
+4. **Run workflow** → **apply** → Run workflow. Erst jetzt werden Änderungen auf dem Server durchgeführt.
+5. Öffne Discord und kontrolliere die Kategorien, Reihenfolge, Rollen sowie staff-only und Member-Zugriff.
+6. Aktiviere Community; wenn die drei Foren wegen fehlendem Community-Modus übersprungen wurden, run apply erneut.
+
+Das Setup löscht **keine** alten Rollen, Nachrichten, Kanäle oder Kategorien. Es benennt einige alte Projektkategorien/Kanäle um, verschiebt bekannte Kanäle in die neuen Kategorien, erstellt fehlende Einträge, aktualisiert die Leseberechtigung für verifizierte Mitglieder und schreibt die neuen Regeln. **Neue Discord-Kanäle und Rechte werden erst beim Workflow-Lauf apply angelegt.** Mögliche Discord-API-Fehler (z. B. Bot-Rollenposition) sind im Workflow-Protokoll sichtbar.
+
+Die GitHub-Actions-Nutzung ist bei öffentlichen Repositories ohne Actions-Minutenkosten; Discord benötigt für diese Grundfunktionen weder Nitro noch Server-Boosts.
+
+Links:
+- Discord Community Onboarding: https://support.discord.com/hc/en-us/articles/11074987197975-Community-Onboarding-FAQ
+- Discord Member Applications: https://support.discord.com/hc/en-us/articles/29729107418519-Server-Member-Applications
+- Discord Rules Screening: https://support.discord.com/hc/en-us/articles/1500000466882-Rules-Screening-FAQ
+- Discord API: https://discord.com/developers/docs/topics/permissions
