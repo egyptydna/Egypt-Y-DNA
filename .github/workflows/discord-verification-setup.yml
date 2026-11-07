@@ -1,0 +1,34 @@
+name: Egypt Y-DNA Verification Category and Roles
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Preview first; apply creates roles, rooms and privacy settings"
+        type: choice
+        required: true
+        default: preview
+        options: [preview, apply]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: egypt-ydna-verification-setup
+  cancel-in-progress: false
+
+jobs:
+  configure:
+    name: Verification rooms, Verified access, Male/Female and Bot
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check syntax
+        run: python3 -m py_compile scripts/discord_verification_setup.py scripts/discord_member_verification.py scripts/discord_role_reactions.py
+      - name: Apply verification and role setup
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
+          MODE: ${{ inputs.mode }}
+        run: python3 -u scripts/discord_verification_setup.py
