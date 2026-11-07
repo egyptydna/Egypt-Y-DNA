@@ -24,8 +24,8 @@ ORIGIN = [
     "North Africa", "West Africa", "Central Africa", "East Africa", "Southern Africa",
     "Egypt", "Maghreb", "Nile Valley / Nubia", "Horn of Africa",
     "Northern Europe", "Western Europe", "Southern Europe", "Eastern Europe",
-    "Levant", "Arabian Peninsula", "Mesopotamia", "Anatolia", "Caucasus",
-    "Iranian Plateau", "Central Asia", "South Asia", "East Asia", "Southeast Asia",
+    "West Asia", "Levant", "Arabian Peninsula", "Mesopotamia", "Anatolia", "Caucasus",
+    "Iranian Plateau", "North Asia", "Central Asia", "South Asia", "East Asia", "Southeast Asia",
     "North America", "Central America", "Caribbean", "South America",
     "Australia & New Zealand", "Melanesia", "Micronesia", "Polynesia",
     "Indigenous Peoples", "Multiple Regions", "Prefer Not to Say",
@@ -223,8 +223,11 @@ def main():
             if group in ("origin", "haplo") and int(old["permissions"]) != 0:
                 changes["permissions"] = "0"
             if changes:
-                change("PATCH", "/guilds/" + GUILD + "/roles/" + str(old["id"]),
-                       changes, "align existing role: " + str(old["name"]) + " -> " + name)
+                try:
+                    change("PATCH", "/guilds/" + GUILD + "/roles/" + str(old["id"]),
+                           changes, "align existing role: " + str(old["name"]) + " -> " + name)
+                except RuntimeError as exc:
+                    print("[NOTICE] Existing role is protected by hierarchy; change manually:", exc)
             else:
                 print("[EXISTS]", group, "role:", name)
         else:
@@ -235,9 +238,13 @@ def main():
                 role_ids[name] = str(created["id"])
     everyone = next((r for r in existing_roles if str(r["id"]) == GUILD), None)
     if everyone and not (int(everyone["permissions"]) & INVITE):
-        change("PATCH", f"/guilds/{GUILD}/roles/{GUILD}",
-               {"permissions": str(int(everyone["permissions"]) | INVITE)},
-               "permit all members to create server invitations")
+        try:
+            change("PATCH", f"/guilds/{GUILD}/roles/{GUILD}",
+                   {"permissions": str(int(everyone["permissions"]) | INVITE)},
+                   "permit all members to create server invitations")
+        except RuntimeError as exc:
+            print("[NOTICE] Could not set @everyone Create Invite automatically:", exc)
+            print("         Enable Create Invite manually in Server Settings > Roles > @everyone.")
     member_id = role_ids.get("Member")
     if MODE == "apply" and not member_id:
         raise RuntimeError("Cannot gate channels: Member role was not created")
