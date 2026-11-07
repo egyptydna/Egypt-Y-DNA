@@ -14,8 +14,6 @@ BASE = "https://discord.com/api/v10"
 INVITE = 1 << 0
 VIEW = 1 << 10
 SEND = 1 << 11
-THREAD_SEND = 1 << 38
-CONNECT = 1 << 20
 
 STAFF = ["Administrator", "Moderator"]
 CORE = ["Founder", "Administrator", "Moderator", "Member",
@@ -42,6 +40,10 @@ HAPLOS = [
     "Q1", "Q2", "T-M70", "T-P77", "G1", "G2", "I1", "I2",
     "L1", "L2", "H1", "H2", "Not tested", "Other / unresolved",
 ]
+ROLE_ALIASES = {
+    "Research Contributor": ["Contributor"],
+    "Verified Y-DNA Tester": ["Verified Tester"],
+}
 ROLES = [(n, "staff") for n in CORE[:3]] + [
     (n, "member") for n in CORE[3:]
 ] + [(n, "origin") for n in ORIGIN] + [(n, "haplo") for n in HAPLOS]
@@ -150,7 +152,7 @@ def entry(role_id, allow=0, deny=0, kind=0):
             "allow": str(allow), "deny": str(deny)}
 
 def overlays(channel, access, member_id, staff_ids, bot_id, kind):
-    # Preserve any unrelated custom overwrites.
+    """Preserve unrelated role overwrites. Verification gates VIEW_CHANNEL."""
     prior = channel.get("permission_overwrites", []) if channel else []
     overwrites = {(str(o["id"]), o["type"]): dict(o) for o in prior}
     def set_permission(id, kind_, allow, deny):
@@ -162,26 +164,21 @@ def overlays(channel, access, member_id, staff_ids, bot_id, kind):
         old["deny"] = str((old_deny & ~involved) | deny)
         overwrites[key] = old
     if access == "staff":
-        set_permission(GUILD, 0, 0, VIEW | SEND | THREAD_SEND)
-        set_permission(member_id, 0, 0, VIEW | SEND | THREAD_SEND)
+        set_permission(GUILD, 0, 0, VIEW | SEND)
+        set_permission(member_id, 0, 0, VIEW | SEND)
         for id in staff_ids:
-            set_permission(id, 0, VIEW | SEND | THREAD_SEND, 0)
+            set_permission(id, 0, VIEW | SEND, 0)
     elif access == "read":
-        set_permission(GUILD, 0, VIEW | INVITE, SEND | THREAD_SEND)
-        set_permission(member_id, 0, VIEW | INVITE, SEND | THREAD_SEND)
+        set_permission(GUILD, 0, VIEW, SEND)
+        set_permission(member_id, 0, VIEW, SEND)
         for id in staff_ids:
-            set_permission(id, 0, VIEW | SEND | THREAD_SEND, 0)
+            set_permission(id, 0, VIEW | SEND, 0)
     elif access == "members":
-        set_permission(GUILD, 0, VIEW | INVITE, SEND | THREAD_SEND)
-        set_permission(member_id, 0, VIEW | INVITE | SEND | THREAD_SEND, 0)
+        set_permission(GUILD, 0, 0, VIEW | SEND)
+        set_permission(member_id, 0, VIEW | SEND, 0)
         for id in staff_ids:
-            set_permission(id, 0, VIEW | INVITE | SEND | THREAD_SEND, 0)
-    elif access == "voice":
-        set_permission(GUILD, 0, VIEW | INVITE, CONNECT)
-        set_permission(member_id, 0, VIEW | INVITE | CONNECT, 0)
-        for id in staff_ids:
-            set_permission(id, 0, VIEW | INVITE | CONNECT, 0)
-    set_permission(bot_id, 1, VIEW | SEND | THREAD_SEND, 0)
+            set_permission(id, 0, VIEW | SEND, 0)
+    set_permission(bot_id, 1, VIEW | SEND, 0)
     return list(overwrites.values())
 
 def find_channel(channels, name, kind, aliases=()):
@@ -211,11 +208,23 @@ def main():
     print("\n== SELF-SELECTABLE ROLES / NO SPECIAL PERMISSIONS ==")
     for name, group in ROLES:
         old = existing_by_name.get(name.casefold())
+        alias = False
+        if not old:
+            for alternate in ROLE_ALIASES.get(name, []):
+                old = existing_by_name.get(alternate.casefold())
+                if old:
+                    alias = True
+                    break
         if old:
             role_ids[name] = str(old["id"])
+            changes = {}
+            if alias:
+                changes["name"] = name
             if group in ("origin", "haplo") and int(old["permissions"]) != 0:
+                changes["permissions"] = "0"
+            if changes:
                 change("PATCH", "/guilds/" + GUILD + "/roles/" + str(old["id"]),
-                       {"permissions": "0"}, "align neutral role permissions: " + name)
+                       changes, "align existing role: " + str(old["name"]) + " -> " + name)
             else:
                 print("[EXISTS]", group, "role:", name)
         else:
@@ -311,20 +320,22 @@ def main():
             except RuntimeError as error:
                 print("[NOTICE] Could not check/post updated content:", error)
 
-    # Apply the same Member role approval gate to legacy public template chat.
+    # Legacy template channels must not bypass the member approval gate.
     for ch in channels:
-        if ch["type"] == 0 and ch["name"] == "general":
+        if (ch["name"] == "general" and ch["type"] in (0, 2)) or (
+            ch["name"] == "snp-analysis" and ch["type"] == 0
+        ):
             if MODE == "apply":
                 perm = overlays(ch, "members", member_id, staff_ids, bot["id"], ch["type"])
                 change("PATCH", "/channels/" + str(ch["id"]),
                        {"permission_overwrites": perm},
-                       "restrict legacy #general sending to approved members")
+                       "restrict legacy " + ch["name"] + " to approved members")
             else:
-                print("[PREVIEW] gate legacy #general for approved members")
+                print("[PREVIEW] gate legacy", ch["name"], "for approved members")
     print("\nNotes:")
     print("- Existing messages and old channels are preserved; no channel/role deletions.")
     print("- Origin and Y-DNA roles are SELF-DECLARED and never confer staff powers.")
-    print("- New users must be assigned 'Member' by staff before sending in managed chats.")
+    print("- New users must be assigned 'Member' by staff before viewing member-only channels.")
     print("- Assign moderator role management rights and position manually if needed.")
     print("- Private #mod-log is NOT an automatic join/leave logger; native Discord")
     print("  System Messages can announce joins in #welcome.")
