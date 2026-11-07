@@ -31,7 +31,7 @@ ORIGIN = [
     "Iranian Plateau", "North Asia", "Central Asia", "South Asia", "East Asia", "Southeast Asia",
     "North America", "Central America", "Caribbean", "South America",
     "Australia & New Zealand", "Melanesia", "Micronesia", "Polynesia",
-    "Indigenous Peoples", "Multiple Regions", "Prefer Not to Say",
+    "Indigenous Peoples", "Multiple Regions",
 ]
 # User-selectable confirmed/predicted Y-DNA affiliation, not auto-verified.
 HAPLOS = [
@@ -84,7 +84,6 @@ ORIGIN_ROLE_COLORS = {
     "Polynesia": 0x8D8D26,
     "Indigenous Peoples": 0x366CC5,
     "Multiple Regions": 0xAB459A,
-    "Prefer Not to Say": 0x6D7886,
     "Copt": 0xAD613A,
     "Amazighi": 0x218C79,
     "Central Asian": 0x303084,
