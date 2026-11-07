@@ -67,9 +67,9 @@ def main():
         raise ValueError("Set DISCORD_GUILD_ID and DISCORD_BOT_TOKEN GitHub Secrets")
     roles = api("GET", f"/guilds/{GID}/roles")
     by_name = {r["name"].casefold(): r for r in roles}
-    member = by_name.get("member")
+    member = by_name.get("verified")
     if not member:
-        print("SKIP: Member role missing, run setup first")
+        print("SKIP: Verified role missing, run Verification Setup first")
         return
     channels = api("GET", f"/guilds/{GID}/channels")
     selector = next((c for c in channels if c.get("name") == "choose-roles"
@@ -86,6 +86,25 @@ def main():
     allowed_names = set(
         name for _, _, names in menu_groups(by_name) for name in names
     )
+
+    gender_groups = [entry for entry in menu_groups(by_name) if entry[1] == "GENDER"]
+    gender_conflicts = set()
+    for gender_marker, gender_category, gender_names in gender_groups:
+        gender_menu = next(
+            (m for m in own_messages if gender_marker in m.get("content", "")), None)
+        if not gender_menu:
+            continue
+        picks = {}
+        for i, gender_name in enumerate(gender_names):
+            if gender_name not in ("Male", "Female"):
+                continue
+            for person in react_users(selector["id"], gender_menu["id"], EMOJIS[i]):
+                picks.setdefault(person, set()).add(gender_name)
+        gender_conflicts.update(person for person, choices in picks.items()
+                                if len(choices) > 1)
+    if gender_conflicts:
+        print("Gender selection conflict: users reacted to Male and Female; "
+              "those changes are ignored until one reaction is removed.")
 
     for marker, category, names in menu_groups(by_name):
         menu = next((m for m in own_messages if marker in m.get("content", "")), None)
@@ -107,6 +126,8 @@ def main():
             role_id = str(by_name[name.casefold()]["id"])
             for user_id in react_users(selector["id"], menu["id"], emoji):
                 examined += 1
+                if category == "GENDER" and user_id in gender_conflicts:
+                    continue
                 if user_id not in cache:
                     cache[user_id] = api(
                         "GET", f"/guilds/{GID}/members/{user_id}",
@@ -119,6 +140,15 @@ def main():
                     continue  # Must first accept the rules.
                 if role_id in known_roles:
                     continue
+                if category == "GENDER":
+                    other = "Female" if name == "Male" else "Male"
+                    other_role = by_name.get(other.casefold())
+                    if other_role and str(other_role["id"]) in known_roles:
+                        # Refuse ambiguous simultaneous gender roles. Existing
+                        # selections can be changed by staff on request.
+                        print("SKIP gender choice: an opposite gender role already exists",
+                              user_id)
+                        continue
                 try:
                     api("PUT", f"/guilds/{GID}/members/{user_id}/roles/{role_id}")
                     data.setdefault("roles", []).append(role_id)
