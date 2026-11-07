@@ -6,7 +6,7 @@ Dies ersetzt die frühere, manuelle Prüfung mit Moderatorreaktionen vollständi
 
 1. Neue Person tritt dem Server **Egypt Y-DNA** bei.
 2. Sie muss die OFFIZIELLE Discord **Rules Screening**-Abfrage lesen und mit dem Pflicht-Häkchen bestätigen.
-3. Der kostenlose [GitHub-Auto-Verification-Workflow](https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-member-verification.yml) liest die Mitgliederliste in regelmäßigen Abständen und prüft ausdrücklich `pending == false`. **Nur** echte Benutzerkonten mit nachweislich abgeschlossener Regelbestätigung erhalten die Rolle **Verified**. Keine Moderatorprüfung, keine Bewerbung, kein zusätzliches Emoji.
+3. Der kostenlose [GitHub-Auto-Verification-Workflow](https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-member-verification.yml) liest die Mitgliederliste in regelmäßigen Abständen und prüft ausdrücklich `pending == false`. **Nur** echte Benutzerkonten, die laut Discord nicht mehr auf die Regelbestätigung warten, erhalten die Rolle **Verified**. (Laut Discord-API entspricht ein ausgelassenes optionales `pending`-Feld `false`; `pending=true` wird immer übersprungen.) Keine Moderatorprüfung, keine Bewerbung, kein zusätzliches Emoji.
 4. Mit **Verified** werden alle normalen Kanäle sichtbar. Die STAFF-Kategorie bleibt nur für Founder, Administratoren und Moderatoren sichtbar.
 
 **Technische Einschränkung:** Discords Regel-Häkchen löst in einem rein mit GitHub Actions betriebenen Bot keine sofortige Rollenvergabe aus. Der Cron-Workflow läuft ungefähr alle fünf Minuten und kann sich verzögern. Um die Rolle sekundengenau zu vergeben, wäre ein ständig aktiver Discord-Gateway-Bot nötig. Kein kostenpflichtiges Hosting ist für die hier gewählte zeitversetzte Lösung notwendig.
@@ -35,7 +35,7 @@ Die GitHub-Aktion aktualisiert die Begrüßung und den offiziellen #rules-Text, 
 
 [Auto Verification After Rules](https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-member-verification.yml) → **Run workflow**. Unter `[SUMMARY]` siehst du, wie viele Mitglieder die native Bestätigung abgeschlossen haben, noch `pending` sind und neu `Verified` erhalten haben.
 
-Der Worker bricht mit `FAILED` ab, wenn Rules Screening noch deaktiviert ist, die erforderliche Mitgliederliste nicht lesbar ist oder der Bot die Rolle Verified nicht vergeben darf. Er vergibt **niemals** Verified an Bots oder Mitglieder mit `pending=true` bzw. fehlendem `pending`-Status. Das Verhalten ist zusätzlich mit Offline-Tests im Repository abgesichert.
+Der Worker bricht mit `FAILED` ab, wenn Rules Screening noch deaktiviert ist, die erforderliche Mitgliederliste nicht lesbar ist oder der Bot die Rolle Verified nicht vergeben darf. Er vergibt **niemals** Verified an Bots oder Mitglieder mit `pending=true` oder einem ausdrücklich ungültigen/leeren `pending`-Wert. Das Verhalten ist zusätzlich mit Offline-Tests im Repository abgesichert.
 
 **Wichtig:** Alte Abschnitte dieses Dokuments, die für `Verified` eine Nachricht in `#verification-chat` oder eine Moderatoren-✅ verlangen, sind **überholt**.
 
