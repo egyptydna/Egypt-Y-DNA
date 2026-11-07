@@ -9,7 +9,9 @@ Default preview is read-only. apply:
 - keeps existing messages/channels, no deletes;
 - installs role picker with only the existing origin/Y-DNA roles + Male/Female.
 The only approval mechanism is a staff ✅ reaction to a member's message,
-combined with the member's ✅ rules reaction. See discord_member_verification.py.
+combined with Discord's native Rules Screening checkbox (pending=false).
+See discord_member_verification.py. The native checkbox must be activated
+manually in Discord Safety Setup; the public API cannot enable screening.
 """
 import json
 import os
@@ -47,23 +49,23 @@ READ_ONLY = {
     "new-results", "project-map", "useful-links", "ydna-map"
 }
 RULE_PROMPT = (
-    "✅ **EGYPT Y-DNA VERIFICATION**\n"
-    "**Step 1:** Read #rules and react with ✅ to this message.\n"
-    "**Step 2:** Write a short message in #verification-chat requesting access. "
-    "Do not share private DNA files or personal details.\n"
-    "**Step 3:** A Founder, Administrator or Moderator reviews your message and "
-    "reacts with ✅ to approve it. The bot then grants **Verified** and the community "
-    "channels become visible (usually within a few minutes; GitHub may delay checks).\n"
-    "A reaction to the rules alone does NOT grant access."
+    "🛡️ **EGYPT Y-DNA — VERIFICATION INSTRUCTIONS**\n"
+    "**Step 1:** Read #rules and accept Discord's official mandatory "
+    "rules checkbox when joining. This checkbox is controlled by "
+    "Server Settings > Safety Setup, not by a reaction here.\n"
+    "**Step 2:** Write a short request in #verification-chat. "
+    "Do not share private DNA or personal details.\n"
+    "**Step 3:** A Founder, Administrator or Moderator reviews your request "
+    "and reacts with ✅ to your message. After approval, Verified will be "
+    "assigned (GitHub may delay the check).\n"
+    "Simply viewing this message does not grant access."
 )
 CHAT_PROMPT = (
     "🛡️ **EGYPT Y-DNA — MEMBERSHIP REVIEW**\n"
-    "New members: after accepting #rules in #verification, write a short request "
-    "here in English (Arabic is also welcome). No DNA test, full name or ethnicity "
-    "proof is required. Do not post private genetic results.\n"
-    "Staff: to approve an applicant, add a ✅ reaction to **the applicant's own message**. "
-    "The scheduled workflow then gives Verified. Merely accepting the rules "
-    "does not grant access."
+    "New members: first accept Discord's official rules checkbox, then "
+    "write a short request here. No DNA test, name or ethnicity proof needed.\n"
+    "Staff: to approve, react ✅ to the applicant's own message. "
+    "Only staff approval grants Verified; other channels stay hidden until then."
 )
 
 def api(method, path, data=None):
@@ -263,7 +265,14 @@ def main():
         print("[PREVIEW] category will be created on apply.")
 
     for name in PRE_VISIBLE:
-        channel = next((c for c in channels if c["type"] == 0 and c["name"] == name), None)
+        # Always retain the official upper rules channel instead of selecting
+        # another same-named #rules channel by API return order.
+        if name == "rules" and guild.get("rules_channel_id"):
+            channel = next((c for c in channels if c["type"] == 0 and
+                            str(c["id"]) == str(guild["rules_channel_id"])), None)
+        else:
+            channel = next((c for c in channels if c["type"] == 0
+                            and c["name"] == name), None)
         style = ("verification-chat" if name == "verification-chat" else
                  "verification" if name == "verification" else "public")
         allowed = policy(style, vid, staff_ids, bot["id"])
@@ -291,11 +300,8 @@ def main():
         prompt_id = sync_message(verification["id"],
                                  "**EGYPT Y-DNA VERIFICATION**",
                                  RULE_PROMPT, bot["id"])
-        if prompt_id and MODE == "apply":
-            emoji = urllib.parse.quote("✅", safe="")
-            api("PUT", f"/channels/{verification['id']}/messages/"
-                f"{prompt_id}/reactions/{emoji}/@me")
-            print("[READY] Rules ✅ confirmation available.")
+        # No emoji gate here: Discord's native Rules Screening checkbox is
+        # mandatory, and the verification worker checks member.pending == False.
     if verify_chat:
         sync_message(verify_chat["id"], "**EGYPT Y-DNA — MEMBERSHIP REVIEW**",
                      CHAT_PROMPT, bot["id"])
