@@ -21,7 +21,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-from discord_staff_and_roles import menu_groups, menu_content, EMOJIS
+from discord_role_menu import menu_groups, menu_content, menu_emojis
 
 BASE = "https://discord.com/api/v10"
 GUILD = os.getenv("DISCORD_GUILD_ID", "").strip()
@@ -46,7 +46,7 @@ STAFF_NAMES = ("Founder", "Administrator", "Moderator")
 PRE_VISIBLE = ("welcome", "rules", "verification", "verification-chat")
 READ_ONLY = {
     "welcome", "rules", "verification", "announcements", "server-guide",
-    "new-results", "project-map", "useful-links", "ydna-map"
+    "project-map", "useful-links", "ydna-map"
 }
 RULE_PROMPT = (
     "🛡️ **EGYPT Y-DNA VERIFICATION**\n"
@@ -405,7 +405,7 @@ def main():
                                  {"content": body, "allowed_mentions": {"parse": []}},
                                  "post role menu " + marker)
                 message_id = str(created["id"])
-            for emoji in EMOJIS[:len(names)]:
+            for emoji in menu_emojis(kind, names):
                 api("PUT", f"/channels/{choose['id']}/messages/{message_id}"
                     f"/reactions/{urllib.parse.quote(emoji, safe='')}/@me")
     elif MODE == "preview":
