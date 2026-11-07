@@ -308,12 +308,14 @@ def main():
             str(channel.get("parent_id")) == verify_cat_id or str(channel["id"]) == verify_cat_id)
         if name in PRE_VISIBLE and channel["type"] == 0:
             continue
-        if inside_verification:
-            # Any unexpected channel within the public Verification category
-            # must remain behind Verified until separately configured.
-            style = "normal"
-        elif inside_staff:
+        if inside_staff:
             style = "staff"
+        elif inside_verification and is_category:
+            # The category itself must remain visible to new arrivals.
+            style = "public"
+        elif inside_verification:
+            # Unknown extra rooms under VERIFICATION remain Verified-only.
+            style = "normal"
         elif is_category:
             style = "category"
         else:
