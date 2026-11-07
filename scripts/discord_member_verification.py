@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Manual verification by staff reactions, checked by GitHub Actions.
 
-1. A newcomer reads rules, reacts ✅ in #verification, writes a short
-   introduction in #verification-chat (no private DNA details).
-2. Founder/Administrator/Moderator reacts ✅ to THAT member message.
-3. This worker verifies BOTH acknowledgments and assigns Verified only.
+1. A newcomer accepts the mandatory Discord Rules Screening checkbox.
+2. They write a short introduction in #verification-chat (no private DNA details).
+3. Founder/Administrator/Moderator reacts ✅ to THAT applicant's message.
+4. This worker requires both native screening completion and staff approval.
 No staff approval means no access. Bot accounts cannot be approved as humans.
 """
 import json, os, sys, time, urllib.error, urllib.parse, urllib.request
@@ -12,7 +12,6 @@ import json, os, sys, time, urllib.error, urllib.parse, urllib.request
 GUILD = os.getenv("DISCORD_GUILD_ID", "").strip()
 TOKEN = os.getenv("DISCORD_BOT_TOKEN", "").strip()
 BASE = "https://discord.com/api/v10"
-RULE_MARKER = "**EGYPT Y-DNA VERIFICATION**"
 EMOJI = urllib.parse.quote("✅", safe="")
 STAFF = {"founder", "administrator", "moderator"}
 
@@ -70,41 +69,41 @@ def main():
     if not GUILD.isdecimal() or not TOKEN:
         raise ValueError("Missing GitHub Secrets DISCORD_GUILD_ID / DISCORD_BOT_TOKEN")
     guild = api("GET", f"/guilds/{GUILD}")
-    bot = api("GET", "/users/@me")
+    # No automatic Verified role can be issued unless Discord's official rules
+    # checkbox is enabled. This prevents an emoji reaction from substituting
+    # for the native membership-screening acceptance.
+    if "MEMBER_VERIFICATION_GATE_ENABLED" not in guild.get("features", []):
+        print("[ACTION REQUIRED] Native Discord Rules Screening is disabled. "
+              "Enable in Server Settings > Safety Setup > DM and Spam Protection. "
+              "No Verified roles will be issued until it is enabled.")
+        return
+
     roles = api("GET", f"/guilds/{GUILD}/roles")
     by_name = {r["name"].casefold(): r for r in roles}
-    roles_needed = ("verified",)
-    if any(name not in by_name for name in roles_needed):
-        print("SKIP: Create the Verified role using the Verification Room setup first.")
+    verified = by_name.get("verified")
+    if not verified:
+        print("SKIP: Create the Verified role using Verification Setup first.")
         return
     staff_ids = {str(r["id"]) for r in roles if r["name"].casefold() in STAFF}
     channels = api("GET", f"/guilds/{GUILD}/channels")
-    channel_by_name = {c["name"]: c for c in channels if c.get("type") == 0}
-    if "verification" not in channel_by_name or "verification-chat" not in channel_by_name:
-        print("SKIP: verification/verification-chat channels not yet installed.")
+    applications = next((c for c in channels if c.get("type") == 0
+                         and c["name"] == "verification-chat"), None)
+    if not applications:
+        print("SKIP: #verification-chat is missing.")
         return
-    intro = channel_by_name["verification"]
-    applications = channel_by_name["verification-chat"]
-    rule_msg = next((m for m in latest_messages(intro["id"], 2)
-                     if str(m.get("author", {}).get("id")) == str(bot["id"])
-                     and RULE_MARKER in m.get("content", "")), None)
-    if not rule_msg:
-        print("SKIP: Bot rule-confirmation prompt missing. Run room setup.")
-        return
-    rule_acceptors = set(people_who_reacted(intro["id"], rule_msg["id"]))
-    modlog = channel_by_name.get("mod-log")
-    member_cache = {}
-    assigned = 0
-    approved_messages = 0
-    failures = 0
+    modlog = next((c for c in channels if c.get("type") == 0
+                   and c["name"] == "mod-log"), None)
+    cache = {}
+    verified_count = 0
+    applications_approved = 0
+    errors = 0
     for message in latest_messages(applications["id"]):
         author = message.get("author", {})
         user_id = str(author.get("id", ""))
         if not user_id or author.get("bot"):
             continue
-        if user_id not in rule_acceptors:
-            continue
-        if not any(r.get("emoji", {}).get("name") == "✅" for r in message.get("reactions", [])):
+        if not any(r.get("emoji", {}).get("name") == "✅"
+                   for r in message.get("reactions", [])):
             continue
         staff_reactors = list(people_who_reacted(applications["id"], message["id"]))
         if not staff_reactors:
@@ -114,45 +113,51 @@ def main():
             if reactor_id == str(guild["owner_id"]):
                 approved = True
                 break
-            if reactor_id not in member_cache:
-                member_cache[reactor_id] = api(
+            if reactor_id not in cache:
+                cache[reactor_id] = api(
                     "GET", f"/guilds/{GUILD}/members/{reactor_id}", optional=True)
-            reactor = member_cache[reactor_id]
-            if reactor and not reactor.get("pending") and (
-                staff_ids.intersection({str(r) for r in reactor.get("roles", [])})
+            moderator = cache[reactor_id]
+            if moderator and not moderator.get("pending") and (
+                staff_ids.intersection({str(r) for r in moderator.get("roles", [])})
             ):
                 approved = True
                 break
         if not approved:
             continue
-        approved_messages += 1
-        if user_id not in member_cache:
-            member_cache[user_id] = api("GET", f"/guilds/{GUILD}/members/{user_id}", optional=True)
-        applicant = member_cache[user_id]
+        applications_approved += 1
+        if user_id not in cache:
+            cache[user_id] = api(
+                "GET", f"/guilds/{GUILD}/members/{user_id}", optional=True)
+        applicant = cache[user_id]
         if not applicant or applicant.get("pending"):
+            # A pending member has NOT accepted the native Discord checkbox.
             continue
-        known_roles = {str(role) for role in applicant.get("roles", [])}
-        for name in roles_needed:
-            role_id = str(by_name[name]["id"])
-            if role_id in known_roles:
-                continue
-            try:
-                api("PUT", f"/guilds/{GUILD}/members/{user_id}/roles/{role_id}")
-                known_roles.add(role_id)
-                assigned += 1
-                print("Granted", name, "to", user_id, "after staff approval")
-            except RuntimeError as error:
-                failures += 1
-                print("ERROR approving", user_id, name, error, file=sys.stderr)
-        applicant["roles"] = list(known_roles)
-        if modlog and str(by_name["verified"]["id"]) in known_roles:
-            # Log only upon the newly completed approval, not on every repeat.
-            # The above role assignment uses the guarded API calls.
-            pass
-    print("Applications with staff approval:", approved_messages,
-          "| Roles granted:", assigned, "| Failures:", failures)
-    if failures:
-        raise RuntimeError("One or more approvals failed. Check the bot role hierarchy.")
+        if str(verified["id"]) in {str(role) for role in applicant.get("roles", [])}:
+            continue
+        try:
+            api("PUT",
+                f"/guilds/{GUILD}/members/{user_id}/roles/{verified['id']}")
+            applicant.setdefault("roles", []).append(str(verified["id"]))
+            verified_count += 1
+            print("[VERIFIED] Staff approved", user_id,
+                  "and native rules checkbox was completed")
+            if modlog:
+                try:
+                    api("POST", f"/channels/{modlog['id']}/messages", {
+                        "content": "✅ Staff verified <@" + user_id +
+                                   "> after accepting Discord's rules checkbox.",
+                        "allowed_mentions": {"parse": []}
+                    })
+                except RuntimeError as error:
+                    print("[NOTICE] Could not post moderation log:", error)
+        except RuntimeError as error:
+            errors += 1
+            print("[ERROR] Granting Verified to", user_id, error, file=sys.stderr)
+    print("Completed: staff-approved posts:", applications_approved,
+          "| newly Verified:", verified_count, "| errors:", errors)
+    if errors:
+        raise RuntimeError(
+            "Some approvals failed. Check bot role hierarchy and Manage Roles.")
 
 if __name__ == "__main__":
     try: main()
