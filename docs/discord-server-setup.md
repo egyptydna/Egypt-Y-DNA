@@ -1,3 +1,26 @@
+# Wichtig: Oberen Discord-Regelkanal behalten und Pflicht-Häkchen verwenden (November 2026)
+
+**Aktueller Workflow für die Regelkanäle:**
+https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-rules-cleanup.yml
+
+**Vorgehen:** `Run workflow → preview`; Protokoll prüfen; danach neuen Lauf mit `apply`.
+Dabei bleibt der **obere bestehende Community-Kanal `#rules` mit dem Häkchen-Symbol** an seiner bisherigen Stelle und behält seine ID. Es wird dort genau ein aktualisierter offizieller Regeltext gepostet. Leere doppelte Regeln-Kanäle (`#rules`, `#📝rules`) werden gelöscht; gefüllte Kopien werden **privat** in der STAFF-Kategorie archiviert, damit dortige Nachrichten nicht verloren gehen.
+
+**Pflicht zur Zustimmung in Discord einschalten (separat notwendig):**
+
+1. Discord → Egypt Y-DNA → **Servereinstellungen** → **Sicherheitseinstellungen / Safety Setup**.
+2. **DM- und Spamschutz bearbeiten** → **Mitglieder müssen die Regeln akzeptieren, bevor sie schreiben oder DMs senden können** aktivieren.
+3. In den Discord-Regel-Screening-Einstellungen die offiziellen Regeln eintragen oder auswählen und **speichern**.
+4. Kontrollieren, dass im Community-Bereich der obere `#rules`-Kanal als offizieller Regelkanal zugewiesen ist.
+
+Die offizielle Discord **Rules Screening**-Pflicht mit Checkbox kann nicht über die öffentlich dokumentierte Discord-Bot-API aktiviert werden. Deshalb kann GitHub den Regelkanal automatisch aufräumen, aber du musst den genannten Schalter in Discord einmal selbst aktivieren.
+
+**Verified läuft danach so:** Neue Personen müssen zuerst Discords **native Checkbox** akzeptieren (ansonsten `member.pending = true`) und im `#verification-chat` um Freigabe bitten. Erst ein ✅ eines Founders, Administrators oder Moderators **auf ihre eigene Nachricht** löst die zeitversetzte automatische `Verified`-Rollenvergabe aus. Die alte zusätzliche ✅-Reaktion auf den Botbeitrag in `#verification` ist abgeschafft. Ist das native Rules Screening deaktiviert, erteilt der GitHub-Verifizierungsworkflow **keiner neuen Person automatisch Verified**.
+
+**Alte Anleitungen in diesem Dokument, die stattdessen `React with ✅ in #verification` oder automatische Verifizierung nur aufgrund einer Regelreaktion beschreiben, sind überholt.** Dieser Abschnitt hat Vorrang.
+
+---
+
 # Egypt Y-DNA Discord — Redesign (kostenlos)
 
 **Dies ist jetzt die aktive Einrichtung.** Sie nutzt scripts/discord_server_redesign.py und wird durch .github/workflows/discord-server-setup.yml ausgeführt. Die frühere Datei scripts/discord_server_setup.py bleibt als alte Version vorhanden, wird aber nicht mehr vom Workflow gestartet.
