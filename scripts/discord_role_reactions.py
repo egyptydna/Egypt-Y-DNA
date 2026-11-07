@@ -2,7 +2,7 @@
 """Free, scheduled self-service Discord roles.
 
 Members react to the role menus in #choose-roles. The worker grants only
-whitelisted geographical-origin and Y-DNA roles, and never Founder,
+whitelisted origin, detailed Y-DNA and Male/Female roles, and never Founder,
 Administrator, Moderator, Member, Contributor or Verified Tester.
 Reaction removal does not revoke an already assigned role; request staff.
 """
@@ -14,7 +14,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-from discord_staff_and_roles import menu_groups, menu_content, EMOJIS
+from discord_role_menu import menu_groups, menu_content, menu_emojis
 
 GID = os.getenv("DISCORD_GUILD_ID", "").strip()
 TOKEN = os.getenv("DISCORD_BOT_TOKEN", "").strip()
@@ -95,10 +95,10 @@ def main():
         if not gender_menu:
             continue
         picks = {}
-        for i, gender_name in enumerate(gender_names):
+        for gender_name, symbol in zip(gender_names, menu_emojis("GENDER", gender_names)):
             if gender_name not in ("Male", "Female"):
                 continue
-            for person in react_users(selector["id"], gender_menu["id"], EMOJIS[i]):
+            for person in react_users(selector["id"], gender_menu["id"], symbol):
                 picks.setdefault(person, set()).add(gender_name)
         gender_conflicts.update(person for person, choices in picks.items()
                                 if len(choices) > 1)
@@ -116,8 +116,7 @@ def main():
             continue
         reacted = {r.get("emoji", {}).get("name"): int(r.get("count", 0))
                    for r in menu.get("reactions", [])}
-        for index, name in enumerate(names):
-            emoji = EMOJIS[index]
+        for name, emoji in zip(names, menu_emojis(category, names)):
             # Bot adds one reaction of its own to each choice.
             if reacted.get(emoji, 0) < 2:
                 continue
