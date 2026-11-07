@@ -116,3 +116,46 @@ Diese Farboption ist unabhängig von der Server- und Mitgliederverifizierung und
 
 Discord zeigt einem Mitglied normalerweise nur **die Farbe der höchstplatzierten farbigen Rolle** an. Mehrere zugewiesene Herkunftsrollen erzeugen deshalb nicht mehrere sichtbare Namensfarben.
 
+
+---
+
+## Neue Rollenverwaltung und Selbstwahl (November 2026)
+
+### Die drei neuen GitHub-Workflows
+
+**1. Rollenrechte und Selbstwahl einrichten (einmalig):**
+https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-staff-roles.yml
+
+Auf **Run workflow → preview** klicken, das Log lesen, danach neuen Run mit **apply**. Der Workflow prüft/ändert Rechte von Founder, Administrator und Moderator, ordnet deren Hierarchie **unterhalb des Bots** neu und erstellt **#choose-roles** im Bereich START HERE. Mitglieder sehen diesen Kanal erst mit **Member** (also nach der Regelbestätigung). Die Botrolle bleibt oben, damit sie weiterhin die normalen Member-/Selbstwahlrollen vergeben kann.
+
+**2. Selbstgewählte Rollen automatisch vergeben:**
+https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-role-selection.yml
+
+Dieser Workflow prüft ungefähr alle fünf Minuten, welche Nummern-Reaktionen Mitglieder in #choose-roles gesetzt haben. Rollen werden nur vergeben, wenn Mitglieder die **Member**-Rolle bereits haben. Es gibt Auswahlgruppen für regionale/kulturelle Herkunft sowie Y-DNA-Haplogruppen. **Founder, Administrator, Moderator, Member und Verified Y-DNA Tester sind ausdrücklich nicht auswählbar.** Mehrfachauswahl ist möglich. Die Vergabe ist zeitverzögert; entfernte Reaktionen entfernen die Rolle aktuell NICHT automatisch (zum Entfernen an Mods wenden). GH Scheduled Workflows können verzögert laufen.
+
+**3. Leitungsrollen nur als Repositoryinhaber vergeben:**
+https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-assign-staff.yml
+
+Ausschließlich der GitHub-Account **egyptydna** kann diesen Workflow erfolgreich ausführen. Rolle Founder/Administrator/Moderator auswählen, Discord User ID als Zahl eingeben und assign/remove wählen. **Bei Founder prüft der Workflow die Discord-Mitgliederzahl der Rolle und akzeptiert höchstens zwei Founder-Personen einschließlich des Serverinhabers.** Dies ist eine Sicherheitsprüfung für DIESEN Workflow, keine Discord-weite technische Rollenbegrenzung. Discord selbst lässt dem Serverinhaber weiterhin die Möglichkeit, auch manuell mehr als zwei Founder-Rollen zu vergeben. Wenn die Bot-Rolle nicht hoch genug steht, kann die Zuweisung durch den Bot scheitern.
+
+### Berechtigungen
+
+- **Server-Eigentümer:** Hat technisch immer alle Rechte; ist die einzige Person, die staff role assignment verwalten soll.
+- **Founder:** Server-/Kanalverwaltung, Events, Webhooks, Emojis, Moderation, Kick/Ban, Timeouts, Audit-Log, Nachrichten-/Threadverwaltung. **Kein Manage Roles und kein Discord-Administrator-Bit.** Ein zweiter Founder hat deshalb keine Berechtigung, Leitungsrollen zu vergeben.
+- **Administrator:** Server-/Kanal-/Eventverwaltung und vollständige gewöhnliche Moderation einschließlich Kick/Ban/Timeout, Nachrichten/Threads, Audit-Log. **Kein Manage Roles, kein Discord-Administrator-Bit.**
+- **Moderator:** Kick, Nachrichten- und Threadmoderation, Timeout, Nicknames, Audit-Log. **Kein Manage Roles, kein Discord-Administrator-Bit.**
+- **Member, Herkunft, Haplogruppen:** Keine zusätzlichen Leitungsrechte. Vorhandene andere Rollen werden nur um die gefährlichen globalen Bits Administrator und Manage Roles bereinigt; andere Rechte bleiben erhalten.
+- **Bot:** Behält Manage Roles, um Member nach Regelbestätigung und freiwillige Herkunfts-/Y-DNA-Rollen automatisch zu vergeben. Deshalb nur den eigenen Bot-Token sicher als GitHub Secret speichern.
+
+Das Skript passt die Reihenfolge ungefähr so an: **Egypt YDNA Bot > Founder > Administrator > Moderator > weitere Rollen > @everyone**. Discords Server-Eigentümer steht unabhängig davon über dieser Hierarchie. Bereits zugewiesene Mitgliedschaften bleiben bestehen.
+
+### Warum kein native Community-Onboarding für alle Rollen?
+
+Discords eingebautes Onboarding erlaubt zwar sofortige Selbstwahl, erfordert nach Discord-Hilfedokumentation aber **mindestens sieben Default-Kanäle, davon fünf mit Nachrichtenberechtigung für @everyone**. Das widerspricht der bestehenden Regel, dass vor ✅-Bestätigung nur die Start- und Verifizierungskanäle angezeigt werden sollen. Deshalb kommt hier eine kostenlose, zeitverzögerte Selbstwahl mit Emoji-Reaktionen und GitHub Actions zum Einsatz. Keine dauerhaft laufende Bot-Hosting-Instanz nötig.
+
+### Sicherheit / Betrieb
+
+- Discord-Serverrollen können vom Serverinhaber jederzeit direkt geändert werden. Die Founder-Grenze von zwei wird nur bei Vergabe über den speziellen Owner-only-Workflow aktiv geprüft.
+- Bei einem normalen Rollenwechsel über Discord ohne Workflow kann der Bot eine dritte Founder-Person nicht präventiv verhindern.
+- Das Staff-Berechtigungsskript entfernt Administrator/Manage Roles von allen nicht vom Bot verwalteten Benutzerrollen, um ungewollte Eskalation zu verhindern. Das ist eine **echte Rechteänderung**; bitte deshalb den Preview-Modus lesen.
+- Die Workflow-Automatik kann Berechtigungen setzen und Rollen vergeben, sobald apply ausgeführt ist. Sie läuft nicht schon durch das bloße Anlegen der Dateien.
