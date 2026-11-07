@@ -1,0 +1,28 @@
+name: Egypt Y-DNA Member Verification
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Every 5 minutes, offset from the top of the hour to reduce congestion.
+    - cron: "3-59/5 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: egypt-ydna-member-verification
+  cancel-in-progress: false
+
+jobs:
+  verify-members:
+    name: Grant Member after rules confirmation
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Process verified reactions
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
+        run: python3 scripts/discord_member_verification.py
