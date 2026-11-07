@@ -1,3 +1,18 @@
+# Sofortige Carl-bot-Rollen — aktuelle Fehlerbehebung
+
+**Neuer Fix:** Der GitHub-Workflow erkennt Carl-bots Discord-eigene, verwaltete Integrationsrolle und erteilt ausschließlich diesem Botkonto im Channel `#choose-roles` die Rechte **View Channel, Read Message History, Add Reactions**. Das bleibt so, auch wenn die normale Verification-Einrichtung später erneut läuft. Unverifizierte menschliche Mitglieder dürfen den Kanal weiterhin NICHT sehen.
+
+**Den Kanal-Fix auf Discord aktivieren:**
+https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-role-menu-update.yml
+
+**Run workflow → preview → danach apply**. Prüfe den Eintrag `[CHECK] Carl-bot account detected`. Falls stattdessen `[ACTION REQUIRED] Could not identify Carl-bot` erscheint, füge Carl-bot manuell zu den Kanalberechtigungen von `#choose-roles` hinzu (nur Ansicht, Nachrichtenverlauf, Reaktionen).
+
+**Unbedingt zusätzlich einmal im Carl-bot Dashboard konfigurieren:** `https://carl.gg/` → Egypt Y-DNA → Reaction Roles → **Create new reaction role → Use ID** → die Nachrichten-ID einer *tatsächlichen Emoji-Auswahlnachricht* aus `#choose-roles` → Emoji mit Rolle verknüpfen → Speichern. Der GitHub-Workflow kann das nicht im Carl-bot-System speichern.
+
+**Fehlerdiagnose für den eigenen GitHub-Bot:** Der Role Self-Selection-Workflow wurde verbessert: er akzeptiert auch Serverinhaber ohne das Verified-Abzeichen und erkennt menschliche Reaktionen, selbst wenn die ursprüngliche Reaktion des Bots fehlt. Bei manueller Ausführung protokolliert er `[SUMMARY]` und `[ACTION REQUIRED]`, falls z. B. die Zielrolle oberhalb des Bots liegt, unsichere Altberechtigungen hat oder das Menü veraltet ist.
+
+---
+
 # Wichtig: Carl-bot-Berechtigungen allein vergeben noch keine Rollen!
 
 Die Rolle von Carl-bot darf **Manage Roles** haben, trotzdem passiert beim Emoji-Klick nichts, solange die Emoji-zu-Rolle-Zuordnungen **nicht unter Carl-bot → Reaction Roles gespeichert** sind. GitHub hat keinen Zugriff auf Carl-bots eigene Datenbank; das Anlegen eines Emoji-Posts durch den Egypt YDNA Bot verbindet ihn NICHT automatisch mit Carl-bot.
