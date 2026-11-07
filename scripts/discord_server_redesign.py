@@ -25,7 +25,8 @@ CORE = ["Founder", "Administrator", "Moderator", "Member",
 # Regions refer to geography, NOT genetic/ethnic classifications.
 ORIGIN = [
     "North Africa", "West Africa", "Central Africa", "East Africa", "Southern Africa",
-    "Egypt", "Maghreb", "Nile Valley / Nubia", "Horn of Africa",
+    "Egypt", "Morocco", "Algeria", "Tunisia", "Libya", "Sudan", "Mauritania",
+    "Maghreb", "Nile Valley / Nubia", "Horn of Africa",
     "Northern Europe", "Western Europe", "Southern Europe", "Balkans", "Eastern Europe",
     "West Asia", "Levant", "Arabian Peninsula", "Mesopotamia", "Anatolia", "Caucasus",
     "Iranian Plateau", "North Asia", "Central Asia", "South Asia", "East Asia", "Southeast Asia",
@@ -35,13 +36,13 @@ ORIGIN = [
 ]
 # User-selectable confirmed/predicted Y-DNA affiliation, not auto-verified.
 HAPLOS = [
-    "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L",
-    "M", "N", "O", "P", "Q", "R", "S", "T",
-    "E-M2", "E-M35", "E-M78", "E-M81", "E-M123", "E-V13", "E-V22", "E-V32",
-    "J1", "J1-P58", "J2", "J2a", "J2b",
-    "R1a", "R1b", "R1b-V88", "R1b-M269", "R2",
-    "Q1", "Q2", "T-M70", "T-P77", "G1", "G2", "I1", "I2",
-    "L1", "L2", "H1", "H2", "Not tested", "Other / unresolved",
+    # Only the more informative Y-DNA subgroups; do not re-offer the
+    # redundant broad-letter roles or parent+child combinations.
+    "E-M2", "E-M81", "E-M123", "E-V13", "E-V22", "E-V32",
+    "J1-P58", "J2a", "J2b",
+    "R1a", "R1b-V88", "R1b-M269", "R2",
+    "Q1", "Q2", "T-P77", "G1", "G2", "I1", "I2",
+    "L1", "L2", "H1", "H2", "Other / unresolved",
 ]
 ROLE_ALIASES = {
     "Research Contributor": ["Contributor"],
@@ -54,6 +55,12 @@ ORIGIN_ROLE_COLORS = {
     "East Africa": 0xD22953,
     "Southern Africa": 0xBDD229,
     "Egypt": 0xC89A2B,
+    "Morocco": 0xBC3139,
+    "Algeria": 0x208A58,
+    "Tunisia": 0xD44948,
+    "Libya": 0x3E846C,
+    "Sudan": 0xA94C42,
+    "Mauritania": 0x3B9856,
     "Maghreb": 0xD229D2,
     "Nile Valley / Nubia": 0x598430,
     "Horn of Africa": 0x498FD6,
