@@ -181,6 +181,11 @@ def main():
             bot_permissions |= int(role_by_id[str(role_id)].get("permissions", 0))
     if not (bot_permissions & MANAGE_ROLES or bot_permissions & ADMIN):
         raise RuntimeError("Egypt YDNA Bot needs Manage Roles to grant Verified and Bot.")
+    if bot_permissions & ADMIN:
+        print("[SECURITY WARNING] The bot has full Discord Administrator access. "
+              "After setup, remove Administrator from Egypt YDNA Bot and KEEP "
+              "Manage Roles, Manage Channels and the message permissions required "
+              "for ongoing verification.", flush=True)
 
     print("Server:", guild["name"], "| mode:", MODE, flush=True)
     staff_ids = []
