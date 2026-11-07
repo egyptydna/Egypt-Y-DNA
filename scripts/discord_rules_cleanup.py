@@ -3,7 +3,7 @@
 
 Keep Discord's official guild.rules_channel_id if present. If absent,
 prefer the top-level #rules channel over the duplicate inside VERIFICATION.
-Move the selected channel into VERIFICATION, ensure public read-only
+Keep the selected channel at its current position, ensure public read-only
 permissions, publish one rules post, make it the community rules channel.
 Delete only empty duplicate channels; archive populated duplicates privately
 inside STAFF without erasing history. Always run preview before apply.
@@ -113,9 +113,8 @@ def main():
     canonical_perms.extend(overwrite(r,VIEW|SEND|READ|REACT|THREAD) for r in staff_ids)
     canonical_perms.append(overwrite(bot["id"],VIEW|SEND|READ|REACT|THREAD,kind=1))
     payload={"name":"rules","permission_overwrites":canonical_perms}
-    if verification:payload["parent_id"]=str(verification["id"])
     apply("PATCH",f"/channels/{official['id']}",payload,
-          "Keep original rules channel; place in VERIFICATION, read-only for members")
+          "Keep original upper rules channel at its current location, read-only for members")
 
     # The channel designated for Discord Community rules can be changed via
     # Modify Guild. This does NOT enable the checkbox / screening form itself.
