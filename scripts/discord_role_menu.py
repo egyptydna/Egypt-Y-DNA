@@ -52,6 +52,36 @@ FLAG_EMOJIS = {
     "Mauritania": "🇲🇷",
 }
 GENDER_EMOJIS = {"Male": "🔵", "Female": "🌸"}
+# Distinct, readable reactions replace the old wall of numbered messages.
+# Flags are reserved for countries; these symbols denote broad regions/SNPs.
+ROLE_EMOJIS = {
+    "North Africa": "🌍", "Maghreb": "🌅",
+    "Nile Valley / Nubia": "🏞️", "Copt": "🏺", "Amazighi": "🧿",
+    "West Africa": "🥁", "Central Africa": "🌳",
+    "East Africa": "🦓", "Southern Africa": "🦁",
+    "Horn of Africa": "🐪", "Northern Europe": "❄️",
+    "Western Europe": "🏰", "Southern Europe": "☀️",
+    "Balkans": "🏔️", "Eastern Europe": "🌲",
+    "West Asia": "🌏", "Levant": "🫒",
+    "Arabian Peninsula": "🏜️", "Mesopotamia": "🏛️",
+    "Anatolia": "🌷", "Caucasus": "⛰️",
+    "Iranian Plateau": "🪨", "Central Asia": "🐎",
+    "North Asia": "🌌", "South Asia": "🪷",
+    "East Asia": "🐉", "Southeast Asia": "🌴",
+    "Australia & New Zealand": "🦘", "Melanesia": "🐚",
+    "Micronesia": "🏝️", "Polynesia": "🛶",
+    "North America": "🦬", "Central America": "🌋",
+    "Caribbean": "🏖️", "South America": "🦜",
+    "Indigenous Peoples": "🌱", "Multiple Regions": "🌐",
+    "E-M2": "🔵", "E-M81": "🟦", "E-M123": "🔷",
+    "E-V13": "💠", "E-V22": "🌀", "E-V32": "🌊",
+    "J1-P58": "🟢", "J2a": "🍃", "J2b": "🌿",
+    "R1a": "🟠", "R1b-V88": "🔴", "R1b-M269": "🟥", "R2": "🟨",
+    "Q1": "🟣", "Q2": "💜", "T-P77": "🟧",
+    "G1": "⚪", "G2": "⚙️", "I1": "🪻", "I2": "🟪",
+    "L1": "🩵", "L2": "🐬", "H1": "🟫", "H2": "🟤",
+    "Other / unresolved": "❔",
+}
 FALLBACK_EMOJIS = (
     "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟",
     "🔴", "🟠", "🟡", "🟢", "🟣", "🟤", "⚫", "⚪", "🔶", "🔷",
@@ -94,9 +124,8 @@ def menu_emojis(category, names):
     used = set()
     result = []
     for name in names:
-        preferred = (FLAG_EMOJIS.get(name) if category == "ORIGIN"
-                     else GENDER_EMOJIS.get(name) if category == "GENDER"
-                     else None)
+        preferred = (GENDER_EMOJIS.get(name) if category == "GENDER"
+                     else FLAG_EMOJIS.get(name) or ROLE_EMOJIS.get(name))
         if preferred and preferred not in used:
             emoji = preferred
         else:
@@ -109,7 +138,7 @@ def menu_emojis(category, names):
 
 def menu_content(marker, category, names):
     label = marker.split(": ", 1)[1].removesuffix("**")
-    title = label.replace(" ORIGIN ", " — ").replace(" Y-DNA ", " — ")
+    title = label.replace("ORIGIN ", "").replace("Y-DNA ", "").replace("GENDER ", "")
     if category == "ORIGIN":
         intro = "🌍 **GEOGRAPHICAL & CULTURAL ORIGINS**"
         hint = "*Select all that apply to you. These labels are voluntary, not DNA evidence.*"
