@@ -18,7 +18,7 @@ ADD_REACTIONS = 1 << 6
 READ_HISTORY = 1 << 16
 THREAD_SEND = 1 << 38
 
-STAFF = ["Administrator", "Moderator"]
+STAFF = ["Founder", "Administrator", "Moderator"]
 CORE = ["Founder", "Administrator", "Moderator", "Member",
         "Research Contributor", "Verified Y-DNA Tester"]
 # This is one combined, self-reported geographical-origin group.
