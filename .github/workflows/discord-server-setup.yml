@@ -4,13 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "preview = no changes; apply = create missing roles and channels"
+        description: "Preview, apply, or recolor only existing origin roles"
         required: true
         default: preview
         type: choice
         options:
           - preview
           - apply
+          - colors-preview
+          - colors-apply
 
 permissions:
   contents: read
