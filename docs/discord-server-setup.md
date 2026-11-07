@@ -18,7 +18,7 @@ Für den bestehenden `#choose-roles`-Kanal gibt es einen kompakten Hauptbeitrag 
 
 Alle übrigen globalen Herkunftsregionen stehen weiterhin als freiwillige Optionen zur Verfügung. Die Länderrollen erhalten eigene Farben. Es wird weder eine genetische noch eine ethnische Identität erzwungen.
 
-**Y-DNA:** Nur die jeweils feineren, vorliegenden Untergruppen: E-M2, E-M81, E-M123, E-V13, E-V22, E-V32, J1-P58, J2a, J2b, R1a, R1b-V88, R1b-M269, R2, Q1, Q2, T-P77, G1, G2, I1, I2, L1, L2, H1, H2, Other / unresolved.
+**Y-DNA:** Nur die jeweils feineren, vorliegenden Untergruppen: E-M2, E-M81, E-M123, E-V13, E-V22, E-V12, J1-P58, J2a, J2b, R1a, R1b-V88, R1b-M269, R2, Q1, Q2, T-P77, G1, G2, I1, I2, L1, L2, H1, H2, Other / unresolved.
 
 Die allgemeinen alten Parent-Rollen (z. B. J, J2, R, E, E-M35, E-M78) sind **nicht mehr in der Selbstwahl**. Vorhandene Rollenzuweisungen werden **nicht gelöscht**. Mitglieder sollen nur ihren **am besten bestimmten Y-DNA-Zweig** wählen. Bei mehreren widersprechenden Auswahl-Reaktionen wird keine neue Y-DNA-Rolle vergeben.
 
@@ -98,7 +98,7 @@ Weitere: Indigenous Peoples, Multiple Regions, Prefer Not to Say.
 Diese Begriffe sind geographische oder freiwillige kulturelle Selbstbeschreibungen, keine DNA-Beweise oder wissenschaftlich definierte „Rassen“. Mitglieder können mehrere Herkunftsrollen wählen. Alle neu eingerichteten Herkunftsrollen erhalten die gleichen serverweiten Berechtigungen: 0 zusätzliche Rechte.
 
 **Y-DNA-Rollen:**
-A–T als grobe Gruppen plus E-M2, E-M35, E-M78, E-M81, E-M123, E-V13, E-V22, E-V32, J1, J1-P58, J2, J2a, J2b, R1a, R1b, R1b-V88, R1b-M269, R2, Q1, Q2, T-M70, T-P77, G1, G2, I1, I2, L1, L2, H1, H2, Not tested, Other / unresolved. **Q1/Q2 und andere alphanumerische Labels können je nach Stammbaumversion variieren**; eine durch SNP identifizierte Untergruppe ist wissenschaftlich präziser. Diese Rollen dienen nur der Selbstbeschreibung, nicht der Validierung eines DNA-Tests.
+A–T als grobe Gruppen plus E-M2, E-M35, E-M78, E-M81, E-M123, E-V13, E-V22, E-V12, J1, J1-P58, J2, J2a, J2b, R1a, R1b, R1b-V88, R1b-M269, R2, Q1, Q2, T-M70, T-P77, G1, G2, I1, I2, L1, L2, H1, H2, Not tested, Other / unresolved. **Q1/Q2 und andere alphanumerische Labels können je nach Stammbaumversion variieren**; eine durch SNP identifizierte Untergruppe ist wissenschaftlich präziser. Diese Rollen dienen nur der Selbstbeschreibung, nicht der Validierung eines DNA-Tests.
 
 **Keine Sprachrollen.**
 
