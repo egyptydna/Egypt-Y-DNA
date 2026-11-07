@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
-"""Egypt Y-DNA verification room & role-picker setup.
+"""Egypt Y-DNA automated Rules Screening membership and channel setup.
 
-Default preview is read-only. apply:
-- creates/updates only Male, Female, Verified, Bot;
-- moves public rules and applications into VERIFICATION;
-- gates every other channel behind Verified;
-- makes the entire STAFF category Founder/Administrator/Moderator-only;
-- keeps existing messages/channels, no deletes;
-- installs role picker with only the existing origin/Y-DNA roles + Male/Female.
-The only approval mechanism is a staff ✅ reaction to a member's message,
-combined with Discord's native Rules Screening checkbox (pending=false).
-See discord_member_verification.py. The native checkbox must be activated
-manually in Discord Safety Setup; the public API cannot enable screening.
+Default preview is read-only. Apply:
+- creates/updates Male, Female, Verified and Bot role labels,
+- preserves #welcome and the official rules channel for incoming members,
+- privately archives former #verification and #verification-chat (no deletions),
+- keeps all normal channels Verified-only and all STAFF channels staff-only,
+- retains role-picker access and Carl-bot's designated channel exception.
+
+Discord's Rules Screening checkbox must be enabled in Discord Safety Setup.
+The scheduled discord_member_verification.py worker grants Verified only after
+the Discord guild-member pending flag is explicitly False. No staff approval.
 """
 import json
 import os
@@ -43,29 +42,19 @@ SPECIAL = {
     "Bot": 0x26B6BF,
 }
 STAFF_NAMES = ("Founder", "Administrator", "Moderator")
-PRE_VISIBLE = ("welcome", "rules", "verification", "verification-chat")
+PRE_VISIBLE = ("welcome", "rules")
 READ_ONLY = {
     "welcome", "rules", "verification", "announcements", "server-guide",
     "project-map", "useful-links", "ydna-map"
 }
-RULE_PROMPT = (
-    "🛡️ **EGYPT Y-DNA VERIFICATION**\n"
-    "**Step 1:** Read #rules and accept Discord's official mandatory "
-    "rules checkbox when joining. This checkbox is controlled by "
-    "Server Settings > Safety Setup, not by a reaction here.\n"
-    "**Step 2:** Write a short request in #verification-chat. "
-    "Do not share private DNA or personal details.\n"
-    "**Step 3:** A Founder, Administrator or Moderator reviews your request "
-    "and reacts with ✅ to your message. After approval, Verified will be "
-    "assigned (GitHub may delay the check).\n"
-    "Simply viewing this message does not grant access."
-)
-CHAT_PROMPT = (
-    "🛡️ **EGYPT Y-DNA — MEMBERSHIP REVIEW**\n"
-    "New members: first accept Discord's official rules checkbox, then "
-    "write a short request here. No DNA test, name or ethnicity proof needed.\n"
-    "Staff: to approve, react ✅ to the applicant's own message. "
-    "Only staff approval grants Verified; other channels stay hidden until then."
+WELCOME_PROMPT = (
+    "👋 **EGYPT Y-DNA — WELCOME**\n"
+    "Read #rules and accept Discord's official **Rules Screening** checkbox.\n"
+    "Once accepted, your **Verified** role is assigned automatically by our "
+    "scheduled bot (usually within a few minutes). No moderator application "
+    "or extra reaction is required.\n"
+    "After verification, all public community, origin and Y-DNA channels "
+    "become visible. The STAFF category remains private."
 )
 
 def api(method, path, data=None):
@@ -257,7 +246,13 @@ def main():
         raise RuntimeError("Cannot gate channels until Verified is created.")
     vid = str(verified["id"]) if verified else "000000000000000000"
 
-    print("2) VERIFICATION category / rooms and two-stage membership review.")
+    print("2) Welcome/rules only: automatic native-screening membership.")
+    if "MEMBER_VERIFICATION_GATE_ENABLED" not in guild.get("features", []):
+        print("[ACTION REQUIRED] In Discord > Server Settings > Safety Setup > "
+              "DM and Spam Protection, activate 'Members must accept rules "
+              "before they can talk or DM'. GitHub cannot enable this checkbox. "
+              "The automatic Verified worker will refuse to grant roles while "
+              "it remains off.", flush=True)
     category = next((c for c in channels if c["type"] == 4 and
                      c["name"] in ("🛡️ VERIFICATION", "✅ VERIFICATION")), None)
     if not category:
@@ -278,8 +273,7 @@ def main():
         else:
             channel = next((c for c in channels if c["type"] == 0
                             and c["name"] == name), None)
-        style = ("verification-chat" if name == "verification-chat" else
-                 "verification" if name == "verification" else "public")
+        style = "public"
         allowed = policy(style, vid, staff_ids, bot["id"])
         if channel:
             diff = {}
@@ -300,17 +294,40 @@ def main():
                              "create pre-verification #" + name)
             if channel: channels.append(channel)
 
-    verification = next((c for c in channels if c["name"] == "verification" and c["type"] == 0), None)
-    verify_chat = next((c for c in channels if c["name"] == "verification-chat" and c["type"] == 0), None)
-    if verification:
-        prompt_id = sync_message(verification["id"],
-                                 "**EGYPT Y-DNA VERIFICATION**",
-                                 RULE_PROMPT, bot["id"])
-        # No emoji gate here: Discord's native Rules Screening checkbox is
-        # mandatory, and the verification worker checks member.pending == False.
-    if verify_chat:
-        sync_message(verify_chat["id"], "**EGYPT Y-DNA — MEMBERSHIP REVIEW**",
-                     CHAT_PROMPT, bot["id"])
+    # The old moderator-approval rooms are no longer needed. Move them to
+    # private STAFF storage, preserving messages/history. They must not remain
+    # accessible to newcomers or to ordinary Verified users.
+    staff_cat_for_archive = next(
+        (c for c in channels if c["type"] == 4 and
+         c["name"] in ("🔒 STAFF", "🔒 STAFF ONLY")), None)
+    for original in ("verification", "verification-chat"):
+        old_channel = next((c for c in channels if c["type"] == 0 and
+                            c["name"] == original), None)
+        if not old_channel:
+            continue
+        if not staff_cat_for_archive:
+            raise RuntimeError(
+                "Private STAFF category is missing. No old verification "
+                "channels will be archived publicly. Run the initial "
+                "Discord setup to restore STAFF first.")
+        new_name = "archived-" + original
+        target_overrides = policy("staff", vid, staff_ids, bot["id"])
+        change("PATCH", f"/channels/{old_channel['id']}",
+               {"name": new_name, "parent_id": str(staff_cat_for_archive["id"]),
+                "permission_overwrites": target_overrides},
+               "privately archive old #" + original +
+               " (no messages deleted)")
+        if MODE == "apply":
+            old_channel.update({
+                "name": new_name,
+                "parent_id": str(staff_cat_for_archive["id"]),
+                "permission_overwrites": target_overrides
+            })
+    welcome = next((c for c in channels if c["type"] == 0 and
+                    c["name"] == "welcome"), None)
+    if welcome:
+        sync_message(welcome["id"], "**EGYPT Y-DNA — WELCOME**",
+                     WELCOME_PROMPT, bot["id"])
 
     print("3) Restrict every other channel to Verified, except private STAFF.")
     staff_cat = next((c for c in channels if c["type"] == 4 and
@@ -447,10 +464,11 @@ def main():
             change("PUT", f"/guilds/{GUILD}/members/{bot['id']}/roles/{bot_role['id']}",
                    None, "automatically give Egypt YDNA Bot the Bot label")
 
-    print("DONE. Access: unverified = VERIFICATION only; "
-          "Verified = all non-staff channels; staff = private STAFF as well. "
-          "Male/Female optional; Bot not self-selectable. "
-          "Staff approvals are required; no instant auto-verification.")
+    print("DONE. Access: new members can read #welcome and #rules, "
+          "after native Rules Screening and the scheduled role scan they get "
+          "Verified and all normal channels. STAFF stays private. "
+          "No moderator review is required. GitHub is scheduled and "
+          "cannot assign the role instantly.")
     if MODE == "preview":
         print("PREVIEW ONLY: no Discord changes made.")
 
