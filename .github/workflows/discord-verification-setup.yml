@@ -1,10 +1,10 @@
-name: Egypt Y-DNA Verification Category and Roles
+name: Egypt Y-DNA Automatic Rules Verification Setup
 
 on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "Preview first; apply creates roles, rooms and privacy settings"
+        description: "Preview first; apply archives manual approval rooms and enables automatic Verified workflow"
         type: choice
         required: true
         default: preview
@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   configure:
-    name: Verification rooms, Verified access, Male/Female and Bot
+    name: Native checkbox flow, private staff and automatic Verified gate
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -32,7 +32,7 @@ jobs:
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
           MODE: ${{ inputs.mode }}
         run: python3 -u scripts/discord_rules_cleanup.py
-      - name: Apply verification and role setup
+      - name: Prepare automatic Verified role and archive old manual rooms
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
