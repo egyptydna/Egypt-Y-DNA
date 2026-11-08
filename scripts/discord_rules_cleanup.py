@@ -8,8 +8,7 @@ permissions, publish one rules post, make it the community rules channel.
 Delete only empty duplicate channels; archive populated duplicates privately
 inside STAFF without erasing history. Always run preview before apply.
 
-Discord's native mandatory checkbox (Rules Screening) must be enabled using
-Discord Server Settings > Safety Setup; the public bot API cannot edit it.
+No Rules Screening popup required. The rules channel is informational.
 """
 import json, os, sys, time, urllib.error, urllib.request
 
@@ -36,9 +35,8 @@ RULES_TEXT = (
     "**9. Everyone is welcome.** Treat all nationalities, backgrounds and lineages fairly.\n"
     "**10. Follow staff instructions.** Serious or repeated violations may lead to "
     "timeouts or removal.\n\n"
-    "**New members must accept these rules using Discord's official Rules Screening "
-    "checkbox. The Verified role is then granted automatically during the next "
-    "scheduled check. No extra application or moderator approval is required.**"
+    "**Please read these rules before participating. Verified is granted "
+    "automatically after joining, without a rules popup or moderator approval.**"
 )
 MARKER = "**EGYPT Y-DNA — OFFICIAL SERVER RULES**"
 DUPLICATE_NAMES = {"rules", "📝rules", "📜rules", "📋rules", "rules-and-guidelines"}
@@ -162,15 +160,11 @@ def main():
                   "Privately archive populated duplicate #"+old["name"]+
                   " preserving "+str(len(msgs))+"+ messages")
 
-    enabled="MEMBER_VERIFICATION_GATE_ENABLED" in guild.get("features",[])
-    if enabled:
-        print("[OK] Native Discord Rules Screening is enabled.")
+    if "MEMBER_VERIFICATION_GATE_ENABLED" in guild.get("features", []):
+        print("[NOTICE] Discord's native rules popup is currently enabled. "
+              "This workflow no longer requires it; disable it manually if desired.")
     else:
-        print("[ACTION REQUIRED] Native Discord Rules Screening is NOT enabled. "
-              "On Discord: Server Settings > Safety Setup > DM and Spam Protection > "
-              "'Members must accept rules before they can talk or DM'. "
-              "Enter the same rules there, save, and enable the switch. "
-              "GitHub cannot activate Discord's official checkbox via public API.")
+        print("[OK] No mandatory Discord rules popup is required.")
     print("RESULT: exactly one public #rules; other duplicates deleted if empty "
           "or hidden in staff archive. No human messages deleted.")
 
