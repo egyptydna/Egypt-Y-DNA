@@ -1,3 +1,13 @@
+# 8. November 2026: Rollenvergabe geprüft und repariert
+
+**Live-Ergebnis:** Der GitHub-Workflow `Egypt Y-DNA Role Self-Selection` hat nach Reparatur vier neue Rollen erfolgreich vergeben (Algeria, E-V12, J1-P58, Male), zwölf Auswahlen waren bereits zugewiesen. Vier Offline-Tests bestanden; keine Discord-API-Fehler. [Erfolgreicher Live-Lauf](https://github.com/egyptydna/Egypt-Y-DNA/actions/runs/42488566075).
+
+**Noch offener Discord-Blocker:** Der `Verified`-Workflow kann aktuell neuen Mitgliedern die Rolle nicht geben, weil die Botrolle auf Position **111** steht und `Verified` auf **112**. Discord verhindert Rollenvergaben an Rollen oberhalb des Bots. Der Reparaturversuch per Discord-API hat die Hierarchie nicht wirksam geändert. Der **Serverinhaber** muss einmalig in **Servereinstellungen → Rollen** die Rolle **Egypt YDNA Bot ÜBER Verified** ziehen (oder Verified unter die Botrolle). Danach den [Rules Emoji Verification-Workflow](https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-member-verification.yml) manuell mit **Run workflow** starten. [Fehlerdiagnose](https://github.com/egyptydna/Egypt-Y-DNA/actions/runs/42488515265).
+
+**Neue Zuverlässigkeit:** Der Rollen-Worker zählt jetzt `already assigned`, `not Verified`, `conflicting reactions`, `already has another Y-DNA` etc. Er läuft bei `workflow_dispatch`, auf Push bei Änderungen, als GitHub-Schedule sowie nach einem erfolgreichen Abschluss des Verified-Workflows. Ein GitHub-Workflow ist **nicht sofortig**; Github-Cron wurde im Live-Verlauf über Stunden verzögert. Für *direkt beim Emoji-Klick* ist weiterhin ein ständig laufender Reaction-Role-Bot (z. B. konfigurierter Carl-bot) nötig. Rollenvergabe allein durch Administrator-/Manage-Roles-Berechtigung von Carl-bot funktioniert NICHT ohne gespeicherte Emoji-Rollen-Zuordnungen.
+
+---
+
 # Sofortige Carl-bot-Rollen — aktuelle Fehlerbehebung
 
 **Neuer Fix:** Der GitHub-Workflow erkennt Carl-bots Discord-eigene, verwaltete Integrationsrolle und erteilt ausschließlich diesem Botkonto im Channel `#choose-roles` die Rechte **View Channel, Read Message History, Add Reactions**. Das bleibt so, auch wenn die normale Verification-Einrichtung später erneut läuft. Unverifizierte menschliche Mitglieder dürfen den Kanal weiterhin NICHT sehen.
