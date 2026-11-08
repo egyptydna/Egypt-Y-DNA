@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Egypt Y-DNA automated Rules Screening membership and channel setup.
+"""Egypt Y-DNA automatic membership setup without a mandatory rules popup.
 
 Default preview is read-only. Apply:
 - creates/updates Male, Female, Verified and Bot role labels,
@@ -8,9 +8,8 @@ Default preview is read-only. Apply:
 - keeps all normal channels Verified-only and all STAFF channels staff-only,
 - retains role-picker access and Carl-bot's designated channel exception.
 
-Discord's Rules Screening checkbox must be enabled in Discord Safety Setup.
-The scheduled discord_member_verification.py worker grants Verified only after
-the Discord guild-member pending flag is explicitly False. No staff approval.
+The scheduled discord_member_verification.py worker automatically assigns Verified
+to joined human accounts. Rules are informational; no checkbox or staff approval.
 """
 import json
 import os
@@ -49,8 +48,8 @@ READ_ONLY = {
 }
 WELCOME_PROMPT = (
     "👋 **EGYPT Y-DNA — WELCOME**\n"
-    "Read #rules and accept Discord's official **Rules Screening** checkbox.\n"
-    "Once accepted, your **Verified** role is assigned automatically by our "
+    "Please read #rules before participating. No rules popup is required.\n"
+    "Your **Verified** role is assigned automatically by our "
     "scheduled bot (usually within a few minutes). No moderator application "
     "or extra reaction is required.\n"
     "After verification, all public community, origin and Y-DNA channels "
@@ -246,13 +245,11 @@ def main():
         raise RuntimeError("Cannot gate channels until Verified is created.")
     vid = str(verified["id"]) if verified else "000000000000000000"
 
-    print("2) Welcome/rules only: automatic native-screening membership.")
-    if "MEMBER_VERIFICATION_GATE_ENABLED" not in guild.get("features", []):
-        print("[ACTION REQUIRED] In Discord > Server Settings > Safety Setup > "
-              "DM and Spam Protection, activate 'Members must accept rules "
-              "before they can talk or DM'. GitHub cannot enable this checkbox. "
-              "The automatic Verified worker will refuse to grant roles while "
-              "it remains off.", flush=True)
+    print("2) Welcome/rules only: automatic membership without rules popup.")
+    if "MEMBER_VERIFICATION_GATE_ENABLED" in guild.get("features", []):
+        print("[NOTICE] Native Discord Rules Screening is still enabled. "
+              "If you want no popup, disable it in Discord server settings. "
+              "The automation does not require it.", flush=True)
     category = next((c for c in channels if c["type"] == 4 and
                      c["name"] in ("🛡️ VERIFICATION", "✅ VERIFICATION")), None)
     if not category:
@@ -465,7 +462,7 @@ def main():
                    None, "automatically give Egypt YDNA Bot the Bot label")
 
     print("DONE. Access: new members can read #welcome and #rules, "
-          "after native Rules Screening and the scheduled role scan they get "
+          "after joining and the scheduled role scan they get "
           "Verified and all normal channels. STAFF stays private. "
           "No moderator review is required. GitHub is scheduled and "
           "cannot assign the role instantly.")
