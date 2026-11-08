@@ -8,8 +8,9 @@ Default preview is read-only. Apply:
 - keeps all normal channels Verified-only and all STAFF channels staff-only,
 - retains role-picker access and Carl-bot's designated channel exception.
 
-The scheduled discord_member_verification.py worker automatically assigns Verified
-to joined human accounts. Rules are informational; no checkbox or staff approval.
+The scheduled worker assigns Verified only after a member reacts ✅ to
+the existing bot-authored official #rules post. No native Discord popup or
+manual staff approval is required. The STAFF category remains private.
 """
 import json
 import os
@@ -49,10 +50,10 @@ READ_ONLY = {
 }
 WELCOME_PROMPT = (
     "👋 **EGYPT Y-DNA — WELCOME**\n"
-    "Please read #rules before participating. No rules popup is required.\n"
-    "Your **Verified** role is assigned automatically by our "
-    "scheduled bot (usually within a few minutes). No moderator application "
-    "or extra reaction is required.\n"
+    "Read #rules and react with ✅ below the OFFICIAL rules message.\n"
+    "The bot will automatically assign **Verified** after its next "
+    "scheduled check (usually within a few minutes). No moderator "
+    "approval or native rules popup is required.\n"
     "After verification, all public community, origin and Y-DNA channels "
     "become visible. The STAFF category remains private."
 )
@@ -246,7 +247,7 @@ def main():
         raise RuntimeError("Cannot gate channels until Verified is created.")
     vid = str(verified["id"]) if verified else "000000000000000000"
 
-    print("2) Welcome/rules only: automatic membership without rules popup.")
+    print("2) Welcome/rules: Verified only after ✅ on official #rules message.")
     if "MEMBER_VERIFICATION_GATE_ENABLED" in guild.get("features", []):
         print("[NOTICE] Native Discord Rules Screening is still enabled. "
               "If you want no popup, disable it in Discord server settings. "
@@ -271,7 +272,9 @@ def main():
         else:
             channel = next((c for c in channels if c["type"] == 0
                             and c["name"] == name), None)
-        style = "public"
+        style = "verification" if name == "rules" else "public"
+        # Unlike #welcome, the official rules channel explicitly allows
+        # reactions so newcomers can opt in with ✅.
         allowed = policy(style, vid, staff_ids, bot["id"])
         if channel:
             diff = {}
@@ -466,11 +469,11 @@ def main():
             change("PUT", f"/guilds/{GUILD}/members/{bot['id']}/roles/{bot_role['id']}",
                    None, "automatically give Egypt YDNA Bot the Bot label")
 
-    print("DONE. Access: new members can read #welcome and #rules, "
-          "after joining and the scheduled role scan they get "
-          "Verified and all normal channels. STAFF stays private. "
-          "No moderator review is required. GitHub is scheduled and "
-          "cannot assign the role instantly.")
+    print("DONE. Access: newcomers can read #welcome and #rules and "
+          "click ✅ under the rules. Only users who react are assigned "
+          "Verified by the scheduled workflow; all normal channels then "
+          "become visible. STAFF stays private, no moderator review "
+          "and no native rules popup.")
     if MODE == "preview":
         print("PREVIEW ONLY: no Discord changes made.")
 
