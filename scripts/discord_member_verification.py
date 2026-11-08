@@ -146,7 +146,7 @@ def main():
     bot_member = api("GET", f"/guilds/{GUILD}/members/{bot['id']}")
     by_id = {str(r["id"]): r for r in roles}
     top = max(
-        (int(by_id[r]["position"]) for r in bot_member.get("roles", [])
+        (int(by_id[str(r)]["position"]) for r in bot_member.get("roles", [])
          if str(r) in by_id),
         default=-1,
     )
