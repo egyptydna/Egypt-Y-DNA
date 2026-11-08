@@ -1,3 +1,24 @@
+# Aktueller Stand (November 2026): ✅ auf #rules = Verified
+
+**Kein Discord-Popup, keine manuelle Moderatorprüfung, keine automatische Freigabe allein durch Beitritt.**
+
+So funktioniert Egypt Y-DNA ab jetzt:
+
+1. Ein Mitglied tritt dem Discord-Server bei. Es sieht #welcome und den bestehenden offiziellen #rules-Textkanal.
+2. Das Mitglied liest die 10 englischen Regeln.
+3. Es reagiert **mit ✅ direkt unter der offiziellen Bot-Nachricht „EGYPT Y-DNA — OFFICIAL SERVER RULES“**. Das Häkchen unter der Nachricht wird einmalig vom eigenen Egypt YDNA Bot als Reaktion hinzugefügt und kann dann von jedem neuen Mitglied angeklickt werden.
+4. Der kostenlose GitHub-Workflow [Rules Emoji Verification](https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-member-verification.yml) prüft in Intervallen von rund fünf Minuten die tatsächlichen ✅-Reaktionen. **Nur** die reagierenden menschlichen Servermitglieder bekommen `Verified`, sofern sie nicht durch ein eventuell noch aktives natives Screening blockiert sind.
+5. Anschließend werden alle normalen Community-/Y-DNA-/Ressourcenkanäle sichtbar. **STAFF** bleibt ausschließlich Founder/Administrator/Moderator vorbehalten.
+
+**Jetzt den bestehenden Server konfigurieren:**
+[Rules Emoji Verification Setup](https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-verification-setup.yml) → **Run workflow → preview → neuen Lauf mit apply starten**. Der Setup-Workflow verwendet den bestehenden offiziellen #rules-Kanal, passt den Nachrichtentext an, fügt die ✅-Reaktion hinzu und erteilt unverifizierten Mitgliedern dort **Add Reactions**, aber keine Schreibrechte.
+
+**Fehlerdiagnose:** Reaktionsvergabe geschieht nicht sofort, weil GitHub Actions nur periodisch läuft und gelegentlich verzögert startet. Im [Rules Emoji Verification](https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-member-verification.yml) Workflow findest du `[SUMMARY]` mit `reactions`, `newly_verified` und `errors`. Für einen Sofort-Test kann der Workflow manuell unter `Run workflow` gestartet werden. Bei fehlendem `✅` oder fehlender Regelnachricht schlägt der Worker bewusst fehl, statt Mitglieder ohne Zustimmung zu verifizieren.
+
+**Wichtig zu bestehenden Rollen:** Bereits früher vergebene Verified-Rollen werden nicht automatisch entzogen, um bestehende Mitgliedschaften nicht versehentlich zu sperren. Dieser neue Ablauf gilt für künftige Rollenvergaben. Ältere Kapitel dieses Dokuments, die automatische Verified-Vergabe beim bloßen Beitritt, Discords native Regel-Checkbox oder eine Staff-✅ beschreiben, sind veraltet.
+
+---
+
 # Neu: 🚪・in — automatischer Beitrittskanal statt #general (November 2026)
 
 Die bestehende **#general-Textkanal-ID** `1568675061039370335` wird ohne Nachrichtenlöschung als **🚪・in** verwendet. Der Name ist bewusst kurz und entspricht dem gezeigten Discord-Beispiel.
