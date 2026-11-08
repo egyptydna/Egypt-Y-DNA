@@ -2,6 +2,11 @@ name: Egypt Y-DNA Role Self-Selection
 
 on:
   workflow_dispatch:
+  # Recheck role picks as soon as the Verified workflow completes successfully.
+  # This avoids requiring TWO independent, delayed GitHub cron runs.
+  workflow_run:
+    workflows: ["Egypt Y-DNA Rules Emoji Verification"]
+    types: [completed]
   # Also process existing selections after fixing the worker.
   # This gives a one-time run on changes instead of waiting for an unreliable cron.
   push:
@@ -24,6 +29,7 @@ concurrency:
 jobs:
   assign-roles:
     name: Grant only nonprivileged self-selected origin and Y-DNA roles
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
