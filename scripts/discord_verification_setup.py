@@ -20,6 +20,7 @@ import urllib.parse
 import urllib.request
 
 from discord_role_menu import menu_groups, menu_content, menu_emojis
+from discord_join_feed import JOIN_NAME, read_only_permissions
 
 BASE = "https://discord.com/api/v10"
 GUILD = os.getenv("DISCORD_GUILD_ID", "").strip()
@@ -388,9 +389,13 @@ def main():
         else:
             style = "normal"
         readonly = name in READ_ONLY or name == "choose-roles"
-        intended = (picker_permissions() if name == "choose-roles" and
-                    channel["type"] == 0 else
-                    policy(style, vid, staff_ids, bot["id"], is_readonly=readonly))
+        intended = (
+            read_only_permissions(GUILD, vid, staff_ids, bot["id"])
+            if channel["type"] == 0 and name == JOIN_NAME else
+            picker_permissions()
+            if channel["type"] == 0 and name == "choose-roles" else
+            policy(style, vid, staff_ids, bot["id"], is_readonly=readonly)
+        )
         if not exact_overwrites(channel, intended):
             change("PATCH", f"/channels/{channel['id']}",
                    {"permission_overwrites": intended},
