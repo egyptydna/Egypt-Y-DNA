@@ -1,3 +1,25 @@
+# Neu: 🚪・in — automatischer Beitrittskanal statt #general (November 2026)
+
+Die bestehende **#general-Textkanal-ID** `1568675061039370335` wird ohne Nachrichtenlöschung als **🚪・in** verwendet. Der Name ist bewusst kurz und entspricht dem gezeigten Discord-Beispiel.
+
+**Einmalige GitHub-Einrichtung:** https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-join-feed.yml
+
+1. **Run workflow → preview** ausführen (ändert nichts).
+2. Log prüfen: `[KEEP]` muss den EXISTIERENDEN `#general`-Textkanal anzeigen. Der Workflow verwendet bevorzugt die bekannte Channel-ID, fällt bei Bedarf auf einen eindeutigen Textkanal namens `general` zurück und bricht bei Mehrdeutigkeit sicher ab.
+3. **Run workflow → apply** als neuen Lauf starten.
+4. Falls GitHub `[ACTION REQUIRED]` meldet: Egypt YDNA Bot benötigt in Discord **Manage Server** (Systemnachrichten einstellen) und **Manage Channels** (Kanal umbenennen und schreibschützen). **Administrator** ist dafür nicht nötig.
+5. Test: ein neuer Account tritt dem Server bei; Discord sollte sofort eine eigene System-Beitrittsmeldung im Kanal **🚪・in** posten. Kein MEE6, Hosting oder 5-Minuten-Intervall nötig.
+
+**Was genau passiert:** Der vorhandene Kanal wird an die Informationskategorie (`📌 START HERE` / `📌 INFORMATION`) verschoben, zu `🚪・in` umbenannt und für gewöhnliche Mitglieder schreibgeschützt (inklusive Thread-Erstellung). Der Kanal ist als Discord-`system_channel_id` konfiguriert; `SUPPRESS_JOIN_NOTIFICATIONS` ist aus, unnötige Boost- und Server-Tipp-Meldungen werden für diesen Kanal unterdrückt. Die Bot- und Memberrollen werden NICHT verändert. Staff-Kategorie bleibt privat und der normale English-Chat bleibt offen. Discord-Serverinhaber und Administratorberechtigte können Kanal-Schreibsperren technisch immer umgehen.
+
+**Grenze:** Discords eingebaute Beitrittsmeldung ist kostenlos und sofort, zeigt aber **keine MEE6-Bildkarte mit Profilbild und Member-Nummer** wie im Referenz-Screenshot. Für solche Karten bräuchte man einen zusätzlich konfigurierten Welcome-Bot. Die bestehende Mitgliederverifizierung über GitHub bleibt unabhängig.
+
+**Wichtig für spätere Workflows:** `scripts/discord_verification_setup.py` verwendet die gemeinsame `read_only_permissions`-Funktion des Join-Skripts und stellt die Schreibrechte von `🚪・in` bei erneuter Einrichtung NICHT zurück. Ältere Setup-Läufe sollten nicht für den ursprünglichen `#general`-Kanal verwendet werden.
+
+Weitere mögliche Emojinamen (noch nicht umbenannt, damit Links und Bot-Skripte erhalten bleiben): `📜・rules`, `📢・announcements`, `🏷️・choose-roles`, `🧬・new-results`, `💬・english-chat`.
+
+---
+
 # Aktueller Stand: Ohne Pflicht-Popup — automatische Verified-Rolle (November 2026)
 
 Die verpflichtende Discord-Regelbestätigung wurde auf Wunsch **gestrichen**. Niemand muss das native Discord Rules Screening aktivieren.
