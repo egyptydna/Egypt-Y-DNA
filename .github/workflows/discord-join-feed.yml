@@ -1,0 +1,34 @@
+name: Egypt Y-DNA Join Feed
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "preview checks; apply renames the existing #general and enables join notifications"
+        required: true
+        type: choice
+        default: preview
+        options: [preview, apply]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: egypt-ydna-discord-join-feed
+  cancel-in-progress: false
+
+jobs:
+  join-feed:
+    name: Make #general a read-only native join log
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Python
+        run: python3 -m py_compile scripts/discord_join_feed.py
+      - name: Configure join feed
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
+          MODE: ${{ inputs.mode }}
+        run: python3 -u scripts/discord_join_feed.py
