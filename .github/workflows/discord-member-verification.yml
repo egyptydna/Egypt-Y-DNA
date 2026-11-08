@@ -1,4 +1,4 @@
-name: Egypt Y-DNA Automatic Member Access
+name: Egypt Y-DNA Rules Emoji Verification
 
 on:
   workflow_dispatch:
@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   verify-members:
-    name: Auto-grant Verified after joining
+    name: Verified only after ✅ reaction to official rules
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -23,7 +23,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Check worker syntax
         run: python3 -m py_compile scripts/discord_member_verification.py scripts/discord_bot_roles.py
-      - name: Auto-grant Verified without a rules popup
+      - name: Test rule reaction gate (never verify on join alone)
+        run: python3 -m unittest discover -s tests -p test_discord_auto_verification.py -v
+      - name: Assign Verified to members who clicked ✅ on #rules
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
