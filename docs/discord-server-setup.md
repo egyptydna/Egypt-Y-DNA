@@ -1,3 +1,20 @@
+# Aktueller Stand: Ohne Pflicht-Popup — automatische Verified-Rolle (November 2026)
+
+Die verpflichtende Discord-Regelbestätigung wurde auf Wunsch **gestrichen**. Niemand muss das native Discord Rules Screening aktivieren.
+
+- Neue Menschen erhalten nach dem Beitritt automatisch die Rolle **Verified** durch den kostenlosen GitHub-Workflow (etwa alle fünf Minuten; Verzögerungen sind möglich).
+- Der Worker scannt mit `Server Members Intent` die Discord-Mitgliederliste. Discord-Botkonten und Mitglieder mit `pending=true` werden nicht automatisch Verified. Der Bot braucht `Manage Roles` und muss über **Verified** stehen.
+- `#rules` ist ein normaler, informativer Lesekanal, keine Pflicht-Checkbox. `#welcome` bleibt öffentlich lesbar.
+- Keine manuelle Moderatorfreigabe, keine `#verification-chat`-Anträge; alte Antragskanäle werden im Setup privat archiviert.
+- Normale Kanäle bleiben nach Vergabe von Verified sichtbar; die komplette STAFF-Kategorie bleibt nur für Founder, Administratoren und Moderatoren zugänglich.
+- Dies ist eine **offene Community-Aufnahme**: Auch fremde neue Mitglieder werden ohne Identitätsprüfung Verified. Nutze Einladungs-/Moderations- und Discord AutoMod-Einstellungen gegen Spam.
+
+**Einrichten:** [Automatic Member Access Setup](https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-verification-setup.yml) mit `preview` und danach `apply`. Anschließend bei Bedarf [Automatic Member Access](https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-member-verification.yml) einmal manuell starten, um die erste Rollenvergabe zu prüfen. Rules Screening, das noch in Discord selbst eingeschaltet sein sollte, wird dadurch **nicht** automatisch deaktiviert; das kann nur der Serverinhaber in Discord tun.
+
+**Wichtig:** Ältere Abschnitte in dieser Datei, die eine Discord-Regel-Checkbox, native Screening-Freischaltung oder Mitarbeiter-✅ zur Verified-Vergabe verlangen, sind abgelöst und gelten nicht mehr.
+
+---
+
 # NEU — Nur Discord-Regeln abhaken → Verified automatisch (November 2026)
 
 Dies ersetzt die frühere, manuelle Prüfung mit Moderatorreaktionen vollständig.
