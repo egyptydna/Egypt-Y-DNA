@@ -99,6 +99,8 @@ def main():
                     str(m.get("author", {}).get("id")) == str(bot["id"])]
     cache = {}
     examined = assigned = errors = 0
+    already_assigned = skipped_missing = skipped_pending = 0
+    skipped_conflict = skipped_existing_lineage = skipped_existing_gender = 0
     ignored_unverified = ignored_unmanageable = stale_menus = 0
     print("[CHECK] Found", len(messages or []),
           "recent messages in #choose-roles; applying role selections.")
@@ -146,6 +148,10 @@ def main():
         print("[NOTICE] Y-DNA conflicts:", len(dna_conflicts),
               "users chose more than one detailed Y-DNA branch; no new Y-DNA "
               "role will be granted until only one is selected.")
+        for uid in sorted(dna_conflicts):
+            print("[CONFLICT] user", uid, "chose:",
+                  ", ".join(sorted(dna_choices[uid])),
+                  "| remove all unwanted Y-DNA reactions to select one.")
 
     for marker, category, names in menu_groups(by_name):
         menu = next((m for m in own_messages if marker in m.get("content", "")), None)
@@ -191,15 +197,21 @@ def main():
             for user_id in react_users(selector["id"], menu["id"], emoji):
                 examined += 1
                 if category == "GENDER" and user_id in gender_conflicts:
+                    skipped_conflict += 1
                     continue
                 if category == "Y-DNA" and user_id in dna_conflicts:
+                    skipped_conflict += 1
                     continue
                 if user_id not in cache:
                     cache[user_id] = api(
                         "GET", f"/guilds/{GID}/members/{user_id}",
                         missing_ok=True)
                 data = cache[user_id]
-                if not data or data.get("pending"):
+                if not data:
+                    skipped_missing += 1
+                    continue
+                if data.get("pending"):
+                    skipped_pending += 1
                     continue
                 known_roles = [str(r) for r in data.get("roles", [])]
                 # The server OWNER can operate #choose-roles without the
@@ -210,14 +222,17 @@ def main():
                           "has not received Verified yet; no role granted.")
                     continue
                 if role_id in known_roles:
+                    already_assigned += 1
                     continue
                 if category == "Y-DNA":
                     other_branches = [r for _, c, entries in menu_groups(by_name)
                                       if c == "Y-DNA" for r in entries if r != name]
                     if any(str(by_name[other.casefold()]["id"]) in known_roles
                            for other in other_branches):
+                        skipped_existing_lineage += 1
                         print("[SKIP] Member already has another detailed Y-DNA role:",
-                              user_id)
+                              user_id, "| selected:", name,
+                              "| ask staff to change existing Y-DNA role")
                         continue
                 if category == "GENDER":
                     other = "Female" if name == "Male" else "Male"
@@ -225,8 +240,8 @@ def main():
                     if other_role and str(other_role["id"]) in known_roles:
                         # Refuse ambiguous simultaneous gender roles. Existing
                         # selections can be changed by staff on request.
-                        print("SKIP gender choice: an opposite gender role already exists",
-                              user_id)
+                        skipped_existing_gender += 1
+                        print("[SKIP] Opposite gender role already exists for", user_id)
                         continue
                 try:
                     api("PUT", f"/guilds/{GID}/members/{user_id}/roles/{role_id}")
@@ -237,10 +252,24 @@ def main():
                     errors += 1
                     print("ERROR assigning self-selected role:", error, file=sys.stderr)
     print("[SUMMARY] human selections checked:", examined,
-          "| roles granted:", assigned, "| Discord API errors:", errors,
+          "| roles granted:", assigned, "| already assigned:", already_assigned,
           "| not Verified:", ignored_unverified,
+          "| missing from guild:", skipped_missing,
+          "| pending:", skipped_pending,
+          "| conflicting reactions:", skipped_conflict,
+          "| already has another Y-DNA:", skipped_existing_lineage,
+          "| already has opposite gender:", skipped_existing_gender,
           "| unsafe/unmanageable roles:", ignored_unmanageable,
-          "| outdated/missing menus:", stale_menus, flush=True)
+          "| outdated/missing menus:", stale_menus,
+          "| Discord API errors:", errors, flush=True)
+    if examined and not assigned and already_assigned:
+        print("[INFO] Some selections have already been applied. "
+              "Clicking the same emoji again does not assign a second copy of a role.")
+    if ignored_unverified:
+        print("[BLOCKER] Members clicked role emojis before receiving Verified. "
+              "First click ✅ under the official #rules message; then run "
+              "Egypt Y-DNA Rules Emoji Verification. If that workflow fails, "
+              "check the Verified role is BELOW the Egypt YDNA Bot role.")
     if not examined:
         print("[CHECK] No eligible human reactions were found. Confirm you "
               "reacted to the actual bot-owned emoji message, not the pinned "
