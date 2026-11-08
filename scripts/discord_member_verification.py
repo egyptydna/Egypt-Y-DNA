@@ -1,16 +1,11 @@
 #!/usr/bin/env python3
-"""Automatic Verified after Discord native Rules Screening (NO manual approval).
+"""Automatically grant Verified to human Discord members without a rules popup.
 
-Runs on GitHub Actions about every five minutes. Grant Verified only when:
-  * Rules Screening is enabled on the existing Egypt Y-DNA server,
-  * the Discord member is not pending (pending == False, or omitted per API),
-  * the account is human, and
-  * the member does not already have Verified.
-
-Guild Members privileged intent is required to LIST members via Discord REST.
-Discord API types specify that an omitted 'pending' field means False;
-we still refuse to verify a pending=True or pending=None member.
-This script never alters staff roles or approves members on their behalf.
+The owner chose to disable native Rules Screening. On each scheduled GitHub
+Actions run, assign Verified to joined human accounts without staff approval.
+Bot accounts are never granted Verified. A genuinely pending member is skipped.
+Requires Server Members Intent to list members and Manage Roles to add Verified.
+The private STAFF category is still protected by channel permissions.
 """
 import json
 import os
@@ -23,7 +18,6 @@ import urllib.request
 GUILD = os.getenv("DISCORD_GUILD_ID", "").strip()
 TOKEN = os.getenv("DISCORD_BOT_TOKEN", "").strip()
 BASE = "https://discord.com/api/v10"
-SCREENING_FEATURE = "MEMBER_VERIFICATION_GATE_ENABLED"
 ROLE_MANAGEMENT = 1 << 28
 ADMINISTRATOR = 1 << 3
 
@@ -89,12 +83,12 @@ def main():
             "GitHub Secrets DISCORD_GUILD_ID and DISCORD_BOT_TOKEN are required")
     guild = api("GET", f"/guilds/{GUILD}")
     print("[CHECK] Server:", guild.get("name"), flush=True)
-    if SCREENING_FEATURE not in guild.get("features", []):
-        raise RuntimeError(
-            "Official Discord Rules Screening is not enabled. Turn it on in "
-            "Server Settings > Safety Setup > DM and Spam Protection > "
-            "'Members must accept rules before they can talk or DM'. "
-            "No one has been verified by this run.")
+    print("[MODE] Automatic Verified on server join; no native rules popup "
+          "or moderator review required.", flush=True)
+    if "MEMBER_VERIFICATION_GATE_ENABLED" in guild.get("features", []):
+        print("[NOTICE] Native Rules Screening is currently enabled in Discord. "
+              "Members still pending its acceptance will be skipped. "
+              "Disable it in Discord settings if you want no popup.", flush=True)
 
     roles = api("GET", f"/guilds/{GUILD}/roles")
     by_name = {r["name"].casefold(): r for r in roles}
@@ -122,7 +116,7 @@ def main():
         raise RuntimeError("Egypt YDNA Bot needs Manage Roles.")
 
     verified_id = str(verified["id"])
-    scanned = accepted = pending = unknown_pending = omitted_pending = bots = already = granted = failures = 0
+    scanned = eligible = pending = unknown_pending = bots = already = granted = failures = 0
     for member in all_members():
         user = member.get("user") or {}
         member_id = str(user.get("id", ""))
@@ -135,16 +129,13 @@ def main():
         if member.get("pending") is True:
             pending += 1
             continue
-        # Discord API declares 'pending' optional, and a missing value is
-        # equivalent to False for members who have passed Rules Screening.
-        # A None value is still treated as ambiguous and skipped.
-        raw_pending = member.get("pending", False)
-        if raw_pending is not False:
+        # Treat missing pending as False per Discord API. Explicit null or
+        # invalid statuses are ambiguous and fail closed. When Screening is
+        # disabled, joined users should not be pending.
+        if member.get("pending", False) is not False:
             unknown_pending += 1
             continue
-        if "pending" not in member:
-            omitted_pending += 1
-        accepted += 1
+        eligible += 1
         if verified_id in {str(id_) for id_ in member.get("roles", [])}:
             already += 1
             continue
@@ -152,16 +143,15 @@ def main():
             api("PUT",
                 f"/guilds/{GUILD}/members/{member_id}/roles/{verified_id}")
             granted += 1
-            print("[VERIFIED] Granted role automatically after Rules Screening:",
+            print("[VERIFIED] Granted role automatically after joining server:",
                   member_id, flush=True)
         except RuntimeError as error:
             failures += 1
             print("[ERROR] Cannot assign Verified to", member_id, error,
                   file=sys.stderr, flush=True)
 
-    print("[SUMMARY] scanned=", scanned, "screening_accepted=", accepted,
+    print("[SUMMARY] scanned=", scanned, "eligible_joined_members=", eligible,
           "still_pending=", pending, "pending_unknown=", unknown_pending,
-          "pending_field_omitted=", omitted_pending,
           "bots_ignored=", bots, "already_verified=", already,
           "newly_verified=", granted, "errors=", failures, flush=True)
     if unknown_pending:
