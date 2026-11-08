@@ -1,4 +1,4 @@
-"""Offline regression tests for native Discord Rules Screening → Verified.
+"""Offline regression tests for automatic Verified on joining without a popup.
 
 No real Discord or GitHub credentials are needed. The fake API returns
 member objects, including their official pending flag, and records role writes.
@@ -27,8 +27,7 @@ ROLE_DATA = [
 class AutoVerificationTests(unittest.TestCase):
     def fake_api(self, method, path, data=None):
         if path == f"/guilds/{GUILD}":
-            return {"name": "Egypt Y-DNA",
-                    "features": [worker.SCREENING_FEATURE]}
+            return {"name": "Egypt Y-DNA", "features": []}
         if path == f"/guilds/{GUILD}/roles":
             return ROLE_DATA
         if path == "/users/@me":
@@ -58,7 +57,7 @@ class AutoVerificationTests(unittest.TestCase):
             out["pending"] = pending
         return out
 
-    def test_auto_verifies_only_confirmed_humans(self):
+    def test_auto_verifies_only_joined_humans(self):
         self.run_check([
             self.member(1, False),
             self.member(2, True),
@@ -70,22 +69,15 @@ class AutoVerificationTests(unittest.TestCase):
             f"/guilds/{GUILD}/members/1/roles/{VERIFIED_ID}"
         ])
 
-    def test_refuses_to_verify_when_screening_disabled(self):
-        def fake_no_screen(method, path, data=None):
-            if path == f"/guilds/{GUILD}":
-                return {"name": "Egypt Y-DNA", "features": []}
-            return self.fake_api(method, path, data)
-        with patch.object(worker, "GUILD", GUILD), \
-             patch.object(worker, "TOKEN", "test_only"), \
-             patch.object(worker, "api", side_effect=fake_no_screen), \
-             patch.object(worker, "all_members", return_value=iter([self.member(1, False)])):
-            with self.assertRaisesRegex(RuntimeError, "Rules Screening"):
-                worker.main()
-        self.assertEqual(self.grants, [])
+    def test_no_rules_screening_is_required(self):
+        self.run_check([self.member(1, False)])
+        self.assertEqual(self.grants, [
+            f"/guilds/{GUILD}/members/1/roles/{VERIFIED_ID}"
+        ])
 
     def test_optional_pending_omitted_means_false_but_null_is_not_accepted(self):
         # Discord's API marks pending optional and specifies that a missing
-        # field can be assumed False when screening is enabled.
+        # field can be assumed False for a joined member.
         self.run_check([
             self.member(1, include_pending=False),
             self.member(2, None),
