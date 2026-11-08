@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Automatically grant Verified to human Discord members without a rules popup.
+"""Egypt Y-DNA: ✅ on the official #rules message => Verified.
 
-The owner chose to disable native Rules Screening. On each scheduled GitHub
-Actions run, assign Verified to joined human accounts without staff approval.
-Bot accounts are never granted Verified. A genuinely pending member is skipped.
-Requires Server Members Intent to list members and Manage Roles to add Verified.
-The private STAFF category is still protected by channel permissions.
+No Discord native rules popup and no moderator approval required.
+The scheduled GitHub Action checks every five minutes (subject to GitHub delays).
+Only humans who reacted to the bot-owned, designated rules message receive
+Verified. Merely joining does NOT grant Verified. Existing roles are preserved.
+
+The bot needs Manage Roles, a role above Verified, and channel permissions to
+read messages and reactions in #rules. No privileged Members Intent is needed
+for individual Get Guild Member requests in this workflow.
 """
 import json
 import os
@@ -18,149 +21,190 @@ import urllib.request
 GUILD = os.getenv("DISCORD_GUILD_ID", "").strip()
 TOKEN = os.getenv("DISCORD_BOT_TOKEN", "").strip()
 BASE = "https://discord.com/api/v10"
-ROLE_MANAGEMENT = 1 << 28
+RULE_MARKER = "**EGYPT Y-DNA — OFFICIAL SERVER RULES**"
+CHECKMARK = "✅"
+MANAGE_ROLES = 1 << 28
 ADMINISTRATOR = 1 << 3
 
-def api(method, path, data=None):
+
+def api(method, path, data=None, allow_404=False):
     body = json.dumps(data).encode("utf-8") if data is not None else None
     for attempt in range(6):
-        req = urllib.request.Request(
+        request = urllib.request.Request(
             BASE + path, method=method, data=body,
             headers={
                 "Authorization": "Bot " + TOKEN,
                 "Content-Type": "application/json",
-                "User-Agent": "EgyptYDNAAutoVerification/3.0"
-            }
+                "User-Agent": "EgyptYDNARulesReactionVerification/4.0",
+            },
         )
         try:
-            with urllib.request.urlopen(req, timeout=25) as response:
+            with urllib.request.urlopen(request, timeout=25) as response:
                 raw = response.read()
-                time.sleep(0.12)
+                time.sleep(0.13)
                 return json.loads(raw) if raw else None
         except urllib.error.HTTPError as error:
-            detail = error.read().decode("utf-8", errors="replace")
+            detail = error.read().decode(errors="replace")
+            if allow_404 and error.code == 404:
+                return None
             if error.code == 429 and attempt < 5:
                 try:
                     pause = min(30, float(json.loads(detail).get("retry_after", 2)))
-                except (ValueError, TypeError):
+                except (TypeError, ValueError):
                     pause = 2
-                time.sleep(pause + 0.6)
+                time.sleep(pause + 0.5)
                 continue
-            if error.code in (401, 403) and "/members?limit=" in path:
-                raise RuntimeError(
-                    "Cannot list server members. In Discord Developer Portal > "
-                    "Egypt YDNA Bot > Bot > Privileged Gateway Intents, enable "
-                    "SERVER MEMBERS INTENT, then rerun. "
-                    "Discord error: " + detail[:280]) from error
             raise RuntimeError(
-                "Discord API " + str(error.code) + " " + method + " " +
-                path + ": " + detail[:300]) from error
-    raise RuntimeError("Discord API rate limit exceeded retry budget")
+                f"Discord HTTP {error.code}: {method} {path}: {detail[:350]}"
+            ) from error
+    raise RuntimeError("Discord rate-limit retry budget exhausted")
 
-def all_members():
-    after = None
-    for page_no in range(1, 101):
-        path = f"/guilds/{GUILD}/members?limit=1000"
-        if after:
-            path += "&after=" + urllib.parse.quote(after, safe="")
-        items = api("GET", path)
-        if not isinstance(items, list):
-            raise RuntimeError("Discord members endpoint did not return a list")
-        for member in items:
-            yield member
-        if len(items) < 1000:
-            return
-        after = str(items[-1].get("user", {}).get("id", ""))
-        if not after.isdecimal():
-            raise RuntimeError("Invalid pagination cursor in Discord member list")
+
+def find_rules_post(guild, bot_id):
+    """Use ONLY the server's official rules message; never another user's post."""
+    channels = api("GET", f"/guilds/{GUILD}/channels") or []
+    text_channels = [
+        channel for channel in channels
+        if channel.get("type") == 0 and channel.get("name") == "rules"
+    ]
+    official_id = str(guild.get("rules_channel_id") or "")
+    # If Discord configured its official rules channel, that one is authoritative.
+    if official_id:
+        official = next(
+            (c for c in channels if c.get("type") == 0 and
+             str(c["id"]) == official_id),
+            None,
+        )
+        if official is None:
+            raise RuntimeError(
+                "[ACTION REQUIRED] Discord's official rules channel cannot "
+                "be found; rerun Rules Cleanup with apply."
+            )
+        candidates = [official]
+    elif len(text_channels) == 1:
+        candidates = text_channels
+    else:
+        raise RuntimeError(
+            "[ACTION REQUIRED] Cannot uniquely identify the public #rules "
+            "channel. Run Rules Cleanup with apply before verification."
+        )
+
+    channel = candidates[0]
+    before = None
+    # Up to 500 messages; if the one official rules post is missing,
+    # deliberately fail closed rather than verify people on join.
+    for _ in range(5):
+        url = f"/channels/{channel['id']}/messages?limit=100"
+        if before:
+            url += "&before=" + before
+        batch = api("GET", url) or []
+        for message in batch:
+            if (str(message.get("author", {}).get("id")) == str(bot_id)
+                    and RULE_MARKER in message.get("content", "")):
+                return channel, message
+        if len(batch) < 100:
+            break
+        before = str(batch[-1]["id"])
     raise RuntimeError(
-        "Server member listing exceeded 100 pages; extend pagination limit "
-        "before considering the verification scan complete")
+        "[ACTION REQUIRED] No official bot-authored rules message found "
+        "in #rules. Run Rules Cleanup with apply to post and seed ✅."
+    )
+
+
+def accepted_users(channel_id, message_id):
+    """Paginate reactions: never confuse the bot's seeded ✅ with a member."""
+    after = None
+    emoji = urllib.parse.quote(CHECKMARK, safe="")
+    for _ in range(200):
+        url = (
+            f"/channels/{channel_id}/messages/{message_id}"
+            f"/reactions/{emoji}?limit=100"
+        )
+        if after:
+            url += "&after=" + urllib.parse.quote(after, safe="")
+        users = api("GET", url) or []
+        for user in users:
+            if not user.get("bot"):
+                yield str(user["id"])
+        if len(users) < 100:
+            return
+        after = str(users[-1]["id"])
+    raise RuntimeError("More than 20,000 rule acknowledgements; pagination limit reached")
+
 
 def main():
     if not GUILD.isdecimal() or not TOKEN:
-        raise ValueError(
-            "GitHub Secrets DISCORD_GUILD_ID and DISCORD_BOT_TOKEN are required")
-    guild = api("GET", f"/guilds/{GUILD}")
-    print("[CHECK] Server:", guild.get("name"), flush=True)
-    print("[MODE] Automatic Verified on server join; no native rules popup "
-          "or moderator review required.", flush=True)
-    if "MEMBER_VERIFICATION_GATE_ENABLED" in guild.get("features", []):
-        print("[NOTICE] Native Rules Screening is currently enabled in Discord. "
-              "Members still pending its acceptance will be skipped. "
-              "Disable it in Discord settings if you want no popup.", flush=True)
+        raise ValueError("Missing DISCORD_GUILD_ID / DISCORD_BOT_TOKEN secrets")
 
+    guild = api("GET", f"/guilds/{GUILD}")
     roles = api("GET", f"/guilds/{GUILD}/roles")
     by_name = {r["name"].casefold(): r for r in roles}
     verified = by_name.get("verified")
     if not verified:
-        raise RuntimeError(
-            "The Verified role does not exist. Run the Auto Verification "
-            "Setup workflow with apply before scheduling approvals.")
-
-    self_bot = api("GET", "/users/@me")
-    me = api("GET", f"/guilds/{GUILD}/members/{self_bot['id']}")
+        raise RuntimeError("[ACTION REQUIRED] Verified role missing.")
+    bot = api("GET", "/users/@me")
+    bot_member = api("GET", f"/guilds/{GUILD}/members/{bot['id']}")
     by_id = {str(r["id"]): r for r in roles}
-    mine = {str(x) for x in me.get("roles", [])}
-    my_top = max(
-        (int(by_id[x]["position"]) for x in mine if x in by_id),
-        default=-1)
-    if my_top <= int(verified.get("position", 0)):
+    top = max(
+        (int(by_id[r]["position"]) for r in bot_member.get("roles", [])
+         if str(r) in by_id),
+        default=-1,
+    )
+    if top <= int(verified["position"]):
         raise RuntimeError(
-            "Egypt YDNA Bot must be ABOVE Verified in the Discord role hierarchy.")
-    my_permissions = int(by_id.get(GUILD, {}).get("permissions", "0"))
-    for id_ in mine:
-        if id_ in by_id:
-            my_permissions |= int(by_id[id_].get("permissions", "0"))
-    if not my_permissions & (ROLE_MANAGEMENT | ADMINISTRATOR):
-        raise RuntimeError("Egypt YDNA Bot needs Manage Roles.")
+            "[ACTION REQUIRED] Egypt YDNA Bot role must be ABOVE Verified."
+        )
+    permissions = int(by_id.get(GUILD, {}).get("permissions", "0"))
+    for rid in bot_member.get("roles", []):
+        if str(rid) in by_id:
+            permissions |= int(by_id[str(rid)].get("permissions", "0"))
+    if not permissions & (MANAGE_ROLES | ADMINISTRATOR):
+        raise RuntimeError("[ACTION REQUIRED] Egypt YDNA Bot needs Manage Roles.")
 
+    channel, message = find_rules_post(guild, bot["id"])
+    print("[CHECK] #rules id:", channel["id"], "message:", message["id"])
+    if not any(
+        r.get("emoji", {}).get("name") == CHECKMARK
+        for r in message.get("reactions", [])
+    ):
+        raise RuntimeError(
+            "[ACTION REQUIRED] No ✅ under the official rules message. "
+            "Run Rules Cleanup with apply to add it."
+        )
+
+    seen = checked = pending = already = granted = missing = failures = 0
     verified_id = str(verified["id"])
-    scanned = eligible = pending = unknown_pending = bots = already = granted = failures = 0
-    for member in all_members():
-        user = member.get("user") or {}
-        member_id = str(user.get("id", ""))
-        if not member_id.isdecimal():
+    for user_id in accepted_users(channel["id"], message["id"]):
+        seen += 1
+        member = api("GET", f"/guilds/{GUILD}/members/{user_id}", allow_404=True)
+        if not member:
+            missing += 1  # Person has left the server.
             continue
-        scanned += 1
-        if user.get("bot"):
-            bots += 1
+        checked += 1
+        if member.get("user", {}).get("bot"):
             continue
-        if member.get("pending") is True:
+        if member.get("pending", False) is not False:
             pending += 1
             continue
-        # Treat missing pending as False per Discord API. Explicit null or
-        # invalid statuses are ambiguous and fail closed. When Screening is
-        # disabled, joined users should not be pending.
-        if member.get("pending", False) is not False:
-            unknown_pending += 1
-            continue
-        eligible += 1
-        if verified_id in {str(id_) for id_ in member.get("roles", [])}:
+        if verified_id in {str(r) for r in member.get("roles", [])}:
             already += 1
             continue
         try:
-            api("PUT",
-                f"/guilds/{GUILD}/members/{member_id}/roles/{verified_id}")
+            api("PUT", f"/guilds/{GUILD}/members/{user_id}/roles/{verified_id}")
             granted += 1
-            print("[VERIFIED] Granted role automatically after joining server:",
-                  member_id, flush=True)
+            print("[VERIFIED] ✅ rules accepted by", user_id, flush=True)
         except RuntimeError as error:
             failures += 1
-            print("[ERROR] Cannot assign Verified to", member_id, error,
+            print("[ERROR] Could not assign Verified:", user_id, error,
                   file=sys.stderr, flush=True)
 
-    print("[SUMMARY] scanned=", scanned, "eligible_joined_members=", eligible,
-          "still_pending=", pending, "pending_unknown=", unknown_pending,
-          "bots_ignored=", bots, "already_verified=", already,
-          "newly_verified=", granted, "errors=", failures, flush=True)
-    if unknown_pending:
-        print("[NOTICE] Members whose pending status was null or invalid were "
-              "not automatically Verified; they need a valid Discord member status.")
+    print("[SUMMARY] reactions=", seen, "members_found=", checked,
+          "pending=", pending, "already_verified=", already,
+          "newly_verified=", granted, "left_server=", missing,
+          "errors=", failures, flush=True)
     if failures:
-        raise RuntimeError(
-            "Some verified-role assignments failed; inspect bot permissions "
-            "and Discord's role hierarchy.")
+        raise RuntimeError("Some ✅ approvals failed; check Discord role hierarchy.")
+
 
 if __name__ == "__main__":
     try:
