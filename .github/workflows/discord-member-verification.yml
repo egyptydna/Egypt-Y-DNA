@@ -2,6 +2,12 @@ name: Egypt Y-DNA Rules Emoji Verification
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/discord_member_verification.py
+      - tests/test_discord_auto_verification.py
+      - .github/workflows/discord-member-verification.yml
   schedule:
     # Every 5 minutes, offset from the top of the hour to reduce congestion.
     - cron: "3-59/5 * * * *"
