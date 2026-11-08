@@ -51,7 +51,7 @@ class SelfSelectionTests(unittest.TestCase):
             return [{"name": "choose-roles", "id": CHANNEL, "type": 0}]
         if path == f"/channels/{CHANNEL}/messages?limit=100":
             return [{"id": MESSAGE, "author": {"id": BOT},
-                     "content": "expected", "reactions": [
+                     "content": GROUPS[0][0] + " content", "reactions": [
                          {"emoji": {"name": "🔵"}, "count": 2},
                          {"emoji": {"name": "🟢"}, "count": 1},
                      ]}]
@@ -67,7 +67,7 @@ class SelfSelectionTests(unittest.TestCase):
              patch.object(worker, "TOKEN", "offline-placeholder"), \
              patch.object(worker, "api", side_effect=self.api), \
              patch.object(worker, "menu_groups", return_value=GROUPS), \
-             patch.object(worker, "menu_content", return_value="expected"), \
+             patch.object(worker, "menu_content", return_value=GROUPS[0][0] + " content"), \
              patch.object(worker, "menu_emojis", return_value=["🔵", "🟢"]), \
              patch.object(worker, "react_users", side_effect=fake_reactions), \
              redirect_stdout(out):
