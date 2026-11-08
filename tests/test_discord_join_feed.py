@@ -71,11 +71,21 @@ class JoinFeedTests(unittest.TestCase):
         path, payload = self.writes[0]
         self.assertEqual(path, f"/channels/{SOURCE}")
         self.assertEqual(payload["name"], join.JOIN_NAME)
-        self.assertEqual(payload["parent_id"], "411")
+        # Existing channel is already in category 411. The update
+        # intentionally omits parent_id rather than sending an unchanged field.
+        self.assertNotIn("parent_id", payload)
+        self.assertIn("permission_overwrites", payload)
         self.assertEqual(self.writes[1][0], f"/guilds/{GID}")
         self.assertEqual(self.writes[1][1]["system_channel_id"], SOURCE)
         self.assertEqual(self.writes[1][1]["system_channel_flags"] & 1, 0)
         self.assertNotIn("DELETE", [endpoint for endpoint, _ in self.writes])
+
+    def test_moves_channel_when_category_differs(self):
+        self.channels[0]["parent_id"] = "999"
+        self.run_workflow("apply")
+        path, payload = self.writes[0]
+        self.assertEqual(path, f"/channels/{SOURCE}")
+        self.assertEqual(payload["parent_id"], "411")
 
     def test_read_only_includes_thread_prevention(self):
         permissions = join.read_only_permissions(
