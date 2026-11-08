@@ -151,9 +151,37 @@ def main():
         default=-1,
     )
     if top <= int(verified["position"]):
-        raise RuntimeError(
-            "[ACTION REQUIRED] Egypt YDNA Bot role must be ABOVE Verified."
-        )
+        print("[BLOCKER] Role hierarchy: bot top =", top,
+              "| Verified =", verified["position"],
+              "| the bot cannot assign Verified while its role is lower.",
+              flush=True)
+        # Attempt an idempotent fix ONLY for the neutral Verified role.
+        # Discord may reject edits to roles above the bot even with Administrator;
+        # on rejection, explain the exact one-time owner action.
+        if int(verified.get("permissions", "0")) == 0 and top > 1:
+            try:
+                api("PATCH", f"/guilds/{GUILD}/roles",
+                    [{"id": str(verified["id"]), "position": top - 1}])
+                roles = api("GET", f"/guilds/{GUILD}/roles")
+                updated = next(
+                    (role for role in roles
+                     if str(role["id"]) == str(verified["id"])), None)
+                if updated is not None and int(updated["position"]) < top:
+                    verified = updated
+                    print("[REPAIRED] Moved neutral Verified below the "
+                          "Egypt YDNA Bot role.", flush=True)
+            except RuntimeError as error:
+                print("[NOTICE] Discord refused automatic Verified hierarchy "
+                      "repair:", error, flush=True)
+        if top <= int(verified["position"]):
+            raise RuntimeError(
+                "[ACTION REQUIRED] One-time fix as Discord SERVER OWNER: "
+                "Server Settings > Roles > drag Egypt YDNA Bot ABOVE Verified "
+                "(or move Verified BELOW Egypt YDNA Bot); save. "
+                f"Current bot top position={top}; "
+                f"Verified position={verified['position']}. "
+                "This cannot be bypassed using GitHub permissions."
+            )
     permissions = int(by_id.get(GUILD, {}).get("permissions", "0"))
     for rid in bot_member.get("roles", []):
         if str(rid) in by_id:
