@@ -86,8 +86,17 @@ def main():
           "| Egypt YDNA Bot top role position:", our_position, flush=True)
     member = by_name.get("verified")
     if not member:
-        print("SKIP: Verified role missing, run Verification Setup first")
-        return
+        raise RuntimeError(
+            "[BLOCKER] Verified role is missing. Run Rules Emoji Verification "
+            "Setup before assigning role-picker roles."
+        )
+    if int(member.get("position", 0)) >= our_position:
+        print("[BLOCKER] The Verified role sits at position",
+              member.get("position"), "but Egypt YDNA Bot top position is",
+              our_position, ". Newly joined people cannot receive Verified "
+              "until the Verified role is moved BELOW Egypt YDNA Bot in "
+              "Discord Server Settings > Roles. Existing Verified members "
+              "may still self-select nonprivileged roles.", flush=True)
     channels = api("GET", f"/guilds/{GID}/channels")
     selector = next((c for c in channels if c.get("name") == "choose-roles"
                      and c.get("type") == 0), None)
