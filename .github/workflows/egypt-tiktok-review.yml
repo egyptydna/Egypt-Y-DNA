@@ -38,6 +38,8 @@ jobs:
           python-version: '3.12'
       - name: Install image renderer
         run: python -m pip install Pillow==11.3.0
+      - name: Verify bot safety rules
+        run: python -m unittest tiktok_bot.test_runner -v
       - name: Generate candidate review issues and three-slide previews
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -67,6 +69,8 @@ jobs:
           python-version: '3.12'
       - name: Install image renderer
         run: python -m pip install Pillow==11.3.0
+      - name: Verify bot safety rules
+        run: python -m unittest tiktok_bot.test_runner -v
       - name: Send human-approved content to Buffer for notification publishing
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
