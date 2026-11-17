@@ -1,77 +1,64 @@
-# Egypt Y-DNA — TikTok Review Bot
+# Egypt Y-DNA – External source watch (kein Archivscan)
 
-## Zweck
+## Ziel
 
-Kostenloses Review-first-System mit GitHub Actions, dem bestehenden veröffentlichten
-Egypt-Y-DNA-Archiv in Supabase und Buffer Free. **Keine neue einzelne DNA-Probe wird
-behauptet, wenn nur ein Haplogruppen-Zähler oder ein YFull-Tree geändert wurde.**
+Zweimal pro Tag prüfen, ob in **extern veröffentlichten Datensnapshots**
+zu FamilyTreeDNA und YFull neue ägyptische Y-DNA-Ergebnisse sichtbar sind.
+Das bestehende Egypt-Y-DNA-Archiv ist **nicht** Eingabe dieser Prüfung.
 
-## Ablauf
+Die GitHub Action ist unter
+`.github/workflows/egypt-tiktok-review.yml` eingerichtet:
+06:17 und 18:17 UTC. Manuell auch über Actions → Egypt Y-DNA external source watch.
 
-- Zwei Kontrollen täglich (06:17 und 18:17 UTC), auch wenn die Website geschlossen ist.
-- Der Scanner liest ausschließlich bereits öffentlich freigeschaltete, aktive moderne
-  Archiveinträge mit ausdrücklich genanntem ägyptischen Ursprung und einem HTTPS-Link zu
-  FamilyTreeDNA oder YFull. Vorhandene Altbestände werden beim Start nicht nachgepostet.
-- Für neue Archivdatensätze der letzten 7 Tage werden maximal vier GitHub-Review-Issues
-  pro Lauf angelegt. Derselbe Archivdatensatz erzeugt nur ein Issue (auch bei Wiederholungen).
-- Drei **synthetische, selbst generierte** 1080x1920-PNGs und eine englische Caption
-  werden vorbereitet, als 30 Tage verfügbares GitHub-Actions-Artefakt. Kein fremdes
-  Kartenmaterial, keine kopierten Anbieter-Screenshots und keine hypothetischen
-  Migrationsrouten.
-- **Ausdrückliche Freigabe:** Erst wenn der Repository-Eigentümer in
-  Actions → Egypt Y-DNA TikTok review → Run workflow den Modus approve
-  und die Review-Issue-Nummer eingibt, werden die freigegebenen Grafiken
-  unter tiktok/approved/ veröffentlicht und als Buffer-**notification** eingeplant.
-- Buffer erinnert zur Veröffentlichung in TikTok; die passende Nasheed ist
-  **manuell in TikTok** aus rechtmäßig nutzbaren Tönen auszuwählen.
-  Es erfolgt keine direkte automatische Veröffentlichung ohne Musikfreigabe.
-- Zur Ablehnung ein Review-Issue schließen. Änderungen am Archivdatensatz nach
-  Generierung verhindern die alte Freigabe; dann ist eine neue Prüfung nötig.
+## Tatsächliche Quelle und Einschränkungen
 
-## Quellenstatus
+Zugriff auf die selbst von FTDNA und YFull betriebenen Tester-Datenbanken
+per automatischem Crawling ist derzeit **nicht** freigegeben:
+- [FTDNA ToS](https://www.familytreedna.com/legal/terms-of-service): Automatisiertes
+  Crawlen/Monitoring und systematisches Kopieren ist ohne entsprechende
+  Freigabe beschränkt.
+- [YFull robots.txt](https://www.yfull.com/robots.txt): Allgemeiner Crawl-Zugriff
+  ist gesperrt.
 
-Das bestehende Repository enthält bereits eine Synchronisation für den
-**offiziell CC-BY-4.0-lizenzierten YFullTeam/YTree-Baum** sowie getrennte
-**FTDNA-Länderzahlen**. Die Datei tiktok_bot/alerts.py erstellt daraus
-eigene Research-Alerts, wenn ein datierter neuer FTDNA-Gesamtstand oder eine
-tatsächliche YFull-Baumänderung erkannt wird. Es wird daraus **kein** neuer
-individueller ägyptischer Tester abgeleitet.
+Wir umgehen keine Sperren. Stattdessen liest der Bot die **datierten
+öffentlichen Auswertungen** von [ftdnastat für Ägypten]
+(https://ftdnastat.github.io/en/c/egypt/), veröffentlicht als statische
+Dateien auf GitHub:
 
-Der vorhandene FTDNA-Import untersagt selbst automatische Ergebnisabrufe
-ohne zusätzliche Anbieterfreigaben (siehe docs/QUELLENFREIGABE.md).
-Der YFull-GitHub-Baum enthält keine individuellen Herkunftsangaben.
-Daher ist derzeit **keine garantierte automatische Entdeckung aller neuen
-individuellen ägyptischen Proben direkt bei beiden Anbietern** möglich.
-Neue individuelle TikTok-Kandidaten stammen nur aus bereits rechtmäßig
-veröffentlichten und in das eigene Archiv übernommenen Ergebnissen.
+- `data/egypt.y.json` – FTDNA-Länder-Gesamtzahl, keine Testeridentitäten
+- `en/c/egypt/index.html` – YFull-Abschnitt „New Y-DNA samples in YFull“
+  mit Zweigbezeichnungen, sowie FTDNA/YFull Snapshot-Daten
+- `version.json` – Datumsabgleich der YFull-Veröffentlichung
 
-## Geheimnisse und Sicherheit
+Der Bot erkennt:
+- YFull-Zweige, die im **datierten Snapshot** als mit neuen Proben
+  versehen markiert sind; der eigentliche Tester und seine ID sind damit
+  **nicht** belegt.
+- Erhöhte oder verringerte FTDNA-Länder-Gesamtzahlen seit dem letzten
+  gespeicherten Snapshot; **keine** individuelle neue FTDNA-Kitnummer.
 
-Das Repository benötigt in Actions bereits:
-- SUPABASE_SERVICE_ROLE_KEY (aus dem vorhandenen Sync-Workflow)
-- BUFFER_API_KEY (vom Eigentümer hinzugefügt)
+Ein neuer Zweig ist nicht gleichbedeutend mit einer bestimmten neuen
+Person, und die Auswertung ist nicht in Echtzeit. Datum, Quelle,
+Unsicherheit und Art des Ereignisses stehen in jedem Issue.
 
-Beide bleiben GitHub Actions Secrets; nicht in Chats, Issues oder Code kopieren.
-GITHUB_TOKEN wird von GitHub bereitgestellt. Das Bot-Skript nimmt keinen
-beliebigen Supabase-Projekt-Endpunkt an und kann nicht automatisch in einem
-anderen TikTok-Kanal posten: bei mehreren verknüpften TikTok-Kanälen stoppt
-der Approval-Lauf sicher. Ein GitHub-Issue enthält keine Namen oder Kitnummern.
+## Review und Veröffentlichung
 
-Die Approve-Funktion ist auf den GitHub-Nutzer egyptydna beschränkt.
-Im Free-Plan von Buffer gelten Anbietergrenzen. Ein vom Anbieter oder von
-GitHub verzögerter Zeitplan wird nicht als Echtzeitüberwachung dargestellt.
+Bei einem relevanten externen Signal wird ein **GitHub-Issue
+[TikTok Source Review]** erstellt, mit SNP-Zweig, Datum und Quellen.
+Es werden nur einmal je datiertem YFull-Eintrag bzw. FTDNA-Snapshot
+Prüf-Issues angelegt. Der Prüfer verifiziert zuerst den originalen
+Tester-Nachweis. Die bloße Drittquellen-Auswertung reicht nicht
+für einen individuellen TikTok-Post.
 
-## Aktivierung
+Diese Ausbaustufe veröffentlicht **nichts** an Buffer oder TikTok. Die
+vorherige Archiv-basierte Scan-/Approve-Funktion wurde aus dem aktiven
+GitHub-Workflow entfernt. Die vorhandene Buffer-API-Secret bleibt
+unverändert für eine spätere freigegebene Posting-Stufe.
 
-1. Pull Request begutachten und zusammenführen.
-2. GitHub → Actions → Egypt Y-DNA TikTok review → Run workflow → scan
-   (oder nächsten planmäßigen Lauf abwarten).
-3. In GitHub → Issues einen neuen [TikTok Review]-Eintrag ansehen;
-   die Slides liegen unter dem im Issue angegebenen Actions-Artefakt.
-4. Nach fachlicher Prüfung Approve-Workflow mit Issue-Nummer starten.
-5. In Buffer/TikTok Nasheed auswählen und Beitrag fertigstellen.
+## Speicherung
 
-Die Grafiken sind ein neutrales funktionierendes Grundlayout, **keine exakte
-Reproduktion der früheren Karten- und YFull-Screenshot-Beiträge**. Für genaue
-Kartenrouten oder Branch-Darstellungen sind verifizierte räumliche oder
-phylogenetische Eingabedaten nötig.
+Der letzte externe Stand wird als kompakte JSON-Metadaten in
+`tiktok_bot/state/provider_watch.json` im Repository gespeichert.
+Es werden keine individuellen Profile oder vollständigen fremden
+Datenbanken übernommen. Ein fehlerhafter oder veralteter Upstream
+liefert eine Fehlermeldung statt eine Behauptung über neue Tests.

@@ -1,87 +1,36 @@
-name: Egypt Y-DNA TikTok review
+name: Egypt Y-DNA external source watch
 
 on:
   push:
     branches: [main]
     paths:
       - '.github/workflows/egypt-tiktok-review.yml'
-      - 'tiktok_bot/**'
+      - 'tiktok_bot/source_watch.py'
+      - 'tiktok_bot/test_source_watch.py'
   schedule:
     - cron: '17 6,18 * * *'
   workflow_dispatch:
-    inputs:
-      mode:
-        description: 'scan for new published Egypt archive entries, or approve one review'
-        required: true
-        type: choice
-        options:
-          - scan
-          - approve
-        default: scan
-      issue_number:
-        description: 'GitHub review issue number (approve mode only)'
-        required: false
-        type: number
 
 permissions:
-  contents: read
+  contents: write
   issues: write
 
 concurrency:
-  group: egypt-ydna-tiktok-review
+  group: egypt-ydna-external-source-watch
   cancel-in-progress: false
 
 jobs:
-  scan:
-    if: github.event_name == 'schedule' || inputs.mode != 'approve'
+  check-public-sources:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install image renderer
-        run: python -m pip install Pillow==11.3.0
-      - name: Verify bot safety rules
-        run: python -m unittest tiktok_bot.test_runner -v
-      - name: Generate candidate review issues and three-slide previews
+      - name: Test safe parsing and difference logic
+        run: python -m unittest tiktok_bot.test_source_watch -v
+      - name: Monitor dated external YFull and FTDNA Egypt snapshots
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: python -m tiktok_bot.runner scan
-      - name: Create separate FTDNA/YFull source-change research alerts
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: python -m tiktok_bot.alerts
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: egypt-ydna-tiktok-drafts
-          path: tiktok_reviews/
-          if-no-files-found: ignore
-          retention-days: 30
-
-  approve:
-    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'approve' && github.actor == 'egyptydna'
-    permissions:
-      contents: write
-      issues: write
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Install image renderer
-        run: python -m pip install Pillow==11.3.0
-      - name: Verify bot safety rules
-        run: python -m unittest tiktok_bot.test_runner -v
-      - name: Send human-approved content to Buffer for notification publishing
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
-        run: python -m tiktok_bot.runner approve --issue-number "${{ inputs.issue_number }}"
+        run: python -m tiktok_bot.source_watch
