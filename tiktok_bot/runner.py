@@ -196,6 +196,8 @@ def find_channel():
                   if str(x.get("service","")).lower() == "tiktok"]
     if len(found) != 1:
         raise RuntimeError(f"Expected exactly one TikTok channel; found {len(found)}")
+    if not re.search(r"egypt|ydna", str(found[0].get("name","")), re.I):
+        raise RuntimeError("TikTok channel identity was not recognized; review manually")
     return found[0]["id"]
 
 def approve(issue_number):
@@ -220,10 +222,18 @@ def approve(issue_number):
     urls = []
     for n in (1,2,3):
         pathname = f"tiktok/approved/{label(record)}/slide-{n}.png"
-        gh("PUT", f"/repos/{REPO}/contents/{pathname}", {
-            "message": f"Approved Egypt Y-DNA TikTok preview {label(record)} slide {n}",
-            "branch": "main",
-            "content": base64.b64encode((folder/f"slide-{n}.png").read_bytes()).decode("ascii")})
+        endpoint = f"/repos/{REPO}/contents/{pathname}"
+        try:
+            already = gh("GET", endpoint)
+        except RuntimeError as exc:
+            if "HTTP 404" not in str(exc):
+                raise
+            already = None
+        if not already:
+            gh("PUT", endpoint, {
+                "message": f"Approved Egypt Y-DNA TikTok preview {label(record)} slide {n}",
+                "branch": "main",
+                "content": base64.b64encode((folder/f"slide-{n}.png").read_bytes()).decode("ascii")})
         urls.append(f"https://raw.githubusercontent.com/{REPO}/main/{pathname}")
     mutation = """mutation CreatePost($input: CreatePostInput!) {
       createPost(input: $input) {
