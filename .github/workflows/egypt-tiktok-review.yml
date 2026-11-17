@@ -1,6 +1,11 @@
 name: Egypt Y-DNA TikTok review
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/egypt-tiktok-review.yml'
+      - 'tiktok_bot/**'
   schedule:
     - cron: '17 6,18 * * *'
   workflow_dispatch:
