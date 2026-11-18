@@ -7,6 +7,7 @@ let syncCountryCounts = [];
 async function loadSyncMetadata() {
   // Independent enrichment queries run together. A slow or unavailable
   // reference service must not block loading the public sample archive.
+  const ownerLineagesTask=loadOwnerLineages().catch(()=>{});
   const sampleById=new Map();
   for(const sample of modernSamples)for(const id of sample.__linked_sample_ids||[sample.id])
     sampleById.set(id,sample);
@@ -55,6 +56,7 @@ async function loadSyncMetadata() {
     syncCountryCounts=facts;
   })();
   await Promise.allSettled([runTask,observationTask,aliasesTask,countsTask,loadOfficialTree()]);
+  await ownerLineagesTask;
 }
 
 function resetSyncTreeFocus() {

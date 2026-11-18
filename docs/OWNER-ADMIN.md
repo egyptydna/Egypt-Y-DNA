@@ -11,6 +11,34 @@ Eine spätere Änderung benötigt einen ausdrücklichen Auftrag des Betreibers u
 eine kurze, einmalige Freigabe durch die Datenbankverwaltung. Neue Passwörter
 werden ausschließlich im geschützten Anmeldedienst eingegeben, nicht im Chat.
 
+- **Sortieren und Seiten:** Y-DNA, mtDNA, Name, Kennung oder Gouvernement wählen;
+  A → Z / Z → A und 30, 60, 120 oder 200 Einträge pro Seite. Die Sortierung erfolgt
+  vor der Seitenaufteilung. Zahlen werden natürlich sortiert und fehlende Angaben
+  stehen am Ende.
+- **Gleiche Haplogruppe:** Die Gruppenansicht zählt gespeicherte Einträge mit
+  derselben exakten Linie oder einer vom Betreiber bestätigten gleichwertigen
+  Bezeichnung. Die Gruppen können alle Kategorien oder die aktuellen Filter
+  umfassen. Der Zeilenknopf zeigt passende Einträge über alle Kategorien hinweg.
+  Eine gemeinsame Linie beweist keine gemeinsame Identität und vereinigt keine Personen.
+- **Filter und Prüfung:** FTDNA-Kitnummer, YFull-ID, beide oder keine dieser IDs;
+  fehlendes Gouvernement, fehlende Y-/mtDNA, exakte doppelte Kennungen und die
+  bestehenden 30-Tage-Neumarkierungen. „Filter zurücksetzen“ entfernt die Filter.
+- **Auswahl:** Bis zu 200 Einträge über Seiten hinweg auswählen. Für die Auswahl
+  lassen sich Gouvernement, Sichtbarkeit und Wiederherstellung gemeinsam ändern.
+  Ein Versionskonflikt wird pro Eintrag gemeldet. Änderungen bleiben im privaten
+  Verlauf wiederherstellbar. Die Auswahl oder aktuelle Seite kann als CSV exportiert
+  werden; Tabellenformeln aus Textfeldern werden als Text ausgegeben.
+- **Linien / SNP-Namen:** Zusätzliche gleichwertige Namen mit optionaler öffentlicher
+  Quelle und Erläuterung speichern. Diese Angaben erscheinen als Betreiberergänzung
+  im Proben-Popup, Stammbaum und der Suche. Die ursprünglichen Testergebnisse und
+  Quellenbezeichnungen werden dadurch nicht überschrieben. Namenskonflikte und
+  veraltete Bearbeitungsstände werden abgewiesen. Der Änderungsverlauf kann frühere
+  Alias-Zuordnungen wiederherstellen.
+- **FTDNA + YFull verknüpfen:** Zwei belegtermaßen identische Proben auswählen und
+  die Identität bestätigen. FTDNA-Kitnummer und YFull-ID werden getrennt gespeichert
+  und vor sowie nach der Zusammenführung angezeigt. Widersprüchliche Kennungen
+  werden nicht verworfen; die Zusammenführung wird zur Prüfung abgewiesen.
+
 - **Neue Probe:** Kategorie wählen, bekannte Angaben eintragen, Gouvernement
   auswählen und die Veröffentlichungsfreigabe bestätigen. Nicht bekannte
   genetische Felder dürfen leer bleiben. Bei Gouvernement-Karten gibt es nach

@@ -4,7 +4,7 @@ from urllib.parse import urlsplit
 from playwright.sync_api import sync_playwright
 
 SITE='https://egyptydna.github.io/Egypt-Y-DNA/'
-METADATA={'ydna_project_tracking_status','ydna_project_catalog','ydna_sync_tree_releases','ydna_sync_official_tree_nodes'}
+METADATA={'ydna_project_tracking_status','ydna_project_catalog','ydna_sync_tree_releases','ydna_sync_official_tree_nodes','ydna_owner_lineages'}
 def public_routes(route):
  u=urlsplit(route.request.url)
  if '.supabase.co' in u.netloc:
@@ -23,10 +23,12 @@ with sync_playwright() as p:
  errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
  for attempt in range(18):
   page.goto(SITE+'?verify='+os.environ.get('GITHUB_SHA','live'),wait_until='networkidle',timeout=120000)
-  if page.locator('script[src*="ydna-owner-tools.js"]').count():break
+  if page.locator('script[src*="ydna-owner-workbench.js"]').count():break
   page.wait_for_timeout(10000)
  else:raise AssertionError('Updated production HTML did not become available')
- page.wait_for_function("typeof YDNAOwnerTools==='object' && typeof YDNALineageLinks==='object' && typeof ownerCanManage==='function'")
+ page.wait_for_function("typeof YDNAOwnerTools==='object' && typeof YDNALineageLinks==='object' && typeof OwnerWorkbench==='object' && typeof YDNAOwnerLineages==='object' && typeof ownerCanManage==='function'")
+ for control in ('owner-sort','owner-groups','owner-lineages','owner-batch-gov','owner-ids'):
+  assert page.locator('#'+control).count()==1
  page.wait_for_selector('#nav-admin',state='attached')
  assert not page.locator('#nav-admin').is_visible()
  assert page.locator('#owner-register').count()==0

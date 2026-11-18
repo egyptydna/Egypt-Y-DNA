@@ -27,18 +27,20 @@
   <script src="ydna-profile-tools.js?v=20261105-owner6"></script>
   <script src="ydna-project-tracker.js?v=20261105-owner6"></script>
   <link rel="stylesheet" href="ydna-project-tracker.css">
-  <script src="ydna-sync-details.js?v=20261105-owner6"></script>
+  <script src="ydna-sync-details.js?v=20261118-workbench1"></script>
   <script src="ydna-official-tree.js?v=20261105-owner6"></script>
   <script src="ydna-lineage-links.js?v=20261105-provider7"></script>
   <script src="dna-tree-view.js?v=20261105-owner6"></script>
   <script src="dna-tree-integration.js?v=20261105-owner6"></script>
   <script src="ydna-country-tree.js?v=20261105-owner6"></script>
   <script src="ydna-country-tracker.js?v=20261105-owner6"></script>
-  <script src="ydna-uploaded-profiles.js?v=20261107-collected-archive"></script>
+  <script src="ydna-uploaded-profiles.js?v=20261118-workbench1"></script>
   <script src="dna-tree-workbench.js?v=20261105-owner6"></script>
   <script src="ydna-owner-tools.js?v=20261105-owner6"></script>
-  <script src="ydna-owner-admin.js?v=20261105-owner6"></script>
-  <link rel="stylesheet" href="ydna-owner-admin.css?v=20261105-owner6">
+  <script src="ydna-owner-lineages.js?v=20261118-workbench1"></script>
+  <script src="ydna-owner-admin.js?v=20261118-workbench1"></script>
+  <script src="ydna-owner-workbench.js?v=20261118-workbench1"></script>
+  <link rel="stylesheet" href="ydna-owner-admin.css?v=20261118-workbench1">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
@@ -4017,8 +4019,9 @@
     }
 
     function renderNodeAliases(node) {
-      if (currentTreeType === "mt" || !node || !Array.isArray(node.aliases) || !node.aliases.length) return "";
-      return node.aliases
+      if (!node) return "";
+      const aliases=[...new Set([...(node.aliases||[]),...YDNAOwnerLineages.names(node.display,currentTreeType)])];
+      return aliases
         .map(alias => `<span class="tree-alias-snp" title="Search alias SNP ${esc(alias)}" data-alias="${esc(alias)}" onclick="return searchTreeAlias(event.currentTarget.dataset.alias)">${esc(alias)}</span>`)
         .join("");
     }
@@ -4553,7 +4556,7 @@
       const fields = [
         s.name, s.kit_number, s.yfull_id, s.origin_raw, (s.__projects || []).join(" "), s.sample_id, s.governorate, s.country, s.region, s.site,
         s.period, s.study_reference, s.study_link, s.cultural_group,
-        s.y_dna, s.y_dna_alias, s.snp_path, s.full_snp_path,
+        s.y_dna, s.y_dna_alias, s.snp_path, s.full_snp_path, YDNAOwnerLineages.terms(s),
         s.mt_dna, s.full_mtDNA_path, s.description, s.ethnic_group
       ];
       return fields.some(f => sclean(f).includes(ql));
@@ -5073,7 +5076,7 @@
         if (suffix === queryClean || suffix.includes(queryClean)) return true;
       }
 
-      if (Array.isArray(node.aliases) && node.aliases.some(alias => {
+      if ([...(node.aliases||[]),...YDNAOwnerLineages.names(node.display,currentTreeType)].some(alias => {
         const a = sclean(alias);
         return a === queryClean || a.includes(queryClean);
       })) return true;
@@ -5882,6 +5885,7 @@
       sampleModalTreeType = dnaType === "mt" ? "mt" : "y";
       loadSyncDetails(sample);
       renderOfficialSampleInfo(sample);
+      let ownerInfo=document.getElementById('sample-owner-lineage');if(!ownerInfo){ownerInfo=document.createElement('div');ownerInfo.id='sample-owner-lineage';document.getElementById('sample-official-tree').before(ownerInfo);}ownerInfo.innerHTML=ownerLineageInfoHTML(sample,dnaType);
       samplePathMode = "direct";
 
       document.getElementById("sample-modal-name").textContent = YDNASync.displayName(sample);
@@ -6226,7 +6230,7 @@
       if (currentTreeType === "y") {
         samples = samples.filter(s => YDNASync.matches(s,
           document.getElementById('treeTestStatus').value,
-          document.getElementById('treeGovernorate').value, syncTextQuery, syncLatestStart));
+          document.getElementById('treeGovernorate').value, YDNAOwnerLineages.matches(s,syncTextQuery)?'':syncTextQuery, syncLatestStart));
       }
       return samples;
     }
@@ -6270,7 +6274,7 @@
       const q = document.getElementById("treeSearch").value.trim();
       if(searchCountryTree(q))return;
       syncTextQuery = "";
-      if (currentTreeType === "y" && q && allTreeSamples().some(s => YDNASync.matches(s, "", "", q, Infinity))) {
+      if (currentTreeType === "y" && q && allTreeSamples().some(s => YDNASync.matches(s, "", "", q, Infinity)||YDNAOwnerLineages.matches(s,q))) {
         syncTextQuery = q;
       }
       treeSearchQuery = q;

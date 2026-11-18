@@ -57,9 +57,66 @@ def owner_router(route):
   reply(route,[r for r in (modern if table=='Modern_published_samples' else collected) if r.get('owner_active',True)]);return
  route_handler(route)
 
+import re,unicodedata
+lineages=[]
+def branch(value,dna='y'):
+ key=str(value or '').upper()
+ return next((r['canonical_key'] for r in lineages if r['dna_type']==dna and r['owner_active'] and key in r['match_labels']),key)
+def bench_rows(o):
+ result=[]
+ kinds=['modern','collected'] if o.get('kind')=='all' else [o.get('kind','modern')]
+ for kind in kinds:
+  for row in rows_for(kind):
+   if o.get('visibility','active')!='all' and row.get('owner_active',True)!=(o.get('visibility','active')=='active'):continue
+   if o.get('governorate') and (row.get('governorate') or '—')!=o['governorate']:continue
+   dna=o.get('dna','y');label=row.get('mt_dna' if dna=='mt' else 'y_dna')
+   if o.get('haplogroup') and branch(label,dna)!=branch(o['haplogroup'],dna):continue
+   alias_terms=' '.join(' '.join(r['aliases']) for r in lineages if row.get('y_dna','').upper() in r['match_labels'])
+   if o.get('query') and o['query'].lower() not in (json.dumps(row,ensure_ascii=False)+' '+alias_terms).lower():continue
+   identities=[bool(row.get('kit_number') and not str(row['kit_number']).startswith('YF') and row['kit_number']!='—'),bool(row.get('yfull_id') or str(row.get('kit_number','')).startswith('YF'))]
+   f=o.get('ids','')
+   if (f=='both' and not all(identities)) or (f=='none' and any(identities)) or (f=='ftdna' and not identities[0]) or (f=='yfull' and not identities[1]):continue
+   if o.get('quality')=='unassigned' and row.get('governorate') not in (None,'','—'):continue
+   result.append(wrap(row,kind))
+ return result
+
+def workbench_router(route):
+ global versions
+ u=urlsplit(route.request.url);table=unquote(u.path.rsplit('/',1)[-1])
+ if table=='ydna_owner_lineages':reply(route,[r for r in lineages if r['owner_active']]);return
+ if '/rpc/' not in u.path or table not in ('ydna_editor_workbench','ydna_editor_groups','ydna_editor_lineages','ydna_editor_lineage_save','ydna_editor_batch'):owner_router(route);return
+ if not signed:reply(route,{'message':'Administrator sign-in required'},403);return
+ body=route.request.post_data_json or {};calls.append((table,body))
+ if table=='ydna_editor_workbench':
+  o=body['p_options'];selected=bench_rows(o);field=o.get('sort','y_dna')
+  def value(r):return next((str(r.get(f)) for f in (['name','sample_id','kit_number','yfull_id'] if field=='name' else ['kit_number','yfull_id','sample_id'] if field=='kit_number' else [field]) if r.get(f) not in (None,'','—','-')),'')
+  def natural(v):return tuple((0,int(x)) if x.isdigit() else (1,x.lower()) for x in re.split(r'(\d+)',v) if x)
+  selected=sorted([r for r in selected if value(r)],key=lambda r:natural(value(r)),reverse=o.get('descending',False))+[r for r in selected if not value(r)]
+  off=o.get('offset',0);limit=o.get('limit',60);reply(route,{'rows':selected[off:off+limit],'total':len(selected),'limit':limit});return
+ if table=='ydna_editor_groups':
+  o=dict(body['p_options']);o.pop('haplogroup',None);dna=o.get('dna','y');groups={}
+  for row in bench_rows(o):
+   label=row.get('mt_dna' if dna=='mt' else 'y_dna');key=branch(label,dna)
+   if not label or label=='—':continue
+   g=groups.setdefault(key,{'key':key,'label':label,'count':0,'kinds':[]});g['count']+=1
+   if row['__kind'] not in g['kinds']:g['kinds'].append(row['__kind'])
+  reply(route,{'groups':list(groups.values()),'dna':dna});return
+ if table=='ydna_editor_lineages':reply(route,lineages);return
+ if table=='ydna_editor_lineage_save':
+  versions+=1;r={'record_key':'c'*64,'dna_type':body['p_type'],'canonical_label':body['p_label'],'canonical_key':body['p_label'].upper(),'aliases':body['p_aliases'],'match_labels':[body['p_label'].upper()]+[v.upper() for v in body['p_aliases']],'source_url':body['p_url'],'note':body['p_note'],'owner_active':True,'owner_modified_at':now,'__version':'v'+str(versions)};lineages[:]=[r]
+  journal.append({'id':body['p_request'],'action':'create','kind':'lineage','record_key':r['record_key'],'reason':'Synthetic equivalent names','created_at':now,'undone_at':None});reply(route,{'kind':'lineage','key':r['record_key'],'data':r});return
+ if table=='ydna_editor_batch':
+  result=[]
+  for i,item in enumerate(body['p_items']):
+   r=next(r for r in rows_for(item['kind']) if str(r.get('record_key',r.get('id')))==item['key']);versions+=1;r['_version']=versions
+   if body['p_action']=='governorate':r['governorate']=body['p_value']
+   else:r['owner_active']=body['p_action']=='restore'
+   result.append({'row':i+1,'status':'saved'})
+  reply(route,{'saved':len(result),'failed':0,'rows':result});return
+
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path=os.environ.get('PLAYWRIGHT_CHROMIUM_EXECUTABLE','/usr/bin/chromium') or None,headless=True,args=['--no-sandbox'])
- page=b.new_page(viewport={'width':1440,'height':1000});page.route('**/*',owner_router);page.on('pageerror',lambda e:errors.append(str(e)))
+ page=b.new_page(viewport={'width':1440,'height':1000});page.route('**/*',workbench_router);page.on('pageerror',lambda e:errors.append(str(e)))
  page.goto('https://egyptydna.github.io/Egypt-Y-DNA/',wait_until='networkidle',timeout=120000)
  page.wait_for_function('modernSamples.length===2 && collectedSamples.length===1')
  assert page.locator('#stats-grid .region-card').count()==28
@@ -71,6 +128,21 @@ with sync_playwright() as p:
  page.locator('#owner-email').fill('owner@example.invalid');page.locator('#owner-password').fill('synthetic-password-only');page.locator('#owner-auth-form button[type=submit]').click()
  page.wait_for_selector('#owner-workspace:visible');page.wait_for_selector('#owner-rows [data-edit]')
  assert page.locator('#nav-admin').is_visible()
+ assert page.locator('#owner-sort').input_value()=='y_dna'
+ page.locator('#owner-direction').select_option('desc');page.wait_for_function("document.querySelector('#owner-rows tr').textContent.includes('Synthetic baseline')")
+ page.locator('#owner-direction').select_option('asc');page.locator('#owner-sort').select_option('name');page.wait_for_function("document.querySelector('#owner-rows tr').textContent.includes('Synthetic baseline')")
+ page.locator('#owner-direction').select_option('desc');page.wait_for_function("document.querySelector('#owner-rows tr').textContent.includes('Synthetic profile')")
+ page.locator('#owner-direction').select_option('asc');page.locator('#owner-sort').select_option('y_dna');page.wait_for_function("document.querySelector('#owner-rows tr').textContent.includes('Synthetic profile')")
+ page.locator('#owner-groups').click();page.locator('#owner-group-kind').select_option('all');page.wait_for_selector('[data-group="E-TEST1"]');page.locator('[data-group="E-TEST1"]').click();page.wait_for_function("document.querySelector('#owner-rows').querySelectorAll('tr').length===2")
+ assert page.locator('#owner-haplogroup').input_value()=='E-TEST1'
+ page.locator('#owner-reset-filters').click();page.locator('#owner-kind').select_option('modern');page.wait_for_function("document.querySelector('#owner-rows').querySelectorAll('tr').length===2")
+ page.locator('#owner-rows tr').filter(has_text='Synthetic profile').locator('[data-aliases]').click();page.locator('#owner-lineage-aliases').fill('E-ALTTEST');page.locator('#owner-lineage-url').fill('https://example.invalid/reference');page.locator('#owner-lineage-form [type=submit]').click();page.wait_for_function("document.querySelector('#owner-admin-status').textContent.includes('SNP-Namen dauerhaft')")
+ page.wait_for_function("YDNAOwnerLineages.names('E-TEST1').includes('E-ALTTEST')")
+ assert page.evaluate("matchSearchRow(modernSamples[0],'E-ALTTEST')")
+ page.locator('#owner-select-page').click();page.wait_for_function("document.querySelector('#owner-selected').textContent.includes('2 Proben')")
+ with page.expect_download() as download:page.locator('#owner-export-selected').click()
+ assert download.value.suggested_filename=='egypt-dna-auswahl.csv'
+ page.locator('#owner-batch-gov').click();page.locator('#owner-batch-form [name=governorate]').select_option('New Valley');page.locator('#owner-batch-form [name=reason]').fill('Synthetic regional review');page.locator('#owner-batch-form [type=submit]').click();page.wait_for_function("document.querySelector('#owner-batch-result').textContent.includes('2 gespeichert')");page.locator('#owner-editor-dialog .owner-dialog-close').click()
  page.locator('#owner-new').click();page.locator('#owner-editor-dialog [name=kit_number]').fill('990001');page.wait_for_function("document.querySelector('#owner-identity-check').textContent.includes('bereits vorhanden')");assert page.locator('#owner-identity-check button').count()==1;page.locator('#owner-identity-check button').click();page.wait_for_function("document.querySelector('#owner-save-form [name=kit_number]').value==='990001'");page.locator('#owner-save-form [type=checkbox]').check();page.locator('#owner-save-form [type=submit]').click();page.wait_for_selector('#owner-editor-dialog',state='hidden')
  row=page.locator('#owner-rows tr').filter(has_text='YF990002');row.locator('[data-edit]').click();assert page.locator('#owner-save-form [name=kit_number]').input_value()=='';assert page.locator('#owner-save-form [name=yfull_id]').input_value()=='YF990002';page.locator('#owner-save-form [type=checkbox]').check();page.locator('#owner-save-form [type=submit]').click();page.wait_for_selector('#owner-editor-dialog',state='hidden')
  page.locator('#owner-bulk').click();page.locator('#owner-import-text').fill('kit_number;name;y_dna;governorate\n990001;Existing;E-TEST1;Cairo\n990000910;Synthetic bulk participant;E-TEST1;Port Said\n990000910;Duplicate;E-TEST1;Port Said\n990000911;Invalid;E-TEST1;Invalid island');page.locator('#owner-import-form [type=submit]').click();page.wait_for_selector('[data-import-status=ready]');assert page.locator('[data-import-status=exists]').count()==1;assert page.locator('[data-import-status=duplicate]').count()==1;assert page.locator('[data-import-status=invalid]').count()==1
@@ -88,5 +160,5 @@ with sync_playwright() as p:
   page.set_viewport_size({'width':width,'height':900});assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1');page.screenshot(path=str(root/'reports'/f'owner-admin-{width}.png'))
  page.locator('#owner-signout').click();page.wait_for_selector('#owner-login:visible');assert not page.locator('#owner-workspace').is_visible();assert not page.locator('#nav-admin').is_visible()
  assert not errors,errors
- print(json.dumps({'ownerUI':'passed','privateNavigation':True,'bulkPreviewAndImport':True,'duplicateKitNotice':True,'loginAndSignout':True,'createEditRemoveRestoreMergeHistory':True,'all27GovernoratesAndUnassigned':True,'desktopAndMobile':True,'protectedRPCCalls':len(calls),'pageErrors':errors}))
+ print(json.dumps({'ownerUI':'passed','sortingGroupsAliasesBatchExport':True,'privateNavigation':True,'bulkPreviewAndImport':True,'duplicateKitNotice':True,'loginAndSignout':True,'createEditRemoveRestoreMergeHistory':True,'all27GovernoratesAndUnassigned':True,'desktopAndMobile':True,'protectedRPCCalls':len(calls),'pageErrors':errors}))
  b.close()
