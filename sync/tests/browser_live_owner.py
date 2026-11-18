@@ -23,11 +23,11 @@ with sync_playwright() as p:
  errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
  for attempt in range(18):
   page.goto(SITE+'?verify='+os.environ.get('GITHUB_SHA','live'),wait_until='networkidle',timeout=120000)
-  if page.locator('script[src*="ydna-owner-workbench.js"]').count():break
+  if page.locator('script[src*="ydna-owner-workbench.js?v=20261118-main-groups2"]').count():break
   page.wait_for_timeout(10000)
  else:raise AssertionError('Updated production HTML did not become available')
  page.wait_for_function("typeof YDNAOwnerTools==='object' && typeof YDNALineageLinks==='object' && typeof OwnerWorkbench==='object' && typeof YDNAOwnerLineages==='object' && typeof ownerCanManage==='function'")
- for control in ('owner-sort','owner-groups','owner-lineages','owner-batch-gov','owner-ids'):
+ for control in ('owner-sort','owner-main-group','owner-groups','owner-lineages','owner-batch-gov','owner-ids'):
   assert page.locator('#'+control).count()==1
  page.wait_for_selector('#nav-admin',state='attached')
  assert not page.locator('#nav-admin').is_visible()

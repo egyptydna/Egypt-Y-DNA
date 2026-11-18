@@ -68,6 +68,9 @@ def bench_rows(o):
  for kind in kinds:
   for row in rows_for(kind):
    if o.get('visibility','active')!='all' and row.get('owner_active',True)!=(o.get('visibility','active')=='active'):continue
+   # Fixed fixture classifications; actual lineage resolution is tested in SQL.
+   family={'E-TEST1':'E','J-TEST2':'J1'}.get(row.get('y_dna'))
+   if o.get('main_group') and family!=o['main_group']:continue
    if o.get('governorate') and (row.get('governorate') or '—')!=o['governorate']:continue
    dna=o.get('dna','y');label=row.get('mt_dna' if dna=='mt' else 'y_dna')
    if o.get('haplogroup') and branch(label,dna)!=branch(o['haplogroup'],dna):continue
@@ -129,6 +132,11 @@ with sync_playwright() as p:
  page.wait_for_selector('#owner-workspace:visible');page.wait_for_selector('#owner-rows [data-edit]')
  assert page.locator('#nav-admin').is_visible()
  assert page.locator('#owner-sort').input_value()=='y_dna'
+ assert set(page.locator('#owner-main-group option').evaluate_all('(nodes)=>nodes.map(n=>n.value)')) >= {'J1','J2','R1A','R1B','R2','E'}
+ page.locator('#owner-main-group').select_option('J1');page.wait_for_function("document.querySelector('#owner-rows').querySelectorAll('tr').length===1 && document.querySelector('#owner-rows').textContent.includes('Synthetic baseline')")
+ page.locator('#owner-main-group').select_option('J2');page.wait_for_function("document.querySelector('#owner-rows').textContent.includes('Keine passenden')")
+ page.locator('#owner-haplogroup').fill('J-TEST2');page.locator('#owner-main-group').select_option('E');page.wait_for_function("document.querySelector('#owner-rows').querySelectorAll('tr').length===1 && document.querySelector('#owner-rows').textContent.includes('Synthetic profile')");assert page.locator('#owner-haplogroup').input_value()==''
+ page.locator('#owner-reset-filters').click();page.wait_for_function("document.querySelector('#owner-rows').querySelectorAll('tr').length===2")
  page.locator('#owner-direction').select_option('desc');page.wait_for_function("document.querySelector('#owner-rows tr').textContent.includes('Synthetic baseline')")
  page.locator('#owner-direction').select_option('asc');page.locator('#owner-sort').select_option('name');page.wait_for_function("document.querySelector('#owner-rows tr').textContent.includes('Synthetic baseline')")
  page.locator('#owner-direction').select_option('desc');page.wait_for_function("document.querySelector('#owner-rows tr').textContent.includes('Synthetic profile')")

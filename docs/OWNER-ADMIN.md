@@ -15,6 +15,12 @@ werden ausschließlich im geschützten Anmeldedienst eingegeben, nicht im Chat.
   A → Z / Z → A und 30, 60, 120 oder 200 Einträge pro Seite. Die Sortierung erfolgt
   vor der Seitenaufteilung. Zahlen werden natürlich sortiert und fehlende Angaben
   stehen am Ende.
+- **Y-DNA-Hauptgruppe:** J1, J2, R1a, R1b, R2, E und weitere Hauptgruppen direkt
+  auswählen. Der Filter umfasst alle belegten Unterlinien und wird vor der
+  Seitenaufteilung auf alle passenden Einträge angewendet. J, Q und R umfassen
+  ihre Untergruppen. Nicht eindeutig zugeordnete oder widersprüchliche J-/Q-/R-
+  Linien werden keiner Untergruppe zugeschlagen. Die Auswahl lässt sich mit
+  Kategorie, Gouvernement, Suche und weiteren Filtern kombinieren.
 - **Gleiche Haplogruppe:** Die Gruppenansicht zählt gespeicherte Einträge mit
   derselben exakten Linie oder einer vom Betreiber bestätigten gleichwertigen
   Bezeichnung. Die Gruppen können alle Kategorien oder die aktuellen Filter
