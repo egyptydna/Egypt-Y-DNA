@@ -1,10 +1,10 @@
-name: Egypt Y-DNA Founder Mentions
+name: Egypt Y-DNA Founder Mentions and Emojis
 
 on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "preview checks Founder permission; apply enables @everyone/@here/all-role mentions for Founder only"
+        description: "preview checks; apply enables Founder-only @everyone/@here mentions and custom emoji management"
         type: choice
         required: true
         default: preview
@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   set-founder-mentions:
-    name: Grant Founder-only mention permission
+    name: Grant Founder-only mentions and expressions
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -28,7 +28,7 @@ jobs:
         run: python3 -m py_compile scripts/discord_founder_mentions.py
       - name: Test permission scope
         run: python3 -m unittest discover -s tests -p test_discord_founder_mentions.py -v
-      - name: Preview or apply mention permission
+      - name: Preview or apply mention and emoji permissions
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
