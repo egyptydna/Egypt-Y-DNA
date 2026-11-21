@@ -22,6 +22,7 @@ MODE = os.getenv("MODE", "preview").strip()
 BASE = "https://discord.com/api/v10"
 
 ADMINISTRATOR = 1 << 3
+MENTION_EVERYONE = 1 << 17  # @everyone, @here and otherwise unmentionable roles
 MANAGE_ROLES = 1 << 28
 CREATE_INVITE = 1 << 0
 KICK = 1 << 1
@@ -43,7 +44,7 @@ MODERATE_MEMBERS = 1 << 40
 
 # These deliberately exclude both ADMINISTRATOR and MANAGE_ROLES.
 POLICY = {
-    "Founder": (MANAGE_GUILD | MANAGE_CHANNELS | MANAGE_EVENTS |
+    "Founder": (MENTION_EVERYONE | MANAGE_GUILD | MANAGE_CHANNELS | MANAGE_EVENTS |
                 MANAGE_WEBHOOKS | MANAGE_GUILD_EXPRESSIONS |
                 BAN | KICK | MANAGE_MESSAGES | MANAGE_THREADS |
                 MODERATE_MEMBERS | VIEW_AUDIT_LOG | MANAGE_NICKNAMES),
