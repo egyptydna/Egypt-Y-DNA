@@ -1,0 +1,36 @@
+name: Egypt Y-DNA Founder Mentions
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "preview checks Founder permission; apply enables @everyone/@here/all-role mentions for Founder only"
+        type: choice
+        required: true
+        default: preview
+        options: [preview, apply]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: discord-founder-mention-permission
+  cancel-in-progress: false
+
+jobs:
+  set-founder-mentions:
+    name: Grant Founder-only mention permission
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Python
+        run: python3 -m py_compile scripts/discord_founder_mentions.py
+      - name: Test permission scope
+        run: python3 -m unittest discover -s tests -p test_discord_founder_mentions.py -v
+      - name: Preview or apply mention permission
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
+          MODE: ${{ inputs.mode }}
+        run: python3 -u scripts/discord_founder_mentions.py
