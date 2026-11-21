@@ -1,0 +1,43 @@
+name: Egypt Y-DNA Fix Everyone Mention Collision
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "preview checks role collision; apply renames existing E without deleting it"
+        required: true
+        type: choice
+        default: preview
+        options: [preview, apply]
+  # This one-time safe repair applies automatically on its initial merge to main.
+  push:
+    branches: [main]
+    paths:
+      - scripts/discord_fix_everyone_mention.py
+      - tests/test_discord_fix_everyone_mention.py
+      - .github/workflows/discord-fix-everyone-mention.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: egypt-ydna-fix-everyone-mention
+  cancel-in-progress: false
+
+jobs:
+  fix-mentions:
+    name: Safely rename the legacy E role that collides with @everyone
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Python
+        run: python3 -m py_compile scripts/discord_fix_everyone_mention.py
+      - name: Test no role loss and safe idempotent rename
+        run: python3 -m unittest discover -s tests -p test_discord_fix_everyone_mention.py -v
+      - name: Apply narrow rename after successful tests
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
+          MODE: ${{ inputs.mode || 'apply' }}
+        run: python3 -u scripts/discord_fix_everyone_mention.py
