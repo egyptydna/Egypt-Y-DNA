@@ -1,4 +1,4 @@
-"""Offline tests for the Founder-only mention permission workflow."""
+"""Offline tests for Founder-only mentions and emoji management."""
 import unittest
 import sys
 from pathlib import Path
@@ -61,11 +61,11 @@ class MentionTests(unittest.TestCase):
         self.assertEqual(writes[0][1], f"/guilds/{GID}/roles/{FOUNDER}")
         self.assertEqual(
             int(writes[0][2]["permissions"]),
-            (1 << 4) | script.MENTION_EVERYONE
+            (1 << 4) | script.FOUNDER_ADDITIONS
         )
 
     def test_idempotent(self):
-        self.founder_permissions |= script.MENTION_EVERYONE
+        self.founder_permissions |= script.FOUNDER_ADDITIONS
         self.run_worker("apply")
         self.assertFalse([call for call in self.calls if call[0] != "GET"])
 
