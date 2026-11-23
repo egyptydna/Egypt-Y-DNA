@@ -87,7 +87,7 @@ def main():
     member = by_name.get("verified")
     if not member:
         raise RuntimeError(
-            "[BLOCKER] Verified role is missing. Run Rules Emoji Verification "
+            "[BLOCKER] Verified role is missing. Run Automatic Join Verification "
             "Setup before assigning role-picker roles."
         )
     if int(member.get("position", 0)) >= our_position:
