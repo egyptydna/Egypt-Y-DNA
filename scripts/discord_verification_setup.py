@@ -8,9 +8,9 @@ Default preview is read-only. Apply:
 - keeps all normal channels Verified-only and all STAFF channels staff-only,
 - retains role-picker access and Carl-bot's designated channel exception.
 
-The scheduled worker assigns Verified only after a member reacts ✅ to
-the existing bot-authored official #rules post. No native Discord popup or
-manual staff approval is required. The STAFF category remains private.
+The scheduled worker assigns the neutral Verified role to human members
+automatically using the member list or Discord native join notices. No ✅
+reaction or staff approval is required. The STAFF category remains private.
 """
 import json
 import os
@@ -50,12 +50,13 @@ READ_ONLY = {
 }
 WELCOME_PROMPT = (
     "👋 **EGYPT Y-DNA — WELCOME**\n"
-    "Read #rules and react with ✅ below the OFFICIAL rules message.\n"
-    "The bot will automatically assign **Verified** after its next "
-    "scheduled check (usually within a few minutes). No moderator "
-    "approval or native rules popup is required.\n"
-    "After verification, all public community, origin and Y-DNA channels "
-    "become visible. The STAFF category remains private."
+    "Welcome to the Egypt Y-DNA community!\n"
+    "✅ **You are automatically granted the Verified role** after joining. "
+    "No emoji reaction, application, or moderator approval is needed. "
+    "The bot checks new arrivals periodically, so access may take some time.\n"
+    "Please read #rules. Once the role is applied, you can explore the "
+    "community and choose your origin and Y-DNA roles in #choose-roles. "
+    "Private STAFF channels remain restricted to staff."
 )
 
 def api(method, path, data=None):
