@@ -6,6 +6,9 @@ on:
     branches: [main]
     paths:
       - scripts/discord_member_verification.py
+      - scripts/discord_auto_verification_notices.py
+      - scripts/discord_rules_cleanup.py
+      - scripts/discord_verification_setup.py
       - tests/test_discord_auto_verification.py
       - .github/workflows/discord-member-verification.yml
   schedule:
@@ -28,7 +31,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Check worker syntax
-        run: python3 -m py_compile scripts/discord_member_verification.py scripts/discord_bot_roles.py
+        run: python3 -m py_compile scripts/discord_member_verification.py scripts/discord_bot_roles.py scripts/discord_auto_verification_notices.py
       - name: Test automatic verification and safe member filtering
         run: python3 -m unittest discover -s tests -p test_discord_auto_verification.py -v
       - name: Grant Verified without requiring a rules reaction
@@ -36,6 +39,12 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
         run: python3 -u scripts/discord_member_verification.py
+      - name: Update existing welcome and rules messages for automatic access
+        if: success()
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
+        run: python3 -u scripts/discord_auto_verification_notices.py
       - name: Automatically label bot accounts
         if: success()
         env:
