@@ -1,7 +1,4 @@
-"""Offline tests for opt-in ✅ rules reaction → Verified role.
-
-These tests require no Discord token and make no network calls.
-"""
+"""Offline tests: automatically Verified on join, no reaction required."""
 import sys
 import unittest
 from pathlib import Path
@@ -12,10 +9,9 @@ import discord_member_verification as worker
 
 GUILD = "1568675059894194239"
 BOT = "12345"
-RULES_CHANNEL = "555888"
-RULES_MESSAGE = "999777"
 VERIFIED = "67890"
 BOT_ROLE = "55555"
+JOIN_CHANNEL = "1568675061039370335"
 ROLES = [
     {"id": GUILD, "name": "@everyone", "position": 0, "permissions": "0"},
     {"id": VERIFIED, "name": "Verified", "position": 4, "permissions": "0"},
@@ -23,108 +19,149 @@ ROLES = [
      "permissions": str(1 << 28)},
 ]
 
-class ReactionVerificationTests(unittest.TestCase):
+
+class AutoVerificationTests(unittest.TestCase):
     def setUp(self):
         self.writes = []
-        self.reactors = []
-        self.members = {}
-        self.rules_message = {
-            "id": RULES_MESSAGE,
-            "author": {"id": BOT, "bot": True},
-            "content": worker.RULE_MARKER + "\nRead all ten rules.",
-            "reactions": [{"emoji": {"name": "✅"}, "count": 2}],
+        self.full_list = None
+        self.roles = [dict(role) for role in ROLES]
+        self.members = {
+            BOT: {"user": {"id": BOT, "bot": True}, "roles": [BOT_ROLE]}
         }
+        self.messages = []
+        self.flags = 6  # native join notices enabled; boost/tip notices suppressed
 
-    def fake_api(self, method, path, data=None, allow_404=False):
+    def fake_api(self, method, path, data=None, allow_404=False, allow_403=False):
         if method == "PUT":
             self.writes.append(path)
             return None
+        if method != "GET":
+            raise AssertionError(f"Unexpected write: {method} {path}")
         if path == f"/guilds/{GUILD}":
-            return {"name": "Egypt Y-DNA", "rules_channel_id": RULES_CHANNEL}
+            return {
+                "id": GUILD, "name": "Egypt Y-DNA",
+                "system_channel_id": JOIN_CHANNEL,
+                "system_channel_flags": self.flags,
+            }
         if path == f"/guilds/{GUILD}/roles":
-            return ROLES
+            return self.roles
         if path == "/users/@me":
             return {"id": BOT, "bot": True}
         if path == f"/guilds/{GUILD}/members/{BOT}":
-            return {"roles": [BOT_ROLE]}
+            return self.members[BOT]
+        if path == f"/guilds/{GUILD}/members?limit=1000":
+            if self.full_list is None:
+                self.assertTrue(allow_403)
+            return self.full_list
         if path == f"/guilds/{GUILD}/channels":
-            return [{"id": RULES_CHANNEL, "type": 0, "name": "rules"}]
-        if path == f"/channels/{RULES_CHANNEL}/messages?limit=100":
-            return [self.rules_message] if self.rules_message else []
-        if path.startswith(f"/channels/{RULES_CHANNEL}/messages/{RULES_MESSAGE}/reactions/"):
-            return self.reactors
+            return [{"id": JOIN_CHANNEL, "type": 0, "name": "🚪・in"}]
+        if path == f"/channels/{JOIN_CHANNEL}/messages?limit=100":
+            return self.messages
         if path.startswith(f"/guilds/{GUILD}/members/"):
-            user = path.rsplit("/", 1)[1]
-            if user in self.members:
-                return self.members[user]
+            uid = path.rsplit("/", 1)[-1]
+            if uid in self.members:
+                return self.members[uid]
             if allow_404:
                 return None
-        raise AssertionError(f"Unexpected API request: {method} {path}")
+        raise AssertionError(f"Unexpected API: {method} {path}")
 
-    def run_worker(self):
+    def run_main(self):
         with patch.object(worker, "GUILD", GUILD), \
-             patch.object(worker, "TOKEN", "example-not-a-secret"), \
+             patch.object(worker, "TOKEN", "mock-only"), \
              patch.object(worker, "api", side_effect=self.fake_api):
             worker.main()
 
-    def test_reaction_verifies_only_human_clicker(self):
-        self.reactors = [
-            {"id": "1", "bot": False},
-            {"id": BOT, "bot": True},
-            {"id": "2", "bot": False},
-            {"id": "3", "bot": False},
-            {"id": "4", "bot": False},
+    def join(self, uid, *, bot=False):
+        self.messages.append({
+            "id": str(1000000000000000000 - len(self.messages)),
+            "type": 7,
+            "author": {"id": str(uid), "bot": bot},
+        })
+
+    def test_new_join_gets_verified_without_reaction(self):
+        self.join("100")
+        self.members["100"] = {
+            "user": {"id": "100", "bot": False}, "roles": []
+        }
+        self.run_main()
+        self.assertEqual(
+            self.writes, [f"/guilds/{GUILD}/members/100/roles/{VERIFIED}"]
+        )
+
+    def test_join_fallback_skips_bots_and_left_users(self):
+        self.join("100")
+        self.join("101", bot=True)
+        self.join("102")
+        self.members["100"] = {
+            "user": {"id": "100", "bot": False}, "roles": []
+        }
+        self.run_main()
+        self.assertEqual(
+            self.writes, [f"/guilds/{GUILD}/members/100/roles/{VERIFIED}"]
+        )
+
+    def test_member_listing_assigns_unverified_without_emoji(self):
+        self.full_list = [
+            {"user": {"id": "100", "bot": False}, "roles": []},
+            {"user": {"id": "101", "bot": True}, "roles": []},
+            {"user": {"id": "102", "bot": False}, "roles": [VERIFIED]},
         ]
-        self.members = {
-            "1": {"roles": [], "pending": False, "user": {"bot": False}},
-            "2": {"roles": [], "pending": True, "user": {"bot": False}},
-            "3": {"roles": [VERIFIED], "pending": False, "user": {"bot": False}},
-            "4": {"roles": [], "pending": False, "user": {"bot": True}},
-        }
-        self.run_worker()
+        self.run_main()
         self.assertEqual(
-            self.writes, [f"/guilds/{GUILD}/members/1/roles/{VERIFIED}"]
+            self.writes, [f"/guilds/{GUILD}/members/100/roles/{VERIFIED}"]
         )
 
-    def test_just_joining_never_verifies(self):
-        self.members = {
-            "1": {"roles": [], "pending": False, "user": {"bot": False}}
+    def test_existing_verified_unchanged(self):
+        self.join("100")
+        self.members["100"] = {
+            "user": {"id": "100", "bot": False}, "roles": [VERIFIED]
         }
-        self.run_worker()
+        self.run_main()
         self.assertEqual(self.writes, [])
 
-    def test_missing_rules_post_fails_closed(self):
-        self.rules_message = None
-        with self.assertRaisesRegex(RuntimeError, "No official bot-authored"):
-            self.run_worker()
-        self.assertEqual(self.writes, [])
-
-    def test_no_seeded_emoji_fails_closed(self):
-        self.rules_message["reactions"] = []
-        with self.assertRaisesRegex(RuntimeError, "No ✅"):
-            self.run_worker()
-        self.assertEqual(self.writes, [])
-
-    def test_member_left_server_does_not_verify(self):
-        self.reactors = [{"id": "5", "bot": False}]
-        self.run_worker()
-        self.assertEqual(self.writes, [])
-
-    def test_missing_optional_pending_is_not_blocked(self):
-        self.reactors = [{"id": "1", "bot": False}]
-        self.members["1"] = {"roles": [], "user": {"bot": False}}
-        self.run_worker()
+    def test_pending_member_can_get_role_but_native_screening_remains(self):
+        self.join("100")
+        self.members["100"] = {
+            "user": {"id": "100", "bot": False}, "roles": [],
+            "pending": True,
+        }
+        self.run_main()
         self.assertEqual(
-            self.writes, [f"/guilds/{GUILD}/members/1/roles/{VERIFIED}"]
+            self.writes, [f"/guilds/{GUILD}/members/100/roles/{VERIFIED}"]
         )
 
-    def test_existing_verified_is_idempotent(self):
-        self.reactors = [{"id": "1", "bot": False}]
-        self.members["1"] = {
-            "roles": [VERIFIED], "user": {"bot": False}, "pending": False
-        }
-        self.run_worker()
+    def test_missing_join_notices_fails_instead_of_false_success(self):
+        with self.assertRaisesRegex(RuntimeError, "No native join notices"):
+            self.run_main()
         self.assertEqual(self.writes, [])
+
+    def test_disabled_join_notices_fails(self):
+        self.flags = 7
+        with self.assertRaisesRegex(RuntimeError, "announcements are disabled"):
+            self.run_main()
+        self.assertEqual(self.writes, [])
+
+    def test_invalid_role_hierarchy_fails_without_writes(self):
+        self.roles[1]["position"] = 9
+        with self.assertRaisesRegex(RuntimeError, "role hierarchy"):
+            self.run_main()
+        self.assertEqual(self.writes, [])
+
+    def test_privileged_verified_role_fails_without_writes(self):
+        self.roles[1]["permissions"] = str(1 << 2)
+        with self.assertRaisesRegex(RuntimeError, "nonzero server-wide"):
+            self.run_main()
+        self.assertEqual(self.writes, [])
+
+    def test_duplicate_join_messages_only_assign_once(self):
+        self.join("100")
+        self.join("100")
+        self.members["100"] = {
+            "user": {"id": "100", "bot": False}, "roles": []
+        }
+        self.run_main()
+        self.assertEqual(len(self.writes), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
