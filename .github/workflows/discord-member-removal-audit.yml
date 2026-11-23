@@ -1,0 +1,31 @@
+name: Egypt Y-DNA Member Removal Audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/discord_member_removal_audit.py
+      - .github/workflows/discord-member-removal-audit.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: egypt-ydna-readonly-member-audit
+  cancel-in-progress: false
+
+jobs:
+  member-audit:
+    name: Read Discord kick, prune and ban audit log
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax check
+        run: python3 -m py_compile scripts/discord_member_removal_audit.py
+      - name: Audit last 7 days without exposing member data
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
+        run: python3 -u scripts/discord_member_removal_audit.py
