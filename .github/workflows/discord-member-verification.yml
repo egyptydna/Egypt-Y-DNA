@@ -1,4 +1,4 @@
-name: Egypt Y-DNA Rules Emoji Verification
+name: Egypt Y-DNA Auto Verification
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
       - tests/test_discord_auto_verification.py
       - .github/workflows/discord-member-verification.yml
   schedule:
-    # Every 5 minutes, offset from the top of the hour to reduce congestion.
+    # Request checks every 5 minutes; GitHub may significantly delay cron jobs.
     - cron: "3-59/5 * * * *"
 
 permissions:
@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   verify-members:
-    name: Verified only after ✅ reaction to official rules
+    name: Automatically grant Verified to joined members
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -29,9 +29,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Check worker syntax
         run: python3 -m py_compile scripts/discord_member_verification.py scripts/discord_bot_roles.py
-      - name: Test rule reaction gate (never verify on join alone)
+      - name: Test automatic verification and safe member filtering
         run: python3 -m unittest discover -s tests -p test_discord_auto_verification.py -v
-      - name: Assign Verified to members who clicked ✅ on #rules
+      - name: Grant Verified without requiring a rules reaction
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
