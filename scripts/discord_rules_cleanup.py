@@ -35,9 +35,10 @@ RULES_TEXT = (
     "**9. Everyone is welcome.** Treat all nationalities, backgrounds and lineages fairly.\n"
     "**10. Follow staff instructions.** Serious or repeated violations may lead to "
     "timeouts or removal.\n\n"
-    "✅ **To access the community:** Read these rules, then react with ✅ "
-    "to THIS message. Your **Verified** role is granted automatically by our "
-    "bot after its next scheduled check. No moderator approval or Discord popup."
+    "✅ **Automatic access:** New human members receive the **Verified** "
+    "role automatically after joining, with no emoji reaction and no "
+    "moderator approval. The bot checks periodically, so access may take "
+    "some time. Please read and respect these rules."
 )
 MARKER = "**EGYPT Y-DNA — OFFICIAL SERVER RULES**"
 DUPLICATE_NAMES = {"rules", "📝rules", "📜rules", "📋rules", "rules-and-guidelines"}
@@ -134,24 +135,24 @@ def main():
         if our_post.get("content")!=RULES_TEXT:
             apply("PATCH",f"/channels/{official['id']}/messages/{our_post['id']}",
                   {"content":RULES_TEXT,"allowed_mentions":{"parse":[]}},
-                  "Update official rules and instruct members to react ✅")
+                  "Update official rules to explain automatic join access")
         else:
             print("[EXISTS] Official rules already posted")
         target_id = str(our_post["id"])
     else:
         created = apply("POST",f"/channels/{official['id']}/messages",
               {"content":RULES_TEXT,"allowed_mentions":{"parse":[]}},
-              "Post complete English rules with ✅ verification instructions")
+              "Post complete English rules with automatic access instructions")
         target_id = str(created["id"]) if created else None
     if target_id:
         from urllib.parse import quote
-        # Adding a reaction makes the emoji discoverable, but the member must
-        # explicitly click it. No one is verified merely for joining.
+        # Keep the legacy checkmark available as an optional acknowledgment.
+        # It is NOT required for Verified; role granting is now join-based.
         reaction_path=(f"/channels/{official['id']}/messages/{target_id}"
                        f"/reactions/{quote('✅',safe='')}/@me")
         # PUT is safe even when the bot has already reacted.
         apply("PUT",reaction_path,None,
-              "Add ✅ below the official rules for opt-in Verified role")
+              "Keep optional ✅ acknowledgment (not needed for automatic Verified)")
     else:
         print("[PREVIEW] Seed ✅ reaction on the canonical rules post")
 
