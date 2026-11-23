@@ -1,21 +1,25 @@
-# Aktueller Stand (November 2026): ✅ auf #rules = Verified
+# Aktueller Stand (23. November 2026): Jeder neue menschliche Beitritt erhält automatisch Verified
 
-**Kein Discord-Popup, keine manuelle Moderatorprüfung, keine automatische Freigabe allein durch Beitritt.**
+**KEINE ✅-Pflicht, KEINE Moderatorfreigabe und KEINE separate Anmeldung.**
+Alle normalen Community-Kanäle bleiben über die neutrale Rolle `Verified` geschützt. STAFF bleibt privat; Bot-Konten werden nicht automatisch Verified.
 
-So funktioniert Egypt Y-DNA ab jetzt:
+1. Der normale Discord-Join-Kanal `🚪・in` enthält Discords native System-Nachrichten (`type=7`) für neue Nutzer.
+2. Der [Auto Verification Workflow](https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-member-verification.yml) läuft automatisch nach GitHub-Zeitplan und bei Codeänderungen. Er versucht zuerst die vollständige Discord-Mitgliederliste abzurufen. Ist der privilegierte **Server Members Intent** deaktiviert, prüft er als Fallback die vorhandenen nativen Join-Systemmeldungen und ruft die Mitglieder einzeln ab.
+3. Alle menschlichen Mitglieder ohne `Verified` erhalten die Rolle automatisch. Alle anderen bereits vorhandenen Rollen bleiben unverändert. Es wird niemand gekickt, gebannt oder wegen fehlender Reaktion entfernt.
+4. Der Worker aktualisiert den vorhandenen offiziellen `#rules`-Post und die `#welcome`-Nachricht ohne neue Verifizierungshürde; niemand muss mehr auf ✅ drücken.
+5. Der [Role Self-Selection Workflow](https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-role-selection.yml) übernimmt wie bisher optionale Herkunfts-/Y-DNA-/Geschlechtsrollen.
 
-1. Ein Mitglied tritt dem Discord-Server bei. Es sieht #welcome und den bestehenden offiziellen #rules-Textkanal.
-2. Das Mitglied liest die 10 englischen Regeln.
-3. Es reagiert **mit ✅ direkt unter der offiziellen Bot-Nachricht „EGYPT Y-DNA — OFFICIAL SERVER RULES“**. Das Häkchen unter der Nachricht wird einmalig vom eigenen Egypt YDNA Bot als Reaktion hinzugefügt und kann dann von jedem neuen Mitglied angeklickt werden.
-4. Der kostenlose GitHub-Workflow [Rules Emoji Verification](https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-member-verification.yml) prüft in Intervallen von rund fünf Minuten die tatsächlichen ✅-Reaktionen. **Nur** die reagierenden menschlichen Servermitglieder bekommen `Verified`, sofern sie nicht durch ein eventuell noch aktives natives Screening blockiert sind.
-5. Anschließend werden alle normalen Community-/Y-DNA-/Ressourcenkanäle sichtbar. **STAFF** bleibt ausschließlich Founder/Administrator/Moderator vorbehalten.
+**Echte Laufzeitbeschränkung:** GitHub Actions kann geplante Fünf-Minuten-Checks stark verzögern. Für eine wirklich sofortige Rollenzuweisung direkt beim Beitritt ist z. B. die **Autoroles**-Funktion des bereits verwendeten Carl-bot (https://carl.gg/dashboard) geeignet; dessen Bot-Rolle muss über `Verified` stehen und `Manage Roles` besitzen. Die Autorole muss in Carl-bot eingerichtet werden, sie wird durch GitHub allein nicht konfiguriert.
 
-**Jetzt den bestehenden Server konfigurieren:**
-[Rules Emoji Verification Setup](https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-verification-setup.yml) → **Run workflow → preview → neuen Lauf mit apply starten**. Der Setup-Workflow verwendet den bestehenden offiziellen #rules-Kanal, passt den Nachrichtentext an, fügt die ✅-Reaktion hinzu und erteilt unverifizierten Mitgliedern dort **Add Reactions**, aber keine Schreibrechte.
+**Wichtig:** Der Bot hat beim letzten echten Test keinen Zugriff auf `GET /guilds/{guild}/members`, weil der privilegierte Members Intent nicht verfügbar ist. Für lückenlose Erfassung auch ohne Beitrittsmeldungen den eigenen Discord-Bot im [Developer Portal](https://discord.com/developers/applications) öffnen und unter **Bot → Privileged Gateway Intents → Server Members Intent** aktivieren. Der Fallback über `🚪・in` wurde live getestet, ist aber nicht garantiert vollständig. Aktiviertes natives Membership Screening von Discord kann eine separate, durch die Rollenvergabe nicht überspringbare Pflicht darstellen.
 
-**Fehlerdiagnose:** Reaktionsvergabe geschieht nicht sofort, weil GitHub Actions nur periodisch läuft und gelegentlich verzögert startet. Im [Rules Emoji Verification](https://github.com/egyptydna/Egypt-Y-DNA/actions/workflows/discord-member-verification.yml) Workflow findest du `[SUMMARY]` mit `reactions`, `newly_verified` und `errors`. Für einen Sofort-Test kann der Workflow manuell unter `Run workflow` gestartet werden. Bei fehlendem `✅` oder fehlender Regelnachricht schlägt der Worker bewusst fehl, statt Mitglieder ohne Zustimmung zu verifizieren.
+**Live-Prüfung:** [Erfolgreicher GitHub-Workflow am 23.11.2026](https://github.com/egyptydna/Egypt-Y-DNA/actions/runs/45127143527) – 39 Beitrittsmeldungen, 32 noch anwesende Mitglieder mit Verified, 7 bereits ausgetreten, 0 Fehler. `#welcome` und `#rules` wurden dabei auf automatische Vergabe aktualisiert.
 
-**Wichtig zu bestehenden Rollen:** Bereits früher vergebene Verified-Rollen werden nicht automatisch entzogen, um bestehende Mitgliedschaften nicht versehentlich zu sperren. Dieser neue Ablauf gilt für künftige Rollenvergaben. Ältere Kapitel dieses Dokuments, die automatische Verified-Vergabe beim bloßen Beitritt, Discords native Regel-Checkbox oder eine Staff-✅ beschreiben, sind veraltet.
+---
+
+## Historische Informationen aus älteren Verifizierungsabläufen
+
+Ältere Anleitungen weiter unten sind nur als Verlauf erhalten. Wenn sie eine ✅-Pflicht, manuelle Freigabe oder Discord Rules Screening für Verified voraussetzen, gelten sie **nicht mehr**. Maßgeblich ist ausschließlich der obige Stand.
 
 ---
 
